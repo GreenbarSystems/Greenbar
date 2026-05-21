@@ -659,7 +659,8 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
 .badge-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
 .badge-tile { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:10px 8px; text-align:center; }
 .badge-tile.badge-locked { opacity:0.45; }
-.badge-icon { font-size:22px; margin-bottom:5px; }
+.badge-icon { width:26px; height:26px; margin:0 auto 6px; filter:drop-shadow(0 0 3px currentColor) drop-shadow(0 0 6px currentColor); }
+.badge-icon svg { width:100%; height:100%; display:block; }
 .badge-name { font-size:11px; font-weight:800; color:var(--soft); line-height:1.2; margin-bottom:3px; }
 .badge-desc { font-size:9px; color:var(--muted); line-height:1.4; }
 .badge-prog { width:100%; height:4px; background:rgba(255,255,255,0.08); border-radius:3px; margin-top:6px; overflow:hidden; }
@@ -713,7 +714,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
     </div>
     <div class="hdr-right">
       <button id="hdr-import-btn" class="fab" onclick="document.getElementById('csv-input').click()" style="opacity:0;pointer-events:none;width:auto;padding:0 16px;font-size:13px;font-weight:800;font-family:var(--font-display);letter-spacing:0.3px;color:#050a14;background:linear-gradient(135deg,#00d68f,#00c9b1);box-shadow:0 4px 16px rgba(0,214,143,0.4);opacity:0;pointer-events:none;transition:opacity 0.6s ease;">Import</button>
-      <input type="file" id="csv-input" accept=".csv" multiple onchange="handleFiles(this.files)">
+      <input type="file" id="csv-input" accept=".csv,.tsv,.txt" multiple onchange="handleFiles(this.files)">
     </div>
   </div>
 
@@ -748,12 +749,12 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
 
     <!-- BUDGET -->
     <div class="screen" id="screen-budget">
-      <div id="budget-content"><div class="empty"><p>Import a CSV to see budget vs actual</p></div></div>
+      <div id="budget-content"><div class="empty"><p>Import your Bank Transactions to see budget vs actual</p></div></div>
     </div>
 
     <!-- TRANSACTIONS -->
     <div class="screen" id="screen-txs">
-      <div id="txs-content"><div class="empty"><p>Import a CSV to browse transactions</p></div></div>
+      <div id="txs-content"><div class="empty"><p>Import your Bank Transactions to browse them</p></div></div>
     </div>
 
     <!-- INTRO / GUIDE -->
@@ -764,7 +765,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
         <div style="text-align:center;padding:28px 20px 22px;background:linear-gradient(155deg,rgba(0,214,143,0.07),rgba(41,121,255,0.05));border:1px solid rgba(0,214,143,0.15);border-radius:24px;margin-bottom:14px;position:relative;overflow:hidden;">
           <div style="position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:200px;height:140px;background:radial-gradient(ellipse,rgba(0,214,143,0.10) 0%,transparent 70%);pointer-events:none;"></div>
           <div style="font-family: var(--font-display);font-size:36px;font-weight:900;letter-spacing:-1.5px;margin-bottom:6px;"><span style="color:#00d68f;">Green</span>bar</div>
-          <div style="font-size:13px;color:var(--soft);line-height:1.6;margin-bottom:18px;">Personal finance tracking that stays on your device.<br>Import your bank CSV -- insights in seconds.</div>
+          <div style="font-size:13px;color:var(--soft);line-height:1.6;margin-bottom:18px;">Personal finance tracking that stays on your device.<br>Import your Bank Transactions -- insights in seconds.</div>
 
         </div>
 
@@ -775,16 +776,16 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
           <div style="display:flex;gap:14px;padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);">
             <div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#00d68f,#00c9b1);display:flex;align-items:center;justify-content:center;font-family: var(--font-display);font-size:15px;font-weight:900;color:#050a14;flex-shrink:0;">1</div>
             <div>
-              <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Configure Settings (optional)</div>
-              <div style="font-size:12px;color:var(--muted);line-height:1.6;">Before importing, open Settings to set your monthly budget targets, add custom category rules, and map your bank's CSV column names if needed.</div>
+              <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Adjust Settings (optional)</div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.6;">Before importing, open Settings to set your monthly budget targets, add your own category rules, and set your bank's column names if they're unusual.</div>
             </div>
           </div>
 
           <div style="display:flex;gap:14px;padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);">
             <div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#00d68f,#00c9b1);display:flex;align-items:center;justify-content:center;font-family: var(--font-display);font-size:15px;font-weight:900;color:#050a14;flex-shrink:0;">2</div>
             <div>
-              <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Download CSV from your bank</div>
-              <div style="font-size:12px;color:var(--muted);line-height:1.6;">Log into your bank's website, go to Transaction History or Account Activity, and export as CSV. Usually found under Download, Export, or Statements.</div>
+              <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Download your Bank Transactions</div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.6;">Log into your bank's website, go to Transaction History or Account Activity, and export your Bank Transactions. Usually found under Download, Export, or Statements.</div>
             </div>
           </div>
 
@@ -792,7 +793,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
             <div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#00d68f,#00c9b1);display:flex;align-items:center;justify-content:center;font-family: var(--font-display);font-size:15px;font-weight:900;color:#050a14;flex-shrink:0;">3</div>
             <div>
               <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Tap Import and select your file</div>
-              <div style="font-size:12px;color:var(--muted);line-height:1.6;">Tap the green Import button at the top. Select your CSV from Downloads. Greenbar processes everything instantly -- no upload, no server.</div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.6;">Tap the green Import button at the top. Select your Bank Transactions from Downloads. Greenbar handles everything instantly -- nothing is uploaded anywhere.</div>
             </div>
           </div>
 
@@ -805,6 +806,27 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
           </div>
         </div>
 
+        <!-- How to export from your bank -->
+        <div id="bank-export-section" style="font-family: var(--font-display);font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin:20px 0 10px;">How to export from your bank</div>
+        <div style="background:var(--glass);border:1px solid var(--border);border-radius:20px;padding:16px;margin-bottom:14px;">
+          <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px;">Pick your bank for step-by-step instructions to download your transactions.</div>
+          <select id="bank-export-select" onchange="showBankExport(this.value)" style="width:100%;background:var(--glass);border:1px solid var(--border);border-radius:12px;padding:11px 14px;color:var(--text);font-size:14px;font-family:var(--font-body);outline:none;">
+            <option value="">Select your bank…</option>
+            <option value="chase">Chase</option>
+            <option value="bofa">Bank of America</option>
+            <option value="wells">Wells Fargo</option>
+            <option value="citi">Citi</option>
+            <option value="capitalone">Capital One</option>
+            <option value="usbank">U.S. Bank</option>
+            <option value="pnc">PNC</option>
+            <option value="truist">Truist</option>
+            <option value="tdbank">TD Bank</option>
+            <option value="amex">American Express</option>
+            <option value="other">Other / not listed</option>
+          </select>
+          <div id="bank-export-steps" style="margin-top:12px;"><div style="font-size:12px;color:var(--muted);padding:2px;">Pick your bank above for step-by-step export instructions.</div></div>
+        </div>
+
         <!-- Feature guide -->
         <div style="font-family: var(--font-display);font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin:20px 0 10px;">What each screen does</div>
         <div style="background:var(--glass);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:14px;">
@@ -812,14 +834,14 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
           <div style="display:flex;gap:14px;padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);align-items:flex-start;">
             <div>
               <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Summary</div>
-              <div style="font-size:12px;color:var(--muted);line-height:1.6;">Your home screen. Shows monthly net, income vs expenses, and top spending categories. Switch months using the pills at the top, or tap All for a multi-month view. Tap any category row for a vendor breakdown or AI-powered insight.</div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.6;">Your home screen. Shows your monthly net, income vs expenses, and top spending categories. Switch months with the buttons at the top, or tap All for a combined view.</div>
             </div>
           </div>
 
           <div style="display:flex;gap:14px;padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);align-items:flex-start;">
             <div>
               <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Budget</div>
-              <div style="font-size:12px;color:var(--muted);line-height:1.6;">Side-by-side comparison of your budget targets vs actual spend for the selected month. Green variance = under budget. Red = over. Unbudgeted categories are shown separately at the bottom.</div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.6;">A side-by-side look at your budget targets and what you actually spent. Green means under budget, red means over. Categories you haven't budgeted for are listed separately at the bottom.</div>
             </div>
           </div>
 
@@ -833,14 +855,14 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
           <div style="display:flex;gap:14px;padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);align-items:flex-start;">
             <div>
               <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Settings</div>
-              <div style="font-size:12px;color:var(--muted);line-height:1.6;">Configure everything: CSV column names for your bank, income keywords, transactions to exclude, merchant reclassification rules, and monthly budget targets. Changes apply on next import.</div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.6;">Set everything up: your bank's column names, words that mark income, transactions to leave out, rules for re-sorting merchants into categories, and your monthly budget targets. Changes take effect on your next import.</div>
             </div>
           </div>
 
           <div style="display:flex;gap:14px;padding:16px;align-items:flex-start;">
             <div>
               <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Upload Log</div>
-              <div style="font-size:12px;color:var(--muted);line-height:1.6;">Open the Upload Log to see a history of every CSV you've imported -- filename, date, transaction count, and months covered.</div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.6;">Open the Upload Log to see a history of all the Bank Transactions you've imported -- filename, date, transaction count, and months covered.</div>
             </div>
           </div>
         </div>
@@ -864,7 +886,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
 
         <!-- Privacy note -->
         <div style="background:rgba(0,214,143,0.06);border:1px solid rgba(0,214,143,0.15);border-radius:16px;padding:16px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start;">
-          <div style="font-size:12px;color:var(--soft);line-height:1.6;"><strong style="color:var(--text);">100% private.</strong> Greenbar runs entirely in your browser. Your transaction data is never sent to any server. Everything is stored locally on your device using your browser's built-in storage.</div>
+          <div style="font-size:12px;color:var(--soft);line-height:1.6;"><strong style="color:var(--text);">100% private.</strong> Greenbar runs entirely in your browser. Your transactions are never sent anywhere -- everything stays on your device.</div>
         </div>
 
       
@@ -885,11 +907,11 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
             <div style="display:flex;flex-direction:column;gap:8px;">
               <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
                 <span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span>
-                <span style="color:var(--soft);"><strong style="color:var(--text);">One HTML file,</strong> no frameworks, no install step, no build process</span>
+                <span style="color:var(--soft);"><strong style="color:var(--text);">One simple file</strong> &mdash; nothing to install and nothing to set up</span>
               </div>
               <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
                 <span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span>
-                <span style="color:var(--soft);"><strong style="color:var(--text);">Your data</strong> is saved in your browser&rsquo;s built-in storage &mdash; the same place bookmarks live. Only this app can read it.</span>
+                <span style="color:var(--soft);"><strong style="color:var(--text);">Your data</strong> is saved right in your browser &mdash; the same place your bookmarks live. Only this app can read it.</span>
               </div>
               <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
                 <span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span>
@@ -897,7 +919,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
               </div>
               <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
                 <span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span>
-                <span style="color:var(--soft);"><strong style="color:var(--text);">No external calls,</strong> no fonts loaded from Google, no tracking scripts of any kind</span>
+                <span style="color:var(--soft);"><strong style="color:var(--text);">Nothing loaded from the internet</strong> &mdash; no outside files and no trackers of any kind</span>
               </div>
             </div>
           </div>
@@ -911,7 +933,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
             <div style="display:flex;flex-direction:column;gap:0;">
               <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
                 <div style="width:24px;height:24px;border-radius:8px;background:rgba(41,121,255,0.15);border:1px solid rgba(41,121,255,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#2979ff;flex-shrink:0;">1</div>
-                <div><div style="font-size:13px;font-weight:700;margin-bottom:2px;">Read the file</div><div style="font-size:11px;color:var(--muted);">Greenbar reads your CSV and figures out which columns are which &mdash; date, description, amount. If your bank uses unusual column names, you can map them in Settings.</div></div>
+                <div><div style="font-size:13px;font-weight:700;margin-bottom:2px;">Read the file</div><div style="font-size:11px;color:var(--muted);">Greenbar reads your Bank Transactions and works out which column is which &mdash; date, description, amount. If your bank uses unusual column names, you can set them in Settings.</div></div>
               </div>
               <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
                 <div style="width:24px;height:24px;border-radius:8px;background:rgba(41,121,255,0.15);border:1px solid rgba(41,121,255,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#2979ff;flex-shrink:0;">2</div>
@@ -936,27 +958,27 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
           <div style="background:var(--glass);border:1px solid var(--border);border-radius:18px;padding:16px 18px;margin-bottom:10px;">
             <div style="font-family:var(--font-display);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:#ffa502;margin-bottom:10px;">How your data is stored</div>
             <div style="font-size:13px;color:var(--soft);line-height:1.7;margin-bottom:12px;">
-              Greenbar saves five pieces of information to your browser. Nothing is ever sent to a server.
+              Greenbar saves five things to your browser. Nothing is ever sent anywhere.
             </div>
             <div style="display:flex;flex-direction:column;gap:8px;">
               <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-                <div style="font-size:12px;font-family:monospace;color:#ffa502;flex-shrink:0;">Transactions</div>
-                <div style="font-size:11px;color:var(--muted);text-align:right;">All your imported transactions and monthly summaries. Usually 200KB&ndash;2MB depending on how much history you&rsquo;ve imported.</div>
+                <div style="font-size:12px;font-weight:700;color:#ffa502;flex-shrink:0;">Transactions</div>
+                <div style="font-size:11px;color:var(--muted);text-align:right;">All your imported transactions and monthly summaries. It grows as you import more history.</div>
               </div>
               <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-                <div style="font-size:12px;font-family:monospace;color:#ffa502;flex-shrink:0;">Settings</div>
-                <div style="font-size:11px;color:var(--muted);text-align:right;">Your budget targets, custom category rules, and any column name overrides you&rsquo;ve set up.</div>
+                <div style="font-size:12px;font-weight:700;color:#ffa502;flex-shrink:0;">Settings</div>
+                <div style="font-size:11px;color:var(--muted);text-align:right;">Your budget targets, custom category rules, and any column names you&rsquo;ve set for your bank.</div>
               </div>
               <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-                <div style="font-size:12px;font-family:monospace;color:#ffa502;flex-shrink:0;">Import log</div>
-                <div style="font-size:11px;color:var(--muted);text-align:right;">A record of every file you&rsquo;ve imported &mdash; filename, date, and how many transactions it contained. Capped at 50 entries.</div>
+                <div style="font-size:12px;font-weight:700;color:#ffa502;flex-shrink:0;">Import log</div>
+                <div style="font-size:11px;color:var(--muted);text-align:right;">A record of every file you&rsquo;ve imported &mdash; name, date, and how many transactions it had. The last 50 are kept.</div>
               </div>
               <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-                <div style="font-size:12px;font-family:monospace;color:#ffa502;flex-shrink:0;">Setup status</div>
-                <div style="font-size:11px;color:var(--muted);text-align:right;">A simple yes/no flag that remembers whether you&rsquo;ve been through the budget setup wizard.</div>
+                <div style="font-size:12px;font-weight:700;color:#ffa502;flex-shrink:0;">Setup status</div>
+                <div style="font-size:11px;color:var(--muted);text-align:right;">A simple note of whether you&rsquo;ve been through the budget setup.</div>
               </div>
               <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;">
-                <div style="font-size:12px;font-family:monospace;color:#ffa502;flex-shrink:0;">Walkthrough status</div>
+                <div style="font-size:12px;font-weight:700;color:#ffa502;flex-shrink:0;">Walkthrough status</div>
                 <div style="font-size:11px;color:var(--muted);text-align:right;">Remembers whether you&rsquo;ve seen the intro slides, so they don&rsquo;t show up every time you open the app.</div>
               </div>
             </div>
@@ -1000,38 +1022,38 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
           <div style="background:var(--glass);border:1px solid var(--border);border-radius:18px;padding:16px 18px;margin-bottom:10px;">
             <div style="font-family:var(--font-display);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--green);margin-bottom:10px;">The AI assistant</div>
             <div style="font-size:13px;color:var(--soft);line-height:1.7;margin-bottom:10px;">
-              The <strong style="color:var(--text);">?</strong> button opens a chat assistant that can answer questions about Greenbar and help you understand your data. It&rsquo;s powered by Anthropic&rsquo;s Claude.
+              The <strong style="color:var(--text);">?</strong> button opens a built-in help assistant that answers questions about how to use Greenbar. It works entirely on your device.
             </div>
             <div style="display:flex;flex-direction:column;gap:8px;">
               <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
                 <span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span>
-                <span style="color:var(--soft);"><strong style="color:var(--text);">What it knows:</strong> Your current month&rsquo;s totals, top categories, and health score &mdash; enough to give relevant answers without exposing your full transaction history.</span>
+                <span style="color:var(--soft);"><strong style="color:var(--text);">What it helps with:</strong> importing files, setting budgets, understanding each screen, and how the app works.</span>
               </div>
               <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
                 <span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span>
-                <span style="color:var(--soft);"><strong style="color:var(--text);">What gets sent:</strong> Your question, plus a summary of your current month&rsquo;s finances. No individual transactions are ever shared.</span>
+                <span style="color:var(--soft);"><strong style="color:var(--text);">What gets sent:</strong> nothing &mdash; it runs offline, so your questions and your data never leave your device.</span>
               </div>
               <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
                 <span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span>
-                <span style="color:var(--soft);"><strong style="color:var(--text);">What it won&rsquo;t do:</strong> Give investment advice or answer questions unrelated to Greenbar and your finances.</span>
+                <span style="color:var(--soft);"><strong style="color:var(--text);">What it won&rsquo;t do:</strong> give investment advice or answer questions unrelated to using Greenbar.</span>
               </div>
               <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
                 <span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span>
-                <span style="color:var(--soft);"><strong style="color:var(--text);">Where to find it:</strong> Tap the <strong style="color:var(--green);">?</strong> button in the top right corner. It appears after setup is complete.</span>
+                <span style="color:var(--soft);"><strong style="color:var(--text);">Where to find it:</strong> tap the <strong style="color:var(--green);">?</strong> button in the top corner. It appears after setup is complete.</span>
               </div>
             </div>
           </div>
 
           <!-- CSV tips -->
           <div style="background:var(--glass);border:1px solid var(--border);border-radius:18px;padding:16px 18px;margin-bottom:10px;">
-            <div style="font-family:var(--font-display);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:#ffa502;margin-bottom:10px;">CSV tips</div>
+            <div style="font-family:var(--font-display);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:#ffa502;margin-bottom:10px;">Bank Transactions tips</div>
             <div style="font-size:13px;color:var(--soft);line-height:1.7;margin-bottom:12px;">
-              Greenbar works with any CSV your bank can export. It automatically looks for columns named things like &ldquo;Date,&rdquo; &ldquo;Description,&rdquo; &ldquo;Amount,&rdquo; and &ldquo;Category.&rdquo; If your bank uses different names, go to Settings and map them yourself.
+              Greenbar works with Bank Transactions exported from any bank. It automatically looks for columns named things like &ldquo;Date,&rdquo; &ldquo;Description,&rdquo; &ldquo;Amount,&rdquo; and &ldquo;Category.&rdquo; If your bank uses different names, you can set them in Settings.
             </div>
             <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">
               <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
                 <span style="color:#ffa502;font-weight:800;flex-shrink:0;">→</span>
-                <span style="color:var(--muted);"><strong style="color:var(--soft);">Date column:</strong> Works with MM/DD/YY, MM/DD/YYYY, and YYYY-MM-DD formats.</span>
+                <span style="color:var(--muted);"><strong style="color:var(--soft);">Date column:</strong> Works with common date formats like 05/04/26, 05/04/2026, or 2026-05-04.</span>
               </div>
               <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
                 <span style="color:#ffa502;font-weight:800;flex-shrink:0;">→</span>
@@ -1053,19 +1075,19 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
             <div style="display:flex;flex-direction:column;gap:8px;">
               <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
                 <span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span>
-                <span style="color:var(--soft);"><strong style="color:var(--text);">Fast to open.</strong> The whole app is about 185KB &mdash; smaller than most photos. It loads in well under a second.</span>
+                <span style="color:var(--soft);"><strong style="color:var(--text);">Fast to open.</strong> The whole app is tiny &mdash; smaller than most photos &mdash; and loads in well under a second.</span>
               </div>
               <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
                 <span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span>
-                <span style="color:var(--soft);"><strong style="color:var(--text);">No transaction limit.</strong> Greenbar has been tested with 2,000+ transactions without slowing down. Your browser&rsquo;s storage limit is around 5MB.</span>
+                <span style="color:var(--soft);"><strong style="color:var(--text);">No transaction limit.</strong> Greenbar has been tested with 2,000+ transactions without slowing down, with room for years of history.</span>
               </div>
               <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
                 <span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span>
-                <span style="color:var(--soft);"><strong style="color:var(--text);">Storage warning.</strong> You&rsquo;ll get a heads-up if your data approaches 4.8MB. If that happens, clear older months from Settings.</span>
+                <span style="color:var(--soft);"><strong style="color:var(--text);">Storage warning.</strong> You&rsquo;ll get a heads-up if your saved data is getting close to full. If that happens, clear older months from Settings.</span>
               </div>
               <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
                 <span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span>
-                <span style="color:var(--soft);"><strong style="color:var(--text);">Screens load on demand.</strong> The Budget and Transactions tabs only render when you tap them, keeping the app snappy.</span>
+                <span style="color:var(--soft);"><strong style="color:var(--text);">Screens load when needed.</strong> The Budget and Transactions tabs only build when you open them, keeping the app quick.</span>
               </div>
             </div>
           </div>
@@ -1096,7 +1118,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
                 <div style="font-size:11px;font-weight:600;color:var(--soft);">Your Bank</div>
               </div>
               <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;">
-                <div style="font-size:11px;color:var(--green);font-weight:700;">CSV file</div>
+                <div style="font-size:11px;color:var(--green);font-weight:700;">Bank Transactions</div>
                 <div style="width:48px;height:2px;background:linear-gradient(90deg,rgba(0,214,143,0.3),#00d68f);border-radius:1px;"></div>
                 <div style="font-size:9px;color:var(--muted);">you download</div>
               </div>
@@ -1119,12 +1141,12 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
             <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px;font-family:var(--font-display);">Where your data lives</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
               <div style="background:rgba(0,214,143,0.07);border:1px solid rgba(0,214,143,0.15);border-radius:12px;padding:12px;text-align:center;">
-                <div style="font-size:12px;font-weight:600;margin-bottom:3px;">Browser Storage</div>
-                <div style="font-size:10px;color:var(--muted);line-height:1.5;">localStorage -- encrypted by your OS, readable only by this app on this device</div>
+                <div style="font-size:12px;font-weight:600;margin-bottom:3px;">Your Browser</div>
+                <div style="font-size:10px;color:var(--muted);line-height:1.5;">Saved safely on your device, readable only by this app</div>
               </div>
               <div style="background:rgba(255,71,87,0.06);border:1px solid rgba(255,71,87,0.15);border-radius:12px;padding:12px;text-align:center;">
                 <div style="font-size:12px;font-weight:600;margin-bottom:3px;">No Cloud</div>
-                <div style="font-size:10px;color:var(--muted);line-height:1.5;">No database, no S3 bucket, no backup server, no sync service</div>
+                <div style="font-size:10px;color:var(--muted);line-height:1.5;">Nothing stored on servers, backups, or sync services</div>
               </div>
             </div>
           </div>
@@ -1135,27 +1157,22 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
         <div style="background:var(--glass);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:14px;">
 
           <div style="display:flex;gap:14px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.05);"><div><div style="font-size:13px;font-weight:600;margin-bottom:3px;">No account required</div><div style="font-size:12px;color:var(--muted);line-height:1.5;">Open the app and use it. No email, no password, no sign-up.</div></div></div>
-          <div style="display:flex;gap:14px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.05);"><div><div style="font-size:13px;font-weight:600;margin-bottom:3px;">No analytics</div><div style="font-size:12px;color:var(--muted);line-height:1.5;">Zero tracking pixels, no event logging, no usage metrics.</div></div></div>
-          <div style="display:flex;gap:14px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.05);"><div><div style="font-size:13px;font-weight:600;margin-bottom:3px;">No third-party scripts</div><div style="font-size:12px;color:var(--muted);line-height:1.5;">Google Fonts removed. Runs 100% offline with no external calls.</div></div></div>
-          <div style="display:flex;gap:14px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.05);"><div><div style="font-size:13px;font-weight:600;margin-bottom:3px;">No server</div><div style="font-size:12px;color:var(--muted);line-height:1.5;">Greenbar is a single HTML file. There is no backend. Nothing to hack.</div></div></div>
-          <div style="display:flex;gap:14px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.05);"><div><div style="font-size:13px;font-weight:600;margin-bottom:3px;">No data transmission</div><div style="font-size:12px;color:var(--muted);line-height:1.5;">CSVs parsed in memory on your device, never sent anywhere.</div></div></div>
-          <div style="display:flex;gap:14px;padding:14px 16px;"><div><div style="font-size:13px;font-weight:600;margin-bottom:3px;">You control deletion</div><div style="font-size:12px;color:var(--muted);line-height:1.5;">Clear browser storage any time. No residual copies anywhere.</div></div></div>
+          <div style="display:flex;gap:14px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.05);"><div><div style="font-size:13px;font-weight:600;margin-bottom:3px;">No analytics</div><div style="font-size:12px;color:var(--muted);line-height:1.5;">Nothing about how you use the app is tracked or recorded.</div></div></div>
+          <div style="display:flex;gap:14px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.05);"><div><div style="font-size:13px;font-weight:600;margin-bottom:3px;">No outside code</div><div style="font-size:12px;color:var(--muted);line-height:1.5;">Nothing is loaded from the internet &mdash; the app runs fully offline.</div></div></div>
+          <div style="display:flex;gap:14px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.05);"><div><div style="font-size:13px;font-weight:600;margin-bottom:3px;">No server</div><div style="font-size:12px;color:var(--muted);line-height:1.5;">Greenbar is one simple file. There's no server behind it &mdash; nothing to break into.</div></div></div>
+          <div style="display:flex;gap:14px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.05);"><div><div style="font-size:13px;font-weight:600;margin-bottom:3px;">Nothing is sent</div><div style="font-size:12px;color:var(--muted);line-height:1.5;">Your transactions are read on your device and never sent anywhere.</div></div></div>
+          <div style="display:flex;gap:14px;padding:14px 16px;"><div><div style="font-size:13px;font-weight:600;margin-bottom:3px;">You control deletion</div><div style="font-size:12px;color:var(--muted);line-height:1.5;">Erase everything any time &mdash; no copies are left anywhere.</div></div></div>
         </div>
 
         <!-- Tech stack -->
-        <div style="font-family:var(--font-display);font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin:0 0 10px;">Technical architecture</div>
+        <div style="font-family:var(--font-display);font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin:0 0 10px;">Built simple, on purpose</div>
         <div style="background:var(--glass);border:1px solid var(--border);border-radius:20px;padding:16px;margin-bottom:14px;">
-          <div style="font-family:monospace;font-size:11px;color:var(--soft);line-height:2;background:rgba(0,0,0,0.3);border-radius:10px;padding:14px;">
-Single HTML file (no build system)<br>
-Vanilla JavaScript (no frameworks)<br>
-localStorage (browser-native persistence)<br>
-Service Worker (offline support)<br>
-PWA manifest (installable)<br>
-No npm dependencies<br>
-No CDN scripts<br>
-No API calls<br>
-No cookies<br>
-No external fonts<br>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span><span style="color:var(--soft);">One simple file &mdash; nothing to install, no account, no setup</span></div>
+            <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span><span style="color:var(--soft);">Works completely offline once it has loaded</span></div>
+            <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span><span style="color:var(--soft);">Can be added to your home screen and used like an app</span></div>
+            <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span><span style="color:var(--soft);">No outside code, no cookies, no trackers</span></div>
+            <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span><span style="color:var(--soft);">Nothing is ever loaded from the internet</span></div>
           </div>
         </div>
 
@@ -1212,8 +1229,8 @@ No external fonts<br>
               </svg>
             </div>
             <div class="wt-headline">Import once. Dashboard in seconds.</div>
-            <div class="wt-body">Export a CSV from your bank and drop it in. Every transaction is categorized, every month is charted &mdash; instantly.</div>
-            <div class="wt-tip">Most banks offer CSV export under Transaction History or Statements. Any bank works.</div>
+            <div class="wt-body">Export your Bank Transactions and drop them in. Every transaction is categorized, every month is charted &mdash; instantly.</div>
+            <div class="wt-tip">Most banks let you export your Bank Transactions under Transaction History or Statements. Any bank works.</div>
           </div>
 
                     <!-- SLIDE 3: Insights & Drill-down -->
@@ -1473,7 +1490,7 @@ No external fonts<br>
         <button onclick="resetSetupState();showScreen('setup',document.querySelector('.nav-btn'));setupGo(1);document.getElementById('bottom-nav')?.classList.remove('visible');" style="padding:9px 16px;border:none;border-radius:12px;background:linear-gradient(135deg,#00d68f,#00c9b1);color:#050a14;font-size:13px;font-weight:800;cursor:pointer;font-family:var(--font-display);flex-shrink:0;">Open &rarr;</button>
       </div>
 
-      <div class="sec-hdr" style="margin-top:0">CSV Format</div>
+      <div class="sec-hdr" style="margin-top:0">Bank Transactions Format</div>
       <div class="settings-section">
         <div class="settings-row" onclick="openModal('modal-cols')">
           <div class="s-body"><div class="s-label">Column Mapping</div><div class="s-desc" id="col-desc">Map Date, Description, Amount columns</div></div>
@@ -1525,7 +1542,7 @@ No external fonts<br>
       <div class="modal-title" style="margin-bottom:0">Column Mapping</div>
       <button onclick="closeModal('modal-cols')" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
     </div>
-    <div class="modal-sub">Enter exact column headers from your bank's CSV. Leave blank to auto-detect.</div>
+    <div class="modal-sub">Enter exact column headers from your Bank Transactions. Leave blank to auto-detect.</div>
     <div class="modal-label">Date Column</div><input class="modal-input" id="col-date" placeholder="e.g. Date, Transaction Date">
     <div class="modal-label">Description Column</div><input class="modal-input" id="col-desc-inp" placeholder="e.g. Description, Merchant">
     <div class="modal-label">Amount Column</div><input class="modal-input" id="col-amt" placeholder="e.g. Amount">
@@ -1637,15 +1654,27 @@ const MN='Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec'.split(',');
 function parseCSV(text){
   if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
   text=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
-  const lines=text.trim().split('\n'); const h=parseL(lines[0]); return{headers:h,rows:lines.slice(1).filter(l=>l.trim()).map(l=>{ const v=parseL(l); const o={}; h.forEach((k,i)=>o[k.trim()]=(v[i]||'').trim()); return o; })}; }
-function parseL(line){ const r=[];let cur='',inQ=false; for(let i=0;i<line.length;i++){ const c=line[i]; if(c==='"'){inQ=!inQ;}else if(c===','&&!inQ){r.push(cur);cur='';}else cur+=c; } r.push(cur); return r; }
+  const lines=text.trim().split('\n');
+  const delim=detectDelim(lines[0]||'');
+  const h=parseL(lines[0],delim);
+  return{headers:h,rows:lines.slice(1).filter(l=>l.trim()).map(l=>{ const v=parseL(l,delim); const o={}; h.forEach((k,i)=>o[k.trim()]=(v[i]||'').trim()); return o; })}; }
+// Auto-detect the column delimiter (comma, tab, or semicolon) from the header line.
+function detectDelim(line){
+  const counts={',':0,'\t':0,';':0}; let inQ=false;
+  for(let i=0;i<line.length;i++){ const c=line[i]; if(c==='"') inQ=!inQ; else if(!inQ && counts[c]!==undefined) counts[c]++; }
+  let best=',', n=counts[','];
+  if(counts['\t']>n){ best='\t'; n=counts['\t']; }
+  if(counts[';']>n){ best=';'; }
+  return best;
+}
+function parseL(line,delim){ delim=delim||','; const r=[];let cur='',inQ=false; for(let i=0;i<line.length;i++){ const c=line[i]; if(c==='"'){inQ=!inQ;}else if(c===delim&&!inQ){r.push(cur);cur='';}else cur+=c; } r.push(cur); return r; }
 function parseAmt(s){ if(!s)return 0; const c=s.replace(/[",\$ ]/g,''); const neg=c.startsWith('-')||c.startsWith('('); const n=parseFloat(c.replace(/[^0-9.]/g,'')); if(!isFinite(n))return 0; return neg?-n:n; }
 function autoCol(headers,candidates){ for(const c of candidates){ const f=headers.find(h=>h.toLowerCase().includes(c.toLowerCase())); if(f) return f; } return headers[0]; }
 function parseDate(str,fmt){ if(!str)return null; const s=str.replace(/[^0-9\/\-]/g,''); const p=s.split(/[\/\-]/); if(!p||p.length<3) return null; let m,d,y; if(fmt==='YYYY-MM-DD'){[y,m,d]=p;}else if(fmt==='DD/MM/YYYY'){[d,m,y]=p;}else{[m,d,y]=p;} if(y&&y.length===2)y='20'+y; const mi=parseInt(m)-1; if(mi<0||mi>11)return null; return`${MN[mi]} ${y}`; }
 
 function processCSV(rows,headers){
-  if(!headers||headers.length<2){ alert('This CSV has no headers. Check the file format and try again.'); return []; }
-  if(!rows||rows.length===0){ alert('This CSV file appears to be empty.'); return []; }
+  if(!headers||headers.length<2){ alert('These Bank Transactions have no headers. Check the file format and try again.'); return []; }
+  if(!rows||rows.length===0){ alert('This Bank Transactions file appears to be empty.'); return []; }
   const colDate=CFG.cols.date||autoCol(headers,['date','posted','transaction date']);
   const colDesc=CFG.cols.desc||autoCol(headers,['description','merchant','memo','payee']);
   const colAmt=CFG.cols.amt||autoCol(headers,['amount','transaction amount']);
@@ -1900,6 +1929,24 @@ function computeBadges(keys, curPos, curBudget, maxPos, maxBudget, totalPos){
   });
 }
 
+// Neon badge icons -- Tabler Icons (MIT). Inline SVG; glow applied via .badge-icon CSS.
+const BADGE_ICONS = {
+  'On a Roll':     { c:'#ff7a45', p:'<path d="M12 10.941c2.333 -3.308 .167 -7.823 -1 -8.941c0 3.395 -2.235 5.299 -3.667 6.706c-1.43 1.408 -2.333 3.294 -2.333 5.588c0 3.704 3.134 6.706 7 6.706c3.866 0 7 -3.002 7 -6.706c0 -1.712 -1.232 -4.403 -2.333 -5.588c-2.084 3.353 -3.257 3.353 -4.667 2.235"/>' },
+  'Momentum':      { c:'#ffd93d', p:'<path d="M13 3l0 7l6 0l-8 11l0 -7l-6 0l8 -11"/>' },
+  'Budget Streak': { c:'#00d68f', p:'<path d="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M7 12a5 5 0 1 0 10 0a5 5 0 1 0 -10 0"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/>' },
+  'Budget Master': { c:'#00d68f', p:'<path d="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M7 12a5 5 0 1 0 10 0a5 5 0 1 0 -10 0"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/>' },
+  'First Month':   { c:'#4bcffa', p:'<path d="M3 12h1m8 -9v1m8 8h1m-15.4 -6.4l.7 .7m12.1 -.7l-.7 .7"/><path d="M9 16a5 5 0 1 1 6 0a3.5 3.5 0 0 0 -1 3a2 2 0 0 1 -4 0a3.5 3.5 0 0 0 -1 -3"/><path d="M9.7 17l4.6 0"/>' },
+  'Quarter Done':  { c:'#ffa502', p:'<path d="M8 21l8 0"/><path d="M12 17l0 4"/><path d="M7 4l10 0"/><path d="M17 4v8a5 5 0 0 1 -10 0v-8"/><path d="M3 9a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M17 9a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>' },
+  'Half Year':     { c:'#a55eea', p:'<path d="M12 6l4 6l5 -4l-2 10h-14l-2 -10l5 4l4 -6"/>' },
+  'Full Year':     { c:'#00c9b1', p:'<path d="M6 5h12l3 5l-8.5 9.5a.7 .7 0 0 1 -1 0l-8.5 -9.5l3 -5"/><path d="M10 12l-2 -2.2l.6 -1"/>' },
+  'Saver':         { c:'#ff6b81', p:'<path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"/>' },
+};
+function badgeIconHTML(label){
+  const ic=BADGE_ICONS[label];
+  if(!ic) return '';
+  return `<div class="badge-icon" style="color:${ic.c}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ic.p}</svg></div>`;
+}
+
 function renderStreaks(){
   const s = computeStreaks();
   if(!s.totalMonths) return '';
@@ -1908,6 +1955,7 @@ function renderStreaks(){
 
   const badgeHTML = (badges, dim) => badges.slice(0,6).map(b => `
     <div class="badge-tile ${dim?'badge-locked':''}">
+      ${badgeIconHTML(b.label)}
       <div class="badge-name">${b.label}</div>
       <div class="badge-desc">${b.desc}</div>
       ${b.progress !== undefined ? `<div class="badge-prog"><div style="width:${Math.round(b.progress/b.target*100)}%;height:100%;border-radius:3px;background:rgba(255,255,255,0.3);transition:width 0.8s;"></div></div>` : ''}
@@ -1968,7 +2016,7 @@ function appendAIMsg(text, cls){
 // Fully offline: no network call, no API key. Answers app-usage questions only.
 const HELP_TOPICS = [
   { kw:['import','csv','upload','add a file','load','statement','get started','how do i start'],
-    a:'Tap the green Import button at the top and choose your bank CSV. Greenbar reads it instantly on your device — nothing is uploaded. Each new import merges with your existing data, so you can add a file every month.' },
+    a:'Tap the green Import button at the top and choose your Bank Transactions. Greenbar reads them instantly on your device — nothing is uploaded. Each new import merges with your existing data, so you can add a file every month.' },
   { kw:['column','mapping','header','date column','amount column','recognize',"can't read"],
     a:'If Greenbar can\'t read your bank\'s file, open Settings → Column Mapping and type the exact header names for Date, Description and Amount. Leave a field blank to auto-detect it.' },
   { kw:['category','categories','remap','reclassify','wrong category','miscategor'],
@@ -1994,7 +2042,7 @@ const HELP_TOPICS = [
   { kw:['delete','clear','erase','reset','wipe','remove all'],
     a:'To erase everything, open the Guide screen → Privacy & Data → Clear All Data. This permanently removes all transactions, settings and history from this device.' },
   { kw:['log','upload log','imported files','import history'],
-    a:'The Upload Log records every CSV you\'ve imported — filename, date, transaction count and months covered. It stores metadata only, never the raw file.' },
+    a:'The Upload Log records all the Bank Transactions you\'ve imported — filename, date, transaction count and months covered. It stores metadata only, never the raw file.' },
   { kw:['offline','internet','connection','work offline','no wifi'],
     a:'Greenbar works fully offline once loaded. There are no external calls — importing, categorizing and saving all happen on your device.' },
 ];
@@ -2008,7 +2056,7 @@ function answerHelpQuery(q){
     if(score > bestScore){ bestScore = score; best = t; }
   }
   if(best && bestScore > 0) return best.a;
-  return 'I can help with questions about using Greenbar — importing CSVs, categories, budgets, the health score, privacy and more. Try "how do I import a file?" or "how is my health score calculated?" I can\'t help with finance or math questions.';
+  return 'I can help with questions about using Greenbar — importing Bank Transactions, categories, budgets, the health score, privacy and more. Try "how do I import a file?" or "how is my health score calculated?" I can\'t help with finance or math questions.';
 }
 
 function sendAIMessage(){
@@ -2299,7 +2347,7 @@ function skipFlashSetup(){
   if(sc) sc.innerHTML = `
     <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:calc(100dvh - 120px);text-align:center;padding:40px 28px;">
       <div style="font-family:var(--font-display);font-size:26px;font-weight:900;letter-spacing:-0.5px;margin-bottom:10px;">Ready when you are.</div>
-      <div style="font-size:14px;color:var(--soft);line-height:1.6;margin-bottom:32px;">Tap <strong>Import</strong> above to load your first bank CSV.<br>Your data never leaves this device.</div>
+      <div style="font-size:14px;color:var(--soft);line-height:1.6;margin-bottom:32px;">Tap <strong>Import</strong> above to load your Bank Transactions.<br>Your data never leaves this device.</div>
       <button onclick="document.getElementById('csv-input').click()" style="padding:14px 32px;border:none;border-radius:14px;background:linear-gradient(135deg,#00d68f,#00c9b1);color:#050a14;font-family:var(--font-display);font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 4px 20px rgba(0,214,143,0.3);">Import Transactions</button>
     </div>`;
 }
@@ -2378,7 +2426,7 @@ function clearLog(){
 }
 function restoreFromLog(id){
   closeModal('modal-log');
-  setTimeout(()=>{ if(confirm('Log entries store metadata only, not raw CSV.\n\nTap OK to open the file picker and re-import now.')){ document.getElementById('csv-input').click(); } },300);
+  setTimeout(()=>{ if(confirm('Log entries store metadata only, not raw Bank Transactions.\n\nTap OK to open the file picker and re-import now.')){ document.getElementById('csv-input').click(); } },300);
 }
 function renderLog(){
   const log=getLog();
@@ -2628,7 +2676,7 @@ function processNextFile(){
       processNextFile();
     }
   };
-  rd.onerror=()=>{ alert('Could not read "'+f.name+'". Please make sure it is a valid CSV file.'); processNextFile(); };
+  rd.onerror=()=>{ alert('Could not read "'+f.name+'". Please make sure it is a valid Bank Transactions file.'); processNextFile(); };
   rd.readAsText(f);
 }
 
@@ -2746,63 +2794,106 @@ function renderAll(){
   if(document.getElementById('screen-txs')?.classList.contains('active')) renderTxs();
 }
 
+// Brief one-line explanation shown under the health-score grade.
+const GRADE_EXPLAIN = {
+  A:'Excellent — strong savings with spending on plan.',
+  B:'Great — a solid month with minor overspending.',
+  C:'Good — on track, with room to tighten up.',
+  D:'Fair — spending is outpacing your budget.',
+  F:'Needs work — expenses ran past your income.'
+};
+
 function renderSummary(){
   const keys=sortKeys(_months);
-  if(!keys.length)return;
-  const m=_months[_sel]||_months[keys[keys.length-1]];
-  const expTotal=Object.values(m.expenses).reduce((s,v)=>s+v,0);
-  const net=m.income-expTotal;
-  const cats=Object.entries(m.expenses).sort((a,b)=>b[1]-a[1]);
-  const maxAmt=cats[0]?.[1]||1;
-  const pills=keys.map(k=>`<div class="pill ${k===_sel?'active':''}" onclick="selMonth('${k}')">${k}</div>`).join('')
-    +`<div class="pill ${_sel==='__all'?'active':''}" onclick="selMonth('__all')">All</div>`;
+  const hasData=keys.length>0;
+  if(!hasData && !localStorage.getItem('gb_setup_done')) return; // first launch -- flash intro handles it
+
+  const sel=hasData ? ((_sel && _sel!=='__all' && _months[_sel]) ? _sel : keys[keys.length-1]) : null;
+  const m=sel ? _months[sel] : null;
+
+  // KPI -- Monthly Budget
+  const totalBudget=Object.values(CFG.budget||{}).reduce((s,v)=>s+(v>0?v:0),0);
+
+  // KPI -- last date info added (most recent import)
+  const log=getLog();
+  const lastAdded=log.length ? new Date(log[0].id).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+
+  // KPI -- health score grade + brief explanation
+  const hs=sel ? computeHealthScore(sel) : null;
+  const grade=hs ? hs.grade : '—';
+  const gradeColor=hs ? hs.gradeColor : 'var(--muted)';
+  const gradeExplain=hs ? (GRADE_EXPLAIN[hs.grade]||hs.label)
+    : (hasData ? 'Add a month with income to get a grade.' : 'Import transactions to get your grade.');
+
+  // Top 3 spend categories
+  const spend=m ? Object.entries(m.expenses).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,3) : [];
+  const expTotal=m ? Object.values(m.expenses).reduce((s,v)=>s+v,0) : 0;
+  const maxAmt=spend[0]?.[1]||1;
+
+  const pills=hasData
+    ? `<div class="pills-row" style="margin-bottom:12px;">${keys.map(k=>`<div class="pill ${k===sel?'active':''}" onclick="selMonth('${k}')">${k}</div>`).join('')}<div class="pill" onclick="selMonth('__all')">All</div></div>`
+    : '';
+
+  const topSpendBody=spend.length
+    ? `<div class="cat-list">${spend.map(([cat,amt],i)=>`
+        <div class="cat-item">
+          <div class="cat-body">
+            <div class="cat-name">${esc(cat)}</div>
+            <div class="cat-bar-bg"><div class="cat-bar-fg" style="width:${Math.round(amt/maxAmt*100)}%;background:${PAL[i%15]}"></div></div>
+          </div>
+          <div class="cat-right">
+            <div class="cat-amt">${fmt(amt)}</div>
+            <div class="cat-pct">${expTotal>0?(amt/expTotal*100).toFixed(1):'0.0'}%</div>
+          </div>
+        </div>`).join('')}</div>`
+    : `<div class="g-card" style="padding:22px 18px;text-align:center;color:var(--muted);font-size:13px;">No spending yet — import your Bank Transactions to see your top categories.</div>`;
+
+  let achievements=hasData ? renderStreaks() : '';
+  if(!achievements){
+    const goals=computeBadges([],0,0,0,0,0);
+    achievements=`<div class="streaks-card">
+      <div class="badge-section-title" style="color:var(--muted);margin-top:0;">Start importing to unlock these</div>
+      <div class="badge-grid">${goals.map(b=>`
+        <div class="badge-tile badge-locked">
+          ${badgeIconHTML(b.label)}
+          <div class="badge-name">${esc(b.label)}</div>
+          <div class="badge-desc">${esc(b.desc)}</div>
+          <div class="badge-prog"><div style="width:0%;height:100%;border-radius:3px;background:rgba(255,255,255,0.3);"></div></div>
+        </div>`).join('')}</div>
+    </div>`;
+  }
+
+  const importPrompt=hasData ? '' : `
+      <div class="g-card" style="padding:18px;margin:14px 0 0;text-align:center;">
+        <div style="font-family:var(--font-display);font-size:16px;font-weight:900;margin-bottom:6px;">You're all set!</div>
+        <div style="font-size:13px;color:var(--soft);line-height:1.6;margin-bottom:14px;">Your budget is ready. Import your bank transactions to track spending against these targets.</div>
+        <button class="btn-primary" onclick="startFirstImport()">Import your first Bank Transaction file now</button>
+        <div id="first-import-help" style="display:none;margin-top:12px;font-size:12px;color:var(--soft);line-height:1.5;">Don't have a file yet? <span onclick="goToBankExport()" style="color:var(--green);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:2px;">See how to export from your bank &rarr;</span></div>
+      </div>`;
 
   document.getElementById('summary-content').innerHTML=`
     <div class="gb-welcome">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0 14px;">
         <div style="font-family:var(--font-display);font-size:18px;font-weight:900;letter-spacing:-0.5px;"><span style="color:#00d68f;">Green</span>bar</div>
-        <div style="font-size:11px;color:var(--muted);" id="hdr-month-label"></div>
-      </div>      </div>
-      <div class="pills-row" style="margin-bottom:12px;">${pills}</div>
+        <div style="font-size:11px;color:var(--muted);">${hasData?esc(sel||''):'Budget ready'}</div>
+      </div>
+      ${pills}
       <div class="net-card" style="margin-bottom:12px;">
         <div class="pulse"></div>
-        <div class="net-lbl">Monthly Net</div>
-        <div class="net-amt ${net>=0?'surplus':'deficit'}">${net>=0?'+':''}${fmt(net)}</div>
-        <div class="net-mo">${_sel}${(()=>{
-        // Partial month warning: check if month has < 20 days of data
-        const txDates=m.txs.map(tx=>tx.date).filter(Boolean);
-        if(txDates.length===0) return '';
-        const days=new Set(txDates).size;
-        return days < 20 ? ' &nbsp;<span style="font-size:10px;background:rgba(255,165,2,0.15);color:#ffa502;border-radius:6px;padding:2px 7px;font-weight:700;vertical-align:middle;">partial month</span>' : '';
-      })()}</div>
+        <div class="net-lbl">Monthly Budget</div>
+        <div class="net-amt surplus">${fmt(totalBudget)}</div>
+        <div class="net-mo">Your monthly plan</div>
       </div>
-      <div class="stat-row">
-        <div class="stat-tile"><div class="st-lbl">Income</div><div class="st-val c-green">${fmt(m.income)}</div></div>
-        <div class="stat-tile"><div class="st-lbl">Expenses</div><div class="st-val c-red">${fmt(expTotal)}</div></div>
-        <div class="stat-tile"><div class="st-lbl">Txs</div><div class="st-val c-teal">${m.txs.length}</div></div>
+      <div class="stat-row" style="grid-template-columns:1fr 1fr;margin-bottom:8px;">
+        <div class="stat-tile"><div class="st-lbl">Last Added</div><div class="st-val c-teal" style="font-size:14px;">${esc(lastAdded)}</div></div>
+        <div class="stat-tile"><div class="st-lbl">Health Score</div><div class="st-val" style="color:${gradeColor};">${grade}</div></div>
       </div>
-      ${renderHealthScore(_sel==='__all' ? keys[keys.length-1] : _sel)}
-      ${renderStreaks()}
-      <div class="sec-hdr">Top Categories <span class="sec-total">${fmt(expTotal)}</span></div>
-      <div class="cat-list">
-        ${cats.slice(0,8).map(([cat,amt],i)=>`
-        <div class="cat-item" style="flex-direction:column;align-items:stretch;gap:8px;">
-          <div style="display:flex;align-items:center;gap:12px;">
-            <div class="cat-body">
-              <div class="cat-name">${esc(cat)}</div>
-              <div class="cat-bar-bg"><div class="cat-bar-fg" style="width:${Math.round(amt/maxAmt*100)}%;background:${PAL[i%15]}"></div></div>
-            </div>
-            <div class="cat-right">
-              <div class="cat-amt">${fmt(amt)}</div>
-              <div class="cat-pct">${(amt/expTotal*100).toFixed(1)}%</div>
-            </div>
-          </div>
-          <div style="display:flex;gap:8px;">
-            <button onclick="showVendorDrill(this.dataset.cat)" data-cat="${esc(cat)}" style="flex:1;padding:7px 0;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:var(--soft);font-size:11px;font-weight:600;cursor:pointer;font-family: var(--font-display);">Transactions</button>
-            <button onclick="showCatInsights(this.dataset.cat)" data-cat="${esc(cat)}" style="flex:1;padding:7px 0;border-radius:10px;border:1px solid rgba(0,214,143,0.25);background:rgba(0,214,143,0.08);color:#00d68f;font-size:11px;font-weight:600;cursor:pointer;font-family: var(--font-display);">Insights</button>
-          </div>
-        </div>`).join('')}
-      </div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.5;margin:0 2px 16px;">${esc(gradeExplain)}</div>
+      <div class="sec-hdr">Top Spending${(m&&spend.length)?` <span class="sec-total">${fmt(expTotal)}</span>`:''}</div>
+      ${topSpendBody}
+      <div class="sec-hdr">Achievements</div>
+      ${achievements}
+      ${importPrompt}
     </div>`;
 }
 function selMonth(mk){
@@ -2882,7 +2973,7 @@ function renderSummaryAll(){
 function renderBudget(){
   const mk=_sel==='__all'?sortKeys(_months).slice(-1)[0]:_sel;
   const m=_months[mk];
-  if(!m){document.getElementById('budget-content').innerHTML='<div class="empty"><p>Import a CSV to see budget vs actual</p></div>';return;}
+  if(!m){document.getElementById('budget-content').innerHTML='<div class="empty"><p>Import your Bank Transactions to see budget vs actual</p></div>';return;}
   const expTotal=Object.values(m.expenses).reduce((s,v)=>s+v,0);
   const budTotal=Object.values(CFG.budget).reduce((s,v)=>s+v,0);
   const rows=Object.entries(CFG.budget).map(([cat,bud])=>({cat,bud,actual:m.expenses[cat]||0})).filter(r=>r.bud>0||r.actual>0).sort((a,b)=>b.actual-a.actual);
@@ -2928,6 +3019,103 @@ function renderTxs(filter=''){
       </div>`).join('')}`;
 }
 
+// ════ BANK EXPORT GUIDE ════
+// Curated high-level download steps for common US banks. Exact labels drift over
+// time, so the on-screen note points users to their bank's help center.
+const BANK_EXPORTS = {
+  chase: { name:'Chase', steps:[
+    'Sign in at chase.com and select the account you want to export.',
+    'On the account activity page, click "Download account activity."',
+    'Choose a date range (or "All transactions") and the "Spreadsheet (CSV)" file type.',
+    'Click Download — the file saves to your Downloads folder.'
+  ], note:'Chase\'s CSV export covers roughly the last 24 months. For older history, download monthly statements instead.' },
+  bofa: { name:'Bank of America', steps:[
+    'Sign in at bankofamerica.com and select your account.',
+    'On the Activity tab, choose Download (Bank of America labels it "Download Transactions").',
+    'Pick a date range and the CSV file format.',
+    'Click Download.'
+  ], note:'Bank of America limits each download to about 60 days, so a full year may take several downloads.' },
+  wells: { name:'Wells Fargo', steps:[
+    'Sign in at wellsfargo.com and open your account.',
+    'Click "Download Account Activity" above your transaction list.',
+    'Choose a date range and set the format to "Comma Delimited (CSV)."',
+    'Click Download.'
+  ], note:'Wells Fargo offers up to about 18 months of activity for CSV download.' },
+  citi: { name:'Citi', steps:[
+    'Sign in at citi.com and open the account you want.',
+    'On the account activity page, select the Download option.',
+    'Choose a date range and the CSV (or Excel) file format.',
+    'Click Download.'
+  ] },
+  capitalone: { name:'Capital One', steps:[
+    'Sign in at capitalone.com and open your account.',
+    'Select "Download Transactions" (under "View More" or the account menu).',
+    'Choose a date range and the CSV file type.',
+    'Click Download.'
+  ] },
+  usbank: { name:'U.S. Bank', steps:[
+    'Sign in at usbank.com and select your account.',
+    'From the account activity page, choose "Download Transactions."',
+    'Pick a date range and the "Spreadsheet (CSV)" format.',
+    'Click Download.'
+  ] },
+  pnc: { name:'PNC', steps:[
+    'Sign in at pnc.com and open your account\'s Activity.',
+    'Select the Export or Download option.',
+    'Choose a date range and the CSV format.',
+    'Click Download.'
+  ] },
+  truist: { name:'Truist', steps:[
+    'Sign in at truist.com and open the account.',
+    'From the transaction history, choose the Export or Download option.',
+    'Choose a date range and the CSV format.',
+    'Click Download.'
+  ] },
+  tdbank: { name:'TD Bank', steps:[
+    'Sign in at td.com and select your account.',
+    'On the account activity page, choose Download.',
+    'Pick a date range and the CSV (spreadsheet) format.',
+    'Click Download.'
+  ] },
+  amex: { name:'American Express', steps:[
+    'Sign in at americanexpress.com and open "Statements & Activity."',
+    'Choose the Download option for the period you want.',
+    'Select the CSV (Excel) file format.',
+    'Click Download.'
+  ] },
+  other: { name:'Other / not listed', steps:[
+    'Sign in to your bank\'s website or app and open the account.',
+    'Find "Account Activity," "Transaction History," or "Statements."',
+    'Look for a Download, Export, or Statements option, and choose CSV (sometimes labeled "Comma Delimited" or "Spreadsheet").',
+    'Pick a date range and download the file.'
+  ] },
+};
+function showBankExport(key){
+  const el=document.getElementById('bank-export-steps');
+  if(!el) return;
+  if(!key){ el.innerHTML='<div style="font-size:12px;color:var(--muted);padding:2px;">Pick your bank above for step-by-step export instructions.</div>'; return; }
+  const b=BANK_EXPORTS[key];
+  if(!b) return;
+  el.innerHTML=b.steps.map((s,i)=>`<div style="display:flex;gap:10px;align-items:flex-start;padding:6px 0;">
+      <div style="width:20px;height:20px;border-radius:6px;background:rgba(0,214,143,0.12);color:var(--green);font-family:var(--font-display);font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i+1}</div>
+      <div style="font-size:12px;color:var(--soft);line-height:1.6;">${esc(s)}</div>
+    </div>`).join('')
+    + (b.note?`<div style="font-size:11px;color:var(--amber);background:rgba(255,165,2,0.07);border:1px solid rgba(255,165,2,0.2);border-radius:10px;padding:8px 11px;margin-top:8px;line-height:1.5;">${esc(b.note)}</div>`:'')
+    + `<div style="font-size:11px;color:var(--muted);line-height:1.5;margin-top:8px;">Exact labels and steps can change — if something looks different, search your bank's help center for &ldquo;download transactions.&rdquo;</div>`;
+}
+
+// Post-setup import button: open the file picker, then reveal a shortcut to the
+// bank-export instructions for first-timers who don't have a file yet.
+function startFirstImport(){
+  document.getElementById('csv-input').click();
+  const help=document.getElementById('first-import-help');
+  if(help) help.style.display='block';
+}
+function goToBankExport(){
+  showScreen('intro', _navBtn(3));
+  setTimeout(()=>{ document.getElementById('bank-export-section')?.scrollIntoView({block:'start'}); }, 60);
+}
+
 // ════ NAV ════
 function showScreen(name,btn){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -2940,8 +3128,12 @@ function showScreen(name,btn){
   if(name==='txs') renderTxs();
   if(name==='settings'){ syncUI(); renderBudgetInputs(); }
   if(name==='summary' && !Object.keys(_months||{}).length){
-    const setupActive = document.getElementById('screen-setup')?.classList.contains('active');
-    if(!setupActive) setTimeout(()=>{ runFlashIntro(); }, 50);
+    if(localStorage.getItem('gb_setup_done')){
+      renderSummary();
+    } else {
+      const setupActive = document.getElementById('screen-setup')?.classList.contains('active');
+      if(!setupActive) setTimeout(()=>{ runFlashIntro(); }, 50);
+    }
   }
 }
 
@@ -3194,6 +3386,7 @@ function finishSetup(){
   const finalBudget = Object.keys(budget).length > 0 ? budget : computeBudgetFromState();
 
   CFG.budget = finalBudget;
+  CFG.income = Number(_setupState.income)||0;
   saveCFG();
   try{ localStorage.setItem('gb_setup_done','1'); }catch(e){}
 
@@ -3209,7 +3402,7 @@ function finishSetup(){
   showHeaderButtons();
 
   // Show a brief toast instead of blocking alert
-  showToast('Budget saved! Import your first CSV to start tracking.');
+  showToast('Budget saved! Import your Bank Transactions to start tracking.');
 }
 
 function skipSetup(){
@@ -3243,9 +3436,12 @@ if(loadData()){
   document.getElementById('hdr-sub').textContent=`${_allTxs.length} transactions · ${allKeys.length} months`;
   renderAll();
   showScreen('summary',_navBtn(0));
+} else if(localStorage.getItem('gb_setup_done')){
+  // Setup done but no transactions imported yet -- show the budget KPI summary
+  showHeaderButtons();
+  showScreen('summary',_navBtn(0));
 } else {
-  // No data loaded -- always run flash intro
-  // (Flash shows Get Started if setup not done, or Import prompt if already set up)
+  // First launch -- run the flash intro
   setTimeout(()=>{ runFlashIntro(); }, 200);
 }
 updateLogBadge();
@@ -3280,9 +3476,9 @@ updateLogBadge();
       <div class="modal-title" style="margin-bottom:0;">Upload Log</div>
       <button onclick="clearLog()" style="background:rgba(255,71,87,0.12);border:1px solid rgba(255,71,87,0.2);border-radius:10px;padding:6px 12px;color:var(--red);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-display);">Clear All</button>
     </div>
-    <div class="modal-sub">Every CSV you import is recorded here.</div>
+    <div class="modal-sub">All the Bank Transactions you import are recorded here.</div>
     <div id="log-list"></div>
-    <div id="log-empty" style="text-align:center;padding:40px 0;color:var(--muted);font-size:14px;display:none;">No uploads yet.<br>Import a CSV to start logging.</div>
+    <div id="log-empty" style="text-align:center;padding:40px 0;color:var(--muted);font-size:14px;display:none;">No uploads yet.<br>Import your Bank Transactions to start logging.</div>
   </div>
 </div>
 
