@@ -1514,6 +1514,15 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
         </div>
       </div>
 
+      <div class="sec-hdr">Import History</div>
+      <div class="settings-section">
+        <div class="settings-row" onclick="openModal('modal-log')">
+          <div class="s-body"><div class="s-label">Upload Log</div><div class="s-desc">History of every file you've imported</div></div>
+          <span id="log-badge" style="display:none;background:var(--green);color:#050a14;font-size:11px;font-weight:800;border-radius:9px;padding:2px 7px;font-family:var(--font-display);"></span>
+          <span class="s-arrow">›</span>
+        </div>
+      </div>
+
       <div class="sec-hdr">Monthly Budget Targets</div>
       <div class="settings-section" id="budget-inputs"></div>
 
@@ -1669,8 +1678,26 @@ function detectDelim(line){
 }
 function parseL(line,delim){ delim=delim||','; const r=[];let cur='',inQ=false; for(let i=0;i<line.length;i++){ const c=line[i]; if(c==='"'){inQ=!inQ;}else if(c===delim&&!inQ){r.push(cur);cur='';}else cur+=c; } r.push(cur); return r; }
 function parseAmt(s){ if(!s)return 0; const c=s.replace(/[",\$ ]/g,''); const neg=c.startsWith('-')||c.startsWith('('); const n=parseFloat(c.replace(/[^0-9.]/g,'')); if(!isFinite(n))return 0; return neg?-n:n; }
-function autoCol(headers,candidates){ for(const c of candidates){ const f=headers.find(h=>h.toLowerCase().includes(c.toLowerCase())); if(f) return f; } return headers[0]; }
-function parseDate(str,fmt){ if(!str)return null; const s=str.replace(/[^0-9\/\-]/g,''); const p=s.split(/[\/\-]/); if(!p||p.length<3) return null; let m,d,y; if(fmt==='YYYY-MM-DD'){[y,m,d]=p;}else if(fmt==='DD/MM/YYYY'){[d,m,y]=p;}else{[m,d,y]=p;} if(y&&y.length===2)y='20'+y; const mi=parseInt(m)-1; if(mi<0||mi>11)return null; return`${MN[mi]} ${y}`; }
+// Find a header matching one of the candidate names. Returns '' when nothing
+// matches -- callers decide whether that column is required or optional.
+function autoCol(headers,candidates){ for(const c of candidates){ const f=headers.find(h=>h.toLowerCase().includes(c.toLowerCase())); if(f) return f; } return ''; }
+// Parse a raw date string (in the given format) into sortable parts.
+// Returns { key:YYYYMMDD number, month:"Mon YYYY", label:"Mon D, YYYY" } or null.
+function parseDateParts(str,fmt){
+  if(!str) return null;
+  const s=String(str).replace(/[^0-9\/\-]/g,'');
+  const p=s.split(/[\/\-]/);
+  if(p.length<3) return null;
+  let m,d,y;
+  if(fmt==='YYYY-MM-DD'){[y,m,d]=p;}
+  else if(fmt==='DD/MM/YYYY'){[d,m,y]=p;}
+  else{[m,d,y]=p;}
+  m=parseInt(m,10); d=parseInt(d,10); y=parseInt(y,10);
+  if(!m||!d||!y) return null;
+  if(y<100) y+=2000;
+  if(m<1||m>12||d<1||d>31) return null;
+  return { key:y*10000+m*100+d, month:`${MN[m-1]} ${y}`, label:`${MN[m-1]} ${d}, ${y}` };
+}
 
 function processCSV(rows,headers){
   if(!headers||headers.length<2){ alert('These Bank Transactions have no headers. Check the file format and try again.'); return []; }
@@ -1678,14 +1705,22 @@ function processCSV(rows,headers){
   const colDate=CFG.cols.date||autoCol(headers,['date','posted','transaction date']);
   const colDesc=CFG.cols.desc||autoCol(headers,['description','merchant','memo','payee']);
   const colAmt=CFG.cols.amt||autoCol(headers,['amount','transaction amount']);
-  const colCat=CFG.cols.cat||autoCol(headers,['category','type']);
+  // Category is optional -- left blank when the file has no category column,
+  // so rows fall through to keyword/remap categorization instead of being
+  // mis-mapped onto whatever column happens to be first.
+  const colCat=CFG.cols.cat||autoCol(headers,['category']);
   const fmt=CFG.cols.fmt||'MM/DD/YY';
+  if(!colDate||!colAmt){
+    alert('Couldn’t identify the Date and Amount columns in this file. Open Settings → Column Mapping, enter your bank’s exact column names, then import again.');
+    return [];
+  }
   const txs=[];
   for(const row of rows){
     const raw=row[colDesc]||''; const desc=raw.toUpperCase();
     const amount=parseAmt(row[colAmt]||'0');
-    const month=parseDate(row[colDate]||'',fmt);
-    if(!month) continue;
+    const pd=parseDateParts(row[colDate]||'',fmt);
+    if(!pd) continue;
+    const month=pd.month;
     if(CFG.skipKw.some(kw=>desc.includes(kw))) continue;
     let cat=(row[colCat]||'Uncategorized').trim();
     // Normalize common bank category names to standard budget names
@@ -1709,7 +1744,7 @@ function processCSV(rows,headers){
     let isIncome=amount>0;
     if(CFG.incomeKw.some(kw=>desc.includes(kw))){isIncome=true;cat='_income';}
     else{ for(const r of CFG.remaps){ if(desc.includes(r.kw.toUpperCase())){cat=r.cat;break;} } }
-    txs.push({date:row[colDate]||'',month,desc:raw,amount,cat,isIncome});
+    txs.push({date:row[colDate]||'',ts:pd.key,month,desc:raw,amount,cat,isIncome});
   }
   return txs;
 }
@@ -1745,12 +1780,12 @@ function computeHealthScore(monthKey){
   const details = {};
 
   // 1. Savings rate (0–40 pts)
-  // 20%+ = 40pts, 10%=28pts, 0%=0pts, negative=-10pts
+  // 20%+ = 40pts, 10% = 28pts, 0% = 0pts; deficits scale down and clamp to 0.
+  // One continuous line below 20% -- no jump at the break-even point.
   const savingsRate = (income - expTotal) / income;
   const savePts = savingsRate >= 0.20 ? 40
     : savingsRate >= 0.10 ? Math.round(28 + (savingsRate - 0.10)/0.10 * 12)
-    : savingsRate >= 0    ? Math.round(savingsRate / 0.10 * 28)
-    : Math.max(0, Math.round(28 + savingsRate/0.10 * 28));
+    : Math.round(savingsRate / 0.10 * 28);
   score += Math.max(0, savePts);
   details.savePts = Math.max(0, savePts);
   details.savingsRate = savingsRate;
@@ -2660,6 +2695,7 @@ function processNextFile(){
   rd.onload = e => {
     const{headers,rows} = parseCSV(e.target.result);
     const newTxs = processCSV(rows, headers);
+    if(!newTxs.length){ processNextFile(); return; } // file empty or rejected -- skip it, don't log an empty import
     const newMonths = aggregate(newTxs);
     const newKeys = sortKeys(newMonths);
 
@@ -3001,9 +3037,20 @@ function renderBudget(){
 
 function renderTxs(filter=''){
   const mk=_sel==='__all'?null:_sel;
-  const txs=(_allTxs||[]).filter(tx=>(!mk||tx.month===mk)&&(!filter||tx.desc.toLowerCase().includes(filter.toLowerCase())||tx.cat.toLowerCase().includes(filter.toLowerCase()))).sort((a,b)=>b.date.localeCompare(a.date));
-  if(!txs.length){document.getElementById('txs-content').innerHTML='<div class="empty"><p>No transactions found</p></div>';return;}
-  const byDate={};for(const tx of txs){if(!byDate[tx.date])byDate[tx.date]=[];byDate[tx.date].push(tx);}
+  const dateFmt=CFG.cols.fmt||'MM/DD/YY';
+  // Resolve each tx to a sortable key + readable label. Prefer the ts stored at
+  // import; fall back to parsing the raw date for data saved by older versions.
+  const rows=(_allTxs||[])
+    .filter(tx=>(!mk||tx.month===mk)&&(!filter||tx.desc.toLowerCase().includes(filter.toLowerCase())||tx.cat.toLowerCase().includes(filter.toLowerCase())))
+    .map(tx=>{
+      const pd=parseDateParts(tx.date,dateFmt);
+      const key=(typeof tx.ts==='number'&&tx.ts)||(pd&&pd.key)||0;
+      const label=(pd&&pd.label)||tx.date||'Undated';
+      return {tx,key,label};
+    })
+    .sort((a,b)=>b.key-a.key);
+  if(!rows.length){document.getElementById('txs-content').innerHTML='<div class="empty"><p>No transactions found</p></div>';return;}
+  const byDate={};for(const r of rows){(byDate[r.label]=byDate[r.label]||[]).push(r.tx);}
   document.getElementById('txs-content').innerHTML=`
     <div class="search-wrap">
       <input type="text" placeholder="Search…" value="${esc(filter)}" oninput="clearTimeout(this._t);this._t=setTimeout(()=>renderTxs(this.value),120)" autocomplete="off">
@@ -3497,6 +3544,24 @@ updateLogBadge();
     </div>
     <div class="modal-sub" style="margin-bottom:16px;"></div>
     <div id="vendor-list"></div>
+  </div>
+</div>
+
+<!-- CATEGORY INSIGHTS MODAL -->
+<div class="modal-overlay" id="modal-cat-insights" onclick="closeOut(event,'modal-cat-insights')">
+  <div class="modal-sheet">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
+      <button onclick="closeModal('modal-cat-insights')" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#x2715;</button>
+    </div>
+    <div class="modal-handle" style="margin-top:0;"></div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+      <div>
+        <div class="modal-title" id="ins-cat-title" style="margin-bottom:0;font-size:18px;"></div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;" id="ins-cat-sub"></div>
+      </div>
+    </div>
+    <div id="ins-loading" style="display:none;text-align:center;padding:30px 0;color:var(--muted);font-size:13px;">Analyzing…</div>
+    <div id="ins-content"></div>
   </div>
 </div>
 
