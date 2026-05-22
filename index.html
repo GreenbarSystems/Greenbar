@@ -716,6 +716,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
     <div class="hdr-right">
       <button id="hdr-import-btn" class="fab" onclick="document.getElementById('csv-input').click()" style="opacity:0;pointer-events:none;width:auto;padding:0 16px;font-size:13px;font-weight:800;font-family:var(--font-display);letter-spacing:0.3px;color:#050a14;background:linear-gradient(135deg,#00d68f,#00c9b1);box-shadow:0 4px 16px rgba(0,214,143,0.4);opacity:0;pointer-events:none;transition:opacity 0.6s ease;">Import</button>
       <input type="file" id="csv-input" accept=".csv,.tsv,.txt" multiple onchange="handleFiles(this.files)">
+      <input type="file" id="restore-input" accept=".json,application/json" style="display:none" onchange="restoreData(this.files[0]); this.value='';">
     </div>
   </div>
 
@@ -1524,6 +1525,19 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
         </div>
       </div>
 
+      <div class="sec-hdr">Data Backup</div>
+      <div class="settings-section">
+        <div class="settings-row" onclick="exportData()">
+          <div class="s-body"><div class="s-label">Export a Backup</div><div class="s-desc" id="storage-desc">Save all your data to a file</div></div>
+          <span class="s-arrow">›</span>
+        </div>
+        <div class="settings-row" onclick="document.getElementById('restore-input').click()">
+          <div class="s-body"><div class="s-label">Restore from Backup</div><div class="s-desc">Replace current data with a backup file</div></div>
+          <span class="s-arrow">›</span>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.5;margin:-4px 2px 14px;">Greenbar stores everything in this browser only. Export a backup before clearing browser data or switching devices.</div>
+
       <div class="sec-hdr">Monthly Budget Targets</div>
       <div class="settings-section" id="budget-inputs"></div>
 
@@ -1614,14 +1628,43 @@ const DEFAULTS = {
   cols:{ date:'',desc:'',amt:'',cat:'',fmt:'MM/DD/YY' },
   incomeKw:['PAYROLL','DIRECT DEPOSIT','SALARY','TAX REFUND','CASHOUT','MOBILE DEPOSIT','ZELLE FROM','VENMO CASHOUT'],
   skipKw:[],
+  // Curated default merchant rules -- distinctive keyword substrings, matched
+  // case-insensitively against the description (first match wins).
   remaps:[
     {kw:'WALMART',cat:'Groceries'},{kw:'COSTCO',cat:'Groceries'},
+    {kw:'KROGER',cat:'Groceries'},{kw:'SAFEWAY',cat:'Groceries'},
+    {kw:'TRADER JOE',cat:'Groceries'},{kw:'WHOLE FOODS',cat:'Groceries'},
+    {kw:'PUBLIX',cat:'Groceries'},{kw:'WEGMANS',cat:'Groceries'},
     {kw:'MCDONALD',cat:'Fast Food'},{kw:'CHIPOTLE',cat:'Fast Food'},
-    {kw:'STARBUCKS',cat:'Coffee'},{kw:'AMAZON',cat:'Online Shopping'},
+    {kw:'BURGER KING',cat:'Fast Food'},{kw:'TACO BELL',cat:'Fast Food'},
+    {kw:'CHICK-FIL-A',cat:'Fast Food'},{kw:'POPEYES',cat:'Fast Food'},
+    {kw:'DOMINO',cat:'Fast Food'},{kw:'PIZZA HUT',cat:'Fast Food'},
+    {kw:'PANERA',cat:'Fast Food'},{kw:'DOORDASH',cat:'Fast Food'},
+    {kw:'GRUBHUB',cat:'Fast Food'},
+    {kw:'STARBUCKS',cat:'Coffee'},{kw:'DUNKIN',cat:'Coffee'},
+    {kw:'AMAZON',cat:'Online Shopping'},{kw:'EBAY',cat:'Online Shopping'},
+    {kw:'ETSY',cat:'Online Shopping'},{kw:'BEST BUY',cat:'Online Shopping'},
+    {kw:'WAYFAIR',cat:'Online Shopping'},
     {kw:'NETFLIX',cat:'Subscriptions'},{kw:'SPOTIFY',cat:'Subscriptions'},
-    {kw:'APPLE.COM',cat:'Subscriptions'},{kw:'UBER',cat:'Transport'},
-    {kw:'LYFT',cat:'Transport'},{kw:'SHELL',cat:'Gas/Fuel'},
-    {kw:'CHEVRON',cat:'Gas/Fuel'},{kw:'EXXON',cat:'Gas/Fuel'},
+    {kw:'APPLE.COM',cat:'Subscriptions'},{kw:'HULU',cat:'Subscriptions'},
+    {kw:'DISNEY PLUS',cat:'Subscriptions'},{kw:'HBO MAX',cat:'Subscriptions'},
+    {kw:'AUDIBLE',cat:'Subscriptions'},{kw:'ADOBE',cat:'Subscriptions'},
+    {kw:'UBER',cat:'Transport'},{kw:'LYFT',cat:'Transport'},
+    {kw:'SHELL',cat:'Gas/Fuel'},{kw:'CHEVRON',cat:'Gas/Fuel'},
+    {kw:'EXXON',cat:'Gas/Fuel'},{kw:'MARATHON',cat:'Gas/Fuel'},
+    {kw:'SUNOCO',cat:'Gas/Fuel'},{kw:'CITGO',cat:'Gas/Fuel'},
+    {kw:'VALERO',cat:'Gas/Fuel'},{kw:'SPEEDWAY',cat:'Gas/Fuel'},
+    {kw:'CVS',cat:'Healthcare'},{kw:'WALGREENS',cat:'Healthcare'},
+    {kw:'RITE AID',cat:'Healthcare'},
+    {kw:'HOME DEPOT',cat:'Home Improvement'},{kw:'LOWES',cat:'Home Improvement'},
+    {kw:'MENARDS',cat:'Home Improvement'},
+    {kw:'COMCAST',cat:'Internet/Cable'},{kw:'XFINITY',cat:'Internet/Cable'},
+    {kw:'SPECTRUM',cat:'Internet/Cable'},
+    {kw:'T-MOBILE',cat:'Wireless'},{kw:'VERIZON',cat:'Wireless'},
+    {kw:'GAMESTOP',cat:'Entertainment'},{kw:'PLAYSTATION',cat:'Entertainment'},
+    {kw:'XBOX',cat:'Entertainment'},{kw:'NINTENDO',cat:'Entertainment'},
+    {kw:'CINEMARK',cat:'Entertainment'},
+    {kw:'CHEWY',cat:'Pets'},{kw:'PETCO',cat:'Pets'},{kw:'PETSMART',cat:'Pets'},
   ],
   budget:{
     'Groceries':600,'Dining Out':400,'Fast Food':100,'Coffee':60,
@@ -2435,6 +2478,56 @@ function loadData(){
   }catch(e){ return false; }
 }
 
+// ════ DATA BACKUP / RESTORE ════
+// Export every Greenbar key to one JSON file the user can save off-device, and
+// restore from it -- the safety net for browser-only (localStorage) storage.
+const GB_KEYS=['gb_data','gb_cfg2','gb_log','gb_setup_done','gb_wt_done'];
+function exportData(){
+  try{
+    const payload={ _greenbar_backup:1, version:1, exported:new Date().toISOString(), data:{} };
+    GB_KEYS.forEach(k=>{ const v=localStorage.getItem(k); if(v!==null) payload.data[k]=v; });
+    const blob=new Blob([JSON.stringify(payload)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download='greenbar-backup-'+new Date().toISOString().slice(0,10)+'.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    showToast('Backup downloaded to your device.');
+  }catch(e){ alert('Could not create a backup: '+(e&&e.message||e)); }
+}
+function restoreData(file){
+  if(!file) return;
+  const rd=new FileReader();
+  rd.onload=e=>{
+    let payload;
+    try{ payload=JSON.parse(e.target.result); }
+    catch(err){ alert('That file is not a valid Greenbar backup.'); return; }
+    if(!payload || payload._greenbar_backup!==1 || !payload.data){
+      alert('That file is not a valid Greenbar backup.'); return;
+    }
+    if(!confirm('Restore this backup? It replaces ALL data currently on this device.')) return;
+    try{
+      GB_KEYS.forEach(k=>{
+        if(payload.data[k]!==undefined) localStorage.setItem(k,payload.data[k]);
+        else localStorage.removeItem(k);
+      });
+    }catch(err){ alert('Restore failed -- storage error: '+(err&&err.message||err)); return; }
+    alert('Backup restored. Greenbar will now reload.');
+    location.reload();
+  };
+  rd.onerror=()=>alert('Could not read that file.');
+  rd.readAsText(file);
+}
+// Rough indicator of how much device storage Greenbar is using.
+function updateStorageDesc(){
+  const el=document.getElementById('storage-desc');
+  if(!el) return;
+  let bytes=0;
+  try{ GB_KEYS.forEach(k=>{ bytes+=(localStorage.getItem(k)||'').length; }); }catch(e){}
+  const size=bytes>1024?Math.round(bytes/1024)+' KB':bytes+' bytes';
+  el.textContent='Save all your data to a file · '+size+' stored';
+}
+
 // ════ UPLOAD LOG ════
 function getLog(){ try{ return JSON.parse(localStorage.getItem('gb_log')||'[]'); }catch(e){ return []; } }
 function saveLog(log){ try{ localStorage.setItem('gb_log',JSON.stringify(log)); }catch(e){} }
@@ -3180,7 +3273,7 @@ function showScreen(name,btn){
   if(btn) btn.classList.add('active');
   if(name==='budget') renderBudget();
   if(name==='txs') renderTxs();
-  if(name==='settings'){ syncUI(); renderBudgetInputs(); }
+  if(name==='settings'){ syncUI(); renderBudgetInputs(); updateStorageDesc(); }
   if(name==='summary' && !Object.keys(_months||{}).length){
     if(localStorage.getItem('gb_setup_done')){
       renderSummary();
@@ -3192,9 +3285,42 @@ function showScreen(name,btn){
 }
 
 // ════ MODALS ════
-function openModal(id){ document.getElementById(id).classList.add('open'); if(id==='modal-remaps')renderRemaps(); if(id==='modal-log')renderLog(); }
-function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+let _modalReturnFocus=null;
+function openModal(id){
+  const el=document.getElementById(id);
+  if(!el) return;
+  el.classList.add('open');
+  if(id==='modal-remaps')renderRemaps();
+  if(id==='modal-log')renderLog();
+  // Accessibility: remember where focus was, then move it into the dialog.
+  _modalReturnFocus=document.activeElement;
+  const focusable=el.querySelector('input,select,textarea')||el.querySelector('button');
+  if(focusable) setTimeout(()=>{ try{ focusable.focus(); }catch(e){} },60);
+}
+function closeModal(id){
+  const el=document.getElementById(id);
+  if(el) el.classList.remove('open');
+  if(_modalReturnFocus){ try{ _modalReturnFocus.focus(); }catch(e){} _modalReturnFocus=null; }
+}
 function closeOut(e,id){ if(e.target===document.getElementById(id)) closeModal(id); }
+// Keyboard support for modal dialogs: Esc closes, Tab is trapped inside.
+document.addEventListener('keydown',function(e){
+  const open=document.querySelector('.modal-overlay.open');
+  if(!open) return;
+  if(e.key==='Escape'){
+    e.preventDefault();
+    if(open.id==='modal-conflict') resolveConflict('cancel');
+    else closeModal(open.id);
+    return;
+  }
+  if(e.key!=='Tab') return;
+  const items=[...open.querySelectorAll('button,input,select,textarea,a[href],[tabindex]:not([tabindex="-1"])')]
+    .filter(el=>!el.disabled && el.offsetParent!==null);
+  if(!items.length) return;
+  const first=items[0], last=items[items.length-1];
+  if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+  else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+});
 
 // ════ SETUP WALKTHROUGH ════
 // ════ SETUP WIZARD ════
