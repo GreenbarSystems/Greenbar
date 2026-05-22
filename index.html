@@ -2471,6 +2471,8 @@ function clearAllData(){
     const el=document.getElementById(id);
     if(el){ el.style.opacity='0'; el.style.pointerEvents='none'; }
   });
+  // Hide the bottom nav too, matching a fresh first launch
+  document.getElementById('bottom-nav')?.classList.remove('visible');
   // Reset to summary screen and run flash intro
   showScreen('summary',_navBtn(0));
   setTimeout(()=>{ runFlashIntro(); },100);
@@ -2496,8 +2498,8 @@ function renderLog(){
         <div style="font-size:11px;color:var(--muted);flex-shrink:0;margin-top:2px;">${entry.date}</div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <span style="background:rgba(0,214,143,0.10);border:1px solid rgba(0,214,143,0.2);border-radius:8px;padding:3px 10px;font-size:11px;font-weight:600;color:var(--green)">${entry.txCount} transactions</span>
-        <span style="background:rgba(41,121,255,0.10);border:1px solid rgba(41,121,255,0.2);border-radius:8px;padding:3px 10px;font-size:11px;font-weight:600;color:#2979ff">${entry.monthCount} months</span>
+        <span style="background:rgba(0,214,143,0.10);border:1px solid rgba(0,214,143,0.2);border-radius:8px;padding:3px 10px;font-size:11px;font-weight:600;color:var(--green)">${entry.txCount} transaction${entry.txCount===1?'':'s'}</span>
+        <span style="background:rgba(41,121,255,0.10);border:1px solid rgba(41,121,255,0.2);border-radius:8px;padding:3px 10px;font-size:11px;font-weight:600;color:#2979ff">${entry.monthCount} month${entry.monthCount===1?'':'s'}</span>
         <span style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:3px 10px;font-size:11px;color:var(--muted)">${entry.months}</span>
       </div>
     </div>`).join('');
