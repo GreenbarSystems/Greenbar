@@ -629,7 +629,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
-  animation: metallicShimmer 3.2s cubic-bezier(0.22,0.61,0.36,1) 0.3s 1 forwards;
+  animation: metallicShimmer 1.3s cubic-bezier(0.22,0.61,0.36,1) 0.1s 2 forwards;
   text-shadow: none;
   filter: drop-shadow(0 0 8px rgba(0,214,143,0.4));
 }
@@ -2326,35 +2326,35 @@ function runFlashIntro(){
 
   // Phase 1: "Hey there." fades in
   schedule(()=>{
-    p1.style.transition = 'opacity 0.5s ease';
+    p1.style.transition = 'opacity 0.4s ease';
     p1.style.opacity = '1';
-  }, 200);
+  }, 150);
 
   // Phase 1 fades out
   schedule(()=>{
-    p1.style.transition = 'opacity 0.9s ease';
+    p1.style.transition = 'opacity 0.5s ease';
     p1.style.opacity = '0';
-  }, 3200);
+  }, 1500);
 
   // Phase 2: fades in as phase 1 is fading out -- crossfade, no blank gap
   schedule(()=>{
     const shimmer = p2 ? p2.querySelector('.gb-shimmer') : null;
     if(shimmer){
+      // Restart so the two shimmer passes play in sync with phase 2 appearing.
       shimmer.style.animation = 'none';
       shimmer.offsetWidth;
       shimmer.style.animation = '';
-      // Attach chime to fire when shimmer animation completes
     }
-    p2.style.transition = 'opacity 1.4s ease';
+    p2.style.transition = 'opacity 0.7s ease';
     p2.style.opacity = '1';
-  }, 3600);
+  }, 1750);
 
   // CTA fades in
   schedule(()=>{
-    cta.style.transition = 'opacity 1.2s ease';
+    cta.style.transition = 'opacity 0.5s ease';
     cta.style.opacity = '1';
     _flashDone = true;
-  }, 7200);
+  }, 3000);
 }
 
 function flashSkipToCTA(e){
