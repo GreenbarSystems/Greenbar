@@ -131,6 +131,10 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
 .screen.active        { display: block; }
 #screen-walkthrough.active { display: flex; flex-direction: column; height: 100%; overflow: hidden; padding: 0; }
 #screen-setup.active       { display: flex; flex-direction: column; height: 100%; overflow: hidden; padding: 0; }
+/* Uniform 16px gap between the app header and each main screen's content.
+   Summary is excluded -- it keeps its gap via .gb-welcome so the first-launch
+   flash intro is unaffected. */
+#screen-budget, #screen-txs, #screen-intro, #screen-settings { padding-top: 16px; }
 @keyframes screenIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 /* screenIn animation removed -- caused blank screen on re-activate */
 
@@ -758,7 +762,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
 
     <!-- INTRO / GUIDE -->
     <div class="screen" id="screen-intro">
-      <div style="padding:12px 0 4px;">
+      <div style="padding:0 0 4px;">
 
         <!-- Hero -->
         <div style="text-align:center;padding:28px 20px 22px;background:linear-gradient(155deg,rgba(0,214,143,0.07),rgba(41,121,255,0.05));border:1px solid rgba(0,214,143,0.15);border-radius:24px;margin-bottom:14px;position:relative;overflow:hidden;">
@@ -3024,7 +3028,7 @@ function renderBudget(){
   const unb=Object.entries(m.expenses).filter(([cat])=>!CFG.budget[cat]).sort((a,b)=>b[1]-a[1]).slice(0,5);
   const totalVar=budTotal-expTotal;
   document.getElementById('budget-content').innerHTML=`
-    <div class="sec-hdr" style="margin-top:8px">Budget vs Actual <span class="sec-total">${mk}</span></div>
+    <div class="sec-hdr" style="margin-top:0">Budget vs Actual <span class="sec-total">${mk}</span></div>
     <div style="display:flex;align-items:center;gap:16px;margin:-2px 0 14px;">
       <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--green);"><div style="width:10px;height:10px;border-radius:3px;background:var(--green);flex-shrink:0;"></div>Under budget</div>
       <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#ff4757;"><div style="width:10px;height:10px;border-radius:3px;background:#ff4757;flex-shrink:0;"></div>Over budget</div>
