@@ -85,7 +85,6 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
 .wordmark .green-part { color: var(--green); }
 .wordmark .bar-part { color: var(--text); }
 .hdr-right { display: flex; gap: 8px; align-items: center; }
-.hdr-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
 .fab {
   width: 42px; height: 42px; border-radius: 14px; border: none; cursor: pointer;
   background: linear-gradient(135deg, var(--green), var(--teal));
@@ -394,8 +393,6 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
 .gb-brand-wrap { text-align: center; padding: 28px 20px 24px; background: linear-gradient(155deg, rgba(0,214,143,0.06) 0%, rgba(41,121,255,0.04) 50%, rgba(124,77,255,0.03) 100%); border: 1px solid rgba(0,214,143,0.15); border-radius: 28px; margin-bottom: 14px; position: relative; overflow: hidden; }
 .gb-brand-glow { position: absolute; top: -40px; left: 50%; transform: translateX(-50%); width: 300px; height: 200px; background: radial-gradient(ellipse, rgba(0,214,143,0.10) 0%, transparent 70%); pointer-events: none; }
 .gb-logo-svg { width: 100%; max-width: 280px; height: 120px; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto; }
-.gb-brand-name { font-family: var(--font-display); font-size: 42px; font-weight: 900; letter-spacing: -2px; line-height: 1; margin-bottom: 8px; }
-.gb-brand-green { color: #00d68f; }
 .gb-brand-tagline { font-size: 14px; color: var(--soft); letter-spacing: 0.02em; }
 .gb-feature-list { background: var(--glass); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; margin-bottom: 14px; }
 .gb-feature-item { display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -706,7 +703,6 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
     <div id="hdr-wordmark-wrap" style="opacity:0;pointer-events:none;transition:opacity 0.6s ease;display:flex;align-items:center;gap:10px;">
       <div>
         <div class="wordmark"><span class="green-part">Green</span><span class="bar-part">bar</span></div>
-        <div class="hdr-sub" id="hdr-sub">Personal Finance</div>
       </div>
       <button id="ai-help-btn" onclick="toggleAIHelp()"
         style="width:32px;height:32px;border-radius:10px;border:none;cursor:pointer;
@@ -2466,7 +2462,6 @@ function clearAllData(){
   _months={}; _allTxs=[]; _sel=null;
   _flashTimers=[]; _flashDone=false;
   CFG=JSON.parse(JSON.stringify(DEFAULTS));
-  document.getElementById('hdr-sub').textContent='Personal Finance';
   const badge=document.getElementById('log-badge');
   if(badge) badge.style.display='none';
   // Hide header buttons + wordmark -- user is back to fresh state
@@ -2802,9 +2797,7 @@ function applyImport(f, newTxs, newMonths, newKeys, mode){
   _allTxs = [];
   for(const mk of Object.keys(_months)){ _allTxs = _allTxs.concat(_months[mk].txs || []); }
 
-  const allKeys = sortKeys(_months);
   _sel = newKeys[newKeys.length-1];
-  document.getElementById('hdr-sub').textContent = `${_allTxs.length} transactions · ${allKeys.length} months`;
   addToLog(f.name, newTxs.length, newKeys.length, newKeys.join(', '));
 }
 
@@ -2919,8 +2912,7 @@ function renderSummary(){
 
   document.getElementById('summary-content').innerHTML=`
     <div class="gb-welcome">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0 14px;">
-        <div style="font-family:var(--font-display);font-size:18px;font-weight:900;letter-spacing:-0.5px;"><span style="color:#00d68f;">Green</span>bar</div>
+      <div style="display:flex;align-items:center;justify-content:flex-end;padding:4px 0 14px;">
         <div style="font-size:11px;color:var(--muted);">${hasData?esc(sel||''):'Budget ready'}</div>
       </div>
       ${pills}
@@ -2979,7 +2971,6 @@ function renderSummaryAll(){
             <linearGradient id="barGrad2b" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00c9b1"/><stop offset="100%" stop-color="#0099a0" stop-opacity="0.7"/></linearGradient>
           </defs>
         </svg>
-        <div class="gb-brand-name"><span class="gb-brand-green">Green</span>bar</div>
         <div class="gb-brand-tagline">Your money, clearly.</div>
       </div>
 
@@ -3490,9 +3481,7 @@ try{ localStorage.removeItem('gb_wt_done'); }catch(e){}
 loadCFG();
 // Load persisted transaction data
 if(loadData()){
-  const allKeys=sortKeys(_months);
   showHeaderButtons(); // returning user -- show immediately
-  document.getElementById('hdr-sub').textContent=`${_allTxs.length} transactions · ${allKeys.length} months`;
   renderAll();
   showScreen('summary',_navBtn(0));
 } else if(localStorage.getItem('gb_setup_done')){
