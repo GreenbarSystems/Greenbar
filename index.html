@@ -35,6 +35,8 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
   --bg: #050a14;
   --font-display: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
   --font-body: -apple-system, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+  /* Softer, rounded typeface (system fonts only -- nothing loaded from the web) */
+  --font-soft: ui-rounded, 'SF Pro Rounded', var(--font-body);
   --g1: #0d1f3c;
   --g2: #051a30;
   --glass: rgba(255,255,255,0.04);
@@ -510,6 +512,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
   padding: 60px 28px 20px; text-align: center;
   opacity: 0; pointer-events: none;
   transition: opacity 0.45s ease;
+  font-family: var(--font-soft); /* softer rounded font for all walkthrough wording */
 }
 .wt-slide.active {
   opacity: 1; pointer-events: auto;
@@ -573,6 +576,8 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
   font-family: var(--font-display); font-size: 23px; font-weight: 900;
   letter-spacing: -0.5px; line-height: 1.25; margin-bottom: 13px; color: var(--text);
 }
+/* Walkthrough headlines use the softer rounded font (overrides the rules above) */
+.wt-slide .wt-headline { font-family: var(--font-soft); }
 .wt-body {
   font-size: 15px; color: var(--soft); line-height: 1.65;
   margin-bottom: 22px; max-width: 310px;
