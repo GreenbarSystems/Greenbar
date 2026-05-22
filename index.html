@@ -1621,7 +1621,6 @@ const DEFAULTS = {
     {kw:'APPLE.COM',cat:'Subscriptions'},{kw:'UBER',cat:'Transport'},
     {kw:'LYFT',cat:'Transport'},{kw:'SHELL',cat:'Gas/Fuel'},
     {kw:'CHEVRON',cat:'Gas/Fuel'},{kw:'EXXON',cat:'Gas/Fuel'},
-    {kw:'BAT',cat:'Uncategorized'},
   ],
   budget:{
     'Groceries':600,'Dining Out':400,'Fast Food':100,'Coffee':60,
@@ -1632,7 +1631,19 @@ const DEFAULTS = {
 };
 
 let CFG = JSON.parse(JSON.stringify(DEFAULTS));
-function loadCFG(){ try{ const s=localStorage.getItem('gb_cfg2'); if(s) CFG=JSON.parse(s); }catch(e){} syncUI(); renderBudgetInputs(); }
+function loadCFG(){
+  try{
+    const s=localStorage.getItem('gb_cfg2');
+    if(s){
+      // Merge the saved config over a fresh copy of DEFAULTS so a config written
+      // by an older version (missing newer keys) can't break syncUI()/processCSV().
+      const saved=JSON.parse(s);
+      CFG=Object.assign(JSON.parse(JSON.stringify(DEFAULTS)),saved);
+      CFG.cols=Object.assign({},DEFAULTS.cols,saved.cols||{});
+    }
+  }catch(e){}
+  syncUI(); renderBudgetInputs();
+}
 function saveCFG(){ try{ localStorage.setItem('gb_cfg2',JSON.stringify(CFG)); }catch(e){} }
 function resetSettings(){ if(!confirm('Reset all settings?')) return; CFG=JSON.parse(JSON.stringify(DEFAULTS)); saveCFG(); syncUI(); renderBudgetInputs(); }
 
@@ -1736,12 +1747,14 @@ function processCSV(rows,headers){
       'Home Improvement':'Home Improvement','Home Maintenance':'Home Improvement',
       'Entertainment':'Entertainment','Movies & Music':'Entertainment',
       'ATM/Cash Withdrawals':'ATM/Cash','ATM':'ATM/Cash','Cash':'ATM/Cash',
-      'BAT':'Uncategorized','Uncategorized Transaction':'Uncategorized',
+      'Uncategorized Transaction':'Uncategorized',
       'Transfers':'Other Transfers','Transfer':'Other Transfers',
       'Credit Card Payment':'Credit Card Payments','Credit Card':'Credit Card Payments',
     };
     if(CAT_NORM[cat]) cat=CAT_NORM[cat];
-    let isIncome=amount>0;
+    // Income is keyword-driven only. A positive amount with no income keyword is
+    // a refund -- it nets against its category rather than counting as income.
+    let isIncome=false;
     if(CFG.incomeKw.some(kw=>desc.includes(kw))){isIncome=true;cat='_income';}
     else{ for(const r of CFG.remaps){ if(desc.includes(r.kw.toUpperCase())){cat=r.cat;break;} } }
     txs.push({date:row[colDate]||'',ts:pd.key,month,desc:raw,amount,cat,isIncome});
@@ -1749,17 +1762,13 @@ function processCSV(rows,headers){
   return txs;
 }
 
-function aggregate(txs){ const mo={}; for(const tx of txs){ if(!mo[tx.month])mo[tx.month]={income:0,expenses:{},txs:[]}; mo[tx.month].txs.push(tx); if(tx.isIncome||tx.amount>0)mo[tx.month].income+=tx.amount; else mo[tx.month].expenses[tx.cat]=(mo[tx.month].expenses[tx.cat]||0)+Math.abs(tx.amount); } return mo; }
+// Income comes only from keyword-tagged transactions. Everything else nets into
+// its category: a normal expense (negative amount) adds to spend, a refund
+// (positive amount) subtracts -- so refunds reduce a category, not inflate income.
+function aggregate(txs){ const mo={}; for(const tx of txs){ if(!mo[tx.month])mo[tx.month]={income:0,expenses:{},txs:[]}; mo[tx.month].txs.push(tx); if(tx.isIncome)mo[tx.month].income+=tx.amount; else mo[tx.month].expenses[tx.cat]=(mo[tx.month].expenses[tx.cat]||0)-tx.amount; } return mo; }
 function sortKeys(mo){ return Object.keys(mo).sort((a,b)=>{ const[am,ay]=a.split(' '),[bm,by]=b.split(' '); return parseInt(ay)!==parseInt(by)?parseInt(ay)-parseInt(by):MN.indexOf(am)-MN.indexOf(bm); }); }
-function dedupTxs(list){
-  const seen=new Set(),out=[];
-  for(const tx of list){
-    const k=tx.date+'|'+tx.desc+'|'+tx.amount;
-    if(seen.has(k)) continue;
-    seen.add(k); out.push(tx);
-  }
-  return out;
-}
+// Identity key for a transaction row -- used to merge overlapping imports.
+function txKey(tx){ return tx.date+'|'+tx.desc+'|'+tx.amount; }
 
 let _months={},_allTxs=[],_sel=null;
 
@@ -2772,14 +2781,20 @@ function applyImport(f, newTxs, newMonths, newKeys, mode){
     if(mode === 'replace' || !_months[mk]){
       _months[mk] = newMonths[mk];
     } else {
-      // Merge: combine txs, drop exact duplicate rows (same date+desc+amount), re-aggregate
-      const combined = dedupTxs([...(_months[mk].txs || []), ...newMonths[mk].txs]);
-      const income = combined.reduce((s,tx)=>(tx.isIncome||tx.amount>0)?s+tx.amount:s, 0);
-      const expenses = {};
-      combined.filter(tx=>!tx.isIncome&&tx.amount<0).forEach(tx=>{
-        expenses[tx.cat]=(expenses[tx.cat]||0)+Math.abs(tx.amount);
-      });
-      _months[mk] = { income, expenses, txs: combined };
+      // Merge: keep every existing tx, and from the new file add only the copies
+      // of each (date|desc|amount) key beyond what we already have -- re-importing
+      // the same statement adds nothing, but genuine repeat purchases still come in.
+      const existing = _months[mk].txs || [];
+      const have = {};
+      for(const tx of existing){ const k=txKey(tx); have[k]=(have[k]||0)+1; }
+      const combined = existing.slice();
+      const seen = {};
+      for(const tx of newMonths[mk].txs){
+        const k=txKey(tx);
+        seen[k]=(seen[k]||0)+1;
+        if(seen[k] > (have[k]||0)) combined.push(tx);
+      }
+      _months[mk] = aggregate(combined)[mk] || {income:0,expenses:{},txs:[]};
     }
   }
 
