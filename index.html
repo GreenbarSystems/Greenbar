@@ -77,7 +77,9 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
 
 /* ── Header ── */
 .header {
-  padding: 12px 20px 10px;
+  /* No horizontal padding: the wordmark and Import button line up flush with
+     the content cards, which sit at the app edge. */
+  padding: 12px 0 10px;
   display: flex; align-items: center; justify-content: space-between;
   position: relative; z-index: 10;
 }
