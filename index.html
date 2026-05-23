@@ -386,13 +386,21 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
 /* ── Modals ── */
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 200; align-items: flex-end; justify-content: center; }
 .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease both; }
+/* During close we keep display:flex but play the reverse animations; closeModal
+   removes the .open and .closing classes once the animation ends. */
+.modal-overlay.closing { display: flex; animation: fadeOut 0.22s ease both; }
+.modal-overlay.closing .modal-sheet { animation: sheetDown 0.24s cubic-bezier(0.6,0,0.6,1) both; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
 .modal-sheet {
   background: #0c1628; border: 1px solid var(--border); border-radius: 28px 28px 0 0;
   padding: 20px 20px 40px; width: 100%; max-width: 430px; max-height: 88vh; overflow-y: auto;
   animation: sheetUp 0.35s cubic-bezier(0.34,1.2,0.64,1) both;
+  /* Used by the swipe-to-dismiss handler to translate the sheet during a drag. */
+  will-change: transform;
 }
 @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes sheetDown { from { transform: translateY(0); } to { transform: translateY(100%); } }
 .modal-handle { width: 36px; height: 4px; background: var(--border-bright); border-radius: 2px; margin: 0 auto 20px; }
 .modal-title { font-family: var(--font-display); font-size: 20px; font-weight: 900; margin-bottom: 6px; }
 .modal-sub { font-size: 13px; color: var(--soft); margin-bottom: 20px; line-height: 1.5; }
@@ -1378,13 +1386,16 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
 
         <!-- Footer: dots + next button (hidden on slide 5) -->
         <div id="wt-footer" style="padding:16px 24px 40px;display:flex;align-items:center;gap:16px;">
-          <div id="wt-dots-wrap" style="display:flex;gap:7px;flex:1;align-items:center;">
-            <div class="wt-dot active" id="wt-dot-1"></div>
-            <div class="wt-dot" id="wt-dot-2"></div>
-            <div class="wt-dot" id="wt-dot-3"></div>
-            <div class="wt-dot" id="wt-dot-4"></div>
-            <div class="wt-dot" id="wt-dot-5"></div>
-            <div class="wt-dot" id="wt-dot-6"></div>
+          <div id="wt-dots-wrap" style="display:flex;gap:10px;flex:1;align-items:center;">
+            <div style="display:flex;gap:7px;align-items:center;">
+              <div class="wt-dot active" id="wt-dot-1"></div>
+              <div class="wt-dot" id="wt-dot-2"></div>
+              <div class="wt-dot" id="wt-dot-3"></div>
+              <div class="wt-dot" id="wt-dot-4"></div>
+              <div class="wt-dot" id="wt-dot-5"></div>
+              <div class="wt-dot" id="wt-dot-6"></div>
+            </div>
+            <span id="wt-step-counter" aria-live="polite" style="font-family:var(--font-display);font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.04em;">Step 1 of 6</span>
           </div>
           <button id="wt-next-btn" onclick="wtNext()" style="flex:0 0 auto;padding:13px 28px;border:none;border-radius:14px;background:var(--grad-primary);color:#050a14;font-family:var(--font-display);font-size:15px;font-weight:900;cursor:pointer;letter-spacing:0.2px;">Next &rarr;</button>
         </div>
@@ -2387,6 +2398,8 @@ function showWalkthrough(){
     const d=document.getElementById('wt-dot-'+i);
     if(d) d.classList.toggle('active',i===1);
   }
+  const counter = document.getElementById('wt-step-counter');
+  if(counter){ counter.textContent = `Step 1 of ${_wtTotal}`; counter.style.display = ''; }
 
   _wtAddSwipe();
 }
@@ -2404,6 +2417,12 @@ function wtGo(n){
   for(let i=1;i<=_wtTotal;i++){
     const d=document.getElementById('wt-dot-'+i);
     if(d) d.classList.toggle('active',i===_wtSlide);
+  }
+  // Update step counter (hidden on the last slide where dots are hidden too)
+  const _counter = document.getElementById('wt-step-counter');
+  if(_counter){
+    _counter.textContent = `Step ${_wtSlide} of ${_wtTotal}`;
+    _counter.style.display = (_wtSlide===_wtTotal) ? 'none' : '';
   }
   // Footer / button
   const footer = document.getElementById('wt-footer');
@@ -3188,10 +3207,6 @@ function renderSummary(){
   // KPI -- Monthly Budget
   const totalBudget=Object.values(CFG.budget||{}).reduce((s,v)=>s+(v>0?v:0),0);
 
-  // KPI -- last date info added (most recent import)
-  const log=getLog();
-  const lastAdded=log.length ? new Date(log[0].id).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
-
   // KPI -- health score grade + brief explanation
   const hs=sel ? computeHealthScore(sel) : null;
   const grade=hs ? hs.grade : '—';
@@ -3255,7 +3270,13 @@ function renderSummary(){
         <div class="net-mo">Your monthly plan</div>
       </div>
       <div class="stat-row" style="grid-template-columns:1fr 1fr;margin-bottom:8px;">
-        <div class="stat-tile"><div class="st-lbl">Last Added</div><div class="st-val c-teal" style="font-size:14px;">${esc(lastAdded)}</div></div>
+        ${(()=>{
+          const top = spend[0];
+          if(top){
+            return `<button class="stat-tile" type="button" onclick="showVendorDrill(this.dataset.cat)" data-cat="${esc(top[0])}" aria-label="Top category: ${esc(top[0])}, ${fmt(top[1])} — see vendors"><div class="st-lbl">Top Category</div><div class="st-val c-teal" style="font-size:15px;line-height:1.2;">${esc(top[0])}</div><div class="st-tap-hint" style="margin-top:3px;color:var(--soft);">${fmt(top[1])} &rsaquo;</div></button>`;
+          }
+          return `<button class="stat-tile" type="button" disabled aria-label="Top category not available yet"><div class="st-lbl">Top Category</div><div class="st-val" style="color:var(--muted);">—</div></button>`;
+        })()}
         <button class="stat-tile" type="button" ${hs?`onclick="openHealthBreakdown()" aria-label="Health score ${hs.grade}, ${hs.score} out of 100 — see what's driving it"`:'disabled aria-label="Health score not available yet"'}><div class="st-lbl">Health Score</div><div class="st-val" style="color:${gradeColor};">${grade}</div>${hs?`<div class="st-tap-hint">Tap for details &rsaquo;</div>`:''}</button>
       </div>
       <div style="font-size:12px;color:var(--muted);line-height:1.5;margin:0 2px 16px;">${esc(gradeExplain)}</div>
@@ -3352,18 +3373,20 @@ function renderBudget(){
   const rows=Object.entries(CFG.budget).map(([cat,bud])=>({cat,bud,actual:m.expenses[cat]||0})).filter(r=>r.bud>0||r.actual>0).sort((a,b)=>b.actual-a.actual);
   const unb=Object.entries(m.expenses).filter(([cat])=>!CFG.budget[cat]).sort((a,b)=>b[1]-a[1]).slice(0,5);
   const totalVar=budTotal-expTotal;
+  const varColor = totalVar >= 0 ? 'var(--green)' : '#ff4757';
+  const varTint  = totalVar >= 0 ? 'rgba(0,214,143,0.07)' : 'rgba(255,71,87,0.07)';
+  const varBdr   = totalVar >= 0 ? 'rgba(0,214,143,0.25)' : 'rgba(255,71,87,0.25)';
+  const varLabel = totalVar >= 0 ? 'under budget' : 'over budget';
+  const varPrefix= totalVar >= 0 ? '+' : '−';
   document.getElementById('budget-content').innerHTML=`
     <h2 class="sec-hdr" style="margin-top:0">Budget vs Actual <span class="sec-total">${esc(mk)}</span></h2>
-    <div style="display:flex;align-items:center;gap:16px;margin:-2px 0 14px;">
-      <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--green);"><div style="width:10px;height:10px;border-radius:3px;background:var(--green);flex-shrink:0;"></div>Under budget</div>
-      <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#ff4757;"><div style="width:10px;height:10px;border-radius:3px;background:#ff4757;flex-shrink:0;"></div>Over budget</div>
+    <!-- Variance hero: the headline number for this screen, sized accordingly. -->
+    <div style="background:${varTint};border:1px solid ${varBdr};border-radius:20px;padding:18px 18px 16px;margin-bottom:14px;">
+      <div style="font-family:var(--font-display);font-size:11px;font-weight:800;color:${varColor};text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">${budTotal>0?'This month':'No budget set'}</div>
+      <div style="font-family:var(--font-display);font-size:32px;font-weight:900;letter-spacing:-1px;color:${varColor};line-height:1;">${varPrefix}${fmt(Math.abs(totalVar))}</div>
+      <div style="font-size:13px;color:var(--soft);margin-top:6px;">${esc(varLabel)} &middot; ${fmt(expTotal)} spent of ${fmt(budTotal)} budgeted</div>
     </div>
-    <div style="font-size:12px;color:var(--muted);margin:-6px 0 14px;line-height:1.5;">These targets come from your Setup. Update them in Settings anytime.</div>
-    <div class="stat-row" style="margin-bottom:14px">
-      <div class="stat-tile"><div class="st-lbl">Budgeted</div><div class="st-val c-teal">${fmt(budTotal)}</div></div>
-      <div class="stat-tile"><div class="st-lbl">Actual</div><div class="st-val c-red">${fmt(expTotal)}</div></div>
-      <div class="stat-tile"><div class="st-lbl">Variance</div><div class="st-val ${totalVar>=0?'c-green':'c-red'}">${fmtS(totalVar)}</div></div>
-    </div>
+    <div style="font-size:12px;color:var(--muted);margin:-4px 2px 14px;line-height:1.5;">Targets come from your Setup &mdash; update them in Settings anytime.</div>
     <div class="bva-card">
       <div class="bva-head"><span>Category</span><span>Budget</span><span>Actual</span><span>Δ</span></div>
       ${rows.map(r=>{const v=r.bud-r.actual;const cls=v<-20?'v-over':v>20?'v-under':'v-flat';
@@ -3551,8 +3574,13 @@ function openModal(id){
   // than via closeModal() because closeModal restores _modalReturnFocus, and
   // we want focus to flow into the new modal instead.
   document.querySelectorAll('.modal-overlay.open').forEach(m=>{
-    if(m !== el) m.classList.remove('open');
+    if(m !== el){ m.classList.remove('open'); m.classList.remove('closing'); }
   });
+  // If this modal is mid-close-animation, cancel it so the open animation plays cleanly.
+  el.classList.remove('closing');
+  // Reset any leftover inline transform/transition from a previous swipe drag.
+  const _sheet = el.querySelector('.modal-sheet');
+  if(_sheet){ _sheet.style.transform=''; _sheet.style.transition=''; }
   el.classList.add('open');
   if(id==='modal-remaps')renderRemaps();
   if(id==='modal-log')renderLog();
@@ -3563,8 +3591,22 @@ function openModal(id){
 }
 function closeModal(id){
   const el=document.getElementById(id);
-  if(el) el.classList.remove('open');
+  if(!el) return;
+  // Restore focus immediately so keyboard users don't wait for the close animation.
   if(_modalReturnFocus){ try{ _modalReturnFocus.focus(); }catch(e){} _modalReturnFocus=null; }
+  // Respect prefers-reduced-motion: skip the slide-down and just remove the
+  // class immediately, matching the existing no-animation feel for those users.
+  const reduceMotion = (typeof matchMedia==='function') && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduceMotion){ el.classList.remove('open'); return; }
+  // Otherwise play the reverse animation (~220ms), then hide.
+  el.classList.add('closing');
+  setTimeout(()=>{
+    el.classList.remove('open');
+    el.classList.remove('closing');
+    // Clear any inline transform left over from a partial swipe-dismiss.
+    const sheet = el.querySelector('.modal-sheet');
+    if(sheet){ sheet.style.transform=''; sheet.style.transition=''; }
+  }, 230);
 }
 function closeOut(e,id){ if(e.target===document.getElementById(id)) closeModal(id); }
 // Keyboard support for modal dialogs: Esc closes, Tab is trapped inside.
@@ -3585,6 +3627,50 @@ document.addEventListener('keydown',function(e){
   if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
   else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
 });
+
+// Swipe-to-dismiss on modal sheets. Delegated listeners on the overlay so the
+// handler is attached once and works for every modal. To avoid hijacking
+// scroll inside long modals (e.g. Category Remaps with many rows), drags only
+// "take" if the touch starts in the top ~60px of the sheet (the area around
+// the handle / title bar). Releasing past 80px triggers closeModal; otherwise
+// the sheet springs back via CSS transition.
+let _swipe = null;
+document.addEventListener('touchstart', function(e){
+  const overlay = e.target.closest('.modal-overlay.open');
+  if(!overlay || overlay.id === 'modal-conflict') return; // conflict modal must use buttons
+  const sheet = overlay.querySelector('.modal-sheet');
+  if(!sheet || !sheet.contains(e.target)) return;
+  const rectTop = sheet.getBoundingClientRect().top;
+  const touchY = e.touches[0].clientY;
+  // Only start the gesture if the user grabbed the top strip (handle/title area).
+  if(touchY - rectTop > 60) return;
+  _swipe = { sheet, overlay, startY: touchY, dy: 0, t0: Date.now() };
+  sheet.style.transition = 'none';
+},{passive:true});
+document.addEventListener('touchmove', function(e){
+  if(!_swipe) return;
+  const dy = e.touches[0].clientY - _swipe.startY;
+  if(dy <= 0){ _swipe.sheet.style.transform = ''; _swipe.dy = 0; return; } // only track downward drags
+  _swipe.dy = dy;
+  _swipe.sheet.style.transform = 'translateY(' + dy + 'px)';
+},{passive:true});
+document.addEventListener('touchend', function(){
+  if(!_swipe) return;
+  const { sheet, overlay, dy, t0 } = _swipe;
+  _swipe = null;
+  const velocity = dy / Math.max(1, Date.now() - t0); // px/ms
+  // Dismiss if dragged > 80px OR flicked hard (>0.5 px/ms).
+  if(dy > 80 || velocity > 0.5){
+    sheet.style.transition = '';   // let closeModal's animation take over
+    if(overlay.id === 'modal-conflict') resolveConflict('cancel');
+    else closeModal(overlay.id);
+  } else {
+    // Spring back to resting position.
+    sheet.style.transition = 'transform 0.2s cubic-bezier(0.34,1.2,0.64,1)';
+    sheet.style.transform = '';
+    setTimeout(()=>{ sheet.style.transition=''; }, 250);
+  }
+},{passive:true});
 
 // ════ SETUP WALKTHROUGH ════
 // ════ SETUP WIZARD ════
