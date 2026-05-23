@@ -58,6 +58,10 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
   --soft: rgba(238,242,255,0.65);
   --safe-t: env(safe-area-inset-top, 0px);
   --safe-b: env(safe-area-inset-bottom, 0px);
+  /* The brand gradient appears on every primary action / accent surface
+     (FAB, CTA buttons, active pill, badge step numbers, etc.). Defining
+     it once means future color tweaks are a one-line change. */
+  --grad-primary: linear-gradient(135deg, var(--green), var(--teal));
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 /* Accessibility: visible focus ring for keyboard navigation. :focus-visible
@@ -98,7 +102,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
 .hdr-right { display: flex; gap: 8px; align-items: center; }
 .fab {
   width: 42px; height: 42px; border-radius: 14px; border: none; cursor: pointer;
-  background: linear-gradient(135deg, var(--green), var(--teal));
+  background: var(--grad-primary);
   color: #050a14; font-size: 20px; font-weight: 700;
   display: flex; align-items: center; justify-content: center;
   box-shadow: 0 4px 20px rgba(0,214,143,0.35), 0 0 0 1px rgba(0,214,143,0.2);
@@ -177,7 +181,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
 .hero-sub { font-size: 14px; color: var(--soft); line-height: 1.65; margin-bottom: 28px; }
 .btn-primary {
   width: 100%; padding: 15px; border: none; cursor: pointer; border-radius: 16px;
-  background: linear-gradient(135deg, var(--green), var(--teal));
+  background: var(--grad-primary);
   color: #050a14; font-family: var(--font-display); font-size: 16px; font-weight: 800;
   letter-spacing: 0.3px; display: flex; align-items: center; justify-content: center; gap: 8px;
   box-shadow: 0 6px 28px rgba(0,214,143,0.35);
@@ -203,7 +207,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
 /* Native <button class="pill"> reset so the buttons render identically to the previous divs. */
 button.pill { font: inherit; line-height: 1.2; -webkit-appearance: none; appearance: none; }
 .pill.active {
-  background: linear-gradient(135deg, var(--green), var(--teal));
+  background: var(--grad-primary);
   border-color: transparent; color: #050a14;
   box-shadow: 0 3px 14px rgba(0,214,143,0.35);
 }
@@ -242,7 +246,10 @@ button.pill { font: inherit; line-height: 1.2; -webkit-appearance: none; appeara
 /* Tappable variant: full-width button reset so a <button class="stat-tile"> looks identical to the div tiles. */
 button.stat-tile { width: 100%; font: inherit; color: inherit; cursor: pointer; -webkit-appearance: none; appearance: none; }
 button.stat-tile:hover { border-color: var(--border-bright); }
+/* Press feedback so tapping the Health-Score tile doesn't feel dead before the modal opens. */
+button.stat-tile:active { transform: scale(0.98); border-color: var(--border-bright); }
 button.stat-tile:disabled { cursor: default; opacity: 0.7; }
+button.stat-tile:disabled:active { transform: none; }
 .st-tap-hint { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; color: var(--muted); margin-top: 4px; font-weight: 600; letter-spacing: 0.03em; }
 .st-lbl { font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; }
 .st-val { font-family: var(--font-display); font-size: 20px; font-weight: 900; letter-spacing: -0.5px; }
@@ -292,6 +299,16 @@ button.stat-tile:disabled { cursor: default; opacity: 0.7; }
 .search-wrap input:focus { border-color: rgba(0,214,143,0.4); }
 .search-wrap input::placeholder { color: var(--muted); }
 .search-wrap .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 17px; }
+/* Clear-search ✕ button: 44x44 hit area, visible only when input has a value. */
+.search-wrap .search-clear {
+  position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+  width: 44px; height: 44px; border: none; background: transparent;
+  color: var(--muted); font-size: 20px; line-height: 1; cursor: pointer;
+  display: none; align-items: center; justify-content: center;
+  border-radius: 12px;
+}
+.search-wrap .search-clear:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+.search-wrap.has-value .search-clear { display: flex; }
 
 /* ── Transactions ── */
 .tx-date-hdr { font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; padding: 6px 4px 6px; font-family: var(--font-display); }
@@ -393,6 +410,19 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
 .empty { text-align: center; padding: 70px 20px; }
 .empty-icon { font-size: 44px; margin-bottom: 14px; filter: grayscale(0.3); }
 .empty p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+.empty-action {
+  display: inline-block; margin-top: 16px; padding: 11px 22px; border: none;
+  border-radius: 14px; background: var(--grad-primary); color: #050a14;
+  font-family: var(--font-display); font-size: 14px; font-weight: 800;
+  cursor: pointer; letter-spacing: 0.2px;
+}
+.empty-action:active { transform: scale(0.97); }
+.empty-link {
+  display: inline-block; margin-top: 14px; padding: 8px 16px; border: 1px solid var(--border);
+  border-radius: 12px; background: transparent; color: var(--soft);
+  font-family: var(--font-display); font-size: 13px; font-weight: 700; cursor: pointer;
+}
+.empty-link:hover { border-color: var(--border-bright); color: var(--text); }
 
 * { scrollbar-width: none; }
 *::-webkit-scrollbar { display: none; }
@@ -403,10 +433,10 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
 .ap-wordmark { font-family: var(--font-display); font-size:17px; font-weight:900; letter-spacing:-0.5px; }
 .ap-g { color:#00d68f; }
 .ap-icon-btn { width:28px; height:28px; border-radius:9px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.09); display:flex; align-items:center; justify-content:center; font-size:13px; color:rgba(238,242,255,0.5); }
-.ap-fab { width:30px; height:30px; border-radius:10px; background:linear-gradient(135deg,#00d68f,#00c9b1); display:flex; align-items:center; justify-content:center; font-size:17px; font-weight:700; color:#050a14; }
+.ap-fab { width:30px; height:30px; border-radius:10px; background:var(--grad-primary); display:flex; align-items:center; justify-content:center; font-size:17px; font-weight:700; color:#050a14; }
 .ap-pills { display:flex; gap:6px; margin-bottom:12px; }
 .ap-pill { padding:4px 12px; border-radius:20px; font-size:10px; font-weight:600; font-family: var(--font-display); border:1px solid rgba(255,255,255,0.08); color:rgba(238,242,255,0.35); background:rgba(255,255,255,0.04); }
-.ap-pill.active { background:linear-gradient(135deg,#00d68f,#00c9b1); border-color:transparent; color:#050a14; box-shadow:0 2px 10px rgba(0,214,143,0.3); }
+.ap-pill.active { background:var(--grad-primary); border-color:transparent; color:#050a14; box-shadow:0 2px 10px rgba(0,214,143,0.3); }
 .ap-net-card { background:linear-gradient(145deg,#0e2040,#081728); border:1px solid rgba(255,255,255,0.07); border-radius:18px; padding:16px; margin-bottom:12px; position:relative; overflow:hidden; }
 .ap-net-glow { position:absolute; top:-40px; left:50%; transform:translateX(-50%); width:180px; height:120px; background:radial-gradient(ellipse,rgba(0,214,143,0.10) 0%,transparent 70%); pointer-events:none; }
 .ap-net-pulse { position:absolute; top:0; left:20%; right:20%; height:1px; background:linear-gradient(90deg,transparent,rgba(0,214,143,0.45),transparent); }
@@ -481,7 +511,7 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
 .setup-input::placeholder { color:var(--muted); font-weight:400; }
 .setup-nav { display:flex; gap:10px; margin-top:20px; }
 .setup-back { padding:14px 20px; border:1px solid var(--border); background:var(--glass); color:var(--soft); font-family:var(--font-display); font-size:14px; font-weight:700; border-radius:14px; cursor:pointer; }
-.setup-next { flex:1; padding:14px; border:none; background:linear-gradient(135deg,#00d68f,#00c9b1); color:#050a14; font-family:var(--font-display); font-size:15px; font-weight:900; border-radius:14px; cursor:pointer; transition:opacity 0.15s; }
+.setup-next { flex:1; padding:14px; border:none; background:var(--grad-primary); color:#050a14; font-family:var(--font-display); font-size:15px; font-weight:900; border-radius:14px; cursor:pointer; transition:opacity 0.15s; }
 .setup-next:disabled { opacity:0.4; }
 .setup-skip { text-align:center; font-size:12px; color:var(--muted); margin-top:12px; cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
 .budget-cat-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
@@ -708,13 +738,13 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
       </div>
       <button id="ai-help-btn" onclick="toggleAIHelp()"
         style="width:32px;height:32px;border-radius:10px;border:none;cursor:pointer;
-          background:linear-gradient(135deg,#00d68f,#00c9b1);
+          background:var(--grad-primary);
           display:none;align-items:center;justify-content:center;flex-shrink:0;
           box-shadow:0 2px 10px rgba(0,214,143,0.35);transition:transform 0.15s;"
         title="Ask Greens" aria-label="Open help assistant"><span style="color:#050a14;font-weight:900;font-size:14px;line-height:1;">?</span></button>
     </div>
     <div class="hdr-right">
-      <button id="hdr-import-btn" class="fab" onclick="document.getElementById('csv-input').click()" style="opacity:0;pointer-events:none;width:auto;padding:0 16px;font-size:13px;font-weight:800;font-family:var(--font-display);letter-spacing:0.3px;color:#050a14;background:linear-gradient(135deg,#00d68f,#00c9b1);box-shadow:0 4px 16px rgba(0,214,143,0.4);opacity:0;pointer-events:none;transition:opacity 0.6s ease;">Import</button>
+      <button id="hdr-import-btn" class="fab" onclick="document.getElementById('csv-input').click()" style="opacity:0;pointer-events:none;width:auto;padding:0 16px;font-size:13px;font-weight:800;font-family:var(--font-display);letter-spacing:0.3px;color:#050a14;background:var(--grad-primary);box-shadow:0 4px 16px rgba(0,214,143,0.4);opacity:0;pointer-events:none;transition:opacity 0.6s ease;">Import</button>
       <input type="file" id="csv-input" aria-label="Import bank transactions CSV file" accept=".csv,.tsv,.txt" multiple onchange="handleFiles(this.files)">
       <input type="file" id="restore-input" aria-label="Restore a Greenbar backup JSON file" accept=".json,application/json" style="display:none" onchange="restoreData(this.files[0]); this.value='';">
     </div>
@@ -740,7 +770,7 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
 
             <!-- CTA -- fades in separately within phase 2 -->
             <div id="flash-cta" style="opacity:0;transition:opacity 1.2s ease;">
-              <button onclick="startSetupFromFlash()" style="width:100%;padding:16px;border:none;border-radius:16px;background:linear-gradient(135deg,#00d68f,#00c9b1);color:#050a14;font-family:var(--font-display);font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 6px 28px rgba(0,214,143,0.35);letter-spacing:0.2px;">Get Started &rarr;</button>
+              <button onclick="startSetupFromFlash()" style="width:100%;padding:16px;border:none;border-radius:16px;background:var(--grad-primary);color:#050a14;font-family:var(--font-display);font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 6px 28px rgba(0,214,143,0.35);letter-spacing:0.2px;">Get Started &rarr;</button>
   
             </div>
           </div>
@@ -751,12 +781,12 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
 
     <!-- BUDGET -->
     <div class="screen" id="screen-budget">
-      <div id="budget-content" role="region" aria-label="Budget"><div class="empty"><p>Import your Bank Transactions to see budget vs actual</p></div></div>
+      <div id="budget-content" role="region" aria-label="Budget"><div class="empty"><p>Your budget is ready. Import your Bank Transactions to compare actual spending.</p><button type="button" class="empty-action" onclick="document.getElementById('csv-input').click()">Import a CSV file</button></div></div>
     </div>
 
     <!-- TRANSACTIONS -->
     <div class="screen" id="screen-txs">
-      <div id="txs-content" role="region" aria-label="Transactions"><div class="empty"><p>Import your Bank Transactions to browse them</p></div></div>
+      <div id="txs-content" role="region" aria-label="Transactions"><div class="empty"><p>No transactions yet. Import a file and they'll show up here, searchable and grouped by date.</p><button type="button" class="empty-action" onclick="document.getElementById('csv-input').click()">Import a CSV file</button></div></div>
     </div>
 
     <!-- INTRO / GUIDE -->
@@ -776,7 +806,7 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
         <div style="background:var(--glass);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:14px;">
 
           <div style="display:flex;gap:14px;padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);">
-            <div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#00d68f,#00c9b1);display:flex;align-items:center;justify-content:center;font-family: var(--font-display);font-size:15px;font-weight:900;color:#050a14;flex-shrink:0;">1</div>
+            <div style="width:32px;height:32px;border-radius:10px;background:var(--grad-primary);display:flex;align-items:center;justify-content:center;font-family: var(--font-display);font-size:15px;font-weight:900;color:#050a14;flex-shrink:0;">1</div>
             <div>
               <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Adjust Settings (optional)</div>
               <div style="font-size:12px;color:var(--muted);line-height:1.6;">Before importing, open Settings to set your monthly budget targets, add your own category rules, and set your bank's column names if they're unusual.</div>
@@ -784,7 +814,7 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
           </div>
 
           <div style="display:flex;gap:14px;padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);">
-            <div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#00d68f,#00c9b1);display:flex;align-items:center;justify-content:center;font-family: var(--font-display);font-size:15px;font-weight:900;color:#050a14;flex-shrink:0;">2</div>
+            <div style="width:32px;height:32px;border-radius:10px;background:var(--grad-primary);display:flex;align-items:center;justify-content:center;font-family: var(--font-display);font-size:15px;font-weight:900;color:#050a14;flex-shrink:0;">2</div>
             <div>
               <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Download your Bank Transactions</div>
               <div style="font-size:12px;color:var(--muted);line-height:1.6;">Log into your bank's website, go to Transaction History or Account Activity, and export your Bank Transactions. Usually found under Download, Export, or Statements.</div>
@@ -792,7 +822,7 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
           </div>
 
           <div style="display:flex;gap:14px;padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);">
-            <div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#00d68f,#00c9b1);display:flex;align-items:center;justify-content:center;font-family: var(--font-display);font-size:15px;font-weight:900;color:#050a14;flex-shrink:0;">3</div>
+            <div style="width:32px;height:32px;border-radius:10px;background:var(--grad-primary);display:flex;align-items:center;justify-content:center;font-family: var(--font-display);font-size:15px;font-weight:900;color:#050a14;flex-shrink:0;">3</div>
             <div>
               <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Tap Import and select your file</div>
               <div style="font-size:12px;color:var(--muted);line-height:1.6;">Tap the green Import button at the top. Select your Bank Transactions from Downloads. Greenbar handles everything instantly -- nothing is uploaded anywhere.</div>
@@ -800,7 +830,7 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
           </div>
 
           <div style="display:flex;gap:14px;padding:16px;">
-            <div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#00d68f,#00c9b1);display:flex;align-items:center;justify-content:center;font-family: var(--font-display);font-size:15px;font-weight:900;color:#050a14;flex-shrink:0;">4</div>
+            <div style="width:32px;height:32px;border-radius:10px;background:var(--grad-primary);display:flex;align-items:center;justify-content:center;font-family: var(--font-display);font-size:15px;font-weight:900;color:#050a14;flex-shrink:0;">4</div>
             <div>
               <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Explore your data</div>
               <div style="font-size:12px;color:var(--muted);line-height:1.6;">Your dashboard updates immediately. Repeat monthly -- new imports merge with existing data automatically. Your history builds over time.</div>
@@ -1356,7 +1386,7 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
             <div class="wt-dot" id="wt-dot-5"></div>
             <div class="wt-dot" id="wt-dot-6"></div>
           </div>
-          <button id="wt-next-btn" onclick="wtNext()" style="flex:0 0 auto;padding:13px 28px;border:none;border-radius:14px;background:linear-gradient(135deg,#00d68f,#00c9b1);color:#050a14;font-family:var(--font-display);font-size:15px;font-weight:900;cursor:pointer;letter-spacing:0.2px;">Next &rarr;</button>
+          <button id="wt-next-btn" onclick="wtNext()" style="flex:0 0 auto;padding:13px 28px;border:none;border-radius:14px;background:var(--grad-primary);color:#050a14;font-family:var(--font-display);font-size:15px;font-weight:900;cursor:pointer;letter-spacing:0.2px;">Next &rarr;</button>
         </div>
 
       </div>
@@ -1497,7 +1527,7 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
 
           <div class="setup-nav" style="margin-top:0;">
             <button class="setup-back" aria-label="Back" onclick="setupGo(5)">&larr;</button>
-            <button class="setup-next" style="background:linear-gradient(135deg,#00d68f,#00c9b1);" onclick="finishSetup()">Save My Budget</button>
+            <button class="setup-next" style="background:var(--grad-primary);" onclick="finishSetup()">Save My Budget</button>
           </div>
           <div class="setup-skip" onclick="skipSetup()">Skip and use defaults</div>
         </div>
@@ -1513,7 +1543,7 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
           <div style="font-size:14px;font-weight:700;margin-bottom:3px;">Budget Setup Wizard</div>
           <div style="font-size:12px;color:var(--muted);line-height:1.5;">Answer a few questions to personalize your budget targets</div>
         </div>
-        <button onclick="resetSetupState();showScreen('setup',document.querySelector('.nav-btn'));setupGo(1);document.getElementById('bottom-nav')?.classList.remove('visible');" style="padding:9px 16px;border:none;border-radius:12px;background:linear-gradient(135deg,#00d68f,#00c9b1);color:#050a14;font-size:13px;font-weight:800;cursor:pointer;font-family:var(--font-display);flex-shrink:0;">Open &rarr;</button>
+        <button onclick="resetSetupState();showScreen('setup',document.querySelector('.nav-btn'));setupGo(1);document.getElementById('bottom-nav')?.classList.remove('visible');" style="padding:9px 16px;border:none;border-radius:12px;background:var(--grad-primary);color:#050a14;font-size:13px;font-weight:800;cursor:pointer;font-family:var(--font-display);flex-shrink:0;">Open &rarr;</button>
       </div>
 
       <h2 class="sec-hdr" style="margin-top:0">Bank Transactions Format</h2>
@@ -2478,7 +2508,7 @@ function runFlashIntro(){
           <div style="font-family:var(--font-display);font-size:36px;font-weight:900;letter-spacing:-1px;margin-bottom:10px;">Welcome to <span class="gb-shimmer">Greenbar</span></div>
           <div style="font-size:16px;color:var(--soft);letter-spacing:0.02em;margin-bottom:40px;">Your money, clearly.</div>
           <div id="flash-cta" style="opacity:0;transition:opacity 1.2s ease;">
-            <button onclick="startSetupFromFlash()" style="width:100%;padding:16px;border:none;border-radius:16px;background:linear-gradient(135deg,#00d68f,#00c9b1);color:#050a14;font-family:var(--font-display);font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 6px 28px rgba(0,214,143,0.35);letter-spacing:0.2px;">Get Started &rarr;</button>
+            <button onclick="startSetupFromFlash()" style="width:100%;padding:16px;border:none;border-radius:16px;background:var(--grad-primary);color:#050a14;font-family:var(--font-display);font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 6px 28px rgba(0,214,143,0.35);letter-spacing:0.2px;">Get Started &rarr;</button>
 
           </div>
         </div>
@@ -2981,6 +3011,9 @@ function processNextFile(){
     return;
   }
   const f = _pendingFiles.shift();
+  // Tell the user something is happening -- parseCSV / aggregate can block
+  // 100-500ms on a multi-thousand-row file and a frozen UI feels broken.
+  if(typeof showToast === 'function') showToast('Reading ' + f.name + '…');
   const rd = new FileReader();
   rd.onload = e => {
     try{
@@ -2993,6 +3026,9 @@ function processNextFile(){
       if(!newTxs.length){ processNextFile(); return; } // file empty or rejected -- skip it, don't log an empty import
       const newMonths = aggregate(newTxs);
       const newKeys = sortKeys(newMonths);
+      // Friendly summary toast: how many transactions, how many months covered.
+      const monthSpan = newKeys.length === 1 ? newKeys[0] : newKeys[0] + '–' + newKeys[newKeys.length-1];
+      showToast('Imported ' + newTxs.length + ' transaction' + (newTxs.length===1?'':'s') + ' (' + monthSpan + ')');
 
       // Check for month conflicts with existing data
       const conflictingMonths = newKeys.filter(mk => _months[mk] && _months[mk].txs.length > 0);
@@ -3310,7 +3346,7 @@ function renderSummaryAll(){
 function renderBudget(){
   const mk=_sel==='__all'?sortKeys(_months).slice(-1)[0]:_sel;
   const m=_months[mk];
-  if(!m){document.getElementById('budget-content').innerHTML='<div class="empty"><p>Import your Bank Transactions to see budget vs actual</p></div>';srAnnounce('Budget, no transactions yet');return;}
+  if(!m){document.getElementById('budget-content').innerHTML='<div class="empty"><p>Your budget is ready. Import your Bank Transactions to compare actual spending.</p><button type="button" class="empty-action" onclick="document.getElementById(\'csv-input\').click()">Import a CSV file</button></div>';srAnnounce('Budget, no transactions yet');return;}
   const expTotal=Object.values(m.expenses).reduce((s,v)=>s+v,0);
   const budTotal=Object.values(CFG.budget).reduce((s,v)=>s+v,0);
   const rows=Object.entries(CFG.budget).map(([cat,bud])=>({cat,bud,actual:m.expenses[cat]||0})).filter(r=>r.bud>0||r.actual>0).sort((a,b)=>b.actual-a.actual);
@@ -3351,11 +3387,21 @@ function renderTxs(filter=''){
       return {tx,key,label};
     })
     .sort((a,b)=>b.key-a.key);
-  if(!rows.length){document.getElementById('txs-content').innerHTML='<div class="empty"><p>No transactions found</p></div>';srAnnounce(filter?`No transactions match "${filter}"`:'No transactions');return;}
+  if(!rows.length){
+    const html = filter
+      ? `<div class="empty"><p>No matches for &ldquo;${esc(filter)}&rdquo;.</p><button type="button" class="empty-link" onclick="renderTxs('')">Clear search</button></div>`
+      : `<div class="empty"><p>No transactions in this month.</p></div>`;
+    document.getElementById('txs-content').innerHTML = html;
+    srAnnounce(filter?`No transactions match "${filter}"`:'No transactions');
+    return;
+  }
   const byDate={};for(const r of rows){(byDate[r.label]=byDate[r.label]||[]).push(r.tx);}
   document.getElementById('txs-content').innerHTML=`
-    <div class="search-wrap">
-      <input type="text" aria-label="Search transactions" placeholder="Search…" value="${esc(filter)}" oninput="clearTimeout(this._t);this._t=setTimeout(()=>renderTxs(this.value),120)" autocomplete="off">
+    <div class="search-wrap${filter?' has-value':''}">
+      <input type="text" aria-label="Search transactions" placeholder="Search…" value="${esc(filter)}"
+        oninput="this.parentElement.classList.toggle('has-value', !!this.value); clearTimeout(this._t); this._t=setTimeout(()=>renderTxs(this.value),120)"
+        autocomplete="off">
+      <button type="button" class="search-clear" aria-label="Clear search" onclick="const i=this.previousElementSibling; if(i){ i.value=''; clearTimeout(i._t); } renderTxs('')">&#x2715;</button>
     </div>
     ${Object.entries(byDate).map(([date,dTxs])=>`
       <div class="tx-date-hdr">${esc(date)}</div>
@@ -3862,7 +3908,7 @@ updateLogBadge();
     <div id="conflict-months" style="margin-bottom:16px;"></div>
     <div style="display:flex;flex-direction:column;gap:10px;">
       <button onclick="resolveConflict('replace')" style="width:100%;padding:14px;border-radius:14px;border:none;background:linear-gradient(135deg,#ff4757,#c0392b);color:white;font-family:var(--font-display);font-size:15px;font-weight:800;cursor:pointer;">Replace Existing Data</button>
-      <button onclick="resolveConflict('merge')" style="width:100%;padding:14px;border-radius:14px;border:none;background:linear-gradient(135deg,#00d68f,#00c9b1);color:#050a14;font-family:var(--font-display);font-size:15px;font-weight:800;cursor:pointer;">Merge with Existing Data</button>
+      <button onclick="resolveConflict('merge')" style="width:100%;padding:14px;border-radius:14px;border:none;background:var(--grad-primary);color:#050a14;font-family:var(--font-display);font-size:15px;font-weight:800;cursor:pointer;">Merge with Existing Data</button>
       <button onclick="resolveConflict('skip')" style="width:100%;padding:14px;border-radius:14px;border:1px solid var(--border);background:var(--glass);color:var(--soft);font-family:var(--font-display);font-size:14px;font-weight:600;cursor:pointer;">Skip This File</button>
     </div>
   </div>
@@ -3970,7 +4016,7 @@ updateLogBadge();
       oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
     <button onclick="sendAIMessage()" id="ai-send-btn" aria-label="Send message"
       style="width:40px;height:40px;border-radius:12px;border:none;flex-shrink:0;
-        background:linear-gradient(135deg,#00d68f,#00c9b1);
+        background:var(--grad-primary);
         color:white;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">
       &#x27A4;
     </button>
