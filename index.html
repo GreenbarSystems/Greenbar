@@ -1359,9 +1359,31 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
           <div class="setup-skip" onclick="skipSetup()">Skip -- use default values</div>
         </div>
 
-        <!-- STEP 2: Housing -->
+        <!-- STEP 2: Income (asked first so the 30% guideline can frame housing in step 3) -->
         <div class="setup-step" id="setup-step-2">
           <div class="setup-progress"><div class="setup-pip done"></div><div class="setup-pip active"></div><div class="setup-pip"></div><div class="setup-pip"></div><div class="setup-pip"></div><div class="setup-pip"></div></div>
+          <div class="setup-q">What's your monthly take-home income?</div>
+          <div class="setup-sub">After taxes. This stays on your device and is only used to calculate your giving and savings budgets.</div>
+
+          <div class="setup-input-wrap">
+            <span class="prefix">$</span>
+            <input class="setup-input" id="s3-income" type="number" placeholder="Monthly amount" min="0" inputmode="decimal" oninput="_setupState.income=parseFloat(this.value)||0;updateGivingFromIncome()">
+          </div>
+
+          <div class="setup-income-note" id="s3-income-note" style="display:none;margin-top:16px;background:rgba(0,214,143,0.07);border:1px solid rgba(0,214,143,0.15);border-radius:14px;padding:14px 16px;">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Based on your income</div>
+            <div style="font-size:14px;font-weight:600;" id="s3-income-breakdown"></div>
+          </div>
+
+          <div class="setup-nav">
+            <button class="setup-back" onclick="setupGo(1)">&larr;</button>
+            <button class="setup-next" onclick="setupGoValidate(3,'s3-income','Please enter your approximate monthly income.')">Next &rarr;</button>
+          </div>
+        </div>
+
+        <!-- STEP 3: Housing -->
+        <div class="setup-step" id="setup-step-3">
+          <div class="setup-progress"><div class="setup-pip done"></div><div class="setup-pip done"></div><div class="setup-pip active"></div><div class="setup-pip"></div><div class="setup-pip"></div><div class="setup-pip"></div></div>
           <div class="setup-q">What's your monthly housing cost?</div>
           <div class="setup-sub">Include rent or your full mortgage payment.</div>
 
@@ -1376,32 +1398,8 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
           </div>
 
           <div class="setup-nav">
-            <button class="setup-back" onclick="setupGo(1)">&larr;</button>
-            <button class="setup-next" onclick="setupGoValidate(3,'s2-housing','Please enter your housing cost to continue.')">Next &rarr;</button>
-          </div>
-        </div>
-
-        <!-- STEP 3: Income -->
-        <div class="setup-step" id="setup-step-3">
-          <div class="setup-progress"><div class="setup-pip done"></div><div class="setup-pip done"></div><div class="setup-pip active"></div><div class="setup-pip"></div><div class="setup-pip"></div><div class="setup-pip"></div></div>
-          <div class="setup-q">What's your monthly take-home income?</div>
-          <div class="setup-sub">After taxes. This stays on your device and is only used to calculate your giving and savings budgets.</div>
-
-          <div class="setup-input-wrap">
-            <span class="prefix">$</span>
-            <input class="setup-input" id="s3-income" type="number" placeholder="Monthly amount" min="0" inputmode="decimal" oninput="_setupState.income=parseFloat(this.value)||0;updateGivingFromIncome()">
-          </div>
-
-
-
-          <div class="setup-income-note" id="s3-income-note" style="display:none;margin-top:16px;background:rgba(0,214,143,0.07);border:1px solid rgba(0,214,143,0.15);border-radius:14px;padding:14px 16px;">
-            <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Based on your income</div>
-            <div style="font-size:14px;font-weight:600;" id="s3-income-breakdown"></div>
-          </div>
-
-          <div class="setup-nav">
             <button class="setup-back" onclick="setupGo(2)">&larr;</button>
-            <button class="setup-next" onclick="setupGoValidate(4,'s3-income','Please enter your approximate monthly income.')">Next &rarr;</button>
+            <button class="setup-next" onclick="setupGoValidate(4,'s2-housing','Please enter your housing cost to continue.')">Next &rarr;</button>
           </div>
         </div>
 
