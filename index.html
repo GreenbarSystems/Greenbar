@@ -2534,6 +2534,11 @@ function wtNext(){
 function startWalkthroughSetup(){
   try{ localStorage.setItem('gb_wt_done','1'); }catch(e){}
 
+  // Reset wizard state so values from an abandoned earlier run don't pre-fill
+  // the new run. The Settings "Open ->" button already calls this; the
+  // walkthrough path used to skip it, leaking state across runs.
+  if(typeof resetSetupState === 'function') resetSetupState();
+
   // Step 1: hide every screen
   document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
 
@@ -2987,11 +2992,13 @@ function showCatInsights(cat){
         <div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;font-family: var(--font-display);">Month by Month</div>
         ${keys.map(mk=>{
           const amt=byMonth[mk];
-          const maxAmt=Math.max(...Object.values(byMonth))||1;
+          // Math.max(...[]) is -Infinity, which is truthy -- ||1 wouldn't catch it.
+          // Seeding with 1 guarantees a positive divisor even if byMonth is empty.
+          const maxAmt=Math.max(1, ...Object.values(byMonth));
           const barPct=Math.round(amt/maxAmt*100);
           const isHigh=mk===highMonth;
           return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-            <div style="font-size:11px;color:var(--muted);width:52px;flex-shrink:0;">${mk}</div>
+            <div style="font-size:11px;color:var(--muted);width:52px;flex-shrink:0;">${esc(mk)}</div>
             <div style="flex:1;height:6px;background:rgba(255,255,255,0.07);border-radius:3px;">
               <div style="height:6px;border-radius:3px;width:${barPct}%;background:${isHigh?'var(--red)':'#00d68f'};"></div>
             </div>
@@ -3170,7 +3177,7 @@ function showConflictModal(filename, conflictingMonths, allNewMonths){
         const existing = _months[mk];
         const existingTxs = existing ? existing.txs.length : 0;
         return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px;">
-          <span style="font-weight:600;">${mk}</span>
+          <span style="font-weight:600;">${esc(mk)}</span>
           <span style="color:var(--muted);font-size:11px;">${existingTxs} existing txs</span>
         </div>`;
       }).join('')}
@@ -3257,7 +3264,7 @@ function cleanVendor(desc){
 function _navBtn(i){ return document.querySelectorAll('.nav-btn')[i||0]; }
 // ════ FORMAT ════
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
-function fmt(n){ if(n===undefined||n===null)return'—'; const a=Math.abs(n); return(n<0?'(':'')+'$'+a.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})+(n<0?')':''); }
+function fmt(n){ if(n===undefined||n===null||!isFinite(n))return'—'; const a=Math.abs(n); return(n<0?'(':'')+'$'+a.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})+(n<0?')':''); }
 function fmtS(n){ return n>=0?`+${fmt(n)}`:`-${fmt(Math.abs(n))}`; }
 
 // ════ PALETTE ════
@@ -3456,7 +3463,7 @@ function renderBudget(){
   const unb=Object.entries(m.expenses).filter(([cat])=>!CFG.budget[cat]).sort((a,b)=>b[1]-a[1]).slice(0,5);
   const totalVar=budTotal-expTotal;
   document.getElementById('budget-content').innerHTML=`
-    <h2 class="sec-hdr" style="margin-top:0">Budget vs Actual <span class="sec-total">${mk}</span></h2>
+    <h2 class="sec-hdr" style="margin-top:0">Budget vs Actual <span class="sec-total">${esc(mk)}</span></h2>
     <div style="display:flex;align-items:center;gap:16px;margin:-2px 0 14px;">
       <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--green);"><div style="width:10px;height:10px;border-radius:3px;background:var(--green);flex-shrink:0;"></div>Under budget</div>
       <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#ff4757;"><div style="width:10px;height:10px;border-radius:3px;background:#ff4757;flex-shrink:0;"></div>Over budget</div>
@@ -3607,6 +3614,13 @@ function goToBankExport(){
 
 // ════ NAV ════
 function showScreen(name,btn){
+  // Clear any pending flash-intro timers when leaving the summary/intro area.
+  // Otherwise they keep firing on a hidden DOM and can flip _flashDone state.
+  if(name !== 'summary' && Array.isArray(_flashTimers) && _flashTimers.length){
+    _flashTimers.forEach(id => clearTimeout(id));
+    _flashTimers = [];
+    _flashDone = true;
+  }
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>{ b.classList.remove('active'); b.removeAttribute('aria-current'); });
   const el = document.getElementById('screen-'+name);
@@ -3954,7 +3968,19 @@ function srAnnounce(msg){
   // tiny delay lets the empty -> text diff register as a change
   setTimeout(()=>{ el.textContent = msg; }, 30);
 }
+// Toasts queue rather than overwrite. A second showToast() call while the
+// first is still on screen used to clobber the message and fight the fade
+// timer. Now each message gets its own ~3.2s slot in order.
+let _toastQueue = [];
+let _toastShowing = false;
 function showToast(msg){
+  _toastQueue.push(msg);
+  if(!_toastShowing) _drainToast();
+}
+function _drainToast(){
+  if(!_toastQueue.length){ _toastShowing = false; return; }
+  _toastShowing = true;
+  const msg = _toastQueue.shift();
   let toast = document.getElementById('gb-toast');
   if(!toast){
     toast = document.createElement('div');
@@ -3966,7 +3992,10 @@ function showToast(msg){
   }
   toast.textContent = msg;
   setTimeout(()=>{ toast.style.opacity='1'; toast.style.transform='translateX(-50%) translateY(0)'; },10);
-  setTimeout(()=>{ toast.style.opacity='0'; toast.style.transform='translateX(-50%) translateY(10px)'; },3500);
+  setTimeout(()=>{ toast.style.opacity='0'; toast.style.transform='translateX(-50%) translateY(10px)'; },2800);
+  // Advance to the next queued message after the fade-out, with a small
+  // gap so messages don't visually overlap.
+  setTimeout(()=>{ _drainToast(); }, 3300);
 }
 // DEV: Clear walkthrough flag so it always shows fresh
 try{ localStorage.removeItem('gb_wt_done'); }catch(e){}
