@@ -1789,7 +1789,33 @@ function loadCFG(){
   }catch(e){}
   syncUI(); renderBudgetInputs();
 }
-function saveCFG(){ try{ localStorage.setItem('gb_cfg2',JSON.stringify(CFG)); }catch(e){} }
+// ════ STORAGE-QUOTA HELPERS ════
+// Browsers throw different things when localStorage is full. This catches them all.
+function _isQuotaErr(e){
+  if(!e) return false;
+  return e.name === 'QuotaExceededError'
+      || e.code === 22                              // most browsers
+      || e.code === 1014                            // Firefox: NS_ERROR_DOM_QUOTA_REACHED
+      || /quota/i.test(e.name||'')
+      || /quota/i.test(e.message||'');
+}
+// Surface a quota event to the user exactly once -- repeated writes after the
+// first failure would otherwise spam alerts. _clearQuotaWarning() resets after
+// a successful write so a later failure can re-warn.
+let _quotaWarned = false;
+function _warnQuota(what){
+  if(_quotaWarned) return;
+  _quotaWarned = true;
+  alert('Storage is full -- your latest '+what+' change was not saved.\n\n'
+      + 'Go to Settings -> Data Backup -> Export a Backup to save what you have, '
+      + 'then clear old months in the Settings tab to free up space.');
+}
+function _clearQuotaWarning(){ _quotaWarned = false; }
+
+function saveCFG(){
+  try{ localStorage.setItem('gb_cfg2',JSON.stringify(CFG)); _clearQuotaWarning(); }
+  catch(e){ if(_isQuotaErr(e)) _warnQuota('settings'); else console.warn('Greenbar: saveCFG failed',e); }
+}
 function resetSettings(){ if(!confirm('Reset all settings?')) return; CFG=JSON.parse(JSON.stringify(DEFAULTS)); saveCFG(); syncUI(); renderBudgetInputs(); }
 
 function syncUI(){
@@ -2683,10 +2709,14 @@ function saveData(){
   try{
     const payload={months:_months,txs:_allTxs,sel:_sel};
     const str=JSON.stringify(payload);
-    if(str.length>4800000) alert('Storage nearly full ('+Math.round(str.length/1024)+'KB). Clear old data in the Privacy tab.');
+    // Near-full warning is a soft toast, not a blocking alert -- saves still work.
+    if(str.length>4800000 && typeof showToast==='function'){
+      showToast('Storage nearly full ('+Math.round(str.length/1024)+' KB). Export a backup soon.');
+    }
     localStorage.setItem('gb_data',str);
+    _clearQuotaWarning();
   }catch(e){
-    if(e.name==='QuotaExceededError'||e.code===22) alert('Storage full! Go to the Privacy tab and clear old data, then re-import.');
+    if(_isQuotaErr(e)) _warnQuota('transactions');
     else console.warn('Greenbar: save failed',e);
   }
 }
@@ -2728,13 +2758,41 @@ function restoreData(file){
     if(!payload || payload._greenbar_backup!==1 || !payload.data){
       alert('That file is not a valid Greenbar backup.'); return;
     }
+    // Pre-flight: a single value over ~4.9 MB will fail localStorage on most
+    // browsers. Bail before touching anything so the user's data is untouched.
+    const oversizedKey = GB_KEYS.find(k => typeof payload.data[k] === 'string' && payload.data[k].length > 4900000);
+    if(oversizedKey){
+      alert('This backup is too large to fit in browser storage (key "'+oversizedKey+'" alone is '
+          + Math.round(payload.data[oversizedKey].length/1024) + ' KB). Restore aborted -- your current data is unchanged.');
+      return;
+    }
     if(!confirm('Restore this backup? It replaces ALL data currently on this device.')) return;
+
+    // Snapshot every key BEFORE writing so we can roll back atomically if a
+    // mid-restore setItem fails (quota exceeded after some keys already wrote).
+    const snapshot = {};
+    GB_KEYS.forEach(k => { snapshot[k] = localStorage.getItem(k); });
+    const written = [];
     try{
       GB_KEYS.forEach(k=>{
-        if(payload.data[k]!==undefined) localStorage.setItem(k,payload.data[k]);
-        else localStorage.removeItem(k);
+        if(payload.data[k]!==undefined){ localStorage.setItem(k,payload.data[k]); }
+        else { localStorage.removeItem(k); }
+        written.push(k);
       });
-    }catch(err){ alert('Restore failed -- storage error: '+(err&&err.message||err)); return; }
+    }catch(err){
+      // Roll back partial writes -- restore each key to its prior state.
+      written.forEach(k => {
+        try{
+          if(snapshot[k] === null) localStorage.removeItem(k);
+          else localStorage.setItem(k, snapshot[k]);
+        }catch(_){ /* if rollback also fails there is nothing left to do */ }
+      });
+      const reason = _isQuotaErr(err)
+        ? 'this device does not have enough storage space for the backup'
+        : 'a storage error occurred ('+(err&&err.message||err)+')';
+      alert('Restore was rolled back -- ' + reason + '.\n\nYour current data is unchanged.');
+      return;
+    }
     alert('Backup restored. Greenbar will now reload.');
     location.reload();
   };
@@ -2753,7 +2811,10 @@ function updateStorageDesc(){
 
 // ════ UPLOAD LOG ════
 function getLog(){ try{ return JSON.parse(localStorage.getItem('gb_log')||'[]'); }catch(e){ return []; } }
-function saveLog(log){ try{ localStorage.setItem('gb_log',JSON.stringify(log)); }catch(e){} }
+function saveLog(log){
+  try{ localStorage.setItem('gb_log',JSON.stringify(log)); _clearQuotaWarning(); }
+  catch(e){ if(_isQuotaErr(e)) _warnQuota('upload log'); /* not critical -- log is rebuildable */ }
+}
 function addToLog(filename, txCount, monthCount, months){
   const log=getLog();
   log.unshift({ id: Date.now(), filename, txCount, monthCount, months, date: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}) });
