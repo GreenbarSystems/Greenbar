@@ -202,6 +202,8 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
   background: var(--glass); transition: all 0.2s; white-space: nowrap;
   font-family: var(--font-display);
 }
+/* Native <button class="pill"> reset so the buttons render identically to the previous divs. */
+button.pill { font: inherit; line-height: 1.2; -webkit-appearance: none; appearance: none; }
 .pill.active {
   background: linear-gradient(135deg, var(--green), var(--teal));
   border-color: transparent; color: #050a14;
@@ -325,6 +327,19 @@ button.stat-tile:disabled { cursor: default; opacity: 0.7; }
 .settings-row { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); cursor: pointer; transition: background 0.15s; }
 .settings-row:last-child { border-bottom: none; }
 .settings-row:active { background: rgba(255,255,255,0.03); }
+/* Native <button class="settings-row"> reset so a button looks/behaves identical to the previous div. */
+button.settings-row {
+  width: 100%; font: inherit; color: inherit; text-align: left;
+  background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.04);
+  -webkit-appearance: none; appearance: none;
+}
+button.settings-row:hover { background: rgba(255,255,255,0.02); }
+/* sr-only: visually hidden, visible to assistive tech. Used for the global live-region announcer. */
+.sr-only {
+  position: absolute !important; width: 1px !important; height: 1px !important;
+  padding: 0 !important; margin: -1px !important; overflow: hidden !important;
+  clip: rect(0,0,0,0) !important; white-space: nowrap !important; border: 0 !important;
+}
 .s-icon { font-size: 20px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border-radius: 10px; flex-shrink: 0; }
 .s-body { flex: 1; }
 .s-label { font-size: 14px; font-weight: 600; }
@@ -737,6 +752,10 @@ button.stat-tile:disabled { cursor: default; opacity: 0.7; }
 </head>
 <body>
 <div class="mesh"></div>
+<!-- Single global screen-reader announcer. The render functions and showScreen()
+     write short status messages here so VoiceOver / TalkBack announce changes.
+     Kept outside #app so it survives any future SPA-level re-renders. -->
+<div id="sr-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
 <div id="app">
   <div class="safe-top"></div>
 
@@ -763,7 +782,7 @@ button.stat-tile:disabled { cursor: default; opacity: 0.7; }
 
     <!-- SUMMARY -->
     <div class="screen active" id="screen-summary">
-      <div id="summary-content">
+      <div id="summary-content" role="region" aria-label="Summary">
         <!-- Flash intro sequence -->
         <div id="flash-intro" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;height:calc(100dvh - 120px);text-align:center;padding:80px 32px 40px;position:relative;">
 
@@ -790,12 +809,12 @@ button.stat-tile:disabled { cursor: default; opacity: 0.7; }
 
     <!-- BUDGET -->
     <div class="screen" id="screen-budget">
-      <div id="budget-content"><div class="empty"><p>Import your Bank Transactions to see budget vs actual</p></div></div>
+      <div id="budget-content" role="region" aria-label="Budget"><div class="empty"><p>Import your Bank Transactions to see budget vs actual</p></div></div>
     </div>
 
     <!-- TRANSACTIONS -->
     <div class="screen" id="screen-txs">
-      <div id="txs-content"><div class="empty"><p>Import your Bank Transactions to browse them</p></div></div>
+      <div id="txs-content" role="region" aria-label="Transactions"><div class="empty"><p>Import your Bank Transactions to browse them</p></div></div>
     </div>
 
     <!-- INTRO / GUIDE -->
@@ -1531,47 +1550,47 @@ button.stat-tile:disabled { cursor: default; opacity: 0.7; }
 
       <h2 class="sec-hdr" style="margin-top:0">Bank Transactions Format</h2>
       <div class="settings-section">
-        <div class="settings-row" onclick="openModal('modal-cols')">
+        <button type="button" class="settings-row" onclick="openModal('modal-cols')">
           <div class="s-body"><div class="s-label">Column Mapping</div><div class="s-desc" id="col-desc">Map Date, Description, Amount columns</div></div>
-          <span class="s-arrow">›</span>
-        </div>
-        <div class="settings-row" onclick="openModal('modal-income')">
+          <span class="s-arrow" aria-hidden="true">›</span>
+        </button>
+        <button type="button" class="settings-row" onclick="openModal('modal-income')">
           <div class="s-body"><div class="s-label">Income Keywords</div><div class="s-desc" id="inc-desc">Words that identify deposits</div></div>
-          <span class="s-arrow">›</span>
-        </div>
-        <div class="settings-row" onclick="openModal('modal-skip')">
+          <span class="s-arrow" aria-hidden="true">›</span>
+        </button>
+        <button type="button" class="settings-row" onclick="openModal('modal-skip')">
           <div class="s-body"><div class="s-label">Skip Transactions</div><div class="s-desc" id="skip-desc">Exclude savings transfers etc.</div></div>
-          <span class="s-arrow">›</span>
-        </div>
+          <span class="s-arrow" aria-hidden="true">›</span>
+        </button>
       </div>
 
       <h2 class="sec-hdr">Reclassification Rules</h2>
       <div class="settings-section">
-        <div class="settings-row" onclick="openModal('modal-remaps')">
+        <button type="button" class="settings-row" onclick="openModal('modal-remaps')">
           <div class="s-body"><div class="s-label">Category Remaps</div><div class="s-desc" id="remap-desc">Merchant → category rules</div></div>
-          <span class="s-arrow">›</span>
-        </div>
+          <span class="s-arrow" aria-hidden="true">›</span>
+        </button>
       </div>
 
       <h2 class="sec-hdr">Import History</h2>
       <div class="settings-section">
-        <div class="settings-row" onclick="openModal('modal-log')">
+        <button type="button" class="settings-row" onclick="openModal('modal-log')">
           <div class="s-body"><div class="s-label">Upload Log</div><div class="s-desc">History of every file you've imported</div></div>
           <span id="log-badge" style="display:none;background:var(--green);color:#050a14;font-size:11px;font-weight:800;border-radius:9px;padding:2px 7px;font-family:var(--font-display);"></span>
-          <span class="s-arrow">›</span>
-        </div>
+          <span class="s-arrow" aria-hidden="true">›</span>
+        </button>
       </div>
 
       <h2 class="sec-hdr">Data Backup</h2>
       <div class="settings-section">
-        <div class="settings-row" onclick="exportData()">
+        <button type="button" class="settings-row" onclick="exportData()">
           <div class="s-body"><div class="s-label">Export a Backup</div><div class="s-desc" id="storage-desc">Save all your data to a file</div></div>
-          <span class="s-arrow">›</span>
-        </div>
-        <div class="settings-row" onclick="document.getElementById('restore-input').click()">
+          <span class="s-arrow" aria-hidden="true">›</span>
+        </button>
+        <button type="button" class="settings-row" onclick="document.getElementById('restore-input').click()">
           <div class="s-body"><div class="s-label">Restore from Backup</div><div class="s-desc">Replace current data with a backup file</div></div>
-          <span class="s-arrow">›</span>
-        </div>
+          <span class="s-arrow" aria-hidden="true">›</span>
+        </button>
       </div>
       <div style="font-size:12px;color:var(--muted);line-height:1.5;margin:-4px 2px 14px;">Greenbar stores everything in this browser only. Export a backup before clearing browser data or switching devices.</div>
 
@@ -1587,7 +1606,7 @@ button.stat-tile:disabled { cursor: default; opacity: 0.7; }
   </div>
 
   <div class="bottom-nav" id="bottom-nav" role="navigation" aria-label="Primary">
-    <button class="nav-btn active" onclick="showScreen('summary',this)"><span class="nav-label">Summary</span></button>
+    <button class="nav-btn active" onclick="showScreen('summary',this)" aria-current="page"><span class="nav-label">Summary</span></button>
     <button class="nav-btn" onclick="showScreen('budget',this)"><span class="nav-label">Budget</span></button>
     <button class="nav-btn" onclick="showScreen('txs',this)"><span class="nav-label">Transactions</span></button>
     <button class="nav-btn" onclick="showScreen('intro',this)"><span class="nav-label">Guide</span></button>
@@ -3126,7 +3145,7 @@ function renderSummary(){
   const maxAmt=spend[0]?.[1]||1;
 
   const pills=hasData
-    ? `<div class="pills-row" style="margin-bottom:12px;">${keys.map(k=>`<div class="pill ${k===sel?'active':''}" onclick="selMonth('${k}')">${k}</div>`).join('')}<div class="pill" onclick="selMonth('__all')">All</div></div>`
+    ? `<div class="pills-row" role="group" aria-label="Select month" style="margin-bottom:12px;">${keys.map(k=>`<button type="button" class="pill ${k===sel?'active':''}" onclick="selMonth('${k}')"${k===sel?' aria-current="true"':''}>${k}</button>`).join('')}<button type="button" class="pill" onclick="selMonth('__all')">All</button></div>`
     : '';
 
   const topSpendBody=spend.length
@@ -3186,6 +3205,7 @@ function renderSummary(){
       ${achievements}
       ${importPrompt}
     </div>`;
+  srAnnounce(hasData ? `Summary for ${sel}` : 'Summary, no transactions yet');
 }
 function selMonth(mk){
   _sel=mk;
@@ -3197,8 +3217,8 @@ function selMonth(mk){
 
 function renderSummaryAll(){
   const keys=sortKeys(_months);
-  const pills=keys.map(k=>`<div class="pill" onclick="selMonth('${k}')">${k}</div>`).join('')
-    +`<div class="pill active" onclick="selMonth('__all')">All</div>`;
+  const pills=keys.map(k=>`<button type="button" class="pill" onclick="selMonth('${k}')">${k}</button>`).join('')
+    +`<button type="button" class="pill active" onclick="selMonth('__all')" aria-current="true">All</button>`;
   const allCats={};let totalInc=0,totalExp=0;
   for(const mk of keys){const m=_months[mk];totalInc+=m.income;for(const[c,v]of Object.entries(m.expenses)){allCats[c]=(allCats[c]||0)+v;totalExp+=v;}}
   const n=keys.length;
@@ -3227,7 +3247,7 @@ function renderSummaryAll(){
         <div class="gb-brand-tagline">Your money, clearly.</div>
       </div>
 
-      <div class="pills-row" style="margin-bottom:12px;">${pills}</div>
+      <div class="pills-row" role="group" aria-label="Select month" style="margin-bottom:12px;">${pills}</div>
       <div class="net-card" style="margin-bottom:12px;">
         <div class="pulse"></div>
         <div class="net-lbl">Total Net -- ${n} Months</div>
@@ -3260,12 +3280,13 @@ function renderSummaryAll(){
         </div>`).join('')}
       </div>
     </div>`;
+  srAnnounce(`Summary across all ${n} months`);
 }
 
 function renderBudget(){
   const mk=_sel==='__all'?sortKeys(_months).slice(-1)[0]:_sel;
   const m=_months[mk];
-  if(!m){document.getElementById('budget-content').innerHTML='<div class="empty"><p>Import your Bank Transactions to see budget vs actual</p></div>';return;}
+  if(!m){document.getElementById('budget-content').innerHTML='<div class="empty"><p>Import your Bank Transactions to see budget vs actual</p></div>';srAnnounce('Budget, no transactions yet');return;}
   const expTotal=Object.values(m.expenses).reduce((s,v)=>s+v,0);
   const budTotal=Object.values(CFG.budget).reduce((s,v)=>s+v,0);
   const rows=Object.entries(CFG.budget).map(([cat,bud])=>({cat,bud,actual:m.expenses[cat]||0})).filter(r=>r.bud>0||r.actual>0).sort((a,b)=>b.actual-a.actual);
@@ -3289,6 +3310,7 @@ function renderBudget(){
         return`<div class="bva-row"><div class="bva-cat">${esc(r.cat)}</div><div class="bva-num" style="color:var(--muted)">${fmt(r.bud)}</div><div class="bva-num">${fmt(r.actual)}</div><div class="bva-num ${cls}">${v>=0?'+':''}${fmt(v)}</div></div>`;}).join('')}
     </div>
     ${unb.length?`<h2 class="sec-hdr">Unbudgeted</h2><div class="bva-card">${unb.map(([cat,amt])=>`<div class="bva-row"><div class="bva-cat">${esc(cat)}</div><div class="bva-num" style="color:var(--muted)">-</div><div class="bva-num">${fmt(amt)}</div><div class="bva-num v-flat">--</div></div>`).join('')}</div>`:''}`;
+  srAnnounce(`Budget for ${mk}, ${rows.length} ${rows.length===1?'category':'categories'}`);
 }
 
 function renderTxs(filter=''){
@@ -3305,7 +3327,7 @@ function renderTxs(filter=''){
       return {tx,key,label};
     })
     .sort((a,b)=>b.key-a.key);
-  if(!rows.length){document.getElementById('txs-content').innerHTML='<div class="empty"><p>No transactions found</p></div>';return;}
+  if(!rows.length){document.getElementById('txs-content').innerHTML='<div class="empty"><p>No transactions found</p></div>';srAnnounce(filter?`No transactions match "${filter}"`:'No transactions');return;}
   const byDate={};for(const r of rows){(byDate[r.label]=byDate[r.label]||[]).push(r.tx);}
   document.getElementById('txs-content').innerHTML=`
     <div class="search-wrap">
@@ -3320,6 +3342,7 @@ function renderTxs(filter=''){
             <div class="tx-amt ${tx.amount<0?'neg':'pos'}">${tx.amount<0?'−':'+'}${fmt(Math.abs(tx.amount))}</div>
           </div>`;}).join('')}
       </div>`).join('')}`;
+  srAnnounce(`${rows.length} ${rows.length===1?'transaction':'transactions'}${filter?` matching "${filter}"`:''}`);
 }
 
 // ════ BANK EXPORT GUIDE ════
@@ -3422,11 +3445,13 @@ function goToBankExport(){
 // ════ NAV ════
 function showScreen(name,btn){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>{ b.classList.remove('active'); b.removeAttribute('aria-current'); });
   const el = document.getElementById('screen-'+name);
   if(!el){ console.error('showScreen: missing screen-'+name); return; }
   el.classList.add('active');
-  if(btn) btn.classList.add('active');
+  if(btn){ btn.classList.add('active'); btn.setAttribute('aria-current','page'); }
+  // Tell screen-reader users which screen they're on now
+  srAnnounce(({summary:'Summary screen',budget:'Budget screen',txs:'Transactions screen',intro:'Guide screen',settings:'Settings screen'}[name])||'Screen changed');
   if(name==='budget') renderBudget();
   if(name==='txs') renderTxs();
   if(name==='settings'){ syncUI(); renderBudgetInputs(); updateStorageDesc(); }
@@ -3749,6 +3774,17 @@ function skipSetup(){
   showHeaderButtons();
 }
 
+// Push a short status message into the global #sr-status live region so that
+// VoiceOver / TalkBack announce screen and data changes. Same-text writes are
+// re-broadcast by toggling the node empty first (some screen readers ignore
+// a write that doesn't change the diff).
+function srAnnounce(msg){
+  const el = document.getElementById('sr-status');
+  if(!el) return;
+  if(el.textContent === msg) el.textContent = '';
+  // tiny delay lets the empty -> text diff register as a change
+  setTimeout(()=>{ el.textContent = msg; }, 30);
+}
 function showToast(msg){
   let toast = document.getElementById('gb-toast');
   if(!toast){
