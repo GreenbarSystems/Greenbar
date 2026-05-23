@@ -57,6 +57,10 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
   --safe-b: env(safe-area-inset-bottom, 0px);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+/* Accessibility: visible focus ring for keyboard navigation. :focus-visible
+   only matches when the user is navigating with the keyboard, so mouse clicks
+   don't get the ring. */
+:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
 html, body { height: 100%; overflow: hidden; font-family: var(--font-body); background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
 
 /* ── Mesh background ── */
