@@ -710,7 +710,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
 <div id="app">
   <div class="safe-top"></div>
 
-  <div class="header">
+  <div class="header" role="banner">
     <div id="hdr-wordmark-wrap" style="opacity:0;pointer-events:none;transition:opacity 0.6s ease;display:flex;align-items:center;gap:10px;">
       <div>
         <div class="wordmark"><span class="green-part">Green</span><span class="bar-part">bar</span></div>
@@ -720,7 +720,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
           background:linear-gradient(135deg,#00d68f,#00c9b1);
           display:none;align-items:center;justify-content:center;flex-shrink:0;
           box-shadow:0 2px 10px rgba(0,214,143,0.35);transition:transform 0.15s;"
-        title="Ask Greens"><span style="color:#050a14;font-weight:900;font-size:14px;line-height:1;">?</span></button>
+        title="Ask Greens" aria-label="Open help assistant"><span style="color:#050a14;font-weight:900;font-size:14px;line-height:1;">?</span></button>
     </div>
     <div class="hdr-right">
       <button id="hdr-import-btn" class="fab" onclick="document.getElementById('csv-input').click()" style="opacity:0;pointer-events:none;width:auto;padding:0 16px;font-size:13px;font-weight:800;font-family:var(--font-display);letter-spacing:0.3px;color:#050a14;background:linear-gradient(135deg,#00d68f,#00c9b1);box-shadow:0 4px 16px rgba(0,214,143,0.4);opacity:0;pointer-events:none;transition:opacity 0.6s ease;">Import</button>
@@ -729,7 +729,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
     </div>
   </div>
 
-  <div class="content">
+  <div class="content" role="main">
 
     <!-- SUMMARY -->
     <div class="screen active" id="screen-summary">
@@ -821,7 +821,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
         <div id="bank-export-section" style="font-family: var(--font-display);font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin:20px 0 10px;">How to export from your bank</div>
         <div style="background:var(--glass);border:1px solid var(--border);border-radius:20px;padding:16px;margin-bottom:14px;">
           <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px;">Pick your bank for step-by-step instructions to download your transactions.</div>
-          <select id="bank-export-select" onchange="showBankExport(this.value)" style="width:100%;background:var(--glass);border:1px solid var(--border);border-radius:12px;padding:11px 14px;color:var(--text);font-size:14px;font-family:var(--font-body);outline:none;">
+          <select id="bank-export-select" aria-label="Choose your bank for export instructions" onchange="showBankExport(this.value)" style="width:100%;background:var(--glass);border:1px solid var(--border);border-radius:12px;padding:11px 14px;color:var(--text);font-size:14px;font-family:var(--font-body);outline:none;">
             <option value="">Select your bank…</option>
             <option value="chase">Chase</option>
             <option value="bofa">Bank of America</option>
@@ -1210,7 +1210,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
           <!-- SLIDE 1: Privacy -->
           <div class="wt-slide active">
             <div class="wt-icon-wrap" style="border-color:rgba(0,214,143,0.25);background:rgba(0,214,143,0.08);">
-              <svg viewBox="0 0 64 64" width="54" height="54" fill="none">
+              <svg aria-hidden="true"viewBox="0 0 64 64" width="54" height="54" fill="none">
                 <rect x="12" y="28" width="40" height="28" rx="7" fill="rgba(0,214,143,0.15)" stroke="#00d68f" stroke-width="2"/>
                 <path d="M21 28V22C21 16.477 26 12 32 12s11 4.477 11 10v6" stroke="#00d68f" stroke-width="2.5" stroke-linecap="round"/>
                 <circle cx="32" cy="42" r="4" fill="#00d68f"/>
@@ -1230,7 +1230,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
           <!-- SLIDE 2: Import -->
           <div class="wt-slide">
             <div class="wt-icon-wrap" style="border-color:rgba(41,121,255,0.25);background:rgba(41,121,255,0.08);">
-              <svg viewBox="0 0 64 64" width="54" height="54" fill="none">
+              <svg aria-hidden="true"viewBox="0 0 64 64" width="54" height="54" fill="none">
                 <rect x="8" y="8" width="30" height="38" rx="5" fill="rgba(41,121,255,0.12)" stroke="#2979ff" stroke-width="2"/>
                 <line x1="15" y1="20" x2="30" y2="20" stroke="#2979ff" stroke-width="2" stroke-linecap="round"/>
                 <line x1="15" y1="27" x2="30" y2="27" stroke="#2979ff" stroke-width="2" stroke-linecap="round"/>
@@ -1247,7 +1247,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
                     <!-- SLIDE 3: Insights & Drill-down -->
           <div class="wt-slide">
             <div class="wt-icon-wrap" style="border-color:rgba(124,77,255,0.25);background:rgba(124,77,255,0.08);">
-              <svg viewBox="0 0 64 64" width="54" height="54" fill="none">
+              <svg aria-hidden="true"viewBox="0 0 64 64" width="54" height="54" fill="none">
                 <polyline points="8,52 18,34 28,42 40,22 56,30" stroke="#7c4dff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                 <circle cx="18" cy="34" r="3.5" fill="#7c4dff"/>
                 <circle cx="28" cy="42" r="3.5" fill="#7c4dff"/>
@@ -1267,7 +1267,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
           <!-- SLIDE 4: Gamification -->
           <div class="wt-slide">
             <div class="wt-icon-wrap" style="border-color:rgba(255,165,2,0.3);background:rgba(255,165,2,0.08);">
-              <svg viewBox="0 0 64 64" width="54" height="54" fill="none">
+              <svg aria-hidden="true"viewBox="0 0 64 64" width="54" height="54" fill="none">
                 <polygon points="32,8 38,24 56,24 42,34 48,52 32,42 16,52 22,34 8,24 26,24" fill="rgba(255,165,2,0.2)" stroke="#ffa502" stroke-width="2.2" stroke-linejoin="round"/>
               </svg>
             </div>
@@ -1298,7 +1298,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
           <!-- SLIDE 5: Every Purchase Gives Back -->
           <div class="wt-slide">
             <div class="wt-icon-wrap" style="border-color:rgba(255,71,87,0.3);background:rgba(255,71,87,0.08);">
-              <svg viewBox="0 0 64 64" width="54" height="54" fill="none">
+              <svg aria-hidden="true"viewBox="0 0 64 64" width="54" height="54" fill="none">
                 <path d="M32 52s-22-13-22-28a12 12 0 0 1 22-7.6A12 12 0 0 1 54 24c0 15-22 28-22 28z"
                   fill="rgba(255,71,87,0.18)" stroke="#ff4757" stroke-width="2.2" stroke-linejoin="round"/>
                 <path d="M26 32l4 4 8-8" stroke="#ff4757" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1317,7 +1317,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
           <!-- SLIDE 6: Budget setup CTA -->
           <div class="wt-slide">
             <div class="wt-icon-wrap" style="border-color:rgba(0,214,143,0.3);background:rgba(0,214,143,0.1);">
-              <svg viewBox="0 0 64 64" width="54" height="54" fill="none">
+              <svg aria-hidden="true"viewBox="0 0 64 64" width="54" height="54" fill="none">
                 <circle cx="32" cy="32" r="22" fill="rgba(0,214,143,0.1)" stroke="#00d68f" stroke-width="2"/>
                 <path d="M32 20v13l7 4" stroke="#00d68f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
@@ -1371,7 +1371,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
 
           <div class="setup-input-wrap">
             <span class="prefix">$</span>
-            <input class="setup-input" id="s3-income" type="number" placeholder="Monthly amount" min="0" inputmode="decimal" oninput="_setupState.income=parseFloat(this.value)||0;updateGivingFromIncome()">
+            <input class="setup-input" id="s3-income" aria-label="Monthly take-home income in dollars" type="number" placeholder="Monthly amount" min="0" inputmode="decimal" oninput="_setupState.income=parseFloat(this.value)||0;updateGivingFromIncome()">
           </div>
 
           <div class="setup-income-note" id="s3-income-note" style="display:none;margin-top:16px;background:rgba(0,214,143,0.07);border:1px solid rgba(0,214,143,0.15);border-radius:14px;padding:14px 16px;">
@@ -1380,7 +1380,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
           </div>
 
           <div class="setup-nav">
-            <button class="setup-back" onclick="setupGo(1)">&larr;</button>
+            <button class="setup-back" aria-label="Back" onclick="setupGo(1)">&larr;</button>
             <button class="setup-next" onclick="setupGoValidate(3,'s3-income','Please enter your approximate monthly income.')">Next &rarr;</button>
           </div>
         </div>
@@ -1393,7 +1393,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
 
           <div class="setup-input-wrap">
             <span class="prefix">$</span>
-            <input class="setup-input" id="s2-housing" type="number" placeholder="Amount" min="0" inputmode="decimal" oninput="_setupState.housing=parseFloat(this.value)||0">
+            <input class="setup-input" id="s2-housing" aria-label="Monthly housing cost in dollars" type="number" placeholder="Amount" min="0" inputmode="decimal" oninput="_setupState.housing=parseFloat(this.value)||0">
           </div>
 
           <div class="ht-row">
@@ -1402,7 +1402,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
           </div>
 
           <div class="setup-nav">
-            <button class="setup-back" onclick="setupGo(2)">&larr;</button>
+            <button class="setup-back" aria-label="Back" onclick="setupGo(2)">&larr;</button>
             <button class="setup-next" onclick="setupGoValidate(4,'s2-housing','Please enter your housing cost to continue.')">Next &rarr;</button>
           </div>
         </div>
@@ -1423,17 +1423,17 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
               <div>
                 <div style="font-size:10px;color:var(--muted);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Groceries</div>
-                <div class="setup-input-wrap" style="margin:0;"><span class="prefix" style="font-size:13px;">$</span><input class="setup-input" id="s4-groc" type="number" placeholder="Amount" style="font-size:15px;padding:10px 10px 10px 22px;" min="0" inputmode="decimal" oninput="_setupState.groceries=parseFloat(this.value)||0"></div>
+                <div class="setup-input-wrap" style="margin:0;"><span class="prefix" style="font-size:13px;">$</span><input class="setup-input" id="s4-groc" aria-label="Groceries budget in dollars" type="number" placeholder="Amount" style="font-size:15px;padding:10px 10px 10px 22px;" min="0" inputmode="decimal" oninput="_setupState.groceries=parseFloat(this.value)||0"></div>
               </div>
               <div>
                 <div style="font-size:10px;color:var(--muted);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Dining Out</div>
-                <div class="setup-input-wrap" style="margin:0;"><span class="prefix" style="font-size:13px;">$</span><input class="setup-input" id="s4-dine-in" type="number" placeholder="Amount" style="font-size:15px;padding:10px 10px 10px 22px;" min="0" inputmode="decimal" oninput="_setupState.dining=parseFloat(this.value)||0"></div>
+                <div class="setup-input-wrap" style="margin:0;"><span class="prefix" style="font-size:13px;">$</span><input class="setup-input" id="s4-dine-in" aria-label="Dining-out budget in dollars" type="number" placeholder="Amount" style="font-size:15px;padding:10px 10px 10px 22px;" min="0" inputmode="decimal" oninput="_setupState.dining=parseFloat(this.value)||0"></div>
               </div>
             </div>
           </div>
 
           <div class="setup-nav">
-            <button class="setup-back" onclick="setupGo(3)">&larr;</button>
+            <button class="setup-back" aria-label="Back" onclick="setupGo(3)">&larr;</button>
             <button class="setup-next" onclick="setupGo(5)">Next &rarr;</button>
           </div>
         </div>
@@ -1460,12 +1460,12 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
             <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--soft);">What percentage of your income do you give?</div>
             <div class="setup-input-wrap" style="margin:0;">
               <span class="prefix" style="font-size:15px;">%</span>
-              <input class="setup-input" id="s5-giving-custom" type="number" placeholder="Enter %" min="0" max="100" inputmode="decimal" style="padding-left:32px;" oninput="const gv=parseFloat(this.value)||0; if(gv>100){this.value=100;} if(gv<0){this.value=0;} _setupState.givingPct=Math.min(100,Math.max(0,gv));">
+              <input class="setup-input" id="s5-giving-custom" aria-label="Giving as percent of income" type="number" placeholder="Enter %" min="0" max="100" inputmode="decimal" style="padding-left:32px;" oninput="const gv=parseFloat(this.value)||0; if(gv>100){this.value=100;} if(gv<0){this.value=0;} _setupState.givingPct=Math.min(100,Math.max(0,gv));">
             </div>
           </div>
 
           <div class="setup-nav">
-            <button class="setup-back" onclick="setupGo(4)">&larr;</button>
+            <button class="setup-back" aria-label="Back" onclick="setupGo(4)">&larr;</button>
             <button class="setup-next" onclick="setupGo(6)">Next &rarr;</button>
           </div>
         </div>
@@ -1479,7 +1479,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
           <div id="setup-review-list" style="flex:1;overflow-y:auto;margin-bottom:12px;"></div>
 
           <div class="setup-nav" style="margin-top:0;">
-            <button class="setup-back" onclick="setupGo(5)">&larr;</button>
+            <button class="setup-back" aria-label="Back" onclick="setupGo(5)">&larr;</button>
             <button class="setup-next" style="background:linear-gradient(135deg,#00d68f,#00c9b1);" onclick="finishSetup()">Save My Budget</button>
           </div>
           <div class="setup-skip" onclick="skipSetup()">Skip and use defaults</div>
@@ -1556,7 +1556,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
 
   </div>
 
-  <div class="bottom-nav" id="bottom-nav">
+  <div class="bottom-nav" id="bottom-nav" role="navigation" aria-label="Primary">
     <button class="nav-btn active" onclick="showScreen('summary',this)"><span class="nav-label">Summary</span></button>
     <button class="nav-btn" onclick="showScreen('budget',this)"><span class="nav-label">Budget</span></button>
     <button class="nav-btn" onclick="showScreen('txs',this)"><span class="nav-label">Transactions</span></button>
@@ -1571,15 +1571,15 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
       <div class="modal-title" style="margin-bottom:0">Column Mapping</div>
-      <button onclick="closeModal('modal-cols')" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
+      <button aria-label="Close" onclick="closeModal('modal-cols')" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
     </div>
     <div class="modal-sub">Enter exact column headers from your Bank Transactions. Leave blank to auto-detect.</div>
-    <div class="modal-label">Date Column</div><input class="modal-input" id="col-date" placeholder="e.g. Date, Transaction Date">
-    <div class="modal-label">Description Column</div><input class="modal-input" id="col-desc-inp" placeholder="e.g. Description, Merchant">
-    <div class="modal-label">Amount Column</div><input class="modal-input" id="col-amt" placeholder="e.g. Amount">
-    <div class="modal-label">Category Column (optional)</div><input class="modal-input" id="col-cat" placeholder="e.g. Category">
+    <div class="modal-label">Date Column</div><input class="modal-input" id="col-date" aria-label="Date column header" placeholder="e.g. Date, Transaction Date">
+    <div class="modal-label">Description Column</div><input class="modal-input" id="col-desc-inp" aria-label="Description column header" placeholder="e.g. Description, Merchant">
+    <div class="modal-label">Amount Column</div><input class="modal-input" id="col-amt" aria-label="Amount column header" placeholder="e.g. Amount">
+    <div class="modal-label">Category Column (optional)</div><input class="modal-input" id="col-cat" aria-label="Category column header" placeholder="e.g. Category">
     <div class="modal-label">Date Format</div>
-    <select class="modal-input" id="col-fmt" style="appearance:none">
+    <select class="modal-input" id="col-fmt" aria-label="Date format" style="appearance:none">
       <option value="MM/DD/YY">MM/DD/YY  (05/04/26)</option>
       <option value="MM/DD/YYYY">MM/DD/YYYY  (05/04/2026)</option>
       <option value="YYYY-MM-DD">YYYY-MM-DD  (2026-05-04)</option>
@@ -1594,10 +1594,10 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
       <div class="modal-title" style="margin-bottom:0">Income Keywords</div>
-      <button onclick="closeModal('modal-income')" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
+      <button aria-label="Close" onclick="closeModal('modal-income')" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
     </div>
     <div class="modal-sub">Transactions containing these words are counted as income. One per line, case-insensitive.</div>
-    <textarea class="modal-input" id="income-kw" rows="9" style="resize:none;line-height:1.9" placeholder="PAYROLL&#10;DIRECT DEPOSIT&#10;SALARY&#10;TAX REFUND&#10;CASHOUT&#10;MOBILE DEPOSIT"></textarea>
+    <textarea class="modal-input" id="income-kw" aria-label="Income keywords, one per line" rows="9" style="resize:none;line-height:1.9" placeholder="PAYROLL&#10;DIRECT DEPOSIT&#10;SALARY&#10;TAX REFUND&#10;CASHOUT&#10;MOBILE DEPOSIT"></textarea>
     <button class="btn-primary" onclick="saveIncome();closeModal('modal-income')">Save</button>
   </div>
 </div>
@@ -1607,10 +1607,10 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
       <div class="modal-title" style="margin-bottom:0">Skip Transactions</div>
-      <button onclick="closeModal('modal-skip')" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
+      <button aria-label="Close" onclick="closeModal('modal-skip')" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
     </div>
     <div class="modal-sub">Transactions containing these words are excluded entirely. One per line.</div>
-    <textarea class="modal-input" id="skip-kw" rows="7" style="resize:none;line-height:1.9" placeholder="TRANSFER TO SAVINGS&#10;INTERNAL TRANSFER"></textarea>
+    <textarea class="modal-input" id="skip-kw" aria-label="Skip-transaction keywords, one per line" rows="7" style="resize:none;line-height:1.9" placeholder="TRANSFER TO SAVINGS&#10;INTERNAL TRANSFER"></textarea>
     <button class="btn-primary" onclick="saveSkip();closeModal('modal-skip')">Save</button>
   </div>
 </div>
@@ -1620,7 +1620,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
       <div class="modal-title" style="margin-bottom:0">Category Remaps</div>
-      <button onclick="closeModal('modal-remaps')" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
+      <button aria-label="Close" onclick="closeModal('modal-remaps')" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
     </div>
     <div class="modal-sub">If description contains keyword → assign category. Case-insensitive.</div>
     <div id="remap-list"></div>
@@ -1714,9 +1714,9 @@ function saveCols(){ CFG.cols={date:document.getElementById('col-date').value.tr
 function saveIncome(){ CFG.incomeKw=document.getElementById('income-kw').value.split('\n').map(s=>s.trim().toUpperCase()).filter(Boolean); document.getElementById('inc-desc').textContent=`${CFG.incomeKw.length} keywords`; }
 function saveSkip(){ CFG.skipKw=document.getElementById('skip-kw').value.split('\n').map(s=>s.trim().toUpperCase()).filter(Boolean); document.getElementById('skip-desc').textContent=CFG.skipKw.length?`${CFG.skipKw.length} rules`:'None set'; }
 function saveRemaps(){ CFG.remaps=[]; document.querySelectorAll('.remap-row').forEach(r=>{ const k=r.querySelector('.rk').value.trim().toUpperCase(); const c=r.querySelector('.rc').value.trim(); if(k&&c) CFG.remaps.push({kw:k,cat:c}); }); document.getElementById('remap-desc').textContent=`${CFG.remaps.length} rules active`; }
-function renderRemaps(){ document.getElementById('remap-list').innerHTML=(CFG.remaps||[]).map(r=>`<div class="remap-row"><input class="rk" placeholder="Keyword" value="${esc(r.kw||'')}"><input class="rc" placeholder="Category" value="${esc(r.cat||'')}"><button class="del-btn" onclick="this.parentElement.remove()">×</button></div>`).join(''); }
-function addRemap(){ const d=document.createElement('div'); d.className='remap-row'; d.innerHTML=`<input class="rk" placeholder="Keyword"><input class="rc" placeholder="Category"><button class="del-btn" onclick="this.parentElement.remove()">×</button>`; document.getElementById('remap-list').appendChild(d); }
-function renderBudgetInputs(){ document.getElementById('budget-inputs').innerHTML=Object.entries(CFG.budget).map(([c,v])=>`<div class="budget-row"><span class="budget-label">${esc(c)}</span><input class="budget-input" type="number" data-cat="${esc(c)}" value="${v}" min="0" step="10"></div>`).join('')+`<div class="budget-row"><input class="budget-input" id="new-cat" placeholder="New category…" style="width:auto;flex:1;margin-right:8px;text-align:left"><input class="budget-input" id="new-val" type="number" placeholder="$0" style="width:72px"><button onclick="addBudgetCat()" style="margin-left:8px;padding:7px 12px;background:rgba(0,214,143,0.1);border:1px solid rgba(0,214,143,0.3);border-radius:10px;color:var(--green);font-weight:700;cursor:pointer;font-size:14px">+</button></div>`; }
+function renderRemaps(){ document.getElementById('remap-list').innerHTML=(CFG.remaps||[]).map(r=>`<div class="remap-row"><input class="rk" aria-label="Remap keyword"placeholder="Keyword" value="${esc(r.kw||'')}"><input class="rc" aria-label="Target category"placeholder="Category" value="${esc(r.cat||'')}"><button class="del-btn" aria-label="Remove rule"onclick="this.parentElement.remove()">×</button></div>`).join(''); }
+function addRemap(){ const d=document.createElement('div'); d.className='remap-row'; d.innerHTML=`<input class="rk" aria-label="Remap keyword"placeholder="Keyword"><input class="rc" aria-label="Target category"placeholder="Category"><button class="del-btn" aria-label="Remove rule"onclick="this.parentElement.remove()">×</button>`; document.getElementById('remap-list').appendChild(d); }
+function renderBudgetInputs(){ document.getElementById('budget-inputs').innerHTML=Object.entries(CFG.budget).map(([c,v])=>`<div class="budget-row"><span class="budget-label">${esc(c)}</span><input class="budget-input" type="number" data-cat="${esc(c)}" aria-label="${esc(c)} budget in dollars" value="${v}" min="0" step="10"></div>`).join('')+`<div class="budget-row"><input class="budget-input" id="new-cat" aria-label="New category name" placeholder="New category…" style="width:auto;flex:1;margin-right:8px;text-align:left"><input class="budget-input" id="new-val" type="number" aria-label="New category budget in dollars" placeholder="$0" style="width:72px"><button onclick="addBudgetCat()" aria-label="Add budget category" style="margin-left:8px;padding:7px 12px;background:rgba(0,214,143,0.1);border:1px solid rgba(0,214,143,0.3);border-radius:10px;color:var(--green);font-weight:700;cursor:pointer;font-size:14px">+</button></div>`; }
 function addBudgetCat(){ const n=document.getElementById('new-cat').value.trim(); const v=parseFloat(document.getElementById('new-val').value)||0; if(!n) return; CFG.budget[n]=v; renderBudgetInputs(); }
 function saveSettings(){ document.querySelectorAll('.budget-input[data-cat]').forEach(i=>{ if(i.dataset.cat){ const bv=parseFloat(i.value); CFG.budget[i.dataset.cat]=(isNaN(bv)||bv<0)?0:Math.round(bv*100)/100; i.value=CFG.budget[i.dataset.cat]; } }); saveCFG(); if(_allTxs.length) renderAll(); }
 
@@ -1918,7 +1918,7 @@ function renderHealthScore(monthKey){
 
   return `<div class="hs-card">
     <div class="hs-ring-wrap">
-      <svg width="88" height="88" viewBox="0 0 88 88">
+      <svg aria-hidden="true"width="88" height="88" viewBox="0 0 88 88">
         <circle cx="44" cy="44" r="${r}" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="7"/>
         <circle cx="44" cy="44" r="${r}" fill="none" stroke="${hs.gradeColor}"
           stroke-width="7" stroke-linecap="round"
@@ -2053,7 +2053,7 @@ const BADGE_ICONS = {
 function badgeIconHTML(label){
   const ic=BADGE_ICONS[label];
   if(!ic) return '';
-  return `<div class="badge-icon" style="color:${ic.c}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ic.p}</svg></div>`;
+  return `<div class="badge-icon" style="color:${ic.c}"><svg aria-hidden="true"viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ic.p}</svg></div>`;
 }
 
 function renderStreaks(){
@@ -3057,7 +3057,7 @@ function renderSummaryAll(){
     <div class="gb-welcome">
       <div class="gb-brand-wrap">
         <div class="gb-brand-glow"></div>
-        <svg class="gb-logo-svg" viewBox="0 0 280 180" xmlns="http://www.w3.org/2000/svg">
+        <svg aria-hidden="true"class="gb-logo-svg" viewBox="0 0 280 180" xmlns="http://www.w3.org/2000/svg">
           <rect x="20" y="110" width="28" height="50" rx="6" fill="url(#barGrad1b)" opacity="0.9"/>
           <rect x="56" y="80" width="28" height="80" rx="6" fill="url(#barGrad1b)" opacity="0.95"/>
           <rect x="92" y="50" width="28" height="110" rx="6" fill="url(#barGrad1b)"/>
@@ -3157,7 +3157,7 @@ function renderTxs(filter=''){
   const byDate={};for(const r of rows){(byDate[r.label]=byDate[r.label]||[]).push(r.tx);}
   document.getElementById('txs-content').innerHTML=`
     <div class="search-wrap">
-      <input type="text" placeholder="Search…" value="${esc(filter)}" oninput="clearTimeout(this._t);this._t=setTimeout(()=>renderTxs(this.value),120)" autocomplete="off">
+      <input type="text" aria-label="Search transactions" placeholder="Search…" value="${esc(filter)}" oninput="clearTimeout(this._t);this._t=setTimeout(()=>renderTxs(this.value),120)" autocomplete="off">
     </div>
     ${Object.entries(byDate).map(([date,dTxs])=>`
       <div class="tx-date-hdr">${esc(date)}</div>
@@ -3602,6 +3602,8 @@ function showToast(msg){
   if(!toast){
     toast = document.createElement('div');
     toast.id = 'gb-toast';
+    toast.setAttribute('role','status');
+    toast.setAttribute('aria-live','polite');
     toast.style.cssText = 'position:fixed;bottom:calc(70px + var(--safe-b));left:50%;transform:translateX(-50%) translateY(20px);background:rgba(0,214,143,0.95);color:#050a14;padding:12px 20px;border-radius:14px;font-size:13px;font-weight:700;font-family:var(--font-display);white-space:nowrap;z-index:999;opacity:0;transition:all 0.3s cubic-bezier(0.34,1.4,0.64,1);pointer-events:none;max-width:90vw;white-space:normal;text-align:center;';
     document.body.appendChild(toast);
   }
@@ -3633,7 +3635,7 @@ updateLogBadge();
 <div class="modal-overlay" id="modal-conflict" role="dialog" aria-modal="true" aria-label="Import conflict" onclick="">
   <div class="modal-sheet">
     <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
-      <button onclick="resolveConflict('cancel')" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#x2715;</button>
+      <button aria-label="Cancel" onclick="resolveConflict('cancel')" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#x2715;</button>
     </div>
     <div class="modal-handle" style="margin-top:0;"></div>
     <div class="modal-title" id="conflict-title">Month conflict detected</div>
@@ -3651,7 +3653,7 @@ updateLogBadge();
 <div class="modal-overlay" id="modal-log" role="dialog" aria-modal="true" aria-label="Upload log" onclick="closeOut(event,'modal-log')">
   <div class="modal-sheet">
     <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
-      <button onclick="closeModal('modal-log')" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#x2715;</button>
+      <button aria-label="Close" onclick="closeModal('modal-log')" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#x2715;</button>
     </div>
     <div class="modal-handle" style="margin-top:0;"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
@@ -3668,7 +3670,7 @@ updateLogBadge();
 <div class="modal-overlay" id="modal-vendor" role="dialog" aria-modal="true" aria-label="Category vendor breakdown" onclick="closeOut(event,'modal-vendor')">
   <div class="modal-sheet">
     <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
-      <button onclick="closeModal('modal-vendor')" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#x2715;</button>
+      <button aria-label="Close" onclick="closeModal('modal-vendor')" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#x2715;</button>
     </div>
     <div class="modal-handle" style="margin-top:0;"></div>
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
@@ -3686,7 +3688,7 @@ updateLogBadge();
 <div class="modal-overlay" id="modal-cat-insights" role="dialog" aria-modal="true" aria-label="Category insights" onclick="closeOut(event,'modal-cat-insights')">
   <div class="modal-sheet">
     <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
-      <button onclick="closeModal('modal-cat-insights')" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#x2715;</button>
+      <button aria-label="Close" onclick="closeModal('modal-cat-insights')" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#x2715;</button>
     </div>
     <div class="modal-handle" style="margin-top:0;"></div>
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
@@ -3717,7 +3719,7 @@ updateLogBadge();
       <div style="font-family:var(--font-display);font-size:15px;font-weight:800;">Greens</div>
       <div style="font-size:11px;color:var(--muted);">Ask me anything about how the app works</div>
     </div>
-    <button onclick="toggleAIHelp()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:4px;line-height:1;">&#x2715;</button>
+    <button onclick="toggleAIHelp()" aria-label="Close help assistant" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:4px;line-height:1;">&#x2715;</button>
   </div>
 
   <!-- Messages -->
@@ -3729,13 +3731,13 @@ updateLogBadge();
 
   <!-- Input -->
   <div style="padding:10px 16px 20px;display:flex;gap:10px;align-items:flex-end;flex-shrink:0;">
-    <textarea id="ai-input" placeholder="Ask a question..." rows="1"
+    <textarea id="ai-input" aria-label="Ask the help assistant" placeholder="Ask a question..." rows="1"
       style="flex:1;background:var(--glass);border:1px solid var(--border);border-radius:14px;
         color:var(--text);font-size:14px;font-family:var(--font-body);padding:10px 14px;
         resize:none;outline:none;max-height:100px;overflow-y:auto;line-height:1.5;"
       onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAIMessage();}"
       oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
-    <button onclick="sendAIMessage()" id="ai-send-btn"
+    <button onclick="sendAIMessage()" id="ai-send-btn" aria-label="Send message"
       style="width:40px;height:40px;border-radius:12px;border:none;flex-shrink:0;
         background:linear-gradient(135deg,#00d68f,#00c9b1);
         color:white;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">
