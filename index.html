@@ -3308,11 +3308,21 @@ function renderSummary(){
       </div>
       <div class="stat-row" style="grid-template-columns:1fr 1fr;margin-bottom:8px;">
         ${(()=>{
-          const top = spend[0];
-          if(top){
-            return `<button class="stat-tile" type="button" onclick="showVendorDrill(this.dataset.cat)" data-cat="${esc(top[0])}" aria-label="Top category: ${esc(top[0])}, ${fmt(top[1])} — see vendors"><div class="st-lbl">Top Category</div><div class="st-val c-teal" style="font-size:15px;line-height:1.2;">${esc(top[0])}</div><div class="st-tap-hint" style="margin-top:3px;color:var(--soft);">${fmt(top[1])} &rsaquo;</div></button>`;
+          // Savings rate: income minus spend, expressed as a % of income.
+          // Tapping opens the Health Score Breakdown -- savings rate is the
+          // top-weighted component there, so the modal gives the full context.
+          if(m && m.income > 0){
+            const rate = (m.income - expTotal) / m.income;
+            const pct  = Math.round(rate * 100);
+            const saved= m.income - expTotal;
+            const positive = rate >= 0;
+            const valColor = positive ? 'var(--green)' : '#ff4757';
+            const subText  = positive ? `${fmt(saved)} saved` : `${fmt(Math.abs(saved))} over`;
+            const sign     = positive ? '+' : '−';
+            const ariaSign = positive ? 'saved' : 'over income';
+            return `<button class="stat-tile" type="button" onclick="openHealthBreakdown()" aria-label="Savings rate ${sign}${Math.abs(pct)} percent ${ariaSign} this month — see what's driving it"><div class="st-lbl">Savings Rate</div><div class="st-val" style="color:${valColor};">${sign}${Math.abs(pct)}%</div><div class="st-tap-hint" style="margin-top:3px;color:var(--soft);">${subText} &rsaquo;</div></button>`;
           }
-          return `<button class="stat-tile" type="button" disabled aria-label="Top category not available yet"><div class="st-lbl">Top Category</div><div class="st-val" style="color:var(--muted);">—</div></button>`;
+          return `<button class="stat-tile" type="button" disabled aria-label="Savings rate not available yet — add a month with income"><div class="st-lbl">Savings Rate</div><div class="st-val" style="color:var(--muted);">—</div></button>`;
         })()}
         <button class="stat-tile" type="button" ${hs?`onclick="openHealthBreakdown()" aria-label="Health score ${hs.grade}, ${hs.score} out of 100 — see what's driving it"`:'disabled aria-label="Health score not available yet"'}><div class="st-lbl">Health Score</div><div class="st-val" style="color:${gradeColor};">${grade}</div>${hs?`<div class="st-tap-hint">Tap for details &rsaquo;</div>`:''}</button>
       </div>
