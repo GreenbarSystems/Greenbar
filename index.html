@@ -340,6 +340,21 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
   padding: 0 !important; margin: -1px !important; overflow: hidden !important;
   clip: rect(0,0,0,0) !important; white-space: nowrap !important; border: 0 !important;
 }
+/* Skip-to-main link: hidden off-canvas until it receives keyboard focus, then
+   slides into view at the top-left so a Tab user can jump past the header
+   straight into the main content area. */
+.skip-link {
+  position: fixed; top: -100px; left: 16px; z-index: 9999;
+  background: var(--green); color: #050a14;
+  padding: 12px 18px; border-radius: 12px;
+  font-family: var(--font-display); font-size: 14px; font-weight: 800;
+  text-decoration: none; box-shadow: 0 4px 16px rgba(0,214,143,0.4);
+  transition: top 0.15s ease;
+}
+.skip-link:focus { top: calc(var(--safe-t) + 12px); outline: 2px solid #fff; outline-offset: 2px; }
+/* Make the main content area programmatically focusable so the skip link can
+   land focus there (a bare anchor target only scrolls; it doesn't move focus). */
+.content[tabindex="-1"]:focus { outline: none; }
 .s-icon { font-size: 20px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border-radius: 10px; flex-shrink: 0; }
 .s-body { flex: 1; }
 .s-label { font-size: 14px; font-weight: 600; }
@@ -751,6 +766,10 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
 </style>
 </head>
 <body>
+<!-- Skip-to-main link: first element in tab order so keyboard / screen-reader
+     users can jump past the header (wordmark, help button, Import) straight
+     into the active screen. Hidden visually until focused. -->
+<a class="skip-link" href="#main-content" onclick="document.getElementById('main-content').focus()">Skip to main content</a>
 <div class="mesh"></div>
 <!-- Single global screen-reader announcer. The render functions and showScreen()
      write short status messages here so VoiceOver / TalkBack announce changes.
@@ -773,12 +792,12 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
     </div>
     <div class="hdr-right">
       <button id="hdr-import-btn" class="fab" onclick="document.getElementById('csv-input').click()" style="opacity:0;pointer-events:none;width:auto;padding:0 16px;font-size:13px;font-weight:800;font-family:var(--font-display);letter-spacing:0.3px;color:#050a14;background:linear-gradient(135deg,#00d68f,#00c9b1);box-shadow:0 4px 16px rgba(0,214,143,0.4);opacity:0;pointer-events:none;transition:opacity 0.6s ease;">Import</button>
-      <input type="file" id="csv-input" accept=".csv,.tsv,.txt" multiple onchange="handleFiles(this.files)">
-      <input type="file" id="restore-input" accept=".json,application/json" style="display:none" onchange="restoreData(this.files[0]); this.value='';">
+      <input type="file" id="csv-input" aria-label="Import bank transactions CSV file" accept=".csv,.tsv,.txt" multiple onchange="handleFiles(this.files)">
+      <input type="file" id="restore-input" aria-label="Restore a Greenbar backup JSON file" accept=".json,application/json" style="display:none" onchange="restoreData(this.files[0]); this.value='';">
     </div>
   </div>
 
-  <div class="content" role="main">
+  <div class="content" role="main" id="main-content" tabindex="-1">
 
     <!-- SUMMARY -->
     <div class="screen active" id="screen-summary">
