@@ -145,8 +145,6 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
    Summary is excluded -- it keeps its gap via .gb-welcome so the first-launch
    flash intro is unaffected. */
 #screen-budget, #screen-txs, #screen-intro, #screen-settings { padding-top: 16px; }
-@keyframes screenIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-/* screenIn animation removed -- caused blank screen on re-activate */
 
 /* ── Glass card ── */
 .g-card {
@@ -426,14 +424,12 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
 .ap-bar-name { font-size:10px; font-weight:500; flex:0 0 58px; color:rgba(238,242,255,0.65); }
 .ap-bar-bg { flex:1; height:3px; background:rgba(255,255,255,0.07); border-radius:3px; }
 .ap-bar-fg { height:3px; border-radius:3px; animation:apBarGrow 0.9s cubic-bezier(0.34,1.2,0.64,1) both; }
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @keyframes apBarGrow { from { width:0 !important; } }
 .ap-bar-amt { font-size:10px; font-weight:700; flex:0 0 36px; text-align:right; font-family: var(--font-display); }
 
 
 /* ── Flash intro ── */
 #flash-intro { position:relative; }
-@keyframes flashFadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
 /* ── Welcome screen ── */
 .gb-welcome { padding: 16px 0 8px; }
 .gb-brand-wrap { text-align: center; padding: 28px 20px 24px; background: linear-gradient(155deg, rgba(0,214,143,0.06) 0%, rgba(41,121,255,0.04) 50%, rgba(124,77,255,0.03) 100%); border: 1px solid rgba(0,214,143,0.15); border-radius: 28px; margin-bottom: 14px; position: relative; overflow: hidden; }
@@ -544,7 +540,6 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
   transition:all 0.2s; -webkit-tap-highlight-color:transparent;
 }
 .lifestyle-btn.chosen { border-color:var(--green); background:rgba(0,214,143,0.10); color:var(--green); }
-/* pct pill CSS removed */
 
 /* ── Walkthrough ── */
 .wt-slide {
@@ -558,55 +553,6 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
 }
 .wt-slide.active {
   opacity: 1; pointer-events: auto;
-}
-.wt-icon-wrap {
-  width: 96px; height: 96px; border-radius: 28px;
-  display: flex; align-items: center; justify-content: center;
-  margin-bottom: 28px; border: 1px solid rgba(255,255,255,0.08);
-}
-.wt-headline {
-  font-family: var(--font-display); font-size: 24px; font-weight: 900;
-  letter-spacing: -0.5px; line-height: 1.2; margin-bottom: 14px;
-  color: var(--text);
-}
-.wt-body {
-  font-size: 15px; color: var(--soft); line-height: 1.65;
-  margin-bottom: 24px; max-width: 320px;
-}
-.wt-contrast-card {
-  width: 100%; background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 16px; padding: 14px 18px; text-align: left;
-}
-.wt-contrast-row {
-  display: flex; align-items: center; gap: 12px;
-  font-size: 14px; font-weight: 500; color: var(--soft);
-  padding: 6px 0;
-}
-.wt-good { color: #00d68f; font-size: 16px; font-weight: 900; flex-shrink: 0; }
-.wt-bad  { color: #ff4757; font-size: 16px; font-weight: 900; flex-shrink: 0; }
-.wt-tip {
-  background: rgba(255,165,2,0.07); border: 1px solid rgba(255,165,2,0.2);
-  border-radius: 14px; padding: 12px 16px; font-size: 13px;
-  color: var(--soft); line-height: 1.6; text-align: left; width: 100%;
-}
-.wt-mini-demo {
-  width: 100%; background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 16px; padding: 14px 18px; text-align: left;
-}
-.wt-demo-row {
-  display: flex; justify-content: space-between; align-items: center;
-  font-size: 14px; font-weight: 600; margin-bottom: 6px;
-}
-.wt-demo-sub { padding: 4px 0; }
-.wt-dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: rgba(255,255,255,0.15); transition: all 0.3s;
-}
-.wt-dot.active {
-  width: 24px; border-radius: 4px;
-  background: linear-gradient(90deg, #00d68f, #00c9b1);
 }
 /* ── Interactive Walkthrough ── */
 .wt-icon-wrap {
@@ -681,22 +627,6 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
   filter: drop-shadow(0 0 8px rgba(0,214,143,0.4));
 }
 
-/* ── Health Score ── */
-.hs-card { background:var(--glass); border:1px solid var(--border); border-radius:20px; padding:16px 18px; display:flex; align-items:center; gap:16px; margin-bottom:12px; }
-.hs-ring-wrap { position:relative; flex-shrink:0; width:88px; height:88px; }
-.hs-ring-inner { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-.hs-grade { font-family:var(--font-display); font-size:24px; font-weight:900; line-height:1; }
-.hs-score-num { font-size:11px; font-weight:700; color:var(--muted); margin-top:1px; }
-.hs-meta { flex:1; min-width:0; }
-.hs-label { font-family:var(--font-display); font-size:16px; font-weight:900; letter-spacing:-0.3px; }
-.hs-sublabel { font-size:11px; color:var(--muted); margin-bottom:10px; }
-.hs-bars { display:flex; flex-direction:column; gap:6px; }
-.hs-bar-row { display:flex; align-items:center; gap:6px; }
-.hs-bar-lbl { font-size:10px; color:var(--muted); width:44px; flex-shrink:0; }
-.hs-bar-bg { flex:1; height:5px; border-radius:3px; background:rgba(255,255,255,0.07); overflow:hidden; }
-.hs-bar-fg { height:100%; border-radius:3px; transition:width 1s ease; }
-.hs-bar-val { font-size:10px; color:var(--muted); width:52px; text-align:right; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-
 /* ── Streaks & Badges ── */
 .streaks-card { background:var(--glass); border:1px solid var(--border); border-radius:20px; padding:16px 18px; margin-bottom:12px; }
 .streaks-header { display:flex; align-items:center; gap:8px; margin-bottom:14px; }
@@ -734,13 +664,6 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
 }
 #ai-help-btn:active { transform: scale(0.92); }
 .ff { font-family: var(--font-display) !important; }
-
-/* Setup screen slide-in transition */
-@keyframes slideInFromRight {
-  from { transform: translateX(100%); }
-  to   { transform: translateX(0); }
-}
-/* screen-entering removed */
 
 /* ── Reduced-motion: respect prefers-reduced-motion (WCAG 2.3.3) ── */
 @media (prefers-reduced-motion: reduce) {
@@ -2060,54 +1983,6 @@ function computeHealthScore(monthKey){
   return { score, grade, gradeColor, label, details };
 }
 
-function renderHealthScore(monthKey){
-  const hs = computeHealthScore(monthKey);
-  if(!hs) return '';
-  const r = 34; // circle radius
-  const circ = 2 * Math.PI * r;
-  const filled = (hs.score / 100) * circ;
-  const savePct = Math.round(hs.details.savingsRate * 100);
-  const saveTxt = savePct >= 0 ? `+${savePct}% saved` : `${savePct}% over income`;
-
-  return `<div class="hs-card">
-    <div class="hs-ring-wrap">
-      <svg aria-hidden="true"width="88" height="88" viewBox="0 0 88 88">
-        <circle cx="44" cy="44" r="${r}" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="7"/>
-        <circle cx="44" cy="44" r="${r}" fill="none" stroke="${hs.gradeColor}"
-          stroke-width="7" stroke-linecap="round"
-          stroke-dasharray="${filled} ${circ - filled}"
-          stroke-dashoffset="${circ * 0.25}"
-          style="transition:stroke-dasharray 1s ease;"/>
-      </svg>
-      <div class="hs-ring-inner">
-        <div class="hs-grade" style="color:${hs.gradeColor};">${hs.grade}</div>
-        <div class="hs-score-num">${hs.score}</div>
-      </div>
-    </div>
-    <div class="hs-meta">
-      <div class="hs-label" style="color:${hs.gradeColor};">${hs.label}</div>
-      <div class="hs-sublabel">Financial Health</div>
-      <div class="hs-bars">
-        <div class="hs-bar-row">
-          <span class="hs-bar-lbl">Savings</span>
-          <div class="hs-bar-bg"><div class="hs-bar-fg" style="width:${hs.details.savePts/40*100}%;background:${hs.gradeColor}"></div></div>
-          <span class="hs-bar-val">${saveTxt}</span>
-        </div>
-        <div class="hs-bar-row">
-          <span class="hs-bar-lbl">Budget</span>
-          <div class="hs-bar-bg"><div class="hs-bar-fg" style="width:${hs.details.budPts/40*100}%;background:#2979ff"></div></div>
-          <span class="hs-bar-val">${hs.details.budPts}/40</span>
-        </div>
-        <div class="hs-bar-row">
-          <span class="hs-bar-lbl">Tracking</span>
-          <div class="hs-bar-bg"><div class="hs-bar-fg" style="width:${hs.details.divPts/20*100}%;background:#7c4dff"></div></div>
-          <span class="hs-bar-val">${hs.details.divPts}/20</span>
-        </div>
-      </div>
-    </div>
-  </div>`;
-}
-
 // ── Health-grade breakdown modal ──
 // Opens modal-health and fills it with a per-component explanation of the
 // grade for the currently-selected month. Only callable when a real month
@@ -2557,12 +2432,6 @@ function startWalkthroughSetup(){
   setupGo(2);
 }
 
-function skipWalkthrough(){
-  try{ localStorage.setItem('gb_wt_done','1'); }catch(e){}
-  showHeaderButtons();
-  showScreen('summary', _navBtn(0));
-}
-
 function _wtAddSwipe(){
   const track = document.getElementById('wt-track');
   if(!track || track._swipeInit) return;
@@ -2726,21 +2595,6 @@ function startSetupFromFlash(){
     showWalkthrough();
   }
 }
-
-function skipFlashSetup(){
-  // Don't call skipSetup() -- that would set gb_setup_done and prevent future setup
-  // Just show header buttons and show import prompt
-  showHeaderButtons();
-  // Replace flash with a minimal import prompt
-  const sc = document.getElementById('summary-content');
-  if(sc) sc.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:calc(100dvh - 120px);text-align:center;padding:40px 28px;">
-      <div style="font-family:var(--font-display);font-size:26px;font-weight:900;letter-spacing:-0.5px;margin-bottom:10px;">Ready when you are.</div>
-      <div style="font-size:14px;color:var(--soft);line-height:1.6;margin-bottom:32px;">Tap <strong>Import</strong> above to load your Bank Transactions.<br>Your data never leaves this device.</div>
-      <button onclick="document.getElementById('csv-input').click()" style="padding:14px 32px;border:none;border-radius:14px;background:linear-gradient(135deg,#00d68f,#00c9b1);color:#050a14;font-family:var(--font-display);font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 4px 20px rgba(0,214,143,0.3);">Import Transactions</button>
-    </div>`;
-}
-
 
 // ════ PERSISTENCE ════
 function saveData(){
@@ -3741,11 +3595,6 @@ function setupGoValidate(step, inputId, msg){
   setupGo(step);
 }
 
-function setupSelect(el, group){
-  document.querySelectorAll('.setup-opt[id^="' + group + '"]').forEach(o => o.classList.remove('selected'));
-  el.classList.add('selected');
-}
-
 function setupToggle(el, group){
   el.classList.toggle('chosen');
   const id = el.id.replace(group + '-','');
@@ -3764,15 +3613,6 @@ function toggleHousingType(type){
     const otherTile = document.getElementById('ht-' + other);
     _setupState.housingType = otherTile?.classList.contains('chosen') ? other : 'own';
   }
-}
-
-function hintFill(inputId, value){
-  const el = document.getElementById(inputId);
-  if(!el) return;
-  el.value = value;
-  el.dispatchEvent(new Event('input'));
-  el.style.borderColor = 'rgba(0,214,143,0.5)';
-  setTimeout(()=>{ el.style.borderColor=''; }, 800);
 }
 
 
@@ -3825,10 +3665,6 @@ function toggleGiving(){
     setTimeout(()=>{ document.getElementById('s5-giving-custom')?.focus(); }, 150);
   }
 }
-
-// setupPct removed -- giving now uses direct manual input
-
-function setGivingPct(pct){ _setupState.givingPct = pct; }
 
 function buildSetupReview(){
   const budget = computeBudgetFromState();
@@ -3997,9 +3833,6 @@ function _drainToast(){
   // gap so messages don't visually overlap.
   setTimeout(()=>{ _drainToast(); }, 3300);
 }
-// DEV: Clear walkthrough flag so it always shows fresh
-try{ localStorage.removeItem('gb_wt_done'); }catch(e){}
-
 loadCFG();
 // Load persisted transaction data
 if(loadData()){
