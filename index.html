@@ -349,7 +349,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
 .remap-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .remap-row input { flex: 1; background: var(--glass); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; color: var(--text); font-size: 13px; font-family: var(--font-body); outline: none; }
 .remap-row input:focus { border-color: rgba(0,214,143,0.4); }
-.del-btn { width: 36px; height: 36px; border-radius: 10px; background: rgba(255,71,87,0.12); border: none; color: var(--red); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.del-btn { width: 40px; height: 40px; border-radius: 10px; background: rgba(255,71,87,0.12); border: none; color: var(--red); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .add-btn { width: 100%; padding: 11px; background: rgba(0,214,143,0.08); border: 1px dashed rgba(0,214,143,0.3); border-radius: 14px; color: var(--green); font-size: 13px; font-weight: 700; cursor: pointer; font-family: var(--font-body); margin-bottom: 12px; transition: background 0.2s; }
 .add-btn:active { background: rgba(0,214,143,0.14); }
 
@@ -703,6 +703,28 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
   to   { transform: translateX(0); }
 }
 /* screen-entering removed */
+
+/* ── Reduced-motion: respect prefers-reduced-motion (WCAG 2.3.3) ── */
+@media (prefers-reduced-motion: reduce) {
+  /* Cancel all keyframe animations and motion transitions */
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* Keep the wordmark legible without the shimmer sweep */
+  .gb-shimmer {
+    background: none !important;
+    -webkit-background-clip: initial !important;
+    background-clip: initial !important;
+    -webkit-text-fill-color: var(--green) !important;
+    color: var(--green) !important;
+    filter: none !important;
+  }
+  /* Disable active-state scale "press" effect for users who set reduce-motion */
+  .fab:active, #ai-help-btn:active { transform: none !important; }
+}
 </style>
 </head>
 <body>
@@ -1566,12 +1588,12 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
 </div>
 
 <!-- MODALS -->
-<div class="modal-overlay" id="modal-cols" role="dialog" aria-modal="true" aria-label="Column mapping" onclick="closeOut(event,'modal-cols')">
+<div class="modal-overlay" id="modal-cols" role="dialog" aria-modal="true" aria-labelledby="cols-title" onclick="closeOut(event,'modal-cols')">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-      <h2 class="modal-title" style="margin-bottom:0">Column Mapping</h2>
-      <button aria-label="Close" onclick="closeModal('modal-cols')" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
+      <h2 class="modal-title" id="cols-title" style="margin-bottom:0">Column Mapping</h2>
+      <button aria-label="Close" onclick="closeModal('modal-cols')" style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
     </div>
     <div class="modal-sub">Enter exact column headers from your Bank Transactions. Leave blank to auto-detect.</div>
     <div class="modal-label">Date Column</div><input class="modal-input" id="col-date" aria-label="Date column header" placeholder="e.g. Date, Transaction Date">
@@ -1589,12 +1611,12 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
   </div>
 </div>
 
-<div class="modal-overlay" id="modal-income" role="dialog" aria-modal="true" aria-label="Income keywords" onclick="closeOut(event,'modal-income')">
+<div class="modal-overlay" id="modal-income" role="dialog" aria-modal="true" aria-labelledby="income-title" onclick="closeOut(event,'modal-income')">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-      <h2 class="modal-title" style="margin-bottom:0">Income Keywords</h2>
-      <button aria-label="Close" onclick="closeModal('modal-income')" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
+      <h2 class="modal-title" id="income-title" style="margin-bottom:0">Income Keywords</h2>
+      <button aria-label="Close" onclick="closeModal('modal-income')" style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
     </div>
     <div class="modal-sub">Transactions containing these words are counted as income. One per line, case-insensitive.</div>
     <textarea class="modal-input" id="income-kw" aria-label="Income keywords, one per line" rows="9" style="resize:none;line-height:1.9" placeholder="PAYROLL&#10;DIRECT DEPOSIT&#10;SALARY&#10;TAX REFUND&#10;CASHOUT&#10;MOBILE DEPOSIT"></textarea>
@@ -1602,12 +1624,12 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
   </div>
 </div>
 
-<div class="modal-overlay" id="modal-skip" role="dialog" aria-modal="true" aria-label="Skip transactions" onclick="closeOut(event,'modal-skip')">
+<div class="modal-overlay" id="modal-skip" role="dialog" aria-modal="true" aria-labelledby="skip-title" onclick="closeOut(event,'modal-skip')">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-      <h2 class="modal-title" style="margin-bottom:0">Skip Transactions</h2>
-      <button aria-label="Close" onclick="closeModal('modal-skip')" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
+      <h2 class="modal-title" id="skip-title" style="margin-bottom:0">Skip Transactions</h2>
+      <button aria-label="Close" onclick="closeModal('modal-skip')" style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
     </div>
     <div class="modal-sub">Transactions containing these words are excluded entirely. One per line.</div>
     <textarea class="modal-input" id="skip-kw" aria-label="Skip-transaction keywords, one per line" rows="7" style="resize:none;line-height:1.9" placeholder="TRANSFER TO SAVINGS&#10;INTERNAL TRANSFER"></textarea>
@@ -1615,12 +1637,12 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
   </div>
 </div>
 
-<div class="modal-overlay" id="modal-remaps" role="dialog" aria-modal="true" aria-label="Category remaps" onclick="closeOut(event,'modal-remaps')">
+<div class="modal-overlay" id="modal-remaps" role="dialog" aria-modal="true" aria-labelledby="remaps-title" onclick="closeOut(event,'modal-remaps')">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-      <h2 class="modal-title" style="margin-bottom:0">Category Remaps</h2>
-      <button aria-label="Close" onclick="closeModal('modal-remaps')" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
+      <h2 class="modal-title" id="remaps-title" style="margin-bottom:0">Category Remaps</h2>
+      <button aria-label="Close" onclick="closeModal('modal-remaps')" style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
     </div>
     <div class="modal-sub">If description contains keyword → assign category. Case-insensitive.</div>
     <div id="remap-list"></div>
@@ -2351,6 +2373,16 @@ function runFlashIntro(){
   const intro = document.getElementById('flash-intro');
   if(!p1) return;
   _flashDone = false;
+
+  // Respect prefers-reduced-motion: skip the animated intro and land on CTA immediately
+  const reduceMotion = (typeof matchMedia==='function') && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduceMotion){
+    p1.style.transition = 'none'; p1.style.opacity = '0';
+    p2.style.transition = 'none'; p2.style.opacity = '1';
+    if(cta){ cta.style.transition = 'none'; cta.style.opacity = '1'; }
+    _flashDone = true;
+    return;
+  }
 
   // Reset all phases to invisible so each run starts clean
   p1.style.transition = 'none'; p1.style.opacity = '0';
@@ -3632,10 +3664,10 @@ updateLogBadge();
 </script>
 
 <!-- FILE CONFLICT MODAL -->
-<div class="modal-overlay" id="modal-conflict" role="dialog" aria-modal="true" aria-label="Import conflict" onclick="">
+<div class="modal-overlay" id="modal-conflict" role="dialog" aria-modal="true" aria-labelledby="conflict-title" onclick="">
   <div class="modal-sheet">
     <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
-      <button aria-label="Cancel" onclick="resolveConflict('cancel')" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#x2715;</button>
+      <button aria-label="Cancel" onclick="resolveConflict('cancel')" style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#x2715;</button>
     </div>
     <div class="modal-handle" style="margin-top:0;"></div>
     <h2 class="modal-title" id="conflict-title">Month conflict detected</h2>
@@ -3650,14 +3682,14 @@ updateLogBadge();
 </div>
 
 <!-- UPLOAD LOG MODAL -->
-<div class="modal-overlay" id="modal-log" role="dialog" aria-modal="true" aria-label="Upload log" onclick="closeOut(event,'modal-log')">
+<div class="modal-overlay" id="modal-log" role="dialog" aria-modal="true" aria-labelledby="log-title" onclick="closeOut(event,'modal-log')">
   <div class="modal-sheet">
     <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
-      <button aria-label="Close" onclick="closeModal('modal-log')" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#x2715;</button>
+      <button aria-label="Close" onclick="closeModal('modal-log')" style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#x2715;</button>
     </div>
     <div class="modal-handle" style="margin-top:0;"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-      <h2 class="modal-title" style="margin-bottom:0;">Upload Log</h2>
+      <h2 class="modal-title" id="log-title" style="margin-bottom:0;">Upload Log</h2>
       <button onclick="clearLog()" style="background:rgba(255,71,87,0.12);border:1px solid rgba(255,71,87,0.2);border-radius:10px;padding:6px 12px;color:var(--red);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-display);">Clear All</button>
     </div>
     <div class="modal-sub">All the Bank Transactions you import are recorded here.</div>
@@ -3667,10 +3699,10 @@ updateLogBadge();
 </div>
 
 <!-- VENDOR DRILL-DOWN MODAL -->
-<div class="modal-overlay" id="modal-vendor" role="dialog" aria-modal="true" aria-label="Category vendor breakdown" onclick="closeOut(event,'modal-vendor')">
+<div class="modal-overlay" id="modal-vendor" role="dialog" aria-modal="true" aria-labelledby="vendor-cat-title" onclick="closeOut(event,'modal-vendor')">
   <div class="modal-sheet">
     <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
-      <button aria-label="Close" onclick="closeModal('modal-vendor')" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#x2715;</button>
+      <button aria-label="Close" onclick="closeModal('modal-vendor')" style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#x2715;</button>
     </div>
     <div class="modal-handle" style="margin-top:0;"></div>
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
@@ -3685,10 +3717,10 @@ updateLogBadge();
 </div>
 
 <!-- CATEGORY INSIGHTS MODAL -->
-<div class="modal-overlay" id="modal-cat-insights" role="dialog" aria-modal="true" aria-label="Category insights" onclick="closeOut(event,'modal-cat-insights')">
+<div class="modal-overlay" id="modal-cat-insights" role="dialog" aria-modal="true" aria-labelledby="ins-cat-title" onclick="closeOut(event,'modal-cat-insights')">
   <div class="modal-sheet">
     <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
-      <button aria-label="Close" onclick="closeModal('modal-cat-insights')" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#x2715;</button>
+      <button aria-label="Close" onclick="closeModal('modal-cat-insights')" style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#x2715;</button>
     </div>
     <div class="modal-handle" style="margin-top:0;"></div>
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
@@ -3719,7 +3751,7 @@ updateLogBadge();
       <div style="font-family:var(--font-display);font-size:15px;font-weight:800;">Greens</div>
       <div style="font-size:11px;color:var(--muted);">Ask me anything about how the app works</div>
     </div>
-    <button onclick="toggleAIHelp()" aria-label="Close help assistant" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:4px;line-height:1;">&#x2715;</button>
+    <button onclick="toggleAIHelp()" aria-label="Close help assistant" style="width:44px;height:44px;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#x2715;</button>
   </div>
 
   <!-- Messages -->
