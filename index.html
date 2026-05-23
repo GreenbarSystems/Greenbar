@@ -127,8 +127,8 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
   padding-bottom: var(--safe-b);
 }
 .nav-btn {
-  flex: 1; padding: 15px 4px; border: none; background: none; cursor: pointer;
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  flex: 1; padding: 9px 4px 10px; border: none; background: none; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
   color: var(--muted); transition: color 0.2s; position: relative;
 }
 .nav-btn.active { color: var(--green); }
@@ -137,7 +137,10 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
   width: 32px; height: 2px; border-radius: 0 0 4px 4px;
   background: linear-gradient(90deg, var(--green), var(--teal));
 }
-.nav-label { font-size: 13px; font-weight: 600; letter-spacing: 0.01em; }
+/* Inline-SVG nav icons. Stroke is currentColor so the icon picks up the
+   .nav-btn / .nav-btn.active text color automatically (muted / green). */
+.nav-icon { width: 22px; height: 22px; display: block; flex-shrink: 0; }
+.nav-label { font-size: 12px; font-weight: 600; letter-spacing: 0.01em; }
 
 /* ── Screens ── */
 /* ── Screen switching ── */
@@ -1615,11 +1618,45 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
   </div>
 
   <div class="bottom-nav" id="bottom-nav" role="navigation" aria-label="Primary">
-    <button class="nav-btn active" onclick="showScreen('summary',this)" aria-current="page"><span class="nav-label">Summary</span></button>
-    <button class="nav-btn" onclick="showScreen('budget',this)"><span class="nav-label">Budget</span></button>
-    <button class="nav-btn" onclick="showScreen('txs',this)"><span class="nav-label">Transactions</span></button>
-    <button class="nav-btn" onclick="showScreen('intro',this)"><span class="nav-label">Guide</span></button>
-    <button class="nav-btn" onclick="showScreen('settings',this)"><span class="nav-label">Settings</span></button>
+    <button class="nav-btn active" onclick="showScreen('summary',this)" aria-current="page">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="6"  y1="20" x2="6"  y2="13"/>
+        <line x1="12" y1="20" x2="12" y2="6"/>
+        <line x1="18" y1="20" x2="18" y2="10"/>
+      </svg>
+      <span class="nav-label">Summary</span>
+    </button>
+    <button class="nav-btn" onclick="showScreen('budget',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H5a2 2 0 0 1-2-2a2 2 0 0 1 2-2h12"/>
+        <circle cx="17" cy="13" r="1.5" fill="currentColor" stroke="none"/>
+      </svg>
+      <span class="nav-label">Budget</span>
+    </button>
+    <button class="nav-btn" onclick="showScreen('txs',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="4" y1="7"  x2="20" y2="7"/>
+        <line x1="4" y1="12" x2="20" y2="12"/>
+        <line x1="4" y1="17" x2="14" y2="17"/>
+      </svg>
+      <span class="nav-label">Transactions</span>
+    </button>
+    <button class="nav-btn" onclick="showScreen('intro',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 4.5C4 3.67 4.67 3 5.5 3H19a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H5.5C4.67 20 4 19.33 4 18.5z"/>
+        <line x1="8" y1="8"  x2="16" y2="8"/>
+        <line x1="8" y1="12" x2="16" y2="12"/>
+        <line x1="8" y1="16" x2="12" y2="16"/>
+      </svg>
+      <span class="nav-label">Guide</span>
+    </button>
+    <button class="nav-btn" onclick="showScreen('settings',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+      <span class="nav-label">Settings</span>
+    </button>
   </div>
 </div>
 
