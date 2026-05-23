@@ -33,10 +33,14 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 <style>
 :root {
   --bg: #050a14;
-  --font-display: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
-  --font-body: -apple-system, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
-  /* Softer, rounded typeface (system fonts only -- nothing loaded from the web) */
-  --font-soft: ui-rounded, 'SF Pro Rounded', var(--font-body);
+  /* Hybrid font theme: rounded for display/hero text (wordmark, KPI numbers,
+     section headers, modal titles, CTA buttons), neutral sharp sans for body
+     copy and inputs. On Apple devices ui-rounded resolves to SF Pro Rounded;
+     other platforms fall through to system-ui (Segoe/Roboto/etc). No external
+     font is loaded -- system fonts only, per the privacy rule. */
+  --font-display: ui-rounded, 'SF Pro Rounded', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --font-body: -apple-system, 'SF Pro Text', system-ui, 'Helvetica Neue', Arial, sans-serif;
+  --font-soft: ui-rounded, 'SF Pro Rounded', system-ui, var(--font-body);
   --g1: #0d1f3c;
   --g2: #051a30;
   --glass: rgba(255,255,255,0.04);
