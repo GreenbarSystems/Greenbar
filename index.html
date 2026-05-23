@@ -236,6 +236,11 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
   transition: border-color 0.2s;
 }
 .stat-tile:active { border-color: var(--border-bright); }
+/* Tappable variant: full-width button reset so a <button class="stat-tile"> looks identical to the div tiles. */
+button.stat-tile { width: 100%; font: inherit; color: inherit; cursor: pointer; -webkit-appearance: none; appearance: none; }
+button.stat-tile:hover { border-color: var(--border-bright); }
+button.stat-tile:disabled { cursor: default; opacity: 0.7; }
+.st-tap-hint { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; color: var(--muted); margin-top: 4px; font-weight: 600; letter-spacing: 0.03em; }
 .st-lbl { font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; }
 .st-val { font-family: var(--font-display); font-size: 20px; font-weight: 900; letter-spacing: -0.5px; }
 .c-green { color: var(--green); }
@@ -1977,6 +1982,118 @@ function renderHealthScore(monthKey){
   </div>`;
 }
 
+// ── Health-grade breakdown modal ──
+// Opens modal-health and fills it with a per-component explanation of the
+// grade for the currently-selected month. Only callable when a real month
+// is selected (the All view doesn't have a grade); the tile is disabled
+// otherwise so this should never be entered without a valid score.
+function openHealthBreakdown(){
+  const mk = (typeof _sel==='string' && _sel && _sel!=='__all') ? _sel : null;
+  if(!mk) return;
+  const hs = computeHealthScore(mk);
+  if(!hs) return;
+  const body = document.getElementById('health-body');
+  const title = document.getElementById('health-title');
+  if(title) title.textContent = `Grade ${hs.grade} — ${mk}`;
+  if(body)  body.innerHTML = renderHealthBreakdown(hs, mk);
+  openModal('modal-health');
+}
+
+// Build the breakdown HTML. Three sections matching computeHealthScore():
+// savings rate (40 pts), budget adherence (40 pts), tracking diversity (20 pts).
+function renderHealthBreakdown(hs, monthKey){
+  const m = _months[monthKey];
+  const income = m.income;
+  const expTotal = Object.values(m.expenses).reduce((s,v)=>s+v,0);
+  const savePct = Math.round(hs.details.savingsRate * 100);
+
+  // Per-category budget table -- shown if the user has any budget rows
+  const budgetCats = Object.keys(CFG.budget||{}).filter(k => CFG.budget[k] > 0);
+  let budgetRowsHtml = '';
+  if(budgetCats.length){
+    const rows = budgetCats.map(cat=>{
+      const actual = m.expenses[cat] || 0;
+      const target = CFG.budget[cat];
+      const ratio  = actual / target;
+      const pct    = Math.round(ratio * 100);
+      const status = ratio <= 1.1 ? {txt:'On track', col:'#00d68f'}
+                   : ratio <= 1.25 ? {txt:'Slightly over', col:'#ffa502'}
+                   : ratio <= 1.5  ? {txt:'Over', col:'#ffa502'}
+                   :                 {txt:'Way over', col:'#ff4757'};
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px;">
+        <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(cat)}</span>
+        <span style="color:var(--muted);font-size:12px;margin:0 10px;flex-shrink:0;">${fmt(actual)} / ${fmt(target)} <span style="opacity:0.7;">(${pct}%)</span></span>
+        <span style="color:${status.col};font-weight:700;font-size:12px;flex-shrink:0;">${status.txt}</span>
+      </div>`;
+    }).join('');
+    budgetRowsHtml = `<div style="margin-top:8px;">${rows}</div>`;
+  } else {
+    budgetRowsHtml = `<div style="font-size:12px;color:var(--muted);margin-top:6px;">No budget set for any category. Setting budgets unlocks the full 40 points here.</div>`;
+  }
+
+  // What's driving the grade -- pick the weakest component for a "next step" hint
+  const components = [
+    { key:'savings',  pts:hs.details.savePts, max:40, label:'Savings rate' },
+    { key:'budget',   pts:hs.details.budPts,  max:40, label:'Budget adherence' },
+    { key:'tracking', pts:hs.details.divPts,  max:20, label:'Tracking diversity' },
+  ];
+  // Weakest = lowest pts/max ratio
+  const weakest = components.slice().sort((a,b)=> (a.pts/a.max) - (b.pts/b.max))[0];
+  const nextStepCopy = {
+    savings:  savePct < 0 ? 'You spent more than you earned this month. Trimming the biggest categories would lift this fastest.'
+            : savePct < 10 ? `You saved ${savePct}% of income. Pushing toward 20% unlocks the full 40 points here.`
+            : savePct < 20 ? `You saved ${savePct}% — close to the 20% target that maxes this out.`
+            :                `You saved ${savePct}% of income — this component is already maxed out.`,
+    budget:   budgetCats.length === 0
+              ? 'You have no budgets set. Add a few in the Budget tab — even rough numbers count.'
+              : 'Spending in budgeted categories was further over target than ideal. Tighten the categories above marked "Over" or "Way over".',
+    tracking: `${Object.keys(m.expenses).filter(k=>m.expenses[k]>5).length} categories had real spend this month. Maxes out at 5+.`,
+  }[weakest.key];
+
+  const savingsBarPct  = Math.round(hs.details.savePts / 40 * 100);
+  const budgetBarPct   = Math.round(hs.details.budPts  / 40 * 100);
+  const trackingBarPct = Math.round(hs.details.divPts  / 20 * 100);
+
+  // Component card helper. Each card shows the label, points, a progress bar and an explanation.
+  const card = (label, pts, max, barPct, barColor, explainHtml) => `
+    <div style="background:var(--glass);border:1px solid var(--border);border-radius:16px;padding:14px 14px;margin-bottom:10px;">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px;">
+        <div style="font-family:var(--font-display);font-size:14px;font-weight:800;">${label}</div>
+        <div style="font-family:var(--font-display);font-size:14px;font-weight:900;color:${barColor};">${pts}<span style="color:var(--muted);font-weight:700;">/${max}</span></div>
+      </div>
+      <div style="height:6px;background:rgba(255,255,255,0.07);border-radius:4px;overflow:hidden;margin-bottom:10px;">
+        <div style="height:100%;width:${barPct}%;background:${barColor};border-radius:4px;"></div>
+      </div>
+      <div style="font-size:12.5px;color:var(--soft);line-height:1.5;">${explainHtml}</div>
+    </div>`;
+
+  return `
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
+      <div style="width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.04);border:2px solid ${hs.gradeColor};flex-shrink:0;">
+        <div style="font-family:var(--font-display);font-size:30px;font-weight:900;color:${hs.gradeColor};line-height:1;">${hs.grade}</div>
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-family:var(--font-display);font-size:22px;font-weight:900;color:${hs.gradeColor};">${hs.score}<span style="color:var(--muted);font-size:14px;font-weight:700;">/100</span></div>
+        <div style="font-size:13px;color:var(--soft);">${esc(hs.label)} &middot; ${monthKey}</div>
+      </div>
+    </div>
+
+    ${card('Savings rate', hs.details.savePts, 40, savingsBarPct, hs.gradeColor,
+      `Income ${fmt(income)} &minus; spend ${fmt(expTotal)} = <strong>${savePct >= 0 ? `${savePct}% saved` : `${Math.abs(savePct)}% over income`}</strong>. Full 40 points at 20%+ saved; partial credit below that; 0 if you spent more than you earned.`)}
+
+    ${card('Budget adherence', hs.details.budPts, 40, budgetBarPct, '#2979ff',
+      `${budgetCats.length ? `How close each budgeted category was to its target. Up to 10% over still counts as on-track.` : 'Neutral 20/40 awarded because no budgets are set yet.'}${budgetRowsHtml}`)}
+
+    ${card('Tracking diversity', hs.details.divPts, 20, trackingBarPct, '#7c4dff',
+      `<strong>${Object.keys(m.expenses).filter(k=>m.expenses[k]>5).length}</strong> categories had real spend this month (over $5). Reaches the full 20 points at 5+ categories — rewards balanced tracking rather than lumping everything into one bucket.`)}
+
+    <div style="background:rgba(0,214,143,0.07);border:1px solid rgba(0,214,143,0.25);border-radius:14px;padding:12px 14px;margin-top:6px;">
+      <div style="font-family:var(--font-display);font-size:12px;font-weight:800;color:var(--green);letter-spacing:0.04em;text-transform:uppercase;margin-bottom:4px;">Biggest lever</div>
+      <div style="font-size:13px;color:var(--soft);line-height:1.5;">${esc(nextStepCopy)}</div>
+    </div>
+  `;
+}
+
 // ── Feature 2: Streaks & Badges ──
 function computeStreaks(){
   const keys = sortKeys(_months);
@@ -3057,7 +3174,7 @@ function renderSummary(){
       </div>
       <div class="stat-row" style="grid-template-columns:1fr 1fr;margin-bottom:8px;">
         <div class="stat-tile"><div class="st-lbl">Last Added</div><div class="st-val c-teal" style="font-size:14px;">${esc(lastAdded)}</div></div>
-        <div class="stat-tile"><div class="st-lbl">Health Score</div><div class="st-val" style="color:${gradeColor};">${grade}</div></div>
+        <button class="stat-tile" type="button" ${hs?`onclick="openHealthBreakdown()" aria-label="Health score ${hs.grade}, ${hs.score} out of 100 — see what's driving it"`:'disabled aria-label="Health score not available yet"'}><div class="st-lbl">Health Score</div><div class="st-val" style="color:${gradeColor};">${grade}</div>${hs?`<div class="st-tap-hint">Tap for details &rsaquo;</div>`:''}</button>
       </div>
       <div style="font-size:12px;color:var(--muted);line-height:1.5;margin:0 2px 16px;">${esc(gradeExplain)}</div>
       <h2 class="sec-hdr">Top Spending${(m&&spend.length)?` <span class="sec-total">${fmt(expTotal)}</span>`:''}</h2>
@@ -3713,6 +3830,18 @@ updateLogBadge();
     </div>
     <div class="modal-sub" style="margin-bottom:16px;"></div>
     <div id="vendor-list"></div>
+  </div>
+</div>
+
+<!-- HEALTH SCORE BREAKDOWN MODAL -->
+<div class="modal-overlay" id="modal-health" role="dialog" aria-modal="true" aria-labelledby="health-title" onclick="closeOut(event,'modal-health')">
+  <div class="modal-sheet">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
+      <button aria-label="Close" onclick="closeModal('modal-health')" style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#x2715;</button>
+    </div>
+    <div class="modal-handle" style="margin-top:0;"></div>
+    <h2 class="modal-title" id="health-title" style="margin-bottom:14px;">Health Score Breakdown</h2>
+    <div id="health-body"></div>
   </div>
 </div>
 
