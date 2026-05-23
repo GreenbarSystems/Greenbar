@@ -3060,16 +3060,27 @@ function showVendorDrill(cat){
 // ════ MULTI-FILE UPLOAD + CONFLICT RESOLUTION ════
 let _pendingFiles = [];       // queue of File objects waiting to process
 let _pendingConflict = null;  // { file, newTxs, newMonths, newKeys, conflictingMonths }
+let _importBusy = false;      // true between handleFiles start and final processNextFile drain
 
 function handleFiles(files){
   if(!files || !files.length) return;
-  _pendingFiles = Array.from(files);
+  const incoming = Array.from(files);
+  if(_importBusy || _pendingFiles.length || _pendingConflict){
+    // An import is already in progress. Append rather than overwrite so we
+    // never drop files the user picked earlier or clobber a pending conflict.
+    _pendingFiles.push(...incoming);
+    return;
+  }
+  _pendingFiles = incoming;
+  _importBusy = true;
   processNextFile();
 }
 
 function processNextFile(){
   if(!_pendingFiles.length){
-    // All files done -- final render
+    // All files done -- final render. Clear the busy flag so the next
+    // user-initiated import starts a fresh batch.
+    _importBusy = false;
     saveData();
     renderAll();
     showScreen('summary', _navBtn(0));
@@ -3078,22 +3089,31 @@ function processNextFile(){
   const f = _pendingFiles.shift();
   const rd = new FileReader();
   rd.onload = e => {
-    const{headers,rows} = parseCSV(e.target.result);
-    const newTxs = processCSV(rows, headers);
-    if(!newTxs.length){ processNextFile(); return; } // file empty or rejected -- skip it, don't log an empty import
-    const newMonths = aggregate(newTxs);
-    const newKeys = sortKeys(newMonths);
+    try{
+      const{headers,rows} = parseCSV(e.target.result);
+      const newTxs = processCSV(rows, headers);
+      if(!newTxs.length){ processNextFile(); return; } // file empty or rejected -- skip it, don't log an empty import
+      const newMonths = aggregate(newTxs);
+      const newKeys = sortKeys(newMonths);
 
-    // Check for month conflicts with existing data
-    const conflictingMonths = newKeys.filter(mk => _months[mk] && _months[mk].txs.length > 0);
+      // Check for month conflicts with existing data
+      const conflictingMonths = newKeys.filter(mk => _months[mk] && _months[mk].txs.length > 0);
 
-    if(conflictingMonths.length > 0){
-      // Show conflict resolution modal
-      _pendingConflict = { f, newTxs, newMonths, newKeys, conflictingMonths };
-      showConflictModal(f.name, conflictingMonths, newKeys);
-    } else {
-      // No conflict -- merge automatically
-      applyImport(f, newTxs, newMonths, newKeys, 'merge');
+      if(conflictingMonths.length > 0){
+        // Show conflict resolution modal. _pendingConflict only ever holds
+        // ONE file at a time -- handleFiles queues additional files into
+        // _pendingFiles, so resolution proceeds serially.
+        _pendingConflict = { f, newTxs, newMonths, newKeys, conflictingMonths };
+        showConflictModal(f.name, conflictingMonths, newKeys);
+      } else {
+        // No conflict -- merge automatically
+        applyImport(f, newTxs, newMonths, newKeys, 'merge');
+        processNextFile();
+      }
+    }catch(err){
+      // A bug in parseCSV / processCSV / aggregate must not strand _importBusy.
+      console.warn('Greenbar: error processing "'+f.name+'"',err);
+      alert('Could not process "'+f.name+'": '+(err&&err.message||err));
       processNextFile();
     }
   };
@@ -3576,6 +3596,12 @@ let _modalReturnFocus=null;
 function openModal(id){
   const el=document.getElementById(id);
   if(!el) return;
+  // Close any OTHER currently-open modal first. We do this directly rather
+  // than via closeModal() because closeModal restores _modalReturnFocus, and
+  // we want focus to flow into the new modal instead.
+  document.querySelectorAll('.modal-overlay.open').forEach(m=>{
+    if(m !== el) m.classList.remove('open');
+  });
   el.classList.add('open');
   if(id==='modal-remaps')renderRemaps();
   if(id==='modal-log')renderLog();
