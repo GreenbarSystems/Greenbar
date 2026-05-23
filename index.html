@@ -51,7 +51,10 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
   --amber: #ffa502;
   --purple: #7c4dff;
   --text: #eef2ff;
-  --muted: rgba(238,242,255,0.4);
+  /* WCAG 2.1 AA requires 4.5:1 for normal text. --muted at alpha 0.4
+     measured 3.49:1 on --bg; raising to 0.55 gives ~4.87:1 while
+     keeping a clear visual tier below --soft (0.65). */
+  --muted: rgba(238,242,255,0.55);
   --soft: rgba(238,242,255,0.65);
   --safe-t: env(safe-area-inset-top, 0px);
   --safe-b: env(safe-area-inset-bottom, 0px);
