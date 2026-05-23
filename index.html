@@ -72,7 +72,16 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
    only matches when the user is navigating with the keyboard, so mouse clicks
    don't get the ring. */
 :focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
-html, body { height: 100%; overflow: hidden; font-family: var(--font-body); background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+html, body { height: 100%; overflow: hidden; font-family: var(--font-body); background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased;
+  /* Tabular (monospaced) numerals across the app so every digit renders at
+     the same width. Column-aligns Top Spending amounts, Budget vs Actual
+     numbers, stat tiles, and transaction list -- the "lining figures"
+     look that reads correctly in a finance UI. font-variant-numeric is
+     the modern shorthand; font-feature-settings is the fallback for
+     engines that don't implement the high-level property. */
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
 
 /* ── Mesh background ── */
 .mesh {
