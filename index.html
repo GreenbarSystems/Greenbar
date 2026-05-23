@@ -204,6 +204,34 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
   transition: transform 0.15s, box-shadow 0.15s;
 }
 .btn-primary:active { transform: scale(0.97); }
+/* Shared close ✕ for every modal sheet. Was 9 identical inline-style
+   buttons before consolidation. 44x44 hit area for accessibility. */
+.modal-close {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
+  color: var(--muted); font-size: 20px; cursor: pointer; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-close:hover { color: var(--text); background: rgba(255,255,255,0.10); }
+/* Step-number badge used in the Guide "How to get started" and "How to
+   export from your bank" sections (the 1/2/3/4 circles). */
+.step-badge {
+  width: 32px; height: 32px; border-radius: 10px; flex-shrink: 0;
+  background: var(--grad-primary); color: #050a14;
+  font-family: var(--font-display); font-size: 15px; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+}
+/* Big primary CTA on the flash intro + walkthrough finish slide. Same
+   shape as .btn-primary but with a more prominent shadow and slightly
+   different padding -- kept separate to avoid disturbing .btn-primary. */
+.btn-flash-cta {
+  width: 100%; padding: 16px; border: none; border-radius: 16px;
+  background: var(--grad-primary); color: #050a14;
+  font-family: var(--font-display); font-size: 16px; font-weight: 900;
+  letter-spacing: 0.2px; cursor: pointer;
+  box-shadow: 0 6px 28px rgba(0,214,143,0.35);
+}
+.btn-flash-cta:active { transform: scale(0.97); }
 .rules-card { padding: 18px; margin-bottom: 12px; }
 .rules-title { font-family: var(--font-display); font-size: 12px; font-weight: 800; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 14px; }
 .rule-item { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
@@ -571,9 +599,6 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
   transition:all 0.2s; -webkit-tap-highlight-color:transparent;
 }
 .ht-btn:active { opacity:0.8; }
-.ht-btn.chosen {
-  border-color:var(--green); background:rgba(0,214,143,0.10); color:var(--green);
-}
 
 /* ── Food buttons (step 4) ── */
 .food-btn-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:4px; }
@@ -583,7 +608,6 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
   border:2px solid var(--border); background:var(--glass); color:var(--muted);
   transition:all 0.2s; -webkit-tap-highlight-color:transparent;
 }
-.food-btn.chosen { border-color:var(--green); background:rgba(0,214,143,0.10); color:var(--green); }
 
 /* ── Lifestyle buttons (step 5) ── */
 .lifestyle-btn-grid { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:10px; margin-bottom:4px; }
@@ -593,7 +617,12 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
   border:2px solid var(--border); background:var(--glass); color:var(--muted);
   transition:all 0.2s; -webkit-tap-highlight-color:transparent;
 }
-.lifestyle-btn.chosen { border-color:var(--green); background:rgba(0,214,143,0.10); color:var(--green); }
+
+/* Shared "selected" state across all three setup-button types (housing /
+   food / lifestyle). Was 3 byte-identical rules before consolidation. */
+.ht-btn.chosen, .food-btn.chosen, .lifestyle-btn.chosen {
+  border-color: var(--green); background: rgba(0,214,143,0.10); color: var(--green);
+}
 
 /* ── Walkthrough ── */
 .wt-slide {
@@ -794,7 +823,7 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
 
             <!-- CTA -- fades in separately within phase 2 -->
             <div id="flash-cta" style="opacity:0;transition:opacity 1.2s ease;">
-              <button onclick="startSetupFromFlash()" style="width:100%;padding:16px;border:none;border-radius:16px;background:var(--grad-primary);color:#050a14;font-family:var(--font-display);font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 6px 28px rgba(0,214,143,0.35);letter-spacing:0.2px;">Get Started &rarr;</button>
+              <button class="btn-flash-cta" onclick="startSetupFromFlash()">Get Started &rarr;</button>
   
             </div>
           </div>
@@ -830,7 +859,7 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
         <div style="background:var(--glass);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:14px;">
 
           <div style="display:flex;gap:14px;padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);">
-            <div style="width:32px;height:32px;border-radius:10px;background:var(--grad-primary);display:flex;align-items:center;justify-content:center;font-family: var(--font-display);font-size:15px;font-weight:900;color:#050a14;flex-shrink:0;">1</div>
+            <div class="step-badge">1</div>
             <div>
               <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Adjust Settings (optional)</div>
               <div style="font-size:12px;color:var(--muted);line-height:1.6;">Before importing, open Settings to set your monthly budget targets, add your own category rules, and set your bank's column names if they're unusual.</div>
@@ -838,7 +867,7 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
           </div>
 
           <div style="display:flex;gap:14px;padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);">
-            <div style="width:32px;height:32px;border-radius:10px;background:var(--grad-primary);display:flex;align-items:center;justify-content:center;font-family: var(--font-display);font-size:15px;font-weight:900;color:#050a14;flex-shrink:0;">2</div>
+            <div class="step-badge">2</div>
             <div>
               <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Download your Bank Transactions</div>
               <div style="font-size:12px;color:var(--muted);line-height:1.6;">Log into your bank's website, go to Transaction History or Account Activity, and export your Bank Transactions. Usually found under Download, Export, or Statements.</div>
@@ -846,7 +875,7 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
           </div>
 
           <div style="display:flex;gap:14px;padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);">
-            <div style="width:32px;height:32px;border-radius:10px;background:var(--grad-primary);display:flex;align-items:center;justify-content:center;font-family: var(--font-display);font-size:15px;font-weight:900;color:#050a14;flex-shrink:0;">3</div>
+            <div class="step-badge">3</div>
             <div>
               <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Tap Import and select your file</div>
               <div style="font-size:12px;color:var(--muted);line-height:1.6;">Tap the green Import button at the top. Select your Bank Transactions from Downloads. Greenbar handles everything instantly -- nothing is uploaded anywhere.</div>
@@ -854,7 +883,7 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
           </div>
 
           <div style="display:flex;gap:14px;padding:16px;">
-            <div style="width:32px;height:32px;border-radius:10px;background:var(--grad-primary);display:flex;align-items:center;justify-content:center;font-family: var(--font-display);font-size:15px;font-weight:900;color:#050a14;flex-shrink:0;">4</div>
+            <div class="step-badge">4</div>
             <div>
               <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Explore your data</div>
               <div style="font-size:12px;color:var(--muted);line-height:1.6;">Your dashboard updates immediately. Repeat monthly -- new imports merge with existing data automatically. Your history builds over time.</div>
@@ -1679,7 +1708,7 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
       <h2 class="modal-title" id="cols-title" style="margin-bottom:0">Column Mapping</h2>
-      <button aria-label="Close" onclick="closeModal('modal-cols')" style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
+      <button aria-label="Close" onclick="closeModal('modal-cols')" class="modal-close">✕</button>
     </div>
     <div class="modal-sub">Enter exact column headers from your Bank Transactions. Leave blank to auto-detect.</div>
     <div class="modal-label">Date Column</div><input class="modal-input" id="col-date" aria-label="Date column header" placeholder="e.g. Date, Transaction Date">
@@ -1702,7 +1731,7 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
       <h2 class="modal-title" id="income-title" style="margin-bottom:0">Income Keywords</h2>
-      <button aria-label="Close" onclick="closeModal('modal-income')" style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
+      <button aria-label="Close" onclick="closeModal('modal-income')" class="modal-close">✕</button>
     </div>
     <div class="modal-sub">Transactions containing these words are counted as income. One per line, case-insensitive.</div>
     <textarea class="modal-input" id="income-kw" aria-label="Income keywords, one per line" rows="9" style="resize:none;line-height:1.9" placeholder="PAYROLL&#10;DIRECT DEPOSIT&#10;SALARY&#10;TAX REFUND&#10;CASHOUT&#10;MOBILE DEPOSIT"></textarea>
@@ -1715,7 +1744,7 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
       <h2 class="modal-title" id="skip-title" style="margin-bottom:0">Skip Transactions</h2>
-      <button aria-label="Close" onclick="closeModal('modal-skip')" style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
+      <button aria-label="Close" onclick="closeModal('modal-skip')" class="modal-close">✕</button>
     </div>
     <div class="modal-sub">Transactions containing these words are excluded entirely. One per line.</div>
     <textarea class="modal-input" id="skip-kw" aria-label="Skip-transaction keywords, one per line" rows="7" style="resize:none;line-height:1.9" placeholder="TRANSFER TO SAVINGS&#10;INTERNAL TRANSFER"></textarea>
@@ -1728,7 +1757,7 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
       <h2 class="modal-title" id="remaps-title" style="margin-bottom:0">Category Remaps</h2>
-      <button aria-label="Close" onclick="closeModal('modal-remaps')" style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
+      <button aria-label="Close" onclick="closeModal('modal-remaps')" class="modal-close">✕</button>
     </div>
     <div class="modal-sub">If description contains keyword → assign category. Case-insensitive.</div>
     <div id="remap-list"></div>
@@ -1999,6 +2028,9 @@ function processCSV(rows,headers){
 // (positive amount) subtracts -- so refunds reduce a category, not inflate income.
 function aggregate(txs){ const mo={}; for(const tx of txs){ if(!mo[tx.month])mo[tx.month]={income:0,expenses:{},txs:[]}; mo[tx.month].txs.push(tx); if(tx.isIncome)mo[tx.month].income+=tx.amount; else mo[tx.month].expenses[tx.cat]=(mo[tx.month].expenses[tx.cat]||0)-tx.amount; } return mo; }
 function sortKeys(mo){ return Object.keys(mo).sort((a,b)=>{ const[am,ay]=a.split(' '),[bm,by]=b.split(' '); return parseInt(ay)!==parseInt(by)?parseInt(ay)-parseInt(by):MN.indexOf(am)-MN.indexOf(bm); }); }
+// Total spend for a month object. Defensive against m / m.expenses being
+// null so callers without a guard can still call it safely.
+function sumExpenses(m){ return m && m.expenses ? Object.values(m.expenses).reduce((s,v)=>s+v,0) : 0; }
 // Identity key for a transaction row -- used to merge overlapping imports.
 function txKey(tx){ return tx.date+'|'+tx.desc+'|'+tx.amount; }
 
@@ -2013,7 +2045,7 @@ let _months={},_allTxs=[],_sel=null;
 function computeHealthScore(monthKey){
   const m = _months[monthKey];
   if(!m) return null;
-  const expTotal = Object.values(m.expenses).reduce((s,v)=>s+v,0);
+  const expTotal = sumExpenses(m);
   const income = m.income;
   if(income <= 0) return null;
 
@@ -2096,7 +2128,7 @@ function openHealthBreakdown(){
 function renderHealthBreakdown(hs, monthKey){
   const m = _months[monthKey];
   const income = m.income;
-  const expTotal = Object.values(m.expenses).reduce((s,v)=>s+v,0);
+  const expTotal = sumExpenses(m);
   const savePct = Math.round(hs.details.savingsRate * 100);
 
   // Per-category budget table -- shown if the user has any budget rows
@@ -2197,7 +2229,7 @@ function computeStreaks(){
 
   for(const mk of keys){
     const m = _months[mk];
-    const expTotal = Object.values(m.expenses).reduce((s,v)=>s+v,0);
+    const expTotal = sumExpenses(m);
     const net = m.income - expTotal;
     const isPos = net >= 0;
     const isBudget = isBudgetMonth(mk);
@@ -2213,7 +2245,7 @@ function computeStreaks(){
   let curPosStreak = 0, curBudgetStreak = 0;
   for(let i = keys.length-1; i >= 0; i--){
     const m = _months[keys[i]];
-    const expTotal = Object.values(m.expenses).reduce((s,v)=>s+v,0);
+    const expTotal = sumExpenses(m);
     if(m.income - expTotal >= 0) curPosStreak++;
     else break;
   }
@@ -2577,7 +2609,7 @@ function runFlashIntro(){
           <div style="font-family:var(--font-display);font-size:36px;font-weight:900;letter-spacing:-1px;margin-bottom:10px;">Welcome to <span class="gb-shimmer">Greenbar</span></div>
           <div style="font-size:16px;color:var(--soft);letter-spacing:0.02em;margin-bottom:40px;">Your money, clearly.</div>
           <div id="flash-cta" style="opacity:0;transition:opacity 1.2s ease;">
-            <button onclick="startSetupFromFlash()" style="width:100%;padding:16px;border:none;border-radius:16px;background:var(--grad-primary);color:#050a14;font-family:var(--font-display);font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 6px 28px rgba(0,214,143,0.35);letter-spacing:0.2px;">Get Started &rarr;</button>
+            <button class="btn-flash-cta" onclick="startSetupFromFlash()">Get Started &rarr;</button>
 
           </div>
         </div>
@@ -3266,7 +3298,7 @@ function renderSummary(){
 
   // Top 3 spend categories
   const spend=m ? Object.entries(m.expenses).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,3) : [];
-  const expTotal=m ? Object.values(m.expenses).reduce((s,v)=>s+v,0) : 0;
+  const expTotal=sumExpenses(m);
   const maxAmt=spend[0]?.[1]||1;
 
   const pills=hasData
@@ -3428,7 +3460,7 @@ function renderBudget(){
   const mk=_sel==='__all'?sortKeys(_months).slice(-1)[0]:_sel;
   const m=_months[mk];
   if(!m){document.getElementById('budget-content').innerHTML='<div class="empty"><p>Your budget is ready. Import your Bank Transactions to compare actual spending.</p><button type="button" class="empty-action" onclick="document.getElementById(\'csv-input\').click()">Import a CSV file</button></div>';srAnnounce('Budget, no transactions yet');return;}
-  const expTotal=Object.values(m.expenses).reduce((s,v)=>s+v,0);
+  const expTotal=sumExpenses(m);
   const budTotal=Object.values(CFG.budget).reduce((s,v)=>s+v,0);
   const rows=Object.entries(CFG.budget).map(([cat,bud])=>({cat,bud,actual:m.expenses[cat]||0})).filter(r=>r.bud>0||r.actual>0).sort((a,b)=>b.actual-a.actual);
   const unb=Object.entries(m.expenses).filter(([cat])=>!CFG.budget[cat]).sort((a,b)=>b[1]-a[1]).slice(0,5);
@@ -4046,7 +4078,7 @@ updateLogBadge();
 <div class="modal-overlay" id="modal-conflict" role="dialog" aria-modal="true" aria-labelledby="conflict-title" onclick="">
   <div class="modal-sheet">
     <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
-      <button aria-label="Cancel" onclick="resolveConflict('cancel')" style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#x2715;</button>
+      <button aria-label="Cancel" onclick="resolveConflict('cancel')" class="modal-close">&#x2715;</button>
     </div>
     <div class="modal-handle" style="margin-top:0;"></div>
     <h2 class="modal-title" id="conflict-title">Month conflict detected</h2>
@@ -4064,7 +4096,7 @@ updateLogBadge();
 <div class="modal-overlay" id="modal-log" role="dialog" aria-modal="true" aria-labelledby="log-title" onclick="closeOut(event,'modal-log')">
   <div class="modal-sheet">
     <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
-      <button aria-label="Close" onclick="closeModal('modal-log')" style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#x2715;</button>
+      <button aria-label="Close" onclick="closeModal('modal-log')" class="modal-close">&#x2715;</button>
     </div>
     <div class="modal-handle" style="margin-top:0;"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
@@ -4081,7 +4113,7 @@ updateLogBadge();
 <div class="modal-overlay" id="modal-vendor" role="dialog" aria-modal="true" aria-labelledby="vendor-cat-title" onclick="closeOut(event,'modal-vendor')">
   <div class="modal-sheet">
     <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
-      <button aria-label="Close" onclick="closeModal('modal-vendor')" style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#x2715;</button>
+      <button aria-label="Close" onclick="closeModal('modal-vendor')" class="modal-close">&#x2715;</button>
     </div>
     <div class="modal-handle" style="margin-top:0;"></div>
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
@@ -4099,7 +4131,7 @@ updateLogBadge();
 <div class="modal-overlay" id="modal-health" role="dialog" aria-modal="true" aria-labelledby="health-title" onclick="closeOut(event,'modal-health')">
   <div class="modal-sheet">
     <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
-      <button aria-label="Close" onclick="closeModal('modal-health')" style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#x2715;</button>
+      <button aria-label="Close" onclick="closeModal('modal-health')" class="modal-close">&#x2715;</button>
     </div>
     <div class="modal-handle" style="margin-top:0;"></div>
     <h2 class="modal-title" id="health-title" style="margin-bottom:14px;">Health Score Breakdown</h2>
@@ -4111,7 +4143,7 @@ updateLogBadge();
 <div class="modal-overlay" id="modal-cat-insights" role="dialog" aria-modal="true" aria-labelledby="ins-cat-title" onclick="closeOut(event,'modal-cat-insights')">
   <div class="modal-sheet">
     <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
-      <button aria-label="Close" onclick="closeModal('modal-cat-insights')" style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#x2715;</button>
+      <button aria-label="Close" onclick="closeModal('modal-cat-insights')" class="modal-close">&#x2715;</button>
     </div>
     <div class="modal-handle" style="margin-top:0;"></div>
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
