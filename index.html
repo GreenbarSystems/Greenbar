@@ -1787,6 +1787,21 @@ function loadCFG(){
       CFG.cols=Object.assign({},DEFAULTS.cols,saved.cols||{});
     }
   }catch(e){}
+  // Type-validate every CFG field. If localStorage was corrupted (e.g. CFG.budget
+  // was overwritten with a string), later code that does Object.keys(CFG.budget)
+  // would throw "Cannot convert undefined to object" and crash the screen.
+  // Coerce each field back to its expected shape, falling through to DEFAULTS.
+  const isObj=v=>v!==null && typeof v==='object' && !Array.isArray(v);
+  if(!isObj(CFG))            CFG = JSON.parse(JSON.stringify(DEFAULTS));
+  if(!isObj(CFG.cols))       CFG.cols   = JSON.parse(JSON.stringify(DEFAULTS.cols));
+  if(!isObj(CFG.budget))     CFG.budget = JSON.parse(JSON.stringify(DEFAULTS.budget||{}));
+  if(!Array.isArray(CFG.incomeKw)) CFG.incomeKw = (DEFAULTS.incomeKw||[]).slice();
+  if(!Array.isArray(CFG.skipKw))   CFG.skipKw   = (DEFAULTS.skipKw||[]).slice();
+  if(!Array.isArray(CFG.remaps))   CFG.remaps   = (DEFAULTS.remaps||[]).slice();
+  // String fields inside CFG.cols
+  ['date','desc','amt','cat','fmt'].forEach(k=>{
+    if(typeof CFG.cols[k] !== 'string') CFG.cols[k] = (DEFAULTS.cols && DEFAULTS.cols[k]) || '';
+  });
   syncUI(); renderBudgetInputs();
 }
 // ════ STORAGE-QUOTA HELPERS ════
@@ -1842,6 +1857,17 @@ function saveSettings(){ document.querySelectorAll('.budget-input[data-cat]').fo
 
 // ════ CSV ════
 const MN='Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec'.split(',');
+// Decode an ArrayBuffer of CSV bytes into a string, honoring the file's BOM
+// so UTF-16-encoded exports (common when Excel saves a CSV) decode correctly
+// instead of producing garbage that breaks header detection.
+function decodeBytes(buf){
+  const bytes = new Uint8Array(buf);
+  if(bytes.length >= 2 && bytes[0] === 0xFE && bytes[1] === 0xFF) return new TextDecoder('utf-16be').decode(buf);
+  if(bytes.length >= 2 && bytes[0] === 0xFF && bytes[1] === 0xFE) return new TextDecoder('utf-16le').decode(buf);
+  // UTF-8 (with or without BOM) -- TextDecoder strips the BOM for us.
+  try{ return new TextDecoder('utf-8',{fatal:false}).decode(buf); }
+  catch(_){ return new TextDecoder().decode(buf); }
+}
 function parseCSV(text){
   if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
   text=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
@@ -1892,6 +1918,13 @@ function parseDateParts(str,fmt){
   if(!m||!d||!y) return null;
   if(y<100) y+=2000;
   if(m<1||m>12||d<1||d>31) return null;
+  // Month-aware day validation. Catches Feb 30, Apr 31, Sep 31, etc. --
+  // otherwise silently accepted and producing a wrong-month key. Especially
+  // common when the user picked the wrong date-format dropdown (DD/MM vs
+  // MM/DD) -- now those bad rows are rejected by processCSV instead of
+  // misclassified.
+  const probe = new Date(y, m-1, d);
+  if(probe.getFullYear() !== y || probe.getMonth() !== m-1 || probe.getDate() !== d) return null;
   return { key:y*10000+m*100+d, month:`${MN[m-1]} ${y}`, label:`${MN[m-1]} ${d}, ${y}` };
 }
 
@@ -3090,7 +3123,11 @@ function processNextFile(){
   const rd = new FileReader();
   rd.onload = e => {
     try{
-      const{headers,rows} = parseCSV(e.target.result);
+      // Decode the raw bytes ourselves so a UTF-16-encoded CSV (e.g. saved
+      // from Excel on Windows) is read with the right encoding instead of
+      // garbled as UTF-8.
+      const text = decodeBytes(e.target.result);
+      const{headers,rows} = parseCSV(text);
       const newTxs = processCSV(rows, headers);
       if(!newTxs.length){ processNextFile(); return; } // file empty or rejected -- skip it, don't log an empty import
       const newMonths = aggregate(newTxs);
@@ -3118,7 +3155,7 @@ function processNextFile(){
     }
   };
   rd.onerror=()=>{ alert('Could not read "'+f.name+'". Please make sure it is a valid Bank Transactions file.'); processNextFile(); };
-  rd.readAsText(f);
+  rd.readAsArrayBuffer(f);
 }
 
 function showConflictModal(filename, conflictingMonths, allNewMonths){
