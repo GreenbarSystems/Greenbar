@@ -300,6 +300,51 @@ button.stat-tile:disabled:active { transform: none; }
 .c-green { color: var(--green); }
 .c-red   { color: var(--red); }
 .c-teal  { color: var(--teal); }
+.c-soft  { color: var(--soft); }
+.c-text  { color: var(--text); }
+.c-muted { color: var(--muted); }
+.c-amber { color: var(--amber); }
+.c-blue  { color: var(--blue); }
+/* ── Centralized component classes (extracted from repeated inline styles).
+   Editing any of these propagates to every site that uses the class --
+   the whole point of this rule set is design-changes-in-one-place. ── */
+/* Bullet rows used in the Guide "Under the Hood" sections: green arrow +
+   soft text, lined up with align-items:flex-start so multi-line copy hangs
+   correctly off the arrow. */
+.bullet-row    { display: flex; gap: 10px; font-size: 12px; align-items: flex-start; }
+.bullet-arrow  { color: var(--green); font-weight: 800; flex-shrink: 0; }
+/* Modal close ✕ row: header strip that sits above the modal handle / title
+   and right-aligns the .modal-close button. */
+.modal-close-row { display: flex; justify-content: flex-end; margin-bottom: 4px; }
+/* Glass card variants used across Guide / Under-the-Hood sections. .glass-card
+   wraps a list (no inner padding -- the rows define their own); .glass-card-padded
+   is a self-contained card with its own padding (Under the Hood blue/orange cards). */
+.glass-card        { background: var(--glass); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; margin-bottom: 14px; }
+.glass-card-padded { background: var(--glass); border: 1px solid var(--border); border-radius: 18px; padding: 16px 18px; margin-bottom: 10px; }
+/* List-row dividers inside .glass-card. .list-row is the compact 14px-padding
+   variant (settings rows, How to Get Started); .list-row-lg is the 16px-padding
+   align-start variant (Under-the-Hood numbered steps, screen descriptions). */
+.list-row    { display: flex; gap: 14px; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.list-row-lg { display: flex; gap: 14px; padding: 16px;       border-bottom: 1px solid rgba(255,255,255,0.05); align-items: flex-start; }
+/* Section header above a glass-card on the Guide screen (HOW TO GET STARTED etc). */
+.guide-sec-hdr { font-family: var(--font-display); font-size: 12px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin: 20px 0 10px; }
+/* Row label + description text used inside list-row variants. */
+.row-label   { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.row-label-m { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+.row-label-s { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+.row-desc    { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.row-desc-t  { font-size: 12px; color: var(--muted); line-height: 1.5; }
+/* Small muted captions used in dialog footers, vendor row meta, etc. */
+.caption-xs   { font-size: 11px; color: var(--muted); }
+.caption-xs-r { font-size: 11px; color: var(--muted); text-align: right; }
+/* "Under the Hood" intro paragraph: slightly larger soft text with bottom margin. */
+.uth-intro { font-size: 13px; color: var(--soft); line-height: 1.7; margin-bottom: 12px; }
+/* Small 24x24 numbered badge used in the "What happens when you import" steps. */
+.step-badge-sm { width: 24px; height: 24px; border-radius: 8px; background: rgba(41,121,255,0.15); border: 1px solid rgba(41,121,255,0.3); color: var(--blue); font-size: 11px; font-weight: 900; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+/* Storage-card amber row label. */
+.kv-label-amber { font-size: 12px; font-weight: 700; color: var(--amber); flex-shrink: 0; }
+/* Common flex-between row used in Storage card key-value layout. */
+.row-between { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
 
 /* ── Section header ── */
 .sec-hdr { font-family: var(--font-display); font-size: 13px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin: 22px 0 10px; display: flex; align-items: center; justify-content: space-between; }
@@ -855,70 +900,70 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
         </div>
 
         <!-- Order of operations -->
-        <div style="font-family: var(--font-display);font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin:20px 0 10px;">How to get started</div>
-        <div style="background:var(--glass);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:14px;">
+        <div class="guide-sec-hdr">How to get started</div>
+        <div class="glass-card">
 
           <div style="display:flex;gap:14px;padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);">
             <div class="step-badge">1</div>
             <div>
-              <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Adjust Settings (optional)</div>
-              <div style="font-size:12px;color:var(--muted);line-height:1.6;">Before importing, open Settings to set your monthly budget targets, add your own category rules, and set your bank's column names if they're unusual.</div>
+              <div class="row-label">Adjust Settings (optional)</div>
+              <div class="row-desc">Before importing, open Settings to set your monthly budget targets, add your own category rules, and set your bank's column names if they're unusual.</div>
             </div>
           </div>
 
           <div style="display:flex;gap:14px;padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);">
             <div class="step-badge">2</div>
             <div>
-              <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Download your Bank Transactions</div>
-              <div style="font-size:12px;color:var(--muted);line-height:1.6;">Log into your bank's website, go to Transaction History or Account Activity, and export your Bank Transactions. Usually found under Download, Export, or Statements.</div>
+              <div class="row-label">Download your Bank Transactions</div>
+              <div class="row-desc">Log into your bank's website, go to Transaction History or Account Activity, and export your Bank Transactions. Usually found under Download, Export, or Statements.</div>
             </div>
           </div>
 
           <div style="display:flex;gap:14px;padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);">
             <div class="step-badge">3</div>
             <div>
-              <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Tap Import and select your file</div>
-              <div style="font-size:12px;color:var(--muted);line-height:1.6;">Tap the green Import button at the top. Select your Bank Transactions from Downloads. Greenbar handles everything instantly -- nothing is uploaded anywhere.</div>
+              <div class="row-label">Tap Import and select your file</div>
+              <div class="row-desc">Tap the green Import button at the top. Select your Bank Transactions from Downloads. Greenbar handles everything instantly -- nothing is uploaded anywhere.</div>
             </div>
           </div>
 
           <div style="display:flex;gap:14px;padding:16px;">
             <div class="step-badge">4</div>
             <div>
-              <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Explore your data</div>
-              <div style="font-size:12px;color:var(--muted);line-height:1.6;">Your dashboard updates immediately. Repeat monthly -- new imports merge with existing data automatically. Your history builds over time.</div>
+              <div class="row-label">Explore your data</div>
+              <div class="row-desc">Your dashboard updates immediately. Repeat monthly -- new imports merge with existing data automatically. Your history builds over time.</div>
             </div>
           </div>
         </div>
 
         <!-- What is a CSV file? -->
-        <div style="font-family: var(--font-display);font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin:20px 0 10px;">What is a CSV file?</div>
-        <div style="background:var(--glass);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:14px;">
+        <div class="guide-sec-hdr">What is a CSV file?</div>
+        <div class="glass-card">
 
           <div style="padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);">
             <div style="font-size:13px;color:var(--soft);line-height:1.7;">
-              <strong style="color:var(--text);">CSV</strong> stands for <strong style="color:var(--text);">Comma-Separated Values</strong>. It&rsquo;s a plain-text spreadsheet file where each line is one transaction and the columns &mdash; date, description, amount &mdash; are separated by commas. Files end in <code style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;background:rgba(255,255,255,0.06);padding:1px 6px;border-radius:5px;color:var(--text);">.csv</code>.
+              <strong class="c-text">CSV</strong> stands for <strong class="c-text">Comma-Separated Values</strong>. It&rsquo;s a plain-text spreadsheet file where each line is one transaction and the columns &mdash; date, description, amount &mdash; are separated by commas. Files end in <code style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;background:rgba(255,255,255,0.06);padding:1px 6px;border-radius:5px;color:var(--text);">.csv</code>.
             </div>
           </div>
 
           <div style="padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);">
             <div style="font-size:13px;font-weight:700;margin-bottom:6px;color:var(--green);">What to pick at your bank</div>
-            <div style="font-size:12px;color:var(--muted);line-height:1.6;">When your bank lists export options, choose <strong style="color:var(--text);">CSV</strong> &mdash; sometimes labeled &ldquo;Comma-Separated Values,&rdquo; &ldquo;Excel-compatible CSV,&rdquo; or just &ldquo;spreadsheet.&rdquo;</div>
+            <div class="row-desc">When your bank lists export options, choose <strong class="c-text">CSV</strong> &mdash; sometimes labeled &ldquo;Comma-Separated Values,&rdquo; &ldquo;Excel-compatible CSV,&rdquo; or just &ldquo;spreadsheet.&rdquo;</div>
           </div>
 
           <div style="padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);">
             <div style="font-size:13px;font-weight:700;margin-bottom:6px;color:var(--green);">Other formats Greenbar accepts</div>
-            <div style="font-size:12px;color:var(--muted);line-height:1.6;">If CSV isn&rsquo;t offered, <code style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:4px;color:var(--text);">.tsv</code> (tab-separated) and <code style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:4px;color:var(--text);">.txt</code> files with the same row-per-transaction layout work too.</div>
+            <div class="row-desc">If CSV isn&rsquo;t offered, <code style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:4px;color:var(--text);">.tsv</code> (tab-separated) and <code style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:4px;color:var(--text);">.txt</code> files with the same row-per-transaction layout work too.</div>
           </div>
 
           <div style="padding:16px;">
             <div style="font-size:13px;font-weight:700;margin-bottom:6px;color:#ff4757;">Formats that won&rsquo;t work</div>
-            <div style="font-size:12px;color:var(--muted);line-height:1.6;">PDFs (statements), OFX / QFX (Quicken), and Excel workbooks (<code style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:4px;color:var(--text);">.xls</code>, <code style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:4px;color:var(--text);">.xlsx</code>) aren&rsquo;t plain text and can&rsquo;t be read. Pick CSV instead.</div>
+            <div class="row-desc">PDFs (statements), OFX / QFX (Quicken), and Excel workbooks (<code style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:4px;color:var(--text);">.xls</code>, <code style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:4px;color:var(--text);">.xlsx</code>) aren&rsquo;t plain text and can&rsquo;t be read. Pick CSV instead.</div>
           </div>
         </div>
 
         <!-- How to export from your bank -->
-        <div id="bank-export-section" style="font-family: var(--font-display);font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin:20px 0 10px;">How to export from your bank</div>
+        <div id="bank-export-section" class="guide-sec-hdr">How to export from your bank</div>
         <div style="background:var(--glass);border:1px solid var(--border);border-radius:20px;padding:16px;margin-bottom:14px;">
           <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px;">Pick your bank for step-by-step instructions to download your transactions.</div>
           <select id="bank-export-select" aria-label="Choose your bank for export instructions" onchange="showBankExport(this.value)" style="width:100%;background:var(--glass);border:1px solid var(--border);border-radius:12px;padding:11px 14px;color:var(--text);font-size:14px;font-family:var(--font-body);outline:none;">
@@ -939,65 +984,65 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
         </div>
 
         <!-- Feature guide -->
-        <div style="font-family: var(--font-display);font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin:20px 0 10px;">What each screen does</div>
-        <div style="background:var(--glass);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:14px;">
+        <div class="guide-sec-hdr">What each screen does</div>
+        <div class="glass-card">
 
-          <div style="display:flex;gap:14px;padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);align-items:flex-start;">
+          <div class="list-row-lg">
             <div>
-              <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Summary</div>
-              <div style="font-size:12px;color:var(--muted);line-height:1.6;">Your home screen. Shows your monthly net, income vs expenses, and top spending categories. Switch months with the buttons at the top, or tap All for a combined view.</div>
+              <div class="row-label">Summary</div>
+              <div class="row-desc">Your home screen. Shows your monthly net, income vs expenses, and top spending categories. Switch months with the buttons at the top, or tap All for a combined view.</div>
             </div>
           </div>
 
-          <div style="display:flex;gap:14px;padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);align-items:flex-start;">
+          <div class="list-row-lg">
             <div>
-              <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Budget</div>
-              <div style="font-size:12px;color:var(--muted);line-height:1.6;">A side-by-side look at your budget targets and what you actually spent. Green means under budget, red means over. Categories you haven't budgeted for are listed separately at the bottom.</div>
+              <div class="row-label">Budget</div>
+              <div class="row-desc">A side-by-side look at your budget targets and what you actually spent. Green means under budget, red means over. Categories you haven't budgeted for are listed separately at the bottom.</div>
             </div>
           </div>
 
-          <div style="display:flex;gap:14px;padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);align-items:flex-start;">
+          <div class="list-row-lg">
             <div>
-              <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Transactions</div>
-              <div style="font-size:12px;color:var(--muted);line-height:1.6;">Full searchable transaction list grouped by date. Use the search bar to filter by merchant name or category. Shows income and expenses with color coding.</div>
+              <div class="row-label">Transactions</div>
+              <div class="row-desc">Full searchable transaction list grouped by date. Use the search bar to filter by merchant name or category. Shows income and expenses with color coding.</div>
             </div>
           </div>
 
-          <div style="display:flex;gap:14px;padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);align-items:flex-start;">
+          <div class="list-row-lg">
             <div>
-              <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Settings</div>
-              <div style="font-size:12px;color:var(--muted);line-height:1.6;">Set everything up: your bank's column names, words that mark income, transactions to leave out, rules for re-sorting merchants into categories, and your monthly budget targets. Changes take effect on your next import.</div>
+              <div class="row-label">Settings</div>
+              <div class="row-desc">Set everything up: your bank's column names, words that mark income, transactions to leave out, rules for re-sorting merchants into categories, and your monthly budget targets. Changes take effect on your next import.</div>
             </div>
           </div>
 
           <div style="display:flex;gap:14px;padding:16px;align-items:flex-start;">
             <div>
-              <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Upload Log</div>
-              <div style="font-size:12px;color:var(--muted);line-height:1.6;">Open the Upload Log to see a history of all the Bank Transactions you've imported -- filename, date, transaction count, and months covered.</div>
+              <div class="row-label">Upload Log</div>
+              <div class="row-desc">Open the Upload Log to see a history of all the Bank Transactions you've imported -- filename, date, transaction count, and months covered.</div>
             </div>
           </div>
         </div>
 
         <!-- Category features -->
-        <div style="font-family: var(--font-display);font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin:20px 0 10px;">Category deep-dive</div>
-        <div style="background:var(--glass);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:14px;">
-          <div style="display:flex;gap:14px;padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);align-items:flex-start;">
+        <div class="guide-sec-hdr">Category deep-dive</div>
+        <div class="glass-card">
+          <div class="list-row-lg">
             <div>
-              <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Transactions button</div>
-              <div style="font-size:12px;color:var(--muted);line-height:1.6;">Tap Transactions on any category row to see every merchant within that category ranked by total spend, with transaction count and percentage share.</div>
+              <div class="row-label">Transactions button</div>
+              <div class="row-desc">Tap Transactions on any category row to see every merchant within that category ranked by total spend, with transaction count and percentage share.</div>
             </div>
           </div>
           <div style="display:flex;gap:14px;padding:16px;align-items:flex-start;">
             <div>
-              <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Insights button</div>
-              <div style="font-size:12px;color:var(--muted);line-height:1.6;">Tap Insights for a full analysis: monthly trend chart, budget comparison, top vendors, and automatically generated observations about your spending patterns in that category.</div>
+              <div class="row-label">Insights button</div>
+              <div class="row-desc">Tap Insights for a full analysis: monthly trend chart, budget comparison, top vendors, and automatically generated observations about your spending patterns in that category.</div>
             </div>
           </div>
         </div>
 
         <!-- Privacy note -->
         <div style="background:rgba(0,214,143,0.06);border:1px solid rgba(0,214,143,0.15);border-radius:16px;padding:16px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start;">
-          <div style="font-size:12px;color:var(--soft);line-height:1.6;"><strong style="color:var(--text);">100% private.</strong> Greenbar runs entirely on your phone. Your transactions are never sent anywhere -- everything stays on your device.</div>
+          <div style="font-size:12px;color:var(--soft);line-height:1.6;"><strong class="c-text">100% private.</strong> Greenbar runs entirely on your phone. Your transactions are never sent anywhere -- everything stays on your device.</div>
         </div>
 
       
@@ -1010,95 +1055,95 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
           </div>
 
           <!-- How the app works -->
-          <div style="background:var(--glass);border:1px solid var(--border);border-radius:18px;padding:16px 18px;margin-bottom:10px;">
+          <div class="glass-card-padded">
             <div style="font-family:var(--font-display);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--green);margin-bottom:10px;">How it&rsquo;s built</div>
-            <div style="font-size:13px;color:var(--soft);line-height:1.7;margin-bottom:12px;">
+            <div class="uth-intro">
               Greenbar installs from the App Store or Google Play and then runs entirely on your phone. Importing, categorizing and saving all happen on-device &mdash; no internet connection is needed for day-to-day tracking.
             </div>
             <div style="display:flex;flex-direction:column;gap:8px;">
-              <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
-                <span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span>
-                <span style="color:var(--soft);"><strong style="color:var(--text);">A normal app</strong> &mdash; install it from your app store; no separate Greenbar account to create</span>
+              <div class="bullet-row">
+                <span class="bullet-arrow">→</span>
+                <span class="c-soft"><strong class="c-text">A normal app</strong> &mdash; install it from your app store; no separate Greenbar account to create</span>
               </div>
-              <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
-                <span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span>
-                <span style="color:var(--soft);"><strong style="color:var(--text);">Your data</strong> is saved in Greenbar&rsquo;s private storage on your device. Only Greenbar can read it.</span>
+              <div class="bullet-row">
+                <span class="bullet-arrow">→</span>
+                <span class="c-soft"><strong class="c-text">Your data</strong> is saved in Greenbar&rsquo;s private storage on your device. Only Greenbar can read it.</span>
               </div>
-              <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
-                <span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span>
-                <span style="color:var(--soft);"><strong style="color:var(--text);">Works offline.</strong> No connection is needed to track, categorize or save your spending.</span>
+              <div class="bullet-row">
+                <span class="bullet-arrow">→</span>
+                <span class="c-soft"><strong class="c-text">Works offline.</strong> No connection is needed to track, categorize or save your spending.</span>
               </div>
-              <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
-                <span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span>
-                <span style="color:var(--soft);"><strong style="color:var(--text);">Nothing loaded from the internet</strong> &mdash; no outside files and no trackers of any kind</span>
+              <div class="bullet-row">
+                <span class="bullet-arrow">→</span>
+                <span class="c-soft"><strong class="c-text">Nothing loaded from the internet</strong> &mdash; no outside files and no trackers of any kind</span>
               </div>
             </div>
           </div>
 
           <!-- What happens when you import -->
-          <div style="background:var(--glass);border:1px solid var(--border);border-radius:18px;padding:16px 18px;margin-bottom:10px;">
+          <div class="glass-card-padded">
             <div style="font-family:var(--font-display);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:#2979ff;margin-bottom:10px;">What happens when you import a file</div>
-            <div style="font-size:13px;color:var(--soft);line-height:1.7;margin-bottom:12px;">
+            <div class="uth-intro">
               Everything happens instantly on your device. Your file is never sent anywhere.
             </div>
             <div style="display:flex;flex-direction:column;gap:0;">
               <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-                <div style="width:24px;height:24px;border-radius:8px;background:rgba(41,121,255,0.15);border:1px solid rgba(41,121,255,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#2979ff;flex-shrink:0;">1</div>
-                <div><div style="font-size:13px;font-weight:700;margin-bottom:2px;">Read the file</div><div style="font-size:11px;color:var(--muted);">Greenbar reads your Bank Transactions and works out which column is which &mdash; date, description, amount. If your bank uses unusual column names, you can set them in Settings.</div></div>
+                <div class="step-badge-sm">1</div>
+                <div><div class="row-label-s">Read the file</div><div class="caption-xs">Greenbar reads your Bank Transactions and works out which column is which &mdash; date, description, amount. If your bank uses unusual column names, you can set them in Settings.</div></div>
               </div>
               <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-                <div style="width:24px;height:24px;border-radius:8px;background:rgba(41,121,255,0.15);border:1px solid rgba(41,121,255,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#2979ff;flex-shrink:0;">2</div>
-                <div><div style="font-size:13px;font-weight:700;margin-bottom:2px;">Sort into categories</div><div style="font-size:11px;color:var(--muted);">Each transaction gets a category. Banks label things differently, so Greenbar translates common names &mdash; &ldquo;Restaurants/Dining&rdquo; becomes &ldquo;Dining Out,&rdquo; for example. You can customize these rules in Settings.</div></div>
+                <div class="step-badge-sm">2</div>
+                <div><div class="row-label-s">Sort into categories</div><div class="caption-xs">Each transaction gets a category. Banks label things differently, so Greenbar translates common names &mdash; &ldquo;Restaurants/Dining&rdquo; becomes &ldquo;Dining Out,&rdquo; for example. You can customize these rules in Settings.</div></div>
               </div>
               <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-                <div style="width:24px;height:24px;border-radius:8px;background:rgba(41,121,255,0.15);border:1px solid rgba(41,121,255,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#2979ff;flex-shrink:0;">3</div>
-                <div><div style="font-size:13px;font-weight:700;margin-bottom:2px;">Build your dashboard</div><div style="font-size:11px;color:var(--muted);">Transactions are grouped by month, totals are calculated, and the Summary screen updates immediately.</div></div>
+                <div class="step-badge-sm">3</div>
+                <div><div class="row-label-s">Build your dashboard</div><div class="caption-xs">Transactions are grouped by month, totals are calculated, and the Summary screen updates immediately.</div></div>
               </div>
               <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-                <div style="width:24px;height:24px;border-radius:8px;background:rgba(41,121,255,0.15);border:1px solid rgba(41,121,255,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#2979ff;flex-shrink:0;">4</div>
-                <div><div style="font-size:13px;font-weight:700;margin-bottom:2px;">Handle overlapping months</div><div style="font-size:11px;color:var(--muted);">If you import a file that covers months you&rsquo;ve already imported, Greenbar asks what you want to do &mdash; keep the old data, use the new data, or combine both.</div></div>
+                <div class="step-badge-sm">4</div>
+                <div><div class="row-label-s">Handle overlapping months</div><div class="caption-xs">If you import a file that covers months you&rsquo;ve already imported, Greenbar asks what you want to do &mdash; keep the old data, use the new data, or combine both.</div></div>
               </div>
               <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;">
-                <div style="width:24px;height:24px;border-radius:8px;background:rgba(41,121,255,0.15);border:1px solid rgba(41,121,255,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#2979ff;flex-shrink:0;">5</div>
-                <div><div style="font-size:13px;font-weight:700;margin-bottom:2px;">Save everything</div><div style="font-size:11px;color:var(--muted);">Your transactions and settings are saved on your device. They&rsquo;ll be there next time you open Greenbar &mdash; no sign-in needed.</div></div>
+                <div class="step-badge-sm">5</div>
+                <div><div class="row-label-s">Save everything</div><div class="caption-xs">Your transactions and settings are saved on your device. They&rsquo;ll be there next time you open Greenbar &mdash; no sign-in needed.</div></div>
               </div>
             </div>
           </div>
 
           <!-- How your data is stored -->
-          <div style="background:var(--glass);border:1px solid var(--border);border-radius:18px;padding:16px 18px;margin-bottom:10px;">
+          <div class="glass-card-padded">
             <div style="font-family:var(--font-display);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:#ffa502;margin-bottom:10px;">How your data is stored</div>
-            <div style="font-size:13px;color:var(--soft);line-height:1.7;margin-bottom:12px;">
+            <div class="uth-intro">
               Greenbar saves five things on your device. Nothing is ever sent anywhere.
             </div>
             <div style="display:flex;flex-direction:column;gap:8px;">
               <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-                <div style="font-size:12px;font-weight:700;color:#ffa502;flex-shrink:0;">Transactions</div>
-                <div style="font-size:11px;color:var(--muted);text-align:right;">All your imported transactions and monthly summaries. It grows as you import more history.</div>
+                <div class="kv-label-amber">Transactions</div>
+                <div class="caption-xs-r">All your imported transactions and monthly summaries. It grows as you import more history.</div>
               </div>
               <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-                <div style="font-size:12px;font-weight:700;color:#ffa502;flex-shrink:0;">Settings</div>
-                <div style="font-size:11px;color:var(--muted);text-align:right;">Your budget targets, custom category rules, and any column names you&rsquo;ve set for your bank.</div>
+                <div class="kv-label-amber">Settings</div>
+                <div class="caption-xs-r">Your budget targets, custom category rules, and any column names you&rsquo;ve set for your bank.</div>
               </div>
               <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-                <div style="font-size:12px;font-weight:700;color:#ffa502;flex-shrink:0;">Import log</div>
-                <div style="font-size:11px;color:var(--muted);text-align:right;">A record of every file you&rsquo;ve imported &mdash; name, date, and how many transactions it had. The last 50 are kept.</div>
+                <div class="kv-label-amber">Import log</div>
+                <div class="caption-xs-r">A record of every file you&rsquo;ve imported &mdash; name, date, and how many transactions it had. The last 50 are kept.</div>
               </div>
               <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-                <div style="font-size:12px;font-weight:700;color:#ffa502;flex-shrink:0;">Setup status</div>
-                <div style="font-size:11px;color:var(--muted);text-align:right;">A simple note of whether you&rsquo;ve been through the budget setup.</div>
+                <div class="kv-label-amber">Setup status</div>
+                <div class="caption-xs-r">A simple note of whether you&rsquo;ve been through the budget setup.</div>
               </div>
               <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;">
-                <div style="font-size:12px;font-weight:700;color:#ffa502;flex-shrink:0;">Walkthrough status</div>
-                <div style="font-size:11px;color:var(--muted);text-align:right;">Remembers whether you&rsquo;ve seen the intro slides, so they don&rsquo;t show up every time you open the app.</div>
+                <div class="kv-label-amber">Walkthrough status</div>
+                <div class="caption-xs-r">Remembers whether you&rsquo;ve seen the intro slides, so they don&rsquo;t show up every time you open the app.</div>
               </div>
             </div>
           </div>
 
           <!-- Health Score -->
-          <div style="background:var(--glass);border:1px solid var(--border);border-radius:18px;padding:16px 18px;margin-bottom:10px;">
+          <div class="glass-card-padded">
             <div style="font-family:var(--font-display);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--green);margin-bottom:10px;">How your Health Score is calculated</div>
-            <div style="font-size:13px;color:var(--soft);line-height:1.7;margin-bottom:12px;">
+            <div class="uth-intro">
               Each month gets a score from 0 to 100, which becomes a letter grade. It&rsquo;s made up of three things:
             </div>
             <div style="display:flex;flex-direction:column;gap:8px;">
@@ -1107,72 +1152,72 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
                   <span style="font-size:13px;font-weight:700;">Did you save money?</span>
                   <span style="font-size:12px;color:var(--green);font-weight:800;">40 pts</span>
                 </div>
-                <div style="font-size:11px;color:var(--muted);">Saving 20% or more of your income earns full marks. Spending more than you earned scores zero.</div>
+                <div class="caption-xs">Saving 20% or more of your income earns full marks. Spending more than you earned scores zero.</div>
               </div>
               <div style="background:rgba(41,121,255,0.06);border:1px solid rgba(41,121,255,0.15);border-radius:12px;padding:12px 14px;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
                   <span style="font-size:13px;font-weight:700;">Did you stick to your budget?</span>
                   <span style="font-size:12px;color:#2979ff;font-weight:800;">40 pts</span>
                 </div>
-                <div style="font-size:11px;color:var(--muted);">Each budget category is scored on how close your actual spending was to your target. Being within 10% is perfect. If you haven&rsquo;t set a budget yet, this part is neutral.</div>
+                <div class="caption-xs">Each budget category is scored on how close your actual spending was to your target. Being within 10% is perfect. If you haven&rsquo;t set a budget yet, this part is neutral.</div>
               </div>
               <div style="background:rgba(124,77,255,0.06);border:1px solid rgba(124,77,255,0.15);border-radius:12px;padding:12px 14px;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
                   <span style="font-size:13px;font-weight:700;">Are you tracking everything?</span>
                   <span style="font-size:12px;color:#7c4dff;font-weight:800;">20 pts</span>
                 </div>
-                <div style="font-size:11px;color:var(--muted);">Having 5 or more spending categories with real data earns full marks. This rewards importing complete statements rather than just a few transactions.</div>
+                <div class="caption-xs">Having 5 or more spending categories with real data earns full marks. This rewards importing complete statements rather than just a few transactions.</div>
               </div>
             </div>
             <div style="margin-top:12px;font-size:11px;color:var(--muted);line-height:1.6;">
-              <strong style="color:var(--soft);">Grades:</strong> A (90+) &nbsp;B (80+) &nbsp;C (70+) &nbsp;D (60+) &nbsp;F (below 60)
+              <strong class="c-soft">Grades:</strong> A (90+) &nbsp;B (80+) &nbsp;C (70+) &nbsp;D (60+) &nbsp;F (below 60)
             </div>
           </div>
 
           <!-- AI Assistant -->
-          <div style="background:var(--glass);border:1px solid var(--border);border-radius:18px;padding:16px 18px;margin-bottom:10px;">
+          <div class="glass-card-padded">
             <div style="font-family:var(--font-display);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--green);margin-bottom:10px;">The AI assistant</div>
             <div style="font-size:13px;color:var(--soft);line-height:1.7;margin-bottom:10px;">
-              The <strong style="color:var(--text);">?</strong> button opens a built-in help assistant that answers questions about how to use Greenbar. It works entirely on your device.
+              The <strong class="c-text">?</strong> button opens a built-in help assistant that answers questions about how to use Greenbar. It works entirely on your device.
             </div>
             <div style="display:flex;flex-direction:column;gap:8px;">
-              <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
-                <span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span>
-                <span style="color:var(--soft);"><strong style="color:var(--text);">What it helps with:</strong> importing files, setting budgets, understanding each screen, and how the app works.</span>
+              <div class="bullet-row">
+                <span class="bullet-arrow">→</span>
+                <span class="c-soft"><strong class="c-text">What it helps with:</strong> importing files, setting budgets, understanding each screen, and how the app works.</span>
               </div>
-              <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
-                <span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span>
-                <span style="color:var(--soft);"><strong style="color:var(--text);">What gets sent:</strong> nothing &mdash; it runs offline, so your questions and your data never leave your device.</span>
+              <div class="bullet-row">
+                <span class="bullet-arrow">→</span>
+                <span class="c-soft"><strong class="c-text">What gets sent:</strong> nothing &mdash; it runs offline, so your questions and your data never leave your device.</span>
               </div>
-              <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
-                <span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span>
-                <span style="color:var(--soft);"><strong style="color:var(--text);">What it won&rsquo;t do:</strong> give investment advice or answer questions unrelated to using Greenbar.</span>
+              <div class="bullet-row">
+                <span class="bullet-arrow">→</span>
+                <span class="c-soft"><strong class="c-text">What it won&rsquo;t do:</strong> give investment advice or answer questions unrelated to using Greenbar.</span>
               </div>
-              <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
-                <span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span>
-                <span style="color:var(--soft);"><strong style="color:var(--text);">Where to find it:</strong> tap the <strong style="color:var(--green);">?</strong> button in the top corner. It appears after setup is complete.</span>
+              <div class="bullet-row">
+                <span class="bullet-arrow">→</span>
+                <span class="c-soft"><strong class="c-text">Where to find it:</strong> tap the <strong style="color:var(--green);">?</strong> button in the top corner. It appears after setup is complete.</span>
               </div>
             </div>
           </div>
 
           <!-- CSV tips -->
-          <div style="background:var(--glass);border:1px solid var(--border);border-radius:18px;padding:16px 18px;margin-bottom:10px;">
+          <div class="glass-card-padded">
             <div style="font-family:var(--font-display);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:#ffa502;margin-bottom:10px;">Bank Transactions tips</div>
-            <div style="font-size:13px;color:var(--soft);line-height:1.7;margin-bottom:12px;">
+            <div class="uth-intro">
               Greenbar works with Bank Transactions exported from any bank. It automatically looks for columns named things like &ldquo;Date,&rdquo; &ldquo;Description,&rdquo; &ldquo;Amount,&rdquo; and &ldquo;Category.&rdquo; If your bank uses different names, you can set them in Settings.
             </div>
             <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">
-              <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
+              <div class="bullet-row">
                 <span style="color:#ffa502;font-weight:800;flex-shrink:0;">→</span>
-                <span style="color:var(--muted);"><strong style="color:var(--soft);">Date column:</strong> Works with common date formats like 05/04/26, 05/04/2026, or 2026-05-04.</span>
+                <span class="c-muted"><strong class="c-soft">Date column:</strong> Works with common date formats like 05/04/26, 05/04/2026, or 2026-05-04.</span>
               </div>
-              <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
+              <div class="bullet-row">
                 <span style="color:#ffa502;font-weight:800;flex-shrink:0;">→</span>
-                <span style="color:var(--muted);"><strong style="color:var(--soft);">Amount column:</strong> Negative numbers are expenses, positive are income. Dollar signs and commas are ignored.</span>
+                <span class="c-muted"><strong class="c-soft">Amount column:</strong> Negative numbers are expenses, positive are income. Dollar signs and commas are ignored.</span>
               </div>
-              <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
+              <div class="bullet-row">
                 <span style="color:#ffa502;font-weight:800;flex-shrink:0;">→</span>
-                <span style="color:var(--muted);"><strong style="color:var(--soft);">Category column:</strong> Optional. Greenbar will sort uncategorized transactions using the Description instead.</span>
+                <span class="c-muted"><strong class="c-soft">Category column:</strong> Optional. Greenbar will sort uncategorized transactions using the Description instead.</span>
               </div>
             </div>
             <div style="background:rgba(255,165,2,0.07);border:1px solid rgba(255,165,2,0.2);border-radius:12px;padding:10px 13px;font-size:11px;color:var(--muted);line-height:1.6;">
@@ -1181,24 +1226,24 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
           </div>
 
           <!-- Speed & limits -->
-          <div style="background:var(--glass);border:1px solid var(--border);border-radius:18px;padding:16px 18px;margin-bottom:10px;">
+          <div class="glass-card-padded">
             <div style="font-family:var(--font-display);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:10px;">Speed &amp; limits</div>
             <div style="display:flex;flex-direction:column;gap:8px;">
-              <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
-                <span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span>
-                <span style="color:var(--soft);"><strong style="color:var(--text);">Fast to open.</strong> Greenbar is lightweight and launches in well under a second.</span>
+              <div class="bullet-row">
+                <span class="bullet-arrow">→</span>
+                <span class="c-soft"><strong class="c-text">Fast to open.</strong> Greenbar is lightweight and launches in well under a second.</span>
               </div>
-              <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
-                <span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span>
-                <span style="color:var(--soft);"><strong style="color:var(--text);">No transaction limit.</strong> Greenbar has been tested with 2,000+ transactions without slowing down, with room for years of history.</span>
+              <div class="bullet-row">
+                <span class="bullet-arrow">→</span>
+                <span class="c-soft"><strong class="c-text">No transaction limit.</strong> Greenbar has been tested with 2,000+ transactions without slowing down, with room for years of history.</span>
               </div>
-              <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
-                <span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span>
-                <span style="color:var(--soft);"><strong style="color:var(--text);">Storage warning.</strong> You&rsquo;ll get a heads-up if your saved data is getting close to full. If that happens, clear older months from Settings.</span>
+              <div class="bullet-row">
+                <span class="bullet-arrow">→</span>
+                <span class="c-soft"><strong class="c-text">Storage warning.</strong> You&rsquo;ll get a heads-up if your saved data is getting close to full. If that happens, clear older months from Settings.</span>
               </div>
-              <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;">
-                <span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span>
-                <span style="color:var(--soft);"><strong style="color:var(--text);">Screens load when needed.</strong> The Budget and Transactions tabs only build when you open them, keeping the app quick.</span>
+              <div class="bullet-row">
+                <span class="bullet-arrow">→</span>
+                <span class="c-soft"><strong class="c-text">Screens load when needed.</strong> The Budget and Transactions tabs only build when you open them, keeping the app quick.</span>
               </div>
             </div>
           </div>
@@ -1221,7 +1266,7 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
         <!-- Architecture diagram -->
         <div style="font-family:var(--font-display);font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin:0 0 10px;">How it works</div>
 
-        <div style="background:var(--glass);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:14px;">
+        <div class="glass-card">
           <!-- Data flow -->
           <div style="padding:20px;border-bottom:1px solid rgba(255,255,255,0.05);">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;">
@@ -1265,25 +1310,25 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
 
         <!-- Guarantees -->
         <div style="font-family:var(--font-display);font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin:0 0 10px;">Privacy guarantees</div>
-        <div style="background:var(--glass);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:14px;">
+        <div class="glass-card">
 
-          <div style="display:flex;gap:14px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.05);"><div><div style="font-size:13px;font-weight:600;margin-bottom:3px;">No Greenbar account</div><div style="font-size:12px;color:var(--muted);line-height:1.5;">You buy and sign in through the App Store or Google Play &mdash; there&rsquo;s no separate Greenbar login, email or password.</div></div></div>
-          <div style="display:flex;gap:14px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.05);"><div><div style="font-size:13px;font-weight:600;margin-bottom:3px;">No analytics</div><div style="font-size:12px;color:var(--muted);line-height:1.5;">Nothing about how you use the app is tracked or recorded.</div></div></div>
-          <div style="display:flex;gap:14px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.05);"><div><div style="font-size:13px;font-weight:600;margin-bottom:3px;">No outside code</div><div style="font-size:12px;color:var(--muted);line-height:1.5;">Nothing is loaded from the internet &mdash; the app runs fully offline.</div></div></div>
-          <div style="display:flex;gap:14px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.05);"><div><div style="font-size:13px;font-weight:600;margin-bottom:3px;">No server</div><div style="font-size:12px;color:var(--muted);line-height:1.5;">There&rsquo;s no Greenbar server behind the app &mdash; nothing to break into, nothing to leak.</div></div></div>
-          <div style="display:flex;gap:14px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.05);"><div><div style="font-size:13px;font-weight:600;margin-bottom:3px;">Nothing is sent</div><div style="font-size:12px;color:var(--muted);line-height:1.5;">Your transactions are read on your device and never sent anywhere.</div></div></div>
-          <div style="display:flex;gap:14px;padding:14px 16px;"><div><div style="font-size:13px;font-weight:600;margin-bottom:3px;">You control deletion</div><div style="font-size:12px;color:var(--muted);line-height:1.5;">Erase everything any time &mdash; no copies are left anywhere.</div></div></div>
+          <div class="list-row"><div><div class="row-label-m">No Greenbar account</div><div class="row-desc-t">You buy and sign in through the App Store or Google Play &mdash; there&rsquo;s no separate Greenbar login, email or password.</div></div></div>
+          <div class="list-row"><div><div class="row-label-m">No analytics</div><div class="row-desc-t">Nothing about how you use the app is tracked or recorded.</div></div></div>
+          <div class="list-row"><div><div class="row-label-m">No outside code</div><div class="row-desc-t">Nothing is loaded from the internet &mdash; the app runs fully offline.</div></div></div>
+          <div class="list-row"><div><div class="row-label-m">No server</div><div class="row-desc-t">There&rsquo;s no Greenbar server behind the app &mdash; nothing to break into, nothing to leak.</div></div></div>
+          <div class="list-row"><div><div class="row-label-m">Nothing is sent</div><div class="row-desc-t">Your transactions are read on your device and never sent anywhere.</div></div></div>
+          <div style="display:flex;gap:14px;padding:14px 16px;"><div><div class="row-label-m">You control deletion</div><div class="row-desc-t">Erase everything any time &mdash; no copies are left anywhere.</div></div></div>
         </div>
 
         <!-- Tech stack -->
         <div style="font-family:var(--font-display);font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin:0 0 10px;">Built simple, on purpose</div>
         <div style="background:var(--glass);border:1px solid var(--border);border-radius:20px;padding:16px;margin-bottom:14px;">
           <div style="display:flex;flex-direction:column;gap:8px;">
-            <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span><span style="color:var(--soft);">Installs from the App Store or Google Play &mdash; no separate Greenbar account</span></div>
-            <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span><span style="color:var(--soft);">Works completely offline &mdash; no connection needed for everyday tracking</span></div>
-            <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span><span style="color:var(--soft);">Everything runs on your phone &mdash; no processing on a server</span></div>
-            <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span><span style="color:var(--soft);">No outside code, no cookies, no trackers</span></div>
-            <div style="display:flex;gap:10px;font-size:12px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;flex-shrink:0;">→</span><span style="color:var(--soft);">Nothing is ever loaded from the internet</span></div>
+            <div class="bullet-row"><span class="bullet-arrow">→</span><span class="c-soft">Installs from the App Store or Google Play &mdash; no separate Greenbar account</span></div>
+            <div class="bullet-row"><span class="bullet-arrow">→</span><span class="c-soft">Works completely offline &mdash; no connection needed for everyday tracking</span></div>
+            <div class="bullet-row"><span class="bullet-arrow">→</span><span class="c-soft">Everything runs on your phone &mdash; no processing on a server</span></div>
+            <div class="bullet-row"><span class="bullet-arrow">→</span><span class="c-soft">No outside code, no cookies, no trackers</span></div>
+            <div class="bullet-row"><span class="bullet-arrow">→</span><span class="c-soft">Nothing is ever loaded from the internet</span></div>
           </div>
         </div>
 
@@ -1376,20 +1421,20 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
             <div class="wt-card">
               <div class="wt-row">
                                 <div>
-                  <div style="font-size:13px;font-weight:700;margin-bottom:2px;">Health Score (A&ndash;F)</div>
-                  <div style="font-size:11px;color:var(--muted);">A monthly grade based on savings rate, budget adherence, and tracking depth.</div>
+                  <div class="row-label-s">Health Score (A&ndash;F)</div>
+                  <div class="caption-xs">A monthly grade based on savings rate, budget adherence, and tracking depth.</div>
                 </div>
               </div>
               <div class="wt-row" style="margin-top:6px;">
                                 <div>
-                  <div style="font-size:13px;font-weight:700;margin-bottom:2px;">Streaks</div>
-                  <div style="font-size:11px;color:var(--muted);">Consecutive months in the green and under budget. Resets if you overspend.</div>
+                  <div class="row-label-s">Streaks</div>
+                  <div class="caption-xs">Consecutive months in the green and under budget. Resets if you overspend.</div>
                 </div>
               </div>
               <div class="wt-row" style="margin-top:6px;">
                                 <div>
-                  <div style="font-size:13px;font-weight:700;margin-bottom:2px;">Badges</div>
-                  <div style="font-size:11px;color:var(--muted);">Earn milestones automatically. Locked badges show exactly what to hit next.</div>
+                  <div class="row-label-s">Badges</div>
+                  <div class="caption-xs">Earn milestones automatically. Locked badges show exactly what to hit next.</div>
                 </div>
               </div>
             </div>
@@ -1597,7 +1642,7 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
       <div style="background:linear-gradient(135deg,rgba(0,214,143,0.07),rgba(0,201,177,0.05));border:1px solid rgba(0,214,143,0.2);border-radius:18px;padding:16px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px;">
         <div style="flex:1;">
           <div style="font-size:14px;font-weight:700;margin-bottom:3px;">Budget Setup Wizard</div>
-          <div style="font-size:12px;color:var(--muted);line-height:1.5;">Answer a few questions to personalize your budget targets</div>
+          <div class="row-desc-t">Answer a few questions to personalize your budget targets</div>
         </div>
         <button onclick="resetSetupState();showScreen('setup',document.querySelector('.nav-btn'));setupGo(1);document.getElementById('bottom-nav')?.classList.remove('visible');" style="padding:9px 16px;border:none;border-radius:12px;background:var(--grad-primary);color:#050a14;font-size:13px;font-weight:800;cursor:pointer;font-family:var(--font-display);flex-shrink:0;">Open &rarr;</button>
       </div>
@@ -1706,7 +1751,7 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
 <div class="modal-overlay" id="modal-cols" role="dialog" aria-modal="true" aria-labelledby="cols-title" onclick="closeOut(event,'modal-cols')">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+    <div class="row-between">
       <h2 class="modal-title" id="cols-title" style="margin-bottom:0">Column Mapping</h2>
       <button aria-label="Close" onclick="closeModal('modal-cols')" class="modal-close">✕</button>
     </div>
@@ -1729,7 +1774,7 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
 <div class="modal-overlay" id="modal-income" role="dialog" aria-modal="true" aria-labelledby="income-title" onclick="closeOut(event,'modal-income')">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+    <div class="row-between">
       <h2 class="modal-title" id="income-title" style="margin-bottom:0">Income Keywords</h2>
       <button aria-label="Close" onclick="closeModal('modal-income')" class="modal-close">✕</button>
     </div>
@@ -1742,7 +1787,7 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
 <div class="modal-overlay" id="modal-skip" role="dialog" aria-modal="true" aria-labelledby="skip-title" onclick="closeOut(event,'modal-skip')">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+    <div class="row-between">
       <h2 class="modal-title" id="skip-title" style="margin-bottom:0">Skip Transactions</h2>
       <button aria-label="Close" onclick="closeModal('modal-skip')" class="modal-close">✕</button>
     </div>
@@ -1755,7 +1800,7 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
 <div class="modal-overlay" id="modal-remaps" role="dialog" aria-modal="true" aria-labelledby="remaps-title" onclick="closeOut(event,'modal-remaps')">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+    <div class="row-between">
       <h2 class="modal-title" id="remaps-title" style="margin-bottom:0">Category Remaps</h2>
       <button aria-label="Close" onclick="closeModal('modal-remaps')" class="modal-close">✕</button>
     </div>
@@ -2351,7 +2396,7 @@ function renderStreaks(){
       </div>
     </div>
     ${earned.length ? `<div class="badge-section-title">Earned</div><div class="badge-grid">${badgeHTML(earned, false)}</div>` : ''}
-    ${locked.length ? `<div class="badge-section-title" style="color:var(--muted);">Next Up</div><div class="badge-grid">${badgeHTML(locked.slice(0,3), true)}</div>` : ''}
+    ${locked.length ? `<div class="badge-section-title" class="c-muted">Next Up</div><div class="badge-grid">${badgeHTML(locked.slice(0,3), true)}</div>` : ''}
   </div>`;
 }
 
@@ -3173,8 +3218,8 @@ function showConflictModal(filename, conflictingMonths, allNewMonths){
         </div>`;
       }).join('')}
       <div style="font-size:11px;color:var(--muted);margin-top:10px;">
-        <strong style="color:var(--soft);">Replace</strong> = wipe existing data for these months and use the new file.<br>
-        <strong style="color:var(--soft);">Merge</strong> = combine both sets of transactions for these months.
+        <strong class="c-soft">Replace</strong> = wipe existing data for these months and use the new file.<br>
+        <strong class="c-soft">Merge</strong> = combine both sets of transactions for these months.
       </div>
     </div>`;
 
@@ -3367,7 +3412,7 @@ function renderSummary(){
             const ariaSign = positive ? 'saved' : 'over income';
             return `<button class="stat-tile" type="button" onclick="openHealthBreakdown()" aria-label="Savings rate ${sign}${Math.abs(pct)} percent ${ariaSign} this month — see what's driving it"><div class="st-lbl">Savings Rate</div><div class="st-val" style="color:${valColor};">${sign}${Math.abs(pct)}%</div><div class="st-tap-hint" style="margin-top:3px;color:var(--soft);">${subText} &rsaquo;</div></button>`;
           }
-          return `<button class="stat-tile" type="button" disabled aria-label="Savings rate not available yet — add a month with income"><div class="st-lbl">Savings Rate</div><div class="st-val" style="color:var(--muted);">—</div></button>`;
+          return `<button class="stat-tile" type="button" disabled aria-label="Savings rate not available yet — add a month with income"><div class="st-lbl">Savings Rate</div><div class="st-val" class="c-muted">—</div></button>`;
         })()}
         <button class="stat-tile" type="button" ${hs?`onclick="openHealthBreakdown()" aria-label="Health score ${hs.grade}, ${hs.score} out of 100 — see what's driving it"`:'disabled aria-label="Health score not available yet"'}><div class="st-lbl">Health Score</div><div class="st-val" style="color:${gradeColor};">${grade}</div>${hs?`<div class="st-tap-hint">Tap for details &rsaquo;</div>`:''}</button>
       </div>
@@ -3902,7 +3947,7 @@ function buildSetupReview(){
     <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
       <div style="flex:1;font-size:14px;font-weight:500;">${esc(cat)}</div>
       <div style="display:flex;align-items:center;gap:8px;">
-        <div style="font-size:11px;color:var(--muted);">${Math.round(amt/total*100)}%</div>
+        <div class="caption-xs">${Math.round(amt/total*100)}%</div>
         <div style="position:relative;">
           <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--muted);font-weight:700;pointer-events:none;">$</span>
           <input type="number" value="${amt}" min="0"
@@ -3915,7 +3960,7 @@ function buildSetupReview(){
       </div>
     </div>`).join('') +
     `<div style="display:flex;justify-content:space-between;padding:12px 0 4px;font-size:13px;font-weight:700;">
-      <span style="color:var(--muted);">Total budgeted</span>
+      <span class="c-muted">Total budgeted</span>
       <span id="review-total" style="font-family:var(--font-display);font-size:16px;font-weight:900;color:var(--green);">${fmt(total)}/mo</span>
     </div>`;
 }
@@ -4077,7 +4122,7 @@ updateLogBadge();
 <!-- FILE CONFLICT MODAL -->
 <div class="modal-overlay" id="modal-conflict" role="dialog" aria-modal="true" aria-labelledby="conflict-title" onclick="">
   <div class="modal-sheet">
-    <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
+    <div class="modal-close-row">
       <button aria-label="Cancel" onclick="resolveConflict('cancel')" class="modal-close">&#x2715;</button>
     </div>
     <div class="modal-handle" style="margin-top:0;"></div>
@@ -4095,11 +4140,11 @@ updateLogBadge();
 <!-- UPLOAD LOG MODAL -->
 <div class="modal-overlay" id="modal-log" role="dialog" aria-modal="true" aria-labelledby="log-title" onclick="closeOut(event,'modal-log')">
   <div class="modal-sheet">
-    <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
+    <div class="modal-close-row">
       <button aria-label="Close" onclick="closeModal('modal-log')" class="modal-close">&#x2715;</button>
     </div>
     <div class="modal-handle" style="margin-top:0;"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+    <div class="row-between">
       <h2 class="modal-title" id="log-title" style="margin-bottom:0;">Upload Log</h2>
       <button onclick="clearLog()" style="background:rgba(255,71,87,0.12);border:1px solid rgba(255,71,87,0.2);border-radius:10px;padding:6px 12px;color:var(--red);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-display);">Clear All</button>
     </div>
@@ -4112,7 +4157,7 @@ updateLogBadge();
 <!-- VENDOR DRILL-DOWN MODAL -->
 <div class="modal-overlay" id="modal-vendor" role="dialog" aria-modal="true" aria-labelledby="vendor-cat-title" onclick="closeOut(event,'modal-vendor')">
   <div class="modal-sheet">
-    <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
+    <div class="modal-close-row">
       <button aria-label="Close" onclick="closeModal('modal-vendor')" class="modal-close">&#x2715;</button>
     </div>
     <div class="modal-handle" style="margin-top:0;"></div>
@@ -4130,7 +4175,7 @@ updateLogBadge();
 <!-- HEALTH SCORE BREAKDOWN MODAL -->
 <div class="modal-overlay" id="modal-health" role="dialog" aria-modal="true" aria-labelledby="health-title" onclick="closeOut(event,'modal-health')">
   <div class="modal-sheet">
-    <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
+    <div class="modal-close-row">
       <button aria-label="Close" onclick="closeModal('modal-health')" class="modal-close">&#x2715;</button>
     </div>
     <div class="modal-handle" style="margin-top:0;"></div>
@@ -4142,7 +4187,7 @@ updateLogBadge();
 <!-- CATEGORY INSIGHTS MODAL -->
 <div class="modal-overlay" id="modal-cat-insights" role="dialog" aria-modal="true" aria-labelledby="ins-cat-title" onclick="closeOut(event,'modal-cat-insights')">
   <div class="modal-sheet">
-    <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
+    <div class="modal-close-row">
       <button aria-label="Close" onclick="closeModal('modal-cat-insights')" class="modal-close">&#x2715;</button>
     </div>
     <div class="modal-handle" style="margin-top:0;"></div>
@@ -4172,7 +4217,7 @@ updateLogBadge();
   <div style="display:flex;align-items:center;gap:12px;padding:16px 20px 12px;border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0;">
     <div style="flex:1;">
       <div style="font-family:var(--font-display);font-size:15px;font-weight:800;">Greens</div>
-      <div style="font-size:11px;color:var(--muted);">Ask me anything about how the app works</div>
+      <div class="caption-xs">Ask me anything about how the app works</div>
     </div>
     <button onclick="toggleAIHelp()" aria-label="Close help assistant" style="width:44px;height:44px;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#x2715;</button>
   </div>
