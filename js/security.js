@@ -92,16 +92,15 @@ const gbAuth = (() => {
       setTimeout(() => d.classList.remove('shake'), 450);
     });
   }
-  // ── PIN-pad key handler ──
+  // ── Lock-screen PIN-pad key handler ──
+  // The set-PIN pad has its own delegated listener in gbSecurityUI below.
   document.addEventListener('click', (e) => {
-    const key = e.target.closest('#lock-pin-pad .pin-key, #setpin-pad .pin-key');
+    const key = e.target.closest('#lock-pin-pad .pin-key');
     if(!key) return;
     const d = key.dataset.d;
     if(!d) return;
-    if(lockoutRemaining() > 0 && key.closest('#lock-pin-pad')){ return; }
-    // Route by which pad the key belongs to.
-    if(key.closest('#lock-pin-pad')) handleLockKey(d);
-    else if(key.closest('#setpin-pad')) handleSetPinKey(d);
+    if(lockoutRemaining() > 0){ return; }
+    handleLockKey(d);
   });
   function handleLockKey(d){
     if(d === 'back'){ _pinBuf = _pinBuf.slice(0, -1); renderPinDots(); return; }
