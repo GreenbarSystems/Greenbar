@@ -153,6 +153,17 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 
         </div>
 
+        <!-- Replay the on-Summary coachmark tour -->
+        <div class="glass-card" style="margin-bottom:14px;">
+          <button type="button" class="settings-row" onclick="gbTour.reset(); showScreen('summary', _navBtn(0)); setTimeout(()=>gbTour.start(), 250);">
+            <div class="s-body">
+              <div class="s-label">Tour the app</div>
+              <div class="s-desc">Replay the on-screen guide on the Summary page</div>
+            </div>
+            <span class="s-arrow" aria-hidden="true">›</span>
+          </button>
+        </div>
+
         <!-- Order of operations -->
         <div class="guide-sec-hdr">How to get started</div>
         <div class="glass-card">
