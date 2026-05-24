@@ -17,19 +17,28 @@ function _maybeShowPrivacyToggle(){
   if(gbPrivacy.isDefault()) gbPrivacy.turnOn();
 }
 async function _continueBoot(){
+  let landedOnSummary = false;
   if(loadData()){
     showHeaderButtons();
     renderAll();
     showScreen('summary',_navBtn(0));
+    landedOnSummary = true;
   } else if(localStorage.getItem('gb_setup_done')){
     showHeaderButtons();
     showScreen('summary',_navBtn(0));
+    landedOnSummary = true;
   } else {
     setTimeout(()=>{ runFlashIntro(); }, 200);
   }
   updateLogBadge();
   _maybeShowPrivacyToggle();
   gbAuth.resetTimers();
+  // First-time coachmark tour on Summary. Only fires for users who've
+  // completed setup -- not on the flash-intro path. gbTour.isDone()
+  // gates re-fires across boots.
+  if(landedOnSummary && typeof gbTour === 'object' && !gbTour.isDone()){
+    setTimeout(() => gbTour.start(), 700);
+  }
 }
 if(gbAuth.isEnabled() && gbAuth.hasPIN()){
   // Lock first, then continue boot once the user unlocks.

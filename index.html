@@ -599,154 +599,6 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
     </div>
 
           </div>
-    <!-- WALKTHROUGH SCREEN -->
-    <div class="screen" id="screen-walkthrough" style="padding:0;overflow:hidden;background:var(--bg);">
-      <div style="display:flex;flex-direction:column;flex:1;min-height:0;position:relative;">
-
-        <!-- Slides wrapper -->
-        <div id="wt-track" style="flex:1;position:relative;overflow:hidden;min-height:0;z-index:1;">
-
-          <!-- SLIDE 1: Privacy -->
-          <div class="wt-slide active">
-            <div class="wt-icon-wrap" style="border-color:rgba(0,214,143,0.25);background:rgba(0,214,143,0.08);">
-              <svg aria-hidden="true"viewBox="0 0 64 64" width="54" height="54" fill="none">
-                <rect x="12" y="28" width="40" height="28" rx="7" fill="rgba(0,214,143,0.15)" stroke="#00d68f" stroke-width="2"/>
-                <path d="M21 28V22C21 16.477 26 12 32 12s11 4.477 11 10v6" stroke="#00d68f" stroke-width="2.5" stroke-linecap="round"/>
-                <circle cx="32" cy="42" r="4" fill="#00d68f"/>
-                <rect x="30.5" y="45" width="3" height="5" rx="1.5" fill="#00d68f"/>
-              </svg>
-            </div>
-            <h1 class="wt-headline">Your data never leaves your phone.</h1>
-            <div class="wt-body">No Greenbar account. No server. Everything runs on your device &mdash; your financial life is yours alone.</div>
-            <div class="wt-card">
-              <div class="wt-row"><span>Greenbar never sees your data. Ever.</span></div>
-              <div class="wt-row"><span>No separate Greenbar sign-up or email</span></div>
-              <div class="wt-row"><span>No ads or data collection</span></div>
-              <div class="wt-row"><span>No third-party scripts</span></div>
-            </div>
-          </div>
-
-          <!-- SLIDE 2: Import -->
-          <div class="wt-slide">
-            <div class="wt-icon-wrap" style="border-color:rgba(41,121,255,0.25);background:rgba(41,121,255,0.08);">
-              <svg aria-hidden="true"viewBox="0 0 64 64" width="54" height="54" fill="none">
-                <rect x="8" y="8" width="30" height="38" rx="5" fill="rgba(41,121,255,0.12)" stroke="#2979ff" stroke-width="2"/>
-                <line x1="15" y1="20" x2="30" y2="20" stroke="#2979ff" stroke-width="2" stroke-linecap="round"/>
-                <line x1="15" y1="27" x2="30" y2="27" stroke="#2979ff" stroke-width="2" stroke-linecap="round"/>
-                <line x1="15" y1="34" x2="24" y2="34" stroke="#2979ff" stroke-width="2" stroke-linecap="round"/>
-                <circle cx="48" cy="44" r="13" fill="rgba(0,214,143,0.12)" stroke="#00d68f" stroke-width="2"/>
-                <path d="M48 38v12M43 49l5 5 5-5" stroke="#00d68f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <h1 class="wt-headline">Import once. Dashboard in seconds.</h1>
-            <div class="wt-body">Export your Bank Transactions and drop them in. Every transaction is categorized, every month is charted &mdash; instantly.</div>
-            <div class="wt-tip">Most banks let you export your Bank Transactions under Transaction History or Statements. Any bank works.</div>
-          </div>
-
-                    <!-- SLIDE 3: Insights & Drill-down -->
-          <div class="wt-slide">
-            <div class="wt-icon-wrap" style="border-color:rgba(124,77,255,0.25);background:rgba(124,77,255,0.08);">
-              <svg aria-hidden="true"viewBox="0 0 64 64" width="54" height="54" fill="none">
-                <polyline points="8,52 18,34 28,42 40,22 56,30" stroke="#7c4dff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                <circle cx="18" cy="34" r="3.5" fill="#7c4dff"/>
-                <circle cx="28" cy="42" r="3.5" fill="#7c4dff"/>
-                <circle cx="40" cy="22" r="3.5" fill="#7c4dff"/>
-                <circle cx="56" cy="30" r="3.5" fill="#00d68f"/>
-              </svg>
-            </div>
-            <h1 class="wt-headline">Deep insights on every category.</h1>
-            <div class="wt-body">Tap any category to see a vendor breakdown and month-by-month trends &mdash; not just what you spent, but where.</div>
-            <div class="wt-card">
-              <div class="wt-row"><span>Groceries &rarr; Walmart $892 &bull; Costco $641</span></div>
-              <div class="wt-row" style="margin-top:4px;"><span>"Dining is up 34% from last month"</span></div>
-              <div class="wt-row" style="margin-top:4px;"><span>"You're $240 under your budget"</span></div>
-            </div>
-          </div>
-
-          <!-- SLIDE 4: Gamification -->
-          <div class="wt-slide">
-            <div class="wt-icon-wrap" style="border-color:rgba(255,165,2,0.3);background:rgba(255,165,2,0.08);">
-              <svg aria-hidden="true"viewBox="0 0 64 64" width="54" height="54" fill="none">
-                <polygon points="32,8 38,24 56,24 42,34 48,52 32,42 16,52 22,34 8,24 26,24" fill="rgba(255,165,2,0.2)" stroke="#ffa502" stroke-width="2.2" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <h1 class="wt-headline">Get better every month.</h1>
-            <div class="wt-body">Greenbar scores your finances and rewards consistency. The more you track, the more you improve.</div>
-            <div class="wt-card">
-              <div class="wt-row">
-                                <div>
-                  <div class="row-label-s">Health Score (A&ndash;F)</div>
-                  <div class="caption-xs">A monthly grade based on savings rate, budget adherence, and tracking depth.</div>
-                </div>
-              </div>
-              <div class="wt-row" style="margin-top:6px;">
-                                <div>
-                  <div class="row-label-s">Streaks</div>
-                  <div class="caption-xs">Consecutive months in the green and under budget. Resets if you overspend.</div>
-                </div>
-              </div>
-              <div class="wt-row" style="margin-top:6px;">
-                                <div>
-                  <div class="row-label-s">Badges</div>
-                  <div class="caption-xs">Earn milestones automatically. Locked badges show exactly what to hit next.</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- SLIDE 5: Every Purchase Gives Back -->
-          <div class="wt-slide">
-            <div class="wt-icon-wrap" style="border-color:rgba(255,71,87,0.3);background:rgba(255,71,87,0.08);">
-              <svg aria-hidden="true"viewBox="0 0 64 64" width="54" height="54" fill="none">
-                <path d="M32 52s-22-13-22-28a12 12 0 0 1 22-7.6A12 12 0 0 1 54 24c0 15-22 28-22 28z"
-                  fill="rgba(255,71,87,0.18)" stroke="#ff4757" stroke-width="2.2" stroke-linejoin="round"/>
-                <path d="M26 32l4 4 8-8" stroke="#ff4757" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <h1 class="wt-headline">Every purchase gives back.</h1>
-            <div class="wt-body">Part of what you pay for Greenbar goes straight to a charity you choose.</div>
-            <div class="wt-card">
-              <div class="wt-row"><span>$5 donated on your initial purchase</span></div>
-              <div class="wt-row" style="margin-top:4px;"><span>$10 donated on every subscription renewal</span></div>
-              <div class="wt-row" style="margin-top:4px;"><span>You pick from a vetted shortlist of charities</span></div>
-            </div>
-            <div style="margin-top:12px;font-size:11px;color:var(--muted);line-height:1.5;text-align:center;padding:0 4px;">Charities are carefully selected for transparency and verified impact.</div>
-          </div>
-
-          <!-- SLIDE 6: Budget setup CTA -->
-          <div class="wt-slide">
-            <div class="wt-icon-wrap" style="border-color:rgba(0,214,143,0.3);background:rgba(0,214,143,0.1);">
-              <svg aria-hidden="true"viewBox="0 0 64 64" width="54" height="54" fill="none">
-                <circle cx="32" cy="32" r="22" fill="rgba(0,214,143,0.1)" stroke="#00d68f" stroke-width="2"/>
-                <path d="M32 20v13l7 4" stroke="#00d68f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <h1 class="wt-headline">A budget built around your life.</h1>
-            <div class="wt-body">Answer 5 quick questions and Greenbar builds your personalized budget. No spreadsheets. No guessing. Takes about 60 seconds.</div>
-
-          </div>
-
-        </div><!-- end wt-track -->
-
-        <!-- Footer: dots + next button (hidden on slide 5) -->
-        <div id="wt-footer" style="padding:16px 24px 40px;display:flex;align-items:center;gap:16px;">
-          <div id="wt-dots-wrap" style="display:flex;gap:10px;flex:1;align-items:center;">
-            <div style="display:flex;gap:7px;align-items:center;">
-              <div class="wt-dot active" id="wt-dot-1"></div>
-              <div class="wt-dot" id="wt-dot-2"></div>
-              <div class="wt-dot" id="wt-dot-3"></div>
-              <div class="wt-dot" id="wt-dot-4"></div>
-              <div class="wt-dot" id="wt-dot-5"></div>
-              <div class="wt-dot" id="wt-dot-6"></div>
-            </div>
-            <span id="wt-step-counter" aria-live="polite" style="font-family:var(--font-display);font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.04em;">Step 1 of 6</span>
-          </div>
-          <button id="wt-next-btn" onclick="wtNext()" style="flex:0 0 auto;padding:13px 28px;border:none;border-radius:14px;background:var(--grad-primary);color:#050a14;font-family:var(--font-display);font-size:15px;font-weight:900;cursor:pointer;letter-spacing:0.2px;">Next &rarr;</button>
-        </div>
-
-      </div>
-    </div><!-- end screen-walkthrough -->
-
 <!-- SETUP WALKTHROUGH -->
     <div class="screen" id="screen-setup" style="padding:0;overflow:hidden;">
       <div style="display:flex;flex-direction:column;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;">
@@ -972,6 +824,14 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
         </button>
       </div>
 
+      <h2 class="sec-hdr">Help</h2>
+      <div class="settings-section">
+        <button type="button" class="settings-row" onclick="gbTour.reset(); showScreen('summary', _navBtn(0)); setTimeout(()=>gbTour.start(), 250);">
+          <div class="s-body"><div class="s-label">Tour the app</div><div class="s-desc">Replay the on-screen guide on the Summary page</div></div>
+          <span class="s-arrow" aria-hidden="true">›</span>
+        </button>
+      </div>
+
       <h2 class="sec-hdr">Data Backup</h2>
       <div class="settings-section">
         <button type="button" class="settings-row" onclick="exportData()">
@@ -1110,6 +970,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 <script src="js/render.js"></script>
 <script src="js/features.js"></script>
 <script src="js/security.js"></script>
+<script src="js/tour.js"></script>
 <script src="js/boot.js"></script>
 
 </script>
