@@ -1,0 +1,6 @@
+# Local dev tooling -- not part of the shipped app.
+.claude/
+
+# macOS / Windows cruft
+.DS_Store
+Thumbs.db
