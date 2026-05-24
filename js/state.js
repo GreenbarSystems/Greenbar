@@ -63,4 +63,4 @@ const MN='Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec'.split(',');
 let _months={},_allTxs=[],_sel=null;
 
 // Keys that exist in localStorage. Used by exportData / restoreData / clearAllData.
-const GB_KEYS=['gb_data','gb_cfg2','gb_log','gb_setup_done','gb_wt_done'];
+const GB_KEYS=['gb_data','gb_cfg2','gb_log','gb_setup_done','gb_wt_done','gb_tour_done'];

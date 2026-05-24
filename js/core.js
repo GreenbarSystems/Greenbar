@@ -365,13 +365,9 @@ async function clearAllData(){
   if(!confirm('Delete ALL data? This cannot be undone.')) return;
   // Phase B: biometric/PIN gate after the user confirms intent.
   if(!await gbAuth.unlock('Clear all data')) return;
-  try{
-    localStorage.removeItem('gb_data');
-    localStorage.removeItem('gb_log');
-    localStorage.removeItem('gb_cfg2');
-    localStorage.removeItem('gb_setup_done');
-    localStorage.removeItem('gb_wt_done');
-  }catch(e){}
+  // GB_KEYS is the single source of truth for user-data keys -- iterating
+  // it here means any future onboarding/state key added there is wiped too.
+  try{ GB_KEYS.forEach(k => localStorage.removeItem(k)); }catch(e){}
   _months={}; _allTxs=[]; _sel=null;
   _flashTimers=[]; _flashDone=false;
   CFG=JSON.parse(JSON.stringify(DEFAULTS));
