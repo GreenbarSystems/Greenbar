@@ -64,7 +64,10 @@ const gbAuth = (() => {
     _locked = true;
     const el = document.getElementById('screen-lock');
     if(!el) return;
-    document.getElementById('lock-prompt-text').textContent = reason || 'Enter your 6-digit PIN';
+    // 'open' is a sentinel used for the boot-time + auto-lock path (it also
+    // triggers the biometric auto-prompt below). It should not display as the
+    // user-facing label -- show the default "Enter PIN" copy in that case.
+    document.getElementById('lock-prompt-text').textContent = (reason && reason !== 'open') ? reason : 'Enter PIN';
     _pinBuf = ''; renderPinDots();
     document.getElementById('lock-error').textContent = '';
     // Show biometric button if a Capacitor-compatible bridge is available.
