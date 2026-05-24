@@ -13,6 +13,7 @@ const gbTour = (() => {
   let _overlay = null;
   let _card = null;
   let _pulseTarget = null;
+  let _onFinish = null;
 
   // Each step targets a CSS selector. side controls the arrow direction:
   //   'top'    -> card sits ABOVE target, arrow points DOWN
@@ -141,11 +142,16 @@ const gbTour = (() => {
     _active = false;
     if(_pulseTarget){ _pulseTarget.classList.remove('tour-target-pulse'); _pulseTarget = null; }
     if(_overlay){ _overlay.remove(); _overlay = null; _card = null; }
+    const cb = _onFinish; _onFinish = null;
+    if(typeof cb === 'function'){ try { cb(); } catch(e){} }
   }
 
-  function start(){
+  // start() accepts an optional { onFinish } callback that fires once the
+  // tour is dismissed (whether the user tapped the final Done or skipped via X).
+  function start(opts){
     if(_active) return;
     if(!_overlay) buildOverlay();
+    _onFinish = (opts && typeof opts.onFinish === 'function') ? opts.onFinish : null;
     _active = true;
     _idx = 0;
     showStep(0);

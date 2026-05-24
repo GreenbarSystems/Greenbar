@@ -237,16 +237,32 @@ function flashSkipToCTA(e){
 }
 
 function startSetupFromFlash(){
-  // Skip directly to setup wizard. The legacy 6-slide walkthrough screen
-  // is gone; the contextual coachmark tour fires on the Summary page once
-  // the user finishes the wizard (see gbTour in js/tour.js).
+  // Flow: Flash intro -> Get Started -> coachmark tour on Summary -> setup wizard.
+  // The tour runs against the empty Summary; pills/stat-tile steps target
+  // elements that don't exist yet and are auto-skipped by the engine, so the
+  // user sees a short Import + bottom-nav intro. After the tour finishes
+  // (or is skipped), the setup wizard takes over.
   try{ localStorage.setItem('gb_wt_done','1'); }catch(e){}
   showHeaderButtons();
-  showScreen('setup', _navBtn(0));
-  resetSetupState();
-  setupGo(2);
-  // Hide nav while wizard is active -- prevents nav taps interrupting setup
-  document.getElementById('bottom-nav')?.classList.remove('visible');
+  // Land on Summary so coachmark targets (Import button, bottom nav) are visible.
+  showScreen('summary', _navBtn(0));
+  const goToWizard = () => {
+    showScreen('setup', _navBtn(0));
+    resetSetupState();
+    setupGo(2);
+    // Hide nav while wizard is active -- prevents nav taps interrupting setup
+    document.getElementById('bottom-nav')?.classList.remove('visible');
+  };
+  // Reset done flag so the tour fires for this brand-new user, then start it
+  // with an onFinish callback that chains into the setup wizard.
+  setTimeout(() => {
+    if(typeof gbTour === 'object'){
+      gbTour.reset();
+      gbTour.start({ onFinish: goToWizard });
+    } else {
+      goToWizard();
+    }
+  }, 400);
 }
 
 
