@@ -237,32 +237,16 @@ function flashSkipToCTA(e){
 }
 
 function startSetupFromFlash(){
-  // Flow: Flash intro -> Get Started -> coachmark tour on Summary -> setup wizard.
-  // The tour runs against the empty Summary; pills/stat-tile steps target
-  // elements that don't exist yet and are auto-skipped by the engine, so the
-  // user sees a short Import + bottom-nav intro. After the tour finishes
-  // (or is skipped), the setup wizard takes over.
+  // Flash intro -> Get Started -> setup wizard. The contextual coachmark
+  // tour is opt-in via the Guide page (and Settings -> Help) -- it no
+  // longer runs automatically as part of onboarding.
   try{ localStorage.setItem('gb_wt_done','1'); }catch(e){}
   showHeaderButtons();
-  // Land on Summary so coachmark targets (Import button, bottom nav) are visible.
-  showScreen('summary', _navBtn(0));
-  const goToWizard = () => {
-    showScreen('setup', _navBtn(0));
-    resetSetupState();
-    setupGo(2);
-    // Hide nav while wizard is active -- prevents nav taps interrupting setup
-    document.getElementById('bottom-nav')?.classList.remove('visible');
-  };
-  // Reset done flag so the tour fires for this brand-new user, then start it
-  // with an onFinish callback that chains into the setup wizard.
-  setTimeout(() => {
-    if(typeof gbTour === 'object'){
-      gbTour.reset();
-      gbTour.start({ onFinish: goToWizard });
-    } else {
-      goToWizard();
-    }
-  }, 400);
+  showScreen('setup', _navBtn(0));
+  resetSetupState();
+  setupGo(2);
+  // Hide nav while wizard is active -- prevents nav taps interrupting setup
+  document.getElementById('bottom-nav')?.classList.remove('visible');
 }
 
 
