@@ -48,3 +48,4 @@ if(gbAuth.isEnabled() && gbAuth.hasPIN()){
   })();
 } else {
   _continueBoot();
+}
