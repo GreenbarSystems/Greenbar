@@ -1,6 +1,6 @@
 // ════ Greenbar — app-wide state and constants ════
 // Loaded FIRST. All other JS files reference these globals.
-// Variables that live with a single feature (_flashTimers, _wtSlide, etc.)
+// Variables that live with a single feature (_flashTimers, _swipe, etc.)
 // stay in that feature file -- this file only carries cross-cutting state.
 
 // ════ DEFAULTS ════

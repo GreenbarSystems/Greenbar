@@ -1,6 +1,6 @@
 // ════ Greenbar — features: AI help, walkthrough, setup wizard, bank export ════
 // Self-contained interactive flows. Each has its own module-local state
-// (_aiOpen, _flashTimers, _wtSlide, _setupState).
+// (_aiOpen, _flashTimers, _setupState).
 
 // ──────── AI help panel + topic-keyword routing ────────
 let _aiOpen = false;
@@ -101,132 +101,6 @@ function sendAIMessage(){
 }
 
 // Show AI button after setup completes or when returning user has data
-
-// ──────── Interactive walkthrough (slide 1-6) ────────
-let _wtSlide = 1;
-const _wtTotal = 6;
-
-function showWalkthrough(){
-  _wtSlide = 1;
-
-  // Single point of truth: showScreen handles display
-  showScreen('walkthrough', null);
-
-  // Reset slide state
-  const track = document.getElementById('wt-track');
-  if(track) track.querySelectorAll('.wt-slide').forEach((s,i)=>s.classList.toggle('active', i===0));
-
-  // Footer
-  const footer = document.getElementById('wt-footer');
-  if(footer){ footer.style.display='flex'; footer.style.height=''; footer.style.padding=''; footer.style.pointerEvents=''; }
-  const btn = document.getElementById('wt-next-btn');
-  if(btn){ btn.textContent='Next →'; btn.style.flex='0 0 auto'; btn.onclick=function(){ wtNext(); }; }
-  const dotsWrap = document.getElementById('wt-dots-wrap');
-  if(dotsWrap) dotsWrap.style.display='flex';
-  for(let i=1;i<=_wtTotal;i++){
-    const d=document.getElementById('wt-dot-'+i);
-    if(d) d.classList.toggle('active',i===1);
-  }
-  const counter = document.getElementById('wt-step-counter');
-  if(counter){ counter.textContent = `Step 1 of ${_wtTotal}`; counter.style.display = ''; }
-
-  _wtAddSwipe();
-}
-
-function wtGo(n){
-  _wtSlide = Math.max(1, Math.min(_wtTotal, n));
-  // Crossfade: deactivate all slides, activate current
-  const track = document.getElementById('wt-track');
-  if(track){
-    track.querySelectorAll('.wt-slide').forEach((s,i)=>{
-      s.classList.toggle('active', i===_wtSlide-1);
-    });
-  }
-  // Update dots
-  for(let i=1;i<=_wtTotal;i++){
-    const d=document.getElementById('wt-dot-'+i);
-    if(d) d.classList.toggle('active',i===_wtSlide);
-  }
-  // Update step counter (hidden on the last slide where dots are hidden too)
-  const _counter = document.getElementById('wt-step-counter');
-  if(_counter){
-    _counter.textContent = `Step ${_wtSlide} of ${_wtTotal}`;
-    _counter.style.display = (_wtSlide===_wtTotal) ? 'none' : '';
-  }
-  // Footer / button
-  const footer = document.getElementById('wt-footer');
-  const btn = document.getElementById('wt-next-btn');
-  if(_wtSlide===_wtTotal){
-    // Last slide: replace Next button with the CTA button in the footer
-    if(footer) footer.style.display = 'flex';
-    if(btn){
-      btn.textContent = 'Set Up My Budget →';
-      btn.style.flex = '1';
-      btn.onclick = function(){ startWalkthroughSetup(); };
-    }
-    // Hide dots on last slide
-    const dotsWrap = document.getElementById('wt-dots-wrap');
-    if(dotsWrap) dotsWrap.style.display = 'none';
-  } else {
-    if(footer) footer.style.display = 'flex';
-    const dotsWrap = document.getElementById('wt-dots-wrap');
-    if(dotsWrap) dotsWrap.style.display = 'flex';
-    if(btn){
-      btn.style.flex = '0 0 auto';
-      btn.onclick = function(){ wtNext(); };
-      btn.textContent = (_wtSlide===_wtTotal-1) ? 'Get Started' : 'Next →';
-    }
-  }
-}
-
-function wtNext(){
-  if(_wtSlide >= _wtTotal) startWalkthroughSetup();
-  else wtGo(_wtSlide + 1);
-}
-
-function startWalkthroughSetup(){
-  try{ localStorage.setItem('gb_wt_done','1'); }catch(e){}
-
-  // Reset wizard state so values from an abandoned earlier run don't pre-fill
-  // the new run. The Settings "Open ->" button already calls this; the
-  // walkthrough path used to skip it, leaking state across runs.
-  if(typeof resetSetupState === 'function') resetSetupState();
-
-  // Step 1: hide every screen
-  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
-
-  // Step 2: activate setup screen
-  var ss = document.getElementById('screen-setup');
-  if(!ss){ console.error('screen-setup not found'); return; }
-  ss.classList.add('active');
-
-  // Step 3: reveal header, then hide nav (showHeaderButtons re-adds .visible, so order matters)
-  showHeaderButtons();
-  var nav = document.getElementById('bottom-nav');
-  if(nav) nav.classList.remove('visible');
-
-  // Step 4: reset wizard state and go to step 2
-  resetSetupState();
-  setupGo(2);
-}
-
-function _wtAddSwipe(){
-  const track = document.getElementById('wt-track');
-  if(!track || track._swipeInit) return;
-  track._swipeInit = true;
-  let sx=0, sy=0;
-  track.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
-  track.addEventListener('touchend',e=>{
-    const dx=e.changedTouches[0].clientX-sx;
-    const dy=e.changedTouches[0].clientY-sy;
-    if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>44){
-      if(dx<0&&_wtSlide<_wtTotal) wtGo(_wtSlide+1);
-      else if(dx>0&&_wtSlide>1) wtGo(_wtSlide-1);
-    }
-  },{passive:true});
-}
-
-
 
 // ──────── showHeaderButtons (reveals wordmark + Import after onboarding) ────────
 function showHeaderButtons(){
@@ -363,17 +237,16 @@ function flashSkipToCTA(e){
 }
 
 function startSetupFromFlash(){
-  // Only show walkthrough on first launch -- never again after that
-  if(localStorage.getItem('gb_wt_done')){
-    showHeaderButtons();
-    showScreen('setup', _navBtn(0));
-    resetSetupState();
-    setupGo(2);
-    // Hide nav while wizard is active -- prevents nav taps interrupting setup
-    document.getElementById('bottom-nav')?.classList.remove('visible');
-  } else {
-    showWalkthrough();
-  }
+  // Skip directly to setup wizard. The legacy 6-slide walkthrough screen
+  // is gone; the contextual coachmark tour fires on the Summary page once
+  // the user finishes the wizard (see gbTour in js/tour.js).
+  try{ localStorage.setItem('gb_wt_done','1'); }catch(e){}
+  showHeaderButtons();
+  showScreen('setup', _navBtn(0));
+  resetSetupState();
+  setupGo(2);
+  // Hide nav while wizard is active -- prevents nav taps interrupting setup
+  document.getElementById('bottom-nav')?.classList.remove('visible');
 }
 
 

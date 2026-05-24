@@ -126,7 +126,6 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
 /* ── Screen switching ── */
 .screen               { display: none; }
 .screen.active        { display: block; }
-#screen-walkthrough.active { display: flex; flex-direction: column; height: 100%; overflow: hidden; padding: 0; }
 #screen-setup.active       { display: flex; flex-direction: column; height: 100%; overflow: hidden; padding: 0; }
 /* Uniform 16px gap between the app header and each main screen's content.
    Summary is excluded -- it keeps its gap via .gb-welcome so the first-launch
@@ -636,61 +635,6 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
   border-color: var(--green); background: rgba(0,214,143,0.10); color: var(--green);
 }
 
-/* ── Walkthrough ── */
-.wt-slide {
-  position: absolute; inset: 0;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 60px 28px 20px; text-align: center;
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.45s ease;
-  font-family: var(--font-soft); /* softer rounded font for all walkthrough wording */
-}
-.wt-slide.active {
-  opacity: 1; pointer-events: auto;
-}
-/* ── Interactive Walkthrough ── */
-.wt-icon-wrap {
-  width: 100px; height: 100px; border-radius: 30px; border: 1px solid;
-  display: flex; align-items: center; justify-content: center;
-  margin-bottom: 28px; flex-shrink: 0;
-}
-.wt-headline {
-  font-family: var(--font-display); font-size: 23px; font-weight: 900;
-  letter-spacing: -0.5px; line-height: 1.25; margin-bottom: 13px; color: var(--text);
-}
-/* Walkthrough headlines use the softer rounded font (overrides the rules above) */
-.wt-slide .wt-headline { font-family: var(--font-soft); }
-.wt-body {
-  font-size: 15px; color: var(--soft); line-height: 1.65;
-  margin-bottom: 22px; max-width: 310px;
-}
-.wt-card {
-  width: 100%; background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08); border-radius: 18px;
-  padding: 14px 18px; text-align: left; max-width: 340px;
-}
-.wt-row {
-  display: flex; align-items: center; gap: 12px; padding: 6px 0;
-  font-size: 14px; font-weight: 500; color: var(--soft);
-}
-.wt-check { color: #00d68f; font-size: 15px; font-weight: 900; flex-shrink: 0; }
-.wt-x     { color: #ff4757; font-size: 15px; font-weight: 900; flex-shrink: 0; }
-.wt-tip {
-  background: rgba(255,165,2,0.07); border: 1px solid rgba(255,165,2,0.2);
-  border-radius: 14px; padding: 12px 16px; font-size: 13px;
-  color: var(--soft); line-height: 1.6; text-align: left; width: 100%; max-width: 340px;
-}
-.wt-dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: rgba(255,255,255,0.15); transition: all 0.3s ease;
-  cursor: pointer;
-}
-.wt-dot.active {
-  width: 22px; border-radius: 4px;
-  background: linear-gradient(90deg,#00d68f,#00c9b1);
-}
-
 
 /* ── Metallic shimmer on Greenbar wordmark ── */
 @keyframes metallicShimmer {
@@ -849,6 +793,66 @@ body.privacy-mode.revealed .sec-total {
   font-family: var(--font-display); font-size: 12px; font-weight: 700;
 }
 .choice-pill.selected { background: var(--grad-primary); border-color: transparent; color: #050a14; }
+
+/* ── Coachmark tour (gbTour) ── */
+/* Full-viewport dim overlay; tap the dim area to skip the whole tour. */
+#tour-overlay {
+  position: fixed; inset: 0; z-index: 450;
+  background: rgba(0,0,0,0.55);
+  animation: tourFade 0.2s ease both;
+}
+@keyframes tourFade { from { opacity: 0; } to { opacity: 1; } }
+/* Coachmark card. Positioned by JS each step. */
+#tour-card {
+  position: absolute; width: 280px; max-width: calc(100vw - 24px);
+  background: #0c1628; border: 1px solid var(--border); border-radius: 16px;
+  padding: 14px 16px 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  font-family: var(--font-body); color: var(--text);
+  animation: tourPop 0.25s cubic-bezier(0.34,1.4,0.64,1) both;
+}
+@keyframes tourPop {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+#tour-step-indicator {
+  font-family: var(--font-display); font-size: 11px; font-weight: 800;
+  color: var(--green); letter-spacing: 0.08em; text-transform: uppercase;
+  margin-bottom: 4px;
+}
+#tour-title {
+  font-family: var(--font-display); font-size: 16px; font-weight: 800;
+  color: var(--text); margin-bottom: 6px;
+}
+#tour-copy {
+  font-size: 13px; color: var(--soft); line-height: 1.55; margin-bottom: 12px;
+}
+#tour-actions { display: flex; justify-content: flex-end; }
+#tour-skip {
+  position: absolute; top: 8px; right: 8px;
+  width: 28px; height: 28px; border-radius: 8px; border: none;
+  background: transparent; color: var(--muted); font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; line-height: 1;
+}
+#tour-skip:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+/* Arrow nub on the card. The class controls which edge it sits on; left is
+   set by JS to align with the centre of the target element. */
+#tour-arrow {
+  position: absolute; width: 12px; height: 12px;
+  background: #0c1628; border: 1px solid var(--border);
+  border-right: none; border-bottom: none;
+}
+.tour-arrow-top    { top: -7px;     transform: rotate(45deg); }
+.tour-arrow-bottom { bottom: -7px;  transform: rotate(225deg); }
+/* Subtle green halo on whichever element the current step is pointing at. */
+.tour-target-pulse {
+  animation: tourPulse 1.8s ease-in-out infinite;
+  position: relative; z-index: 460; /* lift above the dim overlay */
+  border-radius: 16px;
+}
+@keyframes tourPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0,214,143,0.45); }
+  50%      { box-shadow: 0 0 0 8px rgba(0,214,143,0); }
+}
 
 /* ── Reduced-motion: respect prefers-reduced-motion (WCAG 2.3.3) ── */
 @media (prefers-reduced-motion: reduce) {
