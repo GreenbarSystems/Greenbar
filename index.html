@@ -913,7 +913,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 <!-- MODALS -->
 <div class="modal-overlay" id="modal-cols" role="dialog" aria-modal="true" aria-labelledby="cols-title" onclick="closeOut(event,'modal-cols')">
   <div class="sheet">
-    <div class="modal-handle"></div>
+    <div class="sheet-handle"></div>
     <div class="row-between">
       <h2 class="modal-title" id="cols-title" style="margin-bottom:0">Column Mapping</h2>
       <button type="button" aria-label="Close" onclick="closeModal('modal-cols')" class="modal-close">✕</button>
@@ -936,7 +936,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 
 <div class="modal-overlay" id="modal-income" role="dialog" aria-modal="true" aria-labelledby="income-title" onclick="closeOut(event,'modal-income')">
   <div class="sheet">
-    <div class="modal-handle"></div>
+    <div class="sheet-handle"></div>
     <div class="row-between">
       <h2 class="modal-title" id="income-title" style="margin-bottom:0">Income Keywords</h2>
       <button type="button" aria-label="Close" onclick="closeModal('modal-income')" class="modal-close">✕</button>
@@ -949,7 +949,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 
 <div class="modal-overlay" id="modal-skip" role="dialog" aria-modal="true" aria-labelledby="skip-title" onclick="closeOut(event,'modal-skip')">
   <div class="sheet">
-    <div class="modal-handle"></div>
+    <div class="sheet-handle"></div>
     <div class="row-between">
       <h2 class="modal-title" id="skip-title" style="margin-bottom:0">Skip Transactions</h2>
       <button type="button" aria-label="Close" onclick="closeModal('modal-skip')" class="modal-close">✕</button>
@@ -962,7 +962,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 
 <div class="modal-overlay" id="modal-remaps" role="dialog" aria-modal="true" aria-labelledby="remaps-title" onclick="closeOut(event,'modal-remaps')">
   <div class="sheet">
-    <div class="modal-handle"></div>
+    <div class="sheet-handle"></div>
     <div class="row-between">
       <h2 class="modal-title" id="remaps-title" style="margin-bottom:0">Category Remaps</h2>
       <button type="button" aria-label="Close" onclick="closeModal('modal-remaps')" class="modal-close">✕</button>
@@ -992,7 +992,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
     <div class="modal-close-row">
       <button type="button" aria-label="Cancel" onclick="resolveConflict('cancel')" class="modal-close">&#x2715;</button>
     </div>
-    <div class="modal-handle" style="margin-top:0;"></div>
+    <div class="sheet-handle" style="margin-top:0;"></div>
     <h2 class="modal-title" id="conflict-title">Month conflict detected</h2>
     <div class="modal-sub" id="conflict-sub" style="margin-bottom:16px;">This file covers months you have already imported. Choose how to handle it.</div>
     <div id="conflict-months" style="margin-bottom:16px;"></div>
@@ -1010,7 +1010,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
     <div class="modal-close-row">
       <button type="button" aria-label="Close" onclick="closeModal('modal-log')" class="modal-close">&#x2715;</button>
     </div>
-    <div class="modal-handle" style="margin-top:0;"></div>
+    <div class="sheet-handle" style="margin-top:0;"></div>
     <div class="row-between">
       <h2 class="modal-title" id="log-title" style="margin-bottom:0;">Upload Log</h2>
       <button type="button" onclick="clearLog()" style="background:rgba(255,71,87,0.12);border:1px solid rgba(255,71,87,0.2);border-radius:10px;padding:6px 12px;color:var(--red);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-display);">Clear All</button>
@@ -1027,7 +1027,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
     <div class="modal-close-row">
       <button type="button" aria-label="Close" onclick="closeModal('modal-vendor')" class="modal-close">&#x2715;</button>
     </div>
-    <div class="modal-handle" style="margin-top:0;"></div>
+    <div class="sheet-handle" style="margin-top:0;"></div>
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
       <div>
         <h2 class="modal-title" id="vendor-cat-title" style="margin-bottom:0;font-size:18px;">Category vendors</h2>
@@ -1045,7 +1045,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
     <div class="modal-close-row">
       <button type="button" aria-label="Close" onclick="closeModal('modal-health')" class="modal-close">&#x2715;</button>
     </div>
-    <div class="modal-handle" style="margin-top:0;"></div>
+    <div class="sheet-handle" style="margin-top:0;"></div>
     <h2 class="modal-title" id="health-title" style="margin-bottom:14px;">Health Score Breakdown</h2>
     <div id="health-body"></div>
   </div>
@@ -1057,7 +1057,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
     <div class="modal-close-row">
       <button type="button" aria-label="Close" onclick="closeModal('modal-setpin')" class="modal-close">&#x2715;</button>
     </div>
-    <div class="modal-handle"></div>
+    <div class="sheet-handle"></div>
     <h2 class="modal-title" id="setpin-title">Set your 6-digit PIN</h2>
     <div class="modal-sub" id="setpin-sub">Pick a 6-digit number you'll remember. We never see it &mdash; just a hash of it stays on this device.</div>
     <div class="pin-dots modal-pin-dots" id="setpin-dots">
@@ -1088,7 +1088,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
     <div class="modal-close-row">
       <button type="button" aria-label="Close" onclick="closeModal('modal-cat-insights')" class="modal-close">&#x2715;</button>
     </div>
-    <div class="modal-handle" style="margin-top:0;"></div>
+    <div class="sheet-handle" style="margin-top:0;"></div>
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
       <div>
         <h2 class="modal-title" id="ins-cat-title" style="margin-bottom:0;font-size:18px;">Category insights</h2>
