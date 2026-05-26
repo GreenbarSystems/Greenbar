@@ -132,7 +132,7 @@ function runFlashIntro(){
           <div style="font-family:var(--font-display);font-size:36px;font-weight:900;letter-spacing:-1px;margin-bottom:10px;">Welcome to <span class="gb-shimmer">Greenbar</span></div>
           <div style="font-size:16px;color:var(--soft);letter-spacing:0.02em;margin-bottom:40px;">Your money, clearly.</div>
           <div id="flash-cta" style="opacity:0;transition:opacity 1.2s ease;">
-            <button class="btn-flash-cta" onclick="startSetupFromFlash()">Get Started &rarr;</button>
+            <button type="button" class="btn-flash-cta" onclick="startSetupFromFlash()">Get Started &rarr;</button>
 
           </div>
         </div>
