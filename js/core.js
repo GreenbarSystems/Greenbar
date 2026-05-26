@@ -616,7 +616,7 @@ function openModal(id){
   // If this modal is mid-close-animation, cancel it so the open animation plays cleanly.
   el.classList.remove('closing');
   // Reset any leftover inline transform/transition from a previous swipe drag.
-  const _sheet = el.querySelector('.modal-sheet');
+  const _sheet = el.querySelector('.sheet');
   if(_sheet){ _sheet.style.transform=''; _sheet.style.transition=''; }
   el.classList.add('open');
   if(id==='modal-remaps')renderRemaps();
@@ -641,7 +641,7 @@ function closeModal(id){
     el.classList.remove('open');
     el.classList.remove('closing');
     // Clear any inline transform left over from a partial swipe-dismiss.
-    const sheet = el.querySelector('.modal-sheet');
+    const sheet = el.querySelector('.sheet');
     if(sheet){ sheet.style.transform=''; sheet.style.transition=''; }
   }, 230);
 }
@@ -675,7 +675,7 @@ let _swipe = null;
 document.addEventListener('touchstart', function(e){
   const overlay = e.target.closest('.modal-overlay.open');
   if(!overlay || overlay.id === 'modal-conflict') return; // conflict modal must use buttons
-  const sheet = overlay.querySelector('.modal-sheet');
+  const sheet = overlay.querySelector('.sheet');
   if(!sheet || !sheet.contains(e.target)) return;
   const rectTop = sheet.getBoundingClientRect().top;
   const touchY = e.touches[0].clientY;
