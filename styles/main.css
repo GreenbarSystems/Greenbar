@@ -426,9 +426,11 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
    land focus there (a bare anchor target only scrolls; it doesn't move focus). */
 .content[tabindex="-1"]:focus { outline: none; }
 .s-icon { font-size: 20px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border-radius: 10px; flex-shrink: 0; }
+/* .s-body/.s-label/.s-desc are spans (not divs) so they can live inside
+   <button class="settings-row"> -- button content model is phrasing only. */
 .s-body { flex: 1; }
-.s-label { font-size: 14px; font-weight: 600; }
-.s-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.s-label { display: block; font-size: 14px; font-weight: 600; }
+.s-desc { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
 .s-arrow { color: var(--muted); font-size: 18px; }
 .budget-row { display: flex; align-items: center; padding: 11px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); }
 .budget-row:last-child { border-bottom: none; }

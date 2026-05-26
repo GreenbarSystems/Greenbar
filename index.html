@@ -156,10 +156,10 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
         <!-- Opt-in coachmark tour: routes to Summary then fires gbTour. -->
         <div class="glass-card" style="margin-bottom:14px;">
           <button type="button" class="settings-row" onclick="gbTour.reset(); showScreen('summary', _navBtn(0)); setTimeout(()=>gbTour.start(), 250);">
-            <div class="s-body">
-              <div class="s-label">Tour the app</div>
-              <div class="s-desc">Replay the on-screen guide on the Summary page</div>
-            </div>
+            <span class="s-body">
+              <span class="s-label">Tour the app</span>
+              <span class="s-desc">Replay the on-screen guide on the Summary page</span>
+            </span>
             <span class="s-arrow" aria-hidden="true">›</span>
           </button>
         </div>
@@ -767,15 +767,15 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
       <h2 class="sec-hdr" style="margin-top:0">Bank Transactions Format</h2>
       <div class="settings-section">
         <button type="button" class="settings-row" onclick="openModal('modal-cols')">
-          <div class="s-body"><div class="s-label">Column Mapping</div><div class="s-desc" id="col-desc">Map Date, Description, Amount columns</div></div>
+          <span class="s-body"><span class="s-label">Column Mapping</span><span class="s-desc" id="col-desc">Map Date, Description, Amount columns</span></span>
           <span class="s-arrow" aria-hidden="true">›</span>
         </button>
         <button type="button" class="settings-row" onclick="openModal('modal-income')">
-          <div class="s-body"><div class="s-label">Income Keywords</div><div class="s-desc" id="inc-desc">Words that identify deposits</div></div>
+          <span class="s-body"><span class="s-label">Income Keywords</span><span class="s-desc" id="inc-desc">Words that identify deposits</span></span>
           <span class="s-arrow" aria-hidden="true">›</span>
         </button>
         <button type="button" class="settings-row" onclick="openModal('modal-skip')">
-          <div class="s-body"><div class="s-label">Skip Transactions</div><div class="s-desc" id="skip-desc">Exclude savings transfers etc.</div></div>
+          <span class="s-body"><span class="s-label">Skip Transactions</span><span class="s-desc" id="skip-desc">Exclude savings transfers etc.</span></span>
           <span class="s-arrow" aria-hidden="true">›</span>
         </button>
       </div>
@@ -783,7 +783,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
       <h2 class="sec-hdr">Reclassification Rules</h2>
       <div class="settings-section">
         <button type="button" class="settings-row" onclick="openModal('modal-remaps')">
-          <div class="s-body"><div class="s-label">Category Remaps</div><div class="s-desc" id="remap-desc">Merchant → category rules</div></div>
+          <span class="s-body"><span class="s-label">Category Remaps</span><span class="s-desc" id="remap-desc">Merchant → category rules</span></span>
           <span class="s-arrow" aria-hidden="true">›</span>
         </button>
       </div>
@@ -791,7 +791,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
       <h2 class="sec-hdr">Import History</h2>
       <div class="settings-section">
         <button type="button" class="settings-row" onclick="openModal('modal-log')">
-          <div class="s-body"><div class="s-label">Upload Log</div><div class="s-desc">History of every file you've imported</div></div>
+          <span class="s-body"><span class="s-label">Upload Log</span><span class="s-desc">History of every file you've imported</span></span>
           <span id="log-badge" style="display:none;background:var(--green);color:#050a14;font-size:11px;font-weight:800;border-radius:9px;padding:2px 7px;font-family:var(--font-display);"></span>
           <span class="s-arrow" aria-hidden="true">›</span>
         </button>
@@ -800,11 +800,11 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
       <h2 class="sec-hdr">Security</h2>
       <div class="settings-section">
         <button type="button" class="settings-row" id="security-toggle-row" onclick="gbSecurityUI.toggleEnable()">
-          <div class="s-body"><div class="s-label">Lock Greenbar</div><div class="s-desc" id="security-status-desc">Off &middot; anyone with this device can open the app</div></div>
+          <span class="s-body"><span class="s-label">Lock Greenbar</span><span class="s-desc" id="security-status-desc">Off &middot; anyone with this device can open the app</span></span>
           <span class="s-arrow" aria-hidden="true" id="security-toggle-state">Off</span>
         </button>
         <button type="button" class="settings-row" id="security-change-pin-row" onclick="gbSecurityUI.openChangePIN()" style="display:none;">
-          <div class="s-body"><div class="s-label">Change PIN</div><div class="s-desc">Update your 6-digit PIN</div></div>
+          <span class="s-body"><span class="s-label">Change PIN</span><span class="s-desc">Update your 6-digit PIN</span></span>
           <span class="s-arrow" aria-hidden="true">›</span>
         </button>
         <div class="settings-row" id="security-autolock-row" style="display:none;cursor:default;">
@@ -830,7 +830,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
           </div>
         </div>
         <button type="button" class="settings-row" onclick="gbSecurityUI.togglePrivacyDefault()">
-          <div class="s-body"><div class="s-label">Hide amounts by default</div><div class="s-desc" id="privacy-default-desc">Off &middot; amounts show until you tap the eye icon</div></div>
+          <span class="s-body"><span class="s-label">Hide amounts by default</span><span class="s-desc" id="privacy-default-desc">Off &middot; amounts show until you tap the eye icon</span></span>
           <span class="s-arrow" aria-hidden="true" id="privacy-default-state">Off</span>
         </button>
       </div>
@@ -838,7 +838,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
       <h2 class="sec-hdr">Help</h2>
       <div class="settings-section">
         <button type="button" class="settings-row" onclick="gbTour.reset(); showScreen('summary', _navBtn(0)); setTimeout(()=>gbTour.start(), 250);">
-          <div class="s-body"><div class="s-label">Tour the app</div><div class="s-desc">Replay the on-screen guide on the Summary page</div></div>
+          <span class="s-body"><span class="s-label">Tour the app</span><span class="s-desc">Replay the on-screen guide on the Summary page</span></span>
           <span class="s-arrow" aria-hidden="true">›</span>
         </button>
       </div>
@@ -846,11 +846,11 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
       <h2 class="sec-hdr">Data Backup</h2>
       <div class="settings-section">
         <button type="button" class="settings-row" onclick="exportData()">
-          <div class="s-body"><div class="s-label">Export a Backup</div><div class="s-desc" id="storage-desc">Save all your data to a file</div></div>
+          <span class="s-body"><span class="s-label">Export a Backup</span><span class="s-desc" id="storage-desc">Save all your data to a file</span></span>
           <span class="s-arrow" aria-hidden="true">›</span>
         </button>
         <button type="button" class="settings-row" onclick="document.getElementById('restore-input').click()">
-          <div class="s-body"><div class="s-label">Restore from Backup</div><div class="s-desc">Replace current data with a backup file</div></div>
+          <span class="s-body"><span class="s-label">Restore from Backup</span><span class="s-desc">Replace current data with a backup file</span></span>
           <span class="s-arrow" aria-hidden="true">›</span>
         </button>
       </div>
