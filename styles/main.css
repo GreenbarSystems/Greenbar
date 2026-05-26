@@ -172,13 +172,13 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
 .btn-primary:active { transform: scale(0.97); }
 /* Shared close ✕ for every modal sheet. Was 9 identical inline-style
    buttons before consolidation. 44x44 hit area for accessibility. */
-.modal-close {
+.sheet-close {
   width: 44px; height: 44px; border-radius: 12px;
   background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
   color: var(--muted); font-size: 20px; cursor: pointer; line-height: 1;
   display: flex; align-items: center; justify-content: center;
 }
-.modal-close:hover { color: var(--text); background: rgba(255,255,255,0.10); }
+.sheet-close:hover { color: var(--text); background: rgba(255,255,255,0.10); }
 /* Step-number badge used in the Guide "How to get started" and "How to
    export from your bank" sections (the 1/2/3/4 circles). */
 .step-badge {
@@ -280,8 +280,8 @@ button.stat-tile:disabled:active { transform: none; }
 .bullet-row    { display: flex; gap: 10px; font-size: 12px; align-items: flex-start; }
 .bullet-arrow  { color: var(--green); font-weight: 800; flex-shrink: 0; }
 /* Modal close ✕ row: header strip that sits above the modal handle / title
-   and right-aligns the .modal-close button. */
-.modal-close-row { display: flex; justify-content: flex-end; margin-bottom: 4px; }
+   and right-aligns the .sheet-close button. */
+.sheet-close-row { display: flex; justify-content: flex-end; margin-bottom: 4px; }
 /* Glass card variants used across Guide / Under-the-Hood sections. .glass-card
    wraps a list (no inner padding -- the rows define their own); .glass-card-padded
    is a self-contained card with its own padding (Under the Hood blue/orange cards). */
@@ -459,11 +459,11 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
 @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 @keyframes sheetDown { from { transform: translateY(0); } to { transform: translateY(100%); } }
 .sheet-handle { width: 36px; height: 4px; background: var(--border-bright); border-radius: 2px; margin: 0 auto 20px; }
-.modal-title { font-family: var(--font-display); font-size: 20px; font-weight: 900; margin-bottom: 6px; }
-.modal-sub { font-size: 13px; color: var(--soft); margin-bottom: 20px; line-height: 1.5; }
-.modal-label { font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; font-family: var(--font-display); }
-.modal-input { width: 100%; background: var(--glass); border: 1px solid var(--border); border-radius: 14px; padding: 12px 16px; color: var(--text); font-size: 14px; font-family: var(--font-body); outline: none; margin-bottom: 12px; transition: border-color 0.2s; }
-.modal-input:focus { border-color: rgba(0,214,143,0.4); }
+.sheet-title { font-family: var(--font-display); font-size: 20px; font-weight: 900; margin-bottom: 6px; }
+.sheet-sub { font-size: 13px; color: var(--soft); margin-bottom: 20px; line-height: 1.5; }
+.sheet-label { font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; font-family: var(--font-display); }
+.sheet-input { width: 100%; background: var(--glass); border: 1px solid var(--border); border-radius: 14px; padding: 12px 16px; color: var(--text); font-size: 14px; font-family: var(--font-body); outline: none; margin-bottom: 12px; transition: border-color 0.2s; }
+.sheet-input:focus { border-color: rgba(0,214,143,0.4); }
 .remap-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .remap-row input { flex: 1; background: var(--glass); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; color: var(--text); font-size: 13px; font-family: var(--font-body); outline: none; }
 .remap-row input:focus { border-color: rgba(0,214,143,0.4); }
@@ -783,10 +783,10 @@ body.privacy-mode.revealed .sec-total {
 #privacy-toggle-btn:hover { color: var(--text); background: var(--glass-hover); }
 #privacy-toggle-btn.on { color: var(--green); border-color: rgba(0,214,143,0.3); background: rgba(0,214,143,0.06); }
 /* PIN-pad in Settings (set/change-PIN flow) -- smaller variant fits inside the modal. */
-.modal-pin-pad { display: grid; grid-template-columns: repeat(3, 64px); gap: 10px; justify-content: center; margin: 14px auto 6px; }
-.modal-pin-pad .pin-key { width: 64px; height: 64px; font-size: 22px; }
-.modal-pin-pad .pin-key.backspace { font-size: 18px; }
-.modal-pin-dots { justify-content: center; margin: 18px 0 8px; }
+.sheet-pin-pad { display: grid; grid-template-columns: repeat(3, 64px); gap: 10px; justify-content: center; margin: 14px auto 6px; }
+.sheet-pin-pad .pin-key { width: 64px; height: 64px; font-size: 22px; }
+.sheet-pin-pad .pin-key.backspace { font-size: 18px; }
+.sheet-pin-dots { justify-content: center; margin: 18px 0 8px; }
 /* Auto-lock + idle-timeout pill rows in Settings. */
 .choice-pills { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
 .choice-pill {
