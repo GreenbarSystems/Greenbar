@@ -912,7 +912,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 
 <!-- MODALS -->
 <div class="modal-overlay" id="modal-cols" role="dialog" aria-modal="true" aria-labelledby="cols-title" onclick="closeOut(event,'modal-cols')">
-  <div class="modal-sheet">
+  <div class="modal-sheet" role="presentation">
     <div class="modal-handle"></div>
     <div class="row-between">
       <h2 class="modal-title" id="cols-title" style="margin-bottom:0">Column Mapping</h2>
@@ -935,7 +935,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 </div>
 
 <div class="modal-overlay" id="modal-income" role="dialog" aria-modal="true" aria-labelledby="income-title" onclick="closeOut(event,'modal-income')">
-  <div class="modal-sheet">
+  <div class="modal-sheet" role="presentation">
     <div class="modal-handle"></div>
     <div class="row-between">
       <h2 class="modal-title" id="income-title" style="margin-bottom:0">Income Keywords</h2>
@@ -948,7 +948,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 </div>
 
 <div class="modal-overlay" id="modal-skip" role="dialog" aria-modal="true" aria-labelledby="skip-title" onclick="closeOut(event,'modal-skip')">
-  <div class="modal-sheet">
+  <div class="modal-sheet" role="presentation">
     <div class="modal-handle"></div>
     <div class="row-between">
       <h2 class="modal-title" id="skip-title" style="margin-bottom:0">Skip Transactions</h2>
@@ -961,7 +961,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 </div>
 
 <div class="modal-overlay" id="modal-remaps" role="dialog" aria-modal="true" aria-labelledby="remaps-title" onclick="closeOut(event,'modal-remaps')">
-  <div class="modal-sheet">
+  <div class="modal-sheet" role="presentation">
     <div class="modal-handle"></div>
     <div class="row-between">
       <h2 class="modal-title" id="remaps-title" style="margin-bottom:0">Category Remaps</h2>
@@ -988,7 +988,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 
 <!-- FILE CONFLICT MODAL -->
 <div class="modal-overlay" id="modal-conflict" role="dialog" aria-modal="true" aria-labelledby="conflict-title" onclick="">
-  <div class="modal-sheet">
+  <div class="modal-sheet" role="presentation">
     <div class="modal-close-row">
       <button type="button" aria-label="Cancel" onclick="resolveConflict('cancel')" class="modal-close">&#x2715;</button>
     </div>
@@ -1006,7 +1006,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 
 <!-- UPLOAD LOG MODAL -->
 <div class="modal-overlay" id="modal-log" role="dialog" aria-modal="true" aria-labelledby="log-title" onclick="closeOut(event,'modal-log')">
-  <div class="modal-sheet">
+  <div class="modal-sheet" role="presentation">
     <div class="modal-close-row">
       <button type="button" aria-label="Close" onclick="closeModal('modal-log')" class="modal-close">&#x2715;</button>
     </div>
@@ -1023,7 +1023,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 
 <!-- VENDOR DRILL-DOWN MODAL -->
 <div class="modal-overlay" id="modal-vendor" role="dialog" aria-modal="true" aria-labelledby="vendor-cat-title" onclick="closeOut(event,'modal-vendor')">
-  <div class="modal-sheet">
+  <div class="modal-sheet" role="presentation">
     <div class="modal-close-row">
       <button type="button" aria-label="Close" onclick="closeModal('modal-vendor')" class="modal-close">&#x2715;</button>
     </div>
@@ -1041,7 +1041,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 
 <!-- HEALTH SCORE BREAKDOWN MODAL -->
 <div class="modal-overlay" id="modal-health" role="dialog" aria-modal="true" aria-labelledby="health-title" onclick="closeOut(event,'modal-health')">
-  <div class="modal-sheet">
+  <div class="modal-sheet" role="presentation">
     <div class="modal-close-row">
       <button type="button" aria-label="Close" onclick="closeModal('modal-health')" class="modal-close">&#x2715;</button>
     </div>
@@ -1053,7 +1053,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 
 <!-- SET / CHANGE PIN MODAL -->
 <div class="modal-overlay" id="modal-setpin" role="dialog" aria-modal="true" aria-labelledby="setpin-title" onclick="closeOut(event,'modal-setpin')">
-  <div class="modal-sheet">
+  <div class="modal-sheet" role="presentation">
     <div class="modal-close-row">
       <button type="button" aria-label="Close" onclick="closeModal('modal-setpin')" class="modal-close">&#x2715;</button>
     </div>
@@ -1084,7 +1084,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 
 <!-- CATEGORY INSIGHTS MODAL -->
 <div class="modal-overlay" id="modal-cat-insights" role="dialog" aria-modal="true" aria-labelledby="ins-cat-title" onclick="closeOut(event,'modal-cat-insights')">
-  <div class="modal-sheet">
+  <div class="modal-sheet" role="presentation">
     <div class="modal-close-row">
       <button type="button" aria-label="Close" onclick="closeModal('modal-cat-insights')" class="modal-close">&#x2715;</button>
     </div>
