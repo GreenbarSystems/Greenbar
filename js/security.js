@@ -254,7 +254,7 @@ const gbSecurityUI = (() => {
     const desc = document.getElementById('security-status-desc');
     if(tog)  tog.textContent  = enabled ? 'On' : 'Off';
     if(desc) desc.textContent = enabled
-      ? 'On &middot; ' + (gbAuth.isBiometricAvailable() ? 'Face ID or PIN required to open' : '6-digit PIN required to open')
+      ? 'On &middot; ' + (gbAuth.isBiometricAvailable() ? 'Biometrics or PIN required to open' : '6-digit PIN required to open')
       : 'Off · anyone with this device can open the app';
     if(desc) desc.innerHTML = desc.textContent; // re-parse the entity
     ['security-change-pin-row','security-autolock-row','security-idle-row'].forEach(id => {
