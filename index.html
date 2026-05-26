@@ -155,10 +155,10 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 
         <!-- Opt-in coachmark tour: routes to Summary then fires gbTour. -->
         <div class="glass-card" style="margin-bottom:14px;">
-          <button type="button" class="settings-row" onclick="gbTour.reset(); showScreen('summary', _navBtn(0)); setTimeout(()=>gbTour.start(), 250);">
+          <button type="button" class="settings-row" onclick="gbTour.reset(); showScreen('summary', _navBtn(0)); setTimeout(()=>gbTour.start(), 250);" aria-labelledby="tour-guide-label" aria-describedby="tour-guide-desc">
             <span class="s-body">
-              <span class="s-label">Tour the app</span>
-              <span class="s-desc">Replay the on-screen guide on the Summary page</span>
+              <span class="s-label" id="tour-guide-label">Tour the app</span>
+              <span class="s-desc" id="tour-guide-desc">Replay the on-screen guide on the Summary page</span>
             </span>
             <span class="s-arrow" aria-hidden="true">›</span>
           </button>
@@ -766,32 +766,32 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 
       <h2 class="sec-hdr" style="margin-top:0">Bank Transactions Format</h2>
       <div class="settings-section">
-        <button type="button" class="settings-row" onclick="openModal('modal-cols')">
-          <span class="s-body"><span class="s-label">Column Mapping</span><span class="s-desc" id="col-desc">Map Date, Description, Amount columns</span></span>
+        <button type="button" class="settings-row" onclick="openModal('modal-cols')" aria-labelledby="col-label" aria-describedby="col-desc">
+          <span class="s-body"><span class="s-label" id="col-label">Column Mapping</span><span class="s-desc" id="col-desc">Map Date, Description, Amount columns</span></span>
           <span class="s-arrow" aria-hidden="true">›</span>
         </button>
-        <button type="button" class="settings-row" onclick="openModal('modal-income')">
-          <span class="s-body"><span class="s-label">Income Keywords</span><span class="s-desc" id="inc-desc">Words that identify deposits</span></span>
+        <button type="button" class="settings-row" onclick="openModal('modal-income')" aria-labelledby="inc-label" aria-describedby="inc-desc">
+          <span class="s-body"><span class="s-label" id="inc-label">Income Keywords</span><span class="s-desc" id="inc-desc">Words that identify deposits</span></span>
           <span class="s-arrow" aria-hidden="true">›</span>
         </button>
-        <button type="button" class="settings-row" onclick="openModal('modal-skip')">
-          <span class="s-body"><span class="s-label">Skip Transactions</span><span class="s-desc" id="skip-desc">Exclude savings transfers etc.</span></span>
+        <button type="button" class="settings-row" onclick="openModal('modal-skip')" aria-labelledby="skip-label" aria-describedby="skip-desc">
+          <span class="s-body"><span class="s-label" id="skip-label">Skip Transactions</span><span class="s-desc" id="skip-desc">Exclude savings transfers etc.</span></span>
           <span class="s-arrow" aria-hidden="true">›</span>
         </button>
       </div>
 
       <h2 class="sec-hdr">Reclassification Rules</h2>
       <div class="settings-section">
-        <button type="button" class="settings-row" onclick="openModal('modal-remaps')">
-          <span class="s-body"><span class="s-label">Category Remaps</span><span class="s-desc" id="remap-desc">Merchant → category rules</span></span>
+        <button type="button" class="settings-row" onclick="openModal('modal-remaps')" aria-labelledby="remap-label" aria-describedby="remap-desc">
+          <span class="s-body"><span class="s-label" id="remap-label">Category Remaps</span><span class="s-desc" id="remap-desc">Merchant → category rules</span></span>
           <span class="s-arrow" aria-hidden="true">›</span>
         </button>
       </div>
 
       <h2 class="sec-hdr">Import History</h2>
       <div class="settings-section">
-        <button type="button" class="settings-row" onclick="openModal('modal-log')">
-          <span class="s-body"><span class="s-label">Upload Log</span><span class="s-desc">History of every file you've imported</span></span>
+        <button type="button" class="settings-row" onclick="openModal('modal-log')" aria-labelledby="log-label" aria-describedby="log-desc">
+          <span class="s-body"><span class="s-label" id="log-label">Upload Log</span><span class="s-desc" id="log-desc">History of every file you've imported</span></span>
           <span id="log-badge" style="display:none;background:var(--green);color:#050a14;font-size:11px;font-weight:800;border-radius:9px;padding:2px 7px;font-family:var(--font-display);"></span>
           <span class="s-arrow" aria-hidden="true">›</span>
         </button>
@@ -799,12 +799,12 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 
       <h2 class="sec-hdr">Security</h2>
       <div class="settings-section">
-        <button type="button" class="settings-row" id="security-toggle-row" onclick="gbSecurityUI.toggleEnable()">
-          <span class="s-body"><span class="s-label">Lock Greenbar</span><span class="s-desc" id="security-status-desc">Off &middot; anyone with this device can open the app</span></span>
+        <button type="button" class="settings-row" id="security-toggle-row" onclick="gbSecurityUI.toggleEnable()" aria-labelledby="sec-lock-label" aria-describedby="security-status-desc">
+          <span class="s-body"><span class="s-label" id="sec-lock-label">Lock Greenbar</span><span class="s-desc" id="security-status-desc">Off &middot; anyone with this device can open the app</span></span>
           <span class="s-arrow" aria-hidden="true" id="security-toggle-state">Off</span>
         </button>
-        <button type="button" class="settings-row" id="security-change-pin-row" onclick="gbSecurityUI.openChangePIN()" style="display:none;">
-          <span class="s-body"><span class="s-label">Change PIN</span><span class="s-desc">Update your 6-digit PIN</span></span>
+        <button type="button" class="settings-row" id="security-change-pin-row" onclick="gbSecurityUI.openChangePIN()" style="display:none;" aria-labelledby="sec-pin-label" aria-describedby="sec-pin-desc">
+          <span class="s-body"><span class="s-label" id="sec-pin-label">Change PIN</span><span class="s-desc" id="sec-pin-desc">Update your 6-digit PIN</span></span>
           <span class="s-arrow" aria-hidden="true">›</span>
         </button>
         <div class="settings-row" id="security-autolock-row" style="display:none;cursor:default;">
@@ -829,28 +829,28 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
             </div>
           </div>
         </div>
-        <button type="button" class="settings-row" onclick="gbSecurityUI.togglePrivacyDefault()">
-          <span class="s-body"><span class="s-label">Hide amounts by default</span><span class="s-desc" id="privacy-default-desc">Off &middot; amounts show until you tap the eye icon</span></span>
+        <button type="button" class="settings-row" onclick="gbSecurityUI.togglePrivacyDefault()" aria-labelledby="sec-priv-label" aria-describedby="privacy-default-desc">
+          <span class="s-body"><span class="s-label" id="sec-priv-label">Hide amounts by default</span><span class="s-desc" id="privacy-default-desc">Off &middot; amounts show until you tap the eye icon</span></span>
           <span class="s-arrow" aria-hidden="true" id="privacy-default-state">Off</span>
         </button>
       </div>
 
       <h2 class="sec-hdr">Help</h2>
       <div class="settings-section">
-        <button type="button" class="settings-row" onclick="gbTour.reset(); showScreen('summary', _navBtn(0)); setTimeout(()=>gbTour.start(), 250);">
-          <span class="s-body"><span class="s-label">Tour the app</span><span class="s-desc">Replay the on-screen guide on the Summary page</span></span>
+        <button type="button" class="settings-row" onclick="gbTour.reset(); showScreen('summary', _navBtn(0)); setTimeout(()=>gbTour.start(), 250);" aria-labelledby="tour-help-label" aria-describedby="tour-help-desc">
+          <span class="s-body"><span class="s-label" id="tour-help-label">Tour the app</span><span class="s-desc" id="tour-help-desc">Replay the on-screen guide on the Summary page</span></span>
           <span class="s-arrow" aria-hidden="true">›</span>
         </button>
       </div>
 
       <h2 class="sec-hdr">Data Backup</h2>
       <div class="settings-section">
-        <button type="button" class="settings-row" onclick="exportData()">
-          <span class="s-body"><span class="s-label">Export a Backup</span><span class="s-desc" id="storage-desc">Save all your data to a file</span></span>
+        <button type="button" class="settings-row" onclick="exportData()" aria-labelledby="export-label" aria-describedby="storage-desc">
+          <span class="s-body"><span class="s-label" id="export-label">Export a Backup</span><span class="s-desc" id="storage-desc">Save all your data to a file</span></span>
           <span class="s-arrow" aria-hidden="true">›</span>
         </button>
-        <button type="button" class="settings-row" onclick="document.getElementById('restore-input').click()">
-          <span class="s-body"><span class="s-label">Restore from Backup</span><span class="s-desc">Replace current data with a backup file</span></span>
+        <button type="button" class="settings-row" onclick="document.getElementById('restore-input').click()" aria-labelledby="restore-label" aria-describedby="restore-desc">
+          <span class="s-body"><span class="s-label" id="restore-label">Restore from Backup</span><span class="s-desc" id="restore-desc">Replace current data with a backup file</span></span>
           <span class="s-arrow" aria-hidden="true">›</span>
         </button>
       </div>
