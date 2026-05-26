@@ -82,13 +82,13 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
       <div>
         <div class="wordmark"><span class="green-part">Green</span><span class="bar-part">bar</span></div>
       </div>
-      <button id="ai-help-btn" onclick="toggleAIHelp()"
+      <button type="button" id="ai-help-btn" onclick="toggleAIHelp()"
         style="width:32px;height:32px;border-radius:10px;border:none;cursor:pointer;
           background:var(--grad-primary);
           display:none;align-items:center;justify-content:center;flex-shrink:0;
           box-shadow:0 2px 10px rgba(0,214,143,0.35);transition:transform 0.15s;"
         title="Ask Greens" aria-label="Open help assistant"><span style="color:#050a14;font-weight:900;font-size:14px;line-height:1;">?</span></button>
-      <button id="privacy-toggle-btn" onclick="gbPrivacy.toggle()" aria-label="Toggle hide amounts" title="Hide amounts">
+      <button type="button" id="privacy-toggle-btn" onclick="gbPrivacy.toggle()" aria-label="Toggle hide amounts" title="Hide amounts">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/>
           <circle cx="12" cy="12" r="3"/>
@@ -96,7 +96,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
       </button>
     </div>
     <div class="hdr-right">
-      <button id="hdr-import-btn" class="fab" onclick="document.getElementById('csv-input').click()" style="opacity:0;pointer-events:none;width:auto;padding:0 16px;font-size:13px;font-weight:800;font-family:var(--font-display);letter-spacing:0.3px;color:#050a14;background:var(--grad-primary);box-shadow:0 4px 16px rgba(0,214,143,0.4);opacity:0;pointer-events:none;transition:opacity 0.6s ease;">Import</button>
+      <button type="button" id="hdr-import-btn" class="fab" onclick="document.getElementById('csv-input').click()" style="opacity:0;pointer-events:none;width:auto;padding:0 16px;font-size:13px;font-weight:800;font-family:var(--font-display);letter-spacing:0.3px;color:#050a14;background:var(--grad-primary);box-shadow:0 4px 16px rgba(0,214,143,0.4);opacity:0;pointer-events:none;transition:opacity 0.6s ease;">Import</button>
       <input type="file" id="csv-input" aria-label="Import bank transactions CSV file" accept=".csv,.tsv,.txt" multiple onchange="handleFiles(this.files)">
       <input type="file" id="restore-input" aria-label="Restore a Greenbar backup JSON file" accept=".json,application/json" style="display:none" onchange="restoreData(this.files[0]); this.value='';">
     </div>
@@ -122,7 +122,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 
             <!-- CTA -- fades in separately within phase 2 -->
             <div id="flash-cta" style="opacity:0;transition:opacity 1.2s ease;">
-              <button class="btn-flash-cta" onclick="startSetupFromFlash()">Get Started &rarr;</button>
+              <button type="button" class="btn-flash-cta" onclick="startSetupFromFlash()">Get Started &rarr;</button>
   
             </div>
           </div>
@@ -601,7 +601,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
         <div style="background:rgba(255,71,87,0.06);border:1px solid rgba(255,71,87,0.15);border-radius:16px;padding:16px;margin-bottom:8px;">
           <div style="font-size:13px;font-weight:600;margin-bottom:6px;">Clear all local data</div>
           <div style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:12px;">This permanently deletes all imported transactions, settings, and upload history stored on this device. This action cannot be undone.</div>
-          <button onclick="clearAllData()" style="width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,71,87,0.3);background:rgba(255,71,87,0.1);color:var(--red);font-family:var(--font-display);font-size:13px;font-weight:700;cursor:pointer;">Clear All Data</button>
+          <button type="button" onclick="clearAllData()" style="width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,71,87,0.3);background:rgba(255,71,87,0.1);color:var(--red);font-family:var(--font-display);font-size:13px;font-weight:700;cursor:pointer;">Clear All Data</button>
         </div>
 
       
@@ -623,7 +623,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
             <div style="font-size:14px;color:var(--soft);text-align:center;line-height:1.6;">Answer a few simple questions<br>and we'll set your budget targets for you.</div>
           </div>
           <div class="setup-nav" style="margin-top:0;">
-            <button class="setup-next" onclick="setupGo(2)" style="font-size:16px;">Let's go &rarr;</button>
+            <button type="button" class="setup-next" onclick="setupGo(2)" style="font-size:16px;">Let's go &rarr;</button>
           </div>
           <div class="setup-skip" onclick="skipSetup()">Skip -- use default values</div>
         </div>
@@ -645,8 +645,8 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
           </div>
 
           <div class="setup-nav">
-            <button class="setup-back" aria-label="Back" onclick="setupGo(1)">&larr;</button>
-            <button class="setup-next" onclick="setupGoValidate(3,'s3-income','Please enter your approximate monthly income.')">Next &rarr;</button>
+            <button type="button" class="setup-back" aria-label="Back" onclick="setupGo(1)">&larr;</button>
+            <button type="button" class="setup-next" onclick="setupGoValidate(3,'s3-income','Please enter your approximate monthly income.')">Next &rarr;</button>
           </div>
         </div>
 
@@ -662,13 +662,13 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
           </div>
 
           <div class="ht-row">
-            <button class="ht-btn" id="ht-own" onclick="toggleHousingType('own')">Own</button>
-            <button class="ht-btn" id="ht-rent" onclick="toggleHousingType('rent')">Rent</button>
+            <button type="button" class="ht-btn" id="ht-own" onclick="toggleHousingType('own')">Own</button>
+            <button type="button" class="ht-btn" id="ht-rent" onclick="toggleHousingType('rent')">Rent</button>
           </div>
 
           <div class="setup-nav">
-            <button class="setup-back" aria-label="Back" onclick="setupGo(2)">&larr;</button>
-            <button class="setup-next" onclick="setupGoValidate(4,'s2-housing','Please enter your housing cost to continue.')">Next &rarr;</button>
+            <button type="button" class="setup-back" aria-label="Back" onclick="setupGo(2)">&larr;</button>
+            <button type="button" class="setup-next" onclick="setupGoValidate(4,'s2-housing','Please enter your housing cost to continue.')">Next &rarr;</button>
           </div>
         </div>
 
@@ -679,10 +679,10 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
           <div class="setup-sub">Pick the one that sounds most like you. You can fine-tune the numbers after.</div>
 
           <div class="food-btn-grid">
-            <button class="food-btn" id="s4-cook" onclick="foodSelect(this);setFoodBudget(500,150)">Home Cook</button>
-            <button class="food-btn" id="s4-mixed" onclick="foodSelect(this);setFoodBudget(700,400)">Mix</button>
-            <button class="food-btn" id="s4-dine" onclick="foodSelect(this);setFoodBudget(400,800)">Eat Out</button>
-            <button class="food-btn" id="s4-custom" onclick="foodSelect(this)">Custom</button>
+            <button type="button" class="food-btn" id="s4-cook" onclick="foodSelect(this);setFoodBudget(500,150)">Home Cook</button>
+            <button type="button" class="food-btn" id="s4-mixed" onclick="foodSelect(this);setFoodBudget(700,400)">Mix</button>
+            <button type="button" class="food-btn" id="s4-dine" onclick="foodSelect(this);setFoodBudget(400,800)">Eat Out</button>
+            <button type="button" class="food-btn" id="s4-custom" onclick="foodSelect(this)">Custom</button>
           </div>
           <div id="s4-custom-inputs" style="display:none;margin-top:14px;">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
@@ -698,8 +698,8 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
           </div>
 
           <div class="setup-nav">
-            <button class="setup-back" aria-label="Back" onclick="setupGo(3)">&larr;</button>
-            <button class="setup-next" onclick="setupGo(5)">Next &rarr;</button>
+            <button type="button" class="setup-back" aria-label="Back" onclick="setupGo(3)">&larr;</button>
+            <button type="button" class="setup-next" onclick="setupGo(5)">Next &rarr;</button>
           </div>
         </div>
 
@@ -710,14 +710,14 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
           <div class="setup-sub">Select everything that applies. Greenbar will add the right budget categories for you.</div>
 
           <div class="lifestyle-btn-grid">
-            <button class="lifestyle-btn" id="s5-car" onclick="setupToggle(this,'s5')">Car</button>
-            <button class="lifestyle-btn" id="s5-pets" onclick="setupToggle(this,'s5')">Pets</button>
-            <button class="lifestyle-btn" id="s5-kids" onclick="setupToggle(this,'s5')">Kids</button>
-            <button class="lifestyle-btn" id="s5-gym" onclick="setupToggle(this,'s5')">Gym</button>
-            <button class="lifestyle-btn" id="s5-travel" onclick="setupToggle(this,'s5')">Travel</button>
-            <button class="lifestyle-btn" id="s5-invest" onclick="setupToggle(this,'s5')">Savings</button>
-            <button class="lifestyle-btn" id="s5-side" onclick="setupToggle(this,'s5')">Side Hustle</button>
-            <button class="lifestyle-btn" id="s5-charity" onclick="setupToggle(this,'s5');toggleGiving()">Giving</button>
+            <button type="button" class="lifestyle-btn" id="s5-car" onclick="setupToggle(this,'s5')">Car</button>
+            <button type="button" class="lifestyle-btn" id="s5-pets" onclick="setupToggle(this,'s5')">Pets</button>
+            <button type="button" class="lifestyle-btn" id="s5-kids" onclick="setupToggle(this,'s5')">Kids</button>
+            <button type="button" class="lifestyle-btn" id="s5-gym" onclick="setupToggle(this,'s5')">Gym</button>
+            <button type="button" class="lifestyle-btn" id="s5-travel" onclick="setupToggle(this,'s5')">Travel</button>
+            <button type="button" class="lifestyle-btn" id="s5-invest" onclick="setupToggle(this,'s5')">Savings</button>
+            <button type="button" class="lifestyle-btn" id="s5-side" onclick="setupToggle(this,'s5')">Side Hustle</button>
+            <button type="button" class="lifestyle-btn" id="s5-charity" onclick="setupToggle(this,'s5');toggleGiving()">Giving</button>
           </div>
 
           <!-- Giving % selector, shown when charity selected -->
@@ -730,8 +730,8 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
           </div>
 
           <div class="setup-nav">
-            <button class="setup-back" aria-label="Back" onclick="setupGo(4)">&larr;</button>
-            <button class="setup-next" onclick="setupGo(6)">Next &rarr;</button>
+            <button type="button" class="setup-back" aria-label="Back" onclick="setupGo(4)">&larr;</button>
+            <button type="button" class="setup-next" onclick="setupGo(6)">Next &rarr;</button>
           </div>
         </div>
 
@@ -744,8 +744,8 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
           <div id="setup-review-list" style="flex:1;overflow-y:auto;margin-bottom:12px;"></div>
 
           <div class="setup-nav" style="margin-top:0;">
-            <button class="setup-back" aria-label="Back" onclick="setupGo(5)">&larr;</button>
-            <button class="setup-next" style="background:var(--grad-primary);" onclick="finishSetup()">Save My Budget</button>
+            <button type="button" class="setup-back" aria-label="Back" onclick="setupGo(5)">&larr;</button>
+            <button type="button" class="setup-next" style="background:var(--grad-primary);" onclick="finishSetup()">Save My Budget</button>
           </div>
           <div class="setup-skip" onclick="skipSetup()">Skip and use defaults</div>
         </div>
@@ -761,7 +761,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
           <div style="font-size:14px;font-weight:700;margin-bottom:3px;">Budget Setup Wizard</div>
           <div class="row-desc-t">Answer a few questions to personalize your budget targets</div>
         </div>
-        <button onclick="resetSetupState();showScreen('setup',document.querySelector('.nav-btn'));setupGo(1);document.getElementById('bottom-nav')?.classList.remove('visible');" style="padding:9px 16px;border:none;border-radius:12px;background:var(--grad-primary);color:#050a14;font-size:13px;font-weight:800;cursor:pointer;font-family:var(--font-display);flex-shrink:0;">Open &rarr;</button>
+        <button type="button" onclick="resetSetupState();showScreen('setup',document.querySelector('.nav-btn'));setupGo(1);document.getElementById('bottom-nav')?.classList.remove('visible');" style="padding:9px 16px;border:none;border-radius:12px;background:var(--grad-primary);color:#050a14;font-size:13px;font-weight:800;cursor:pointer;font-family:var(--font-display);flex-shrink:0;">Open &rarr;</button>
       </div>
 
       <h2 class="sec-hdr" style="margin-top:0">Bank Transactions Format</h2>
@@ -860,15 +860,15 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
       <div class="settings-section" id="budget-inputs"></div>
 
       <div style="padding:4px 0 0">
-        <button class="btn-primary" onclick="saveSettings();showScreen('summary',_navBtn(0))">Save & Apply</button>
-        <button class="btn-secondary" onclick="resetSettings()">Reset to Defaults</button>
+        <button type="button" class="btn-primary" onclick="saveSettings();showScreen('summary',_navBtn(0))">Save & Apply</button>
+        <button type="button" class="btn-secondary" onclick="resetSettings()">Reset to Defaults</button>
       </div>
     </div>
 
   </div>
 
   <div class="bottom-nav" id="bottom-nav" role="navigation" aria-label="Primary">
-    <button class="nav-btn active" onclick="showScreen('summary',this)" aria-current="page">
+    <button type="button" class="nav-btn active" onclick="showScreen('summary',this)" aria-current="true">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <line x1="6"  y1="20" x2="6"  y2="13"/>
         <line x1="12" y1="20" x2="12" y2="6"/>
@@ -876,14 +876,14 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
       </svg>
       <span class="nav-label">Summary</span>
     </button>
-    <button class="nav-btn" onclick="showScreen('budget',this)">
+    <button type="button" class="nav-btn" onclick="showScreen('budget',this)">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H5a2 2 0 0 1-2-2a2 2 0 0 1 2-2h12"/>
         <circle cx="17" cy="13" r="1.5" fill="currentColor" stroke="none"/>
       </svg>
       <span class="nav-label">Budget</span>
     </button>
-    <button class="nav-btn" onclick="showScreen('txs',this)">
+    <button type="button" class="nav-btn" onclick="showScreen('txs',this)">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <line x1="4" y1="7"  x2="20" y2="7"/>
         <line x1="4" y1="12" x2="20" y2="12"/>
@@ -891,7 +891,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
       </svg>
       <span class="nav-label">Transactions</span>
     </button>
-    <button class="nav-btn" onclick="showScreen('intro',this)">
+    <button type="button" class="nav-btn" onclick="showScreen('intro',this)">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M4 4.5C4 3.67 4.67 3 5.5 3H19a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H5.5C4.67 20 4 19.33 4 18.5z"/>
         <line x1="8" y1="8"  x2="16" y2="8"/>
@@ -900,7 +900,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
       </svg>
       <span class="nav-label">Guide</span>
     </button>
-    <button class="nav-btn" onclick="showScreen('settings',this)">
+    <button type="button" class="nav-btn" onclick="showScreen('settings',this)">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="12" cy="12" r="3"/>
         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
@@ -916,7 +916,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
     <div class="modal-handle"></div>
     <div class="row-between">
       <h2 class="modal-title" id="cols-title" style="margin-bottom:0">Column Mapping</h2>
-      <button aria-label="Close" onclick="closeModal('modal-cols')" class="modal-close">✕</button>
+      <button type="button" aria-label="Close" onclick="closeModal('modal-cols')" class="modal-close">✕</button>
     </div>
     <div class="modal-sub">Enter exact column headers from your Bank Transactions. Leave blank to auto-detect.</div>
     <div class="modal-label">Date Column</div><input class="modal-input" id="col-date" aria-label="Date column header" placeholder="e.g. Date, Transaction Date">
@@ -930,7 +930,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
       <option value="YYYY-MM-DD">YYYY-MM-DD  (2026-05-04)</option>
       <option value="DD/MM/YYYY">DD/MM/YYYY  (04/05/2026)</option>
     </select>
-    <button class="btn-primary" onclick="saveCols();closeModal('modal-cols')">Save</button>
+    <button type="button" class="btn-primary" onclick="saveCols();closeModal('modal-cols')">Save</button>
   </div>
 </div>
 
@@ -939,11 +939,11 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
     <div class="modal-handle"></div>
     <div class="row-between">
       <h2 class="modal-title" id="income-title" style="margin-bottom:0">Income Keywords</h2>
-      <button aria-label="Close" onclick="closeModal('modal-income')" class="modal-close">✕</button>
+      <button type="button" aria-label="Close" onclick="closeModal('modal-income')" class="modal-close">✕</button>
     </div>
     <div class="modal-sub">Transactions containing these words are counted as income. One per line, case-insensitive.</div>
     <textarea class="modal-input" id="income-kw" aria-label="Income keywords, one per line" rows="9" style="resize:none;line-height:1.9" placeholder="PAYROLL&#10;DIRECT DEPOSIT&#10;SALARY&#10;TAX REFUND&#10;CASHOUT&#10;MOBILE DEPOSIT"></textarea>
-    <button class="btn-primary" onclick="saveIncome();closeModal('modal-income')">Save</button>
+    <button type="button" class="btn-primary" onclick="saveIncome();closeModal('modal-income')">Save</button>
   </div>
 </div>
 
@@ -952,11 +952,11 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
     <div class="modal-handle"></div>
     <div class="row-between">
       <h2 class="modal-title" id="skip-title" style="margin-bottom:0">Skip Transactions</h2>
-      <button aria-label="Close" onclick="closeModal('modal-skip')" class="modal-close">✕</button>
+      <button type="button" aria-label="Close" onclick="closeModal('modal-skip')" class="modal-close">✕</button>
     </div>
     <div class="modal-sub">Transactions containing these words are excluded entirely. One per line.</div>
     <textarea class="modal-input" id="skip-kw" aria-label="Skip-transaction keywords, one per line" rows="7" style="resize:none;line-height:1.9" placeholder="TRANSFER TO SAVINGS&#10;INTERNAL TRANSFER"></textarea>
-    <button class="btn-primary" onclick="saveSkip();closeModal('modal-skip')">Save</button>
+    <button type="button" class="btn-primary" onclick="saveSkip();closeModal('modal-skip')">Save</button>
   </div>
 </div>
 
@@ -965,12 +965,12 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
     <div class="modal-handle"></div>
     <div class="row-between">
       <h2 class="modal-title" id="remaps-title" style="margin-bottom:0">Category Remaps</h2>
-      <button aria-label="Close" onclick="closeModal('modal-remaps')" class="modal-close">✕</button>
+      <button type="button" aria-label="Close" onclick="closeModal('modal-remaps')" class="modal-close">✕</button>
     </div>
     <div class="modal-sub">If description contains keyword → assign category. Case-insensitive.</div>
     <div id="remap-list"></div>
-    <button class="add-btn" onclick="addRemap()">+ Add Rule</button>
-    <button class="btn-primary" onclick="saveRemaps();closeModal('modal-remaps')">Save Rules</button>
+    <button type="button" class="add-btn" onclick="addRemap()">+ Add Rule</button>
+    <button type="button" class="btn-primary" onclick="saveRemaps();closeModal('modal-remaps')">Save Rules</button>
   </div>
 </div>
 
@@ -990,16 +990,16 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 <div class="modal-overlay" id="modal-conflict" role="dialog" aria-modal="true" aria-labelledby="conflict-title" onclick="">
   <div class="modal-sheet">
     <div class="modal-close-row">
-      <button aria-label="Cancel" onclick="resolveConflict('cancel')" class="modal-close">&#x2715;</button>
+      <button type="button" aria-label="Cancel" onclick="resolveConflict('cancel')" class="modal-close">&#x2715;</button>
     </div>
     <div class="modal-handle" style="margin-top:0;"></div>
     <h2 class="modal-title" id="conflict-title">Month conflict detected</h2>
     <div class="modal-sub" id="conflict-sub" style="margin-bottom:16px;">This file covers months you have already imported. Choose how to handle it.</div>
     <div id="conflict-months" style="margin-bottom:16px;"></div>
     <div style="display:flex;flex-direction:column;gap:10px;">
-      <button onclick="resolveConflict('replace')" style="width:100%;padding:14px;border-radius:14px;border:none;background:linear-gradient(135deg,#ff4757,#c0392b);color:white;font-family:var(--font-display);font-size:15px;font-weight:800;cursor:pointer;">Replace Existing Data</button>
-      <button onclick="resolveConflict('merge')" style="width:100%;padding:14px;border-radius:14px;border:none;background:var(--grad-primary);color:#050a14;font-family:var(--font-display);font-size:15px;font-weight:800;cursor:pointer;">Merge with Existing Data</button>
-      <button onclick="resolveConflict('skip')" style="width:100%;padding:14px;border-radius:14px;border:1px solid var(--border);background:var(--glass);color:var(--soft);font-family:var(--font-display);font-size:14px;font-weight:600;cursor:pointer;">Skip This File</button>
+      <button type="button" onclick="resolveConflict('replace')" style="width:100%;padding:14px;border-radius:14px;border:none;background:linear-gradient(135deg,#ff4757,#c0392b);color:white;font-family:var(--font-display);font-size:15px;font-weight:800;cursor:pointer;">Replace Existing Data</button>
+      <button type="button" onclick="resolveConflict('merge')" style="width:100%;padding:14px;border-radius:14px;border:none;background:var(--grad-primary);color:#050a14;font-family:var(--font-display);font-size:15px;font-weight:800;cursor:pointer;">Merge with Existing Data</button>
+      <button type="button" onclick="resolveConflict('skip')" style="width:100%;padding:14px;border-radius:14px;border:1px solid var(--border);background:var(--glass);color:var(--soft);font-family:var(--font-display);font-size:14px;font-weight:600;cursor:pointer;">Skip This File</button>
     </div>
   </div>
 </div>
@@ -1008,12 +1008,12 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 <div class="modal-overlay" id="modal-log" role="dialog" aria-modal="true" aria-labelledby="log-title" onclick="closeOut(event,'modal-log')">
   <div class="modal-sheet">
     <div class="modal-close-row">
-      <button aria-label="Close" onclick="closeModal('modal-log')" class="modal-close">&#x2715;</button>
+      <button type="button" aria-label="Close" onclick="closeModal('modal-log')" class="modal-close">&#x2715;</button>
     </div>
     <div class="modal-handle" style="margin-top:0;"></div>
     <div class="row-between">
       <h2 class="modal-title" id="log-title" style="margin-bottom:0;">Upload Log</h2>
-      <button onclick="clearLog()" style="background:rgba(255,71,87,0.12);border:1px solid rgba(255,71,87,0.2);border-radius:10px;padding:6px 12px;color:var(--red);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-display);">Clear All</button>
+      <button type="button" onclick="clearLog()" style="background:rgba(255,71,87,0.12);border:1px solid rgba(255,71,87,0.2);border-radius:10px;padding:6px 12px;color:var(--red);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-display);">Clear All</button>
     </div>
     <div class="modal-sub">All the Bank Transactions you import are recorded here.</div>
     <div id="log-list"></div>
@@ -1025,7 +1025,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 <div class="modal-overlay" id="modal-vendor" role="dialog" aria-modal="true" aria-labelledby="vendor-cat-title" onclick="closeOut(event,'modal-vendor')">
   <div class="modal-sheet">
     <div class="modal-close-row">
-      <button aria-label="Close" onclick="closeModal('modal-vendor')" class="modal-close">&#x2715;</button>
+      <button type="button" aria-label="Close" onclick="closeModal('modal-vendor')" class="modal-close">&#x2715;</button>
     </div>
     <div class="modal-handle" style="margin-top:0;"></div>
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
@@ -1043,7 +1043,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 <div class="modal-overlay" id="modal-health" role="dialog" aria-modal="true" aria-labelledby="health-title" onclick="closeOut(event,'modal-health')">
   <div class="modal-sheet">
     <div class="modal-close-row">
-      <button aria-label="Close" onclick="closeModal('modal-health')" class="modal-close">&#x2715;</button>
+      <button type="button" aria-label="Close" onclick="closeModal('modal-health')" class="modal-close">&#x2715;</button>
     </div>
     <div class="modal-handle" style="margin-top:0;"></div>
     <h2 class="modal-title" id="health-title" style="margin-bottom:14px;">Health Score Breakdown</h2>
@@ -1055,7 +1055,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 <div class="modal-overlay" id="modal-setpin" role="dialog" aria-modal="true" aria-labelledby="setpin-title" onclick="closeOut(event,'modal-setpin')">
   <div class="modal-sheet">
     <div class="modal-close-row">
-      <button aria-label="Close" onclick="closeModal('modal-setpin')" class="modal-close">&#x2715;</button>
+      <button type="button" aria-label="Close" onclick="closeModal('modal-setpin')" class="modal-close">&#x2715;</button>
     </div>
     <div class="modal-handle"></div>
     <h2 class="modal-title" id="setpin-title">Set your 6-digit PIN</h2>
@@ -1086,7 +1086,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 <div class="modal-overlay" id="modal-cat-insights" role="dialog" aria-modal="true" aria-labelledby="ins-cat-title" onclick="closeOut(event,'modal-cat-insights')">
   <div class="modal-sheet">
     <div class="modal-close-row">
-      <button aria-label="Close" onclick="closeModal('modal-cat-insights')" class="modal-close">&#x2715;</button>
+      <button type="button" aria-label="Close" onclick="closeModal('modal-cat-insights')" class="modal-close">&#x2715;</button>
     </div>
     <div class="modal-handle" style="margin-top:0;"></div>
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
@@ -1117,7 +1117,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
       <div style="font-family:var(--font-display);font-size:15px;font-weight:800;">Greens</div>
       <div class="caption-xs">Ask me anything about how the app works</div>
     </div>
-    <button onclick="toggleAIHelp()" aria-label="Close help assistant" style="width:44px;height:44px;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#x2715;</button>
+    <button type="button" onclick="toggleAIHelp()" aria-label="Close help assistant" style="width:44px;height:44px;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#x2715;</button>
   </div>
 
   <!-- Messages -->
@@ -1135,7 +1135,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
         resize:none;outline:none;max-height:100px;overflow-y:auto;line-height:1.5;"
       onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAIMessage();}"
       oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
-    <button onclick="sendAIMessage()" id="ai-send-btn" aria-label="Send message"
+    <button type="button" onclick="sendAIMessage()" id="ai-send-btn" aria-label="Send message"
       style="width:40px;height:40px;border-radius:12px;border:none;flex-shrink:0;
         background:var(--grad-primary);
         color:white;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">

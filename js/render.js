@@ -581,7 +581,7 @@ function renderSummary(){
       <div class="g-card" style="padding:18px;margin:14px 0 0;text-align:center;">
         <div style="font-family:var(--font-display);font-size:16px;font-weight:900;margin-bottom:6px;">You're all set!</div>
         <div style="font-size:13px;color:var(--soft);line-height:1.6;margin-bottom:14px;">Your budget is ready. Import your bank transactions to track spending against these targets.</div>
-        <button class="btn-primary" onclick="startFirstImport()">Import your first Bank Transaction file now</button>
+        <button type="button" class="btn-primary" onclick="startFirstImport()">Import your first Bank Transaction file now</button>
         <div id="first-import-help" style="display:none;margin-top:12px;font-size:12px;color:var(--soft);line-height:1.5;">Don't have a file yet? <span onclick="goToBankExport()" style="color:var(--green);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:2px;">See how to export from your bank &rarr;</span></div>
       </div>`;
 
@@ -690,8 +690,8 @@ function renderSummaryAll(){
             </div>
           </div>
           <div style="display:flex;gap:8px;">
-            <button onclick="showVendorDrill(this.dataset.cat)" data-cat="${esc(cat)}" style="flex:1;padding:7px 0;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:var(--soft);font-size:11px;font-weight:600;cursor:pointer;font-family: var(--font-display);">Transactions</button>
-            <button onclick="showCatInsights(this.dataset.cat)" data-cat="${esc(cat)}" style="flex:1;padding:7px 0;border-radius:10px;border:1px solid rgba(0,214,143,0.25);background:rgba(0,214,143,0.08);color:#00d68f;font-size:11px;font-weight:600;cursor:pointer;font-family: var(--font-display);">Insights</button>
+            <button type="button" onclick="showVendorDrill(this.dataset.cat)" data-cat="${esc(cat)}" style="flex:1;padding:7px 0;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:var(--soft);font-size:11px;font-weight:600;cursor:pointer;font-family: var(--font-display);">Transactions</button>
+            <button type="button" onclick="showCatInsights(this.dataset.cat)" data-cat="${esc(cat)}" style="flex:1;padding:7px 0;border-radius:10px;border:1px solid rgba(0,214,143,0.25);background:rgba(0,214,143,0.08);color:#00d68f;font-size:11px;font-weight:600;cursor:pointer;font-family: var(--font-display);">Insights</button>
           </div>
         </div>`).join('')}
       </div>
