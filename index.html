@@ -50,7 +50,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 <div id="screen-lock" role="dialog" aria-modal="true" aria-labelledby="lock-prompt-text">
   <div class="lock-brand"><span class="green-part">Green</span>bar</div>
   <div class="lock-tagline">Locked &middot; your data stays on this device</div>
-  <button id="lock-biometric-btn" type="button" class="lock-biometric-btn" style="display:none;" onclick="gbAuth.tryBiometric()">Unlock with biometrics</button>
+  <button id="lock-biometric-btn" type="button" class="lock-biometric-btn" hidden onclick="gbAuth.tryBiometric()">Unlock with biometrics</button>
   <div id="lock-prompt-text" class="lock-prompt">Enter PIN</div>
   <div class="pin-dots" id="lock-pin-dots">
     <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>

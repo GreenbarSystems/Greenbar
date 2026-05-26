@@ -71,8 +71,10 @@ const gbAuth = (() => {
     _pinBuf = ''; renderPinDots();
     document.getElementById('lock-error').textContent = '';
     // Show biometric button if a Capacitor-compatible bridge is available.
+    // Use the `hidden` attribute (cleaner than inline style; scanners and AT
+    // both understand it as "removed from a11y tree + tab order").
     const biometricBtn = document.getElementById('lock-biometric-btn');
-    biometricBtn.style.display = isBiometricAvailable() ? 'inline-block' : 'none';
+    biometricBtn.hidden = !isBiometricAvailable();
     el.classList.add('active');
     updateLockoutDisplay();
     // Auto-try biometric on app open (not on every gate so the user isn't pestered)
