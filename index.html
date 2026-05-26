@@ -868,7 +868,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
   </div>
 
   <div class="bottom-nav" id="bottom-nav" role="navigation" aria-label="Primary">
-    <button type="button" class="nav-btn active" onclick="showScreen('summary',this)" aria-current="true">
+    <button type="button" class="nav-btn active" onclick="showScreen('summary',this)" aria-current="true" aria-label="Summary">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <line x1="6"  y1="20" x2="6"  y2="13"/>
         <line x1="12" y1="20" x2="12" y2="6"/>
@@ -876,14 +876,14 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
       </svg>
       <span class="nav-label">Summary</span>
     </button>
-    <button type="button" class="nav-btn" onclick="showScreen('budget',this)">
+    <button type="button" class="nav-btn" onclick="showScreen('budget',this)" aria-label="Budget">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H5a2 2 0 0 1-2-2a2 2 0 0 1 2-2h12"/>
         <circle cx="17" cy="13" r="1.5" fill="currentColor" stroke="none"/>
       </svg>
       <span class="nav-label">Budget</span>
     </button>
-    <button type="button" class="nav-btn" onclick="showScreen('txs',this)">
+    <button type="button" class="nav-btn" onclick="showScreen('txs',this)" aria-label="Transactions">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <line x1="4" y1="7"  x2="20" y2="7"/>
         <line x1="4" y1="12" x2="20" y2="12"/>
@@ -891,7 +891,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
       </svg>
       <span class="nav-label">Transactions</span>
     </button>
-    <button type="button" class="nav-btn" onclick="showScreen('intro',this)">
+    <button type="button" class="nav-btn" onclick="showScreen('intro',this)" aria-label="Guide">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M4 4.5C4 3.67 4.67 3 5.5 3H19a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H5.5C4.67 20 4 19.33 4 18.5z"/>
         <line x1="8" y1="8"  x2="16" y2="8"/>
@@ -900,7 +900,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
       </svg>
       <span class="nav-label">Guide</span>
     </button>
-    <button type="button" class="nav-btn" onclick="showScreen('settings',this)">
+    <button type="button" class="nav-btn" onclick="showScreen('settings',this)" aria-label="Settings">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="12" cy="12" r="3"/>
         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
