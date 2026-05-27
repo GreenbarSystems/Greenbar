@@ -47,7 +47,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
      the DOM at all times; gbAuth.lock() / .unlock() flip the .active class.
      Built to work both standalone (PIN-only) and inside a Capacitor wrapper
      (biometric button appears when Capacitor's BiometricAuth plugin is present). -->
-<div id="screen-lock" role="dialog" aria-modal="true" aria-labelledby="lock-prompt-text">
+<dialog id="screen-lock" aria-modal="true" aria-labelledby="lock-prompt-text">
   <div class="lock-brand"><span class="green-part">Green</span>bar</div>
   <div class="lock-tagline">Locked &middot; your data stays on this device</div>
   <button id="lock-biometric-btn" type="button" hidden onclick="gbAuth.tryBiometric()">Unlock with biometrics</button>
@@ -72,7 +72,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
     <button type="button" class="pin-key backspace" data-d="back" aria-label="Unlock backspace">&#x232b;</button>
   </div>
   <button type="button" class="lock-forgot" onclick="gbAuth.forgotPIN()">Forgot PIN? Reset Greenbar</button>
-</div>
+</dialog>
 
 <div id="app">
   <div class="safe-top"></div>
@@ -911,7 +911,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 </div>
 
 <!-- MODALS -->
-<div class="modal-overlay" id="modal-cols" role="dialog" aria-modal="true" aria-labelledby="cols-title" onclick="closeOut(event,'modal-cols')">
+<dialog class="modal-overlay" id="modal-cols" aria-modal="true" aria-labelledby="cols-title" onclick="closeOut(event,'modal-cols')">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="row-between">
@@ -932,9 +932,9 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
     </select>
     <button type="button" class="btn-primary" onclick="saveCols();closeModal('modal-cols')">Save</button>
   </div>
-</div>
+</dialog>
 
-<div class="modal-overlay" id="modal-income" role="dialog" aria-modal="true" aria-labelledby="income-title" onclick="closeOut(event,'modal-income')">
+<dialog class="modal-overlay" id="modal-income" aria-modal="true" aria-labelledby="income-title" onclick="closeOut(event,'modal-income')">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="row-between">
@@ -945,9 +945,9 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
     <textarea class="sheet-input" id="income-kw" aria-label="Income keywords, one per line" rows="9" style="resize:none;line-height:1.9" placeholder="PAYROLL&#10;DIRECT DEPOSIT&#10;SALARY&#10;TAX REFUND&#10;CASHOUT&#10;MOBILE DEPOSIT"></textarea>
     <button type="button" class="btn-primary" onclick="saveIncome();closeModal('modal-income')">Save</button>
   </div>
-</div>
+</dialog>
 
-<div class="modal-overlay" id="modal-skip" role="dialog" aria-modal="true" aria-labelledby="skip-title" onclick="closeOut(event,'modal-skip')">
+<dialog class="modal-overlay" id="modal-skip" aria-modal="true" aria-labelledby="skip-title" onclick="closeOut(event,'modal-skip')">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="row-between">
@@ -958,9 +958,9 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
     <textarea class="sheet-input" id="skip-kw" aria-label="Skip-transaction keywords, one per line" rows="7" style="resize:none;line-height:1.9" placeholder="TRANSFER TO SAVINGS&#10;INTERNAL TRANSFER"></textarea>
     <button type="button" class="btn-primary" onclick="saveSkip();closeModal('modal-skip')">Save</button>
   </div>
-</div>
+</dialog>
 
-<div class="modal-overlay" id="modal-remaps" role="dialog" aria-modal="true" aria-labelledby="remaps-title" onclick="closeOut(event,'modal-remaps')">
+<dialog class="modal-overlay" id="modal-remaps" aria-modal="true" aria-labelledby="remaps-title" onclick="closeOut(event,'modal-remaps')">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="row-between">
@@ -972,7 +972,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
     <button type="button" class="add-btn" onclick="addRemap()">+ Add Rule</button>
     <button type="button" class="btn-primary" onclick="saveRemaps();closeModal('modal-remaps')">Save Rules</button>
   </div>
-</div>
+</dialog>
 
 
 <!-- Greenbar JS modules — classic scripts in dependency order -->
@@ -987,7 +987,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 </script>
 
 <!-- FILE CONFLICT MODAL -->
-<div class="modal-overlay" id="modal-conflict" role="dialog" aria-modal="true" aria-labelledby="conflict-title" onclick="">
+<dialog class="modal-overlay" id="modal-conflict" aria-modal="true" aria-labelledby="conflict-title" onclick="">
   <div class="sheet">
     <div class="sheet-close-row">
       <button type="button" aria-label="Cancel" onclick="resolveConflict('cancel')" class="sheet-close">&#x2715;</button>
@@ -1002,10 +1002,10 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
       <button type="button" onclick="resolveConflict('skip')" style="width:100%;padding:14px;border-radius:14px;border:1px solid var(--border);background:var(--glass);color:var(--soft);font-family:var(--font-display);font-size:14px;font-weight:600;cursor:pointer;">Skip This File</button>
     </div>
   </div>
-</div>
+</dialog>
 
 <!-- UPLOAD LOG MODAL -->
-<div class="modal-overlay" id="modal-log" role="dialog" aria-modal="true" aria-labelledby="log-title" onclick="closeOut(event,'modal-log')">
+<dialog class="modal-overlay" id="modal-log" aria-modal="true" aria-labelledby="log-title" onclick="closeOut(event,'modal-log')">
   <div class="sheet">
     <div class="sheet-close-row">
       <button type="button" aria-label="Close" onclick="closeModal('modal-log')" class="sheet-close">&#x2715;</button>
@@ -1019,10 +1019,10 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
     <div id="log-list"></div>
     <div id="log-empty" style="text-align:center;padding:40px 0;color:var(--muted);font-size:14px;display:none;">No uploads yet.<br>Import your Bank Transactions to start logging.</div>
   </div>
-</div>
+</dialog>
 
 <!-- VENDOR DRILL-DOWN MODAL -->
-<div class="modal-overlay" id="modal-vendor" role="dialog" aria-modal="true" aria-labelledby="vendor-cat-title" onclick="closeOut(event,'modal-vendor')">
+<dialog class="modal-overlay" id="modal-vendor" aria-modal="true" aria-labelledby="vendor-cat-title" onclick="closeOut(event,'modal-vendor')">
   <div class="sheet">
     <div class="sheet-close-row">
       <button type="button" aria-label="Close" onclick="closeModal('modal-vendor')" class="sheet-close">&#x2715;</button>
@@ -1037,10 +1037,10 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
     <div class="sheet-sub" style="margin-bottom:16px;"></div>
     <div id="vendor-list"></div>
   </div>
-</div>
+</dialog>
 
 <!-- HEALTH SCORE BREAKDOWN MODAL -->
-<div class="modal-overlay" id="modal-health" role="dialog" aria-modal="true" aria-labelledby="health-title" onclick="closeOut(event,'modal-health')">
+<dialog class="modal-overlay" id="modal-health" aria-modal="true" aria-labelledby="health-title" onclick="closeOut(event,'modal-health')">
   <div class="sheet">
     <div class="sheet-close-row">
       <button type="button" aria-label="Close" onclick="closeModal('modal-health')" class="sheet-close">&#x2715;</button>
@@ -1049,10 +1049,10 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
     <h2 class="sheet-title" id="health-title" style="margin-bottom:14px;">Health Score Breakdown</h2>
     <div id="health-body"></div>
   </div>
-</div>
+</dialog>
 
 <!-- SET / CHANGE PIN MODAL -->
-<div class="modal-overlay" id="modal-setpin" role="dialog" aria-modal="true" aria-labelledby="setpin-title" onclick="closeOut(event,'modal-setpin')">
+<dialog class="modal-overlay" id="modal-setpin" aria-modal="true" aria-labelledby="setpin-title" onclick="closeOut(event,'modal-setpin')">
   <div class="sheet">
     <div class="sheet-close-row">
       <button type="button" aria-label="Close" onclick="closeModal('modal-setpin')" class="sheet-close">&#x2715;</button>
@@ -1080,10 +1080,10 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
       <button type="button" class="pin-key backspace" data-d="back" aria-label="Set PIN backspace">&#x232b;</button>
     </div>
   </div>
-</div>
+</dialog>
 
 <!-- CATEGORY INSIGHTS MODAL -->
-<div class="modal-overlay" id="modal-cat-insights" role="dialog" aria-modal="true" aria-labelledby="ins-cat-title" onclick="closeOut(event,'modal-cat-insights')">
+<dialog class="modal-overlay" id="modal-cat-insights" aria-modal="true" aria-labelledby="ins-cat-title" onclick="closeOut(event,'modal-cat-insights')">
   <div class="sheet">
     <div class="sheet-close-row">
       <button type="button" aria-label="Close" onclick="closeModal('modal-cat-insights')" class="sheet-close">&#x2715;</button>
@@ -1098,7 +1098,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
     <div id="ins-loading" style="display:none;text-align:center;padding:30px 0;color:var(--muted);font-size:13px;">Analyzing…</div>
     <div id="ins-content"></div>
   </div>
-</div>
+</dialog>
 
 
 
