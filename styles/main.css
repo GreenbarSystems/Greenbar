@@ -441,6 +441,11 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
 .btn-secondary:active { border-color: var(--border-bright); }
 
 /* ── Modals ── */
+/* Reset native <dialog> UA styles (1em padding, solid border, auto-centering,
+   max-width/max-height limits) so our custom overlay layout takes over.
+   Applied to all <dialog> elements used in Greenbar -- screen-lock + every
+   modal-overlay. */
+dialog { padding: 0; border: none; margin: 0; width: auto; height: auto; max-width: none; max-height: none; color: inherit; background: transparent; }
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 200; align-items: flex-end; justify-content: center; }
 .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease both; }
 /* During close we keep display:flex but play the reverse animations; closeModal
