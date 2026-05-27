@@ -252,67 +252,67 @@ function startSetupFromFlash(){
 
 // ──────── Bank export instructions (per-bank steps) ────────
 const BANK_EXPORTS = {
-  chase: { name:'Chase', steps:[
+  'Chase': { steps:[
     'Sign in at chase.com and select the account you want to export.',
     'On the account activity page, click "Download account activity."',
     'Choose a date range (or "All transactions") and the "Spreadsheet (CSV)" file type.',
     'Click Download — the file saves to your Downloads folder.'
   ], note:'Chase\'s CSV export covers roughly the last 24 months. For older history, download monthly statements instead.' },
-  bofa: { name:'Bank of America', steps:[
+  'Bank of America': { steps:[
     'Sign in at bankofamerica.com and select your account.',
     'On the Activity tab, choose Download (Bank of America labels it "Download Transactions").',
     'Pick a date range and the CSV file format.',
     'Click Download.'
   ], note:'Bank of America limits each download to about 60 days, so a full year may take several downloads.' },
-  wells: { name:'Wells Fargo', steps:[
+  'Wells Fargo': { steps:[
     'Sign in at wellsfargo.com and open your account.',
     'Click "Download Account Activity" above your transaction list.',
     'Choose a date range and set the format to "Comma Delimited (CSV)."',
     'Click Download.'
   ], note:'Wells Fargo offers up to about 18 months of activity for CSV download.' },
-  citi: { name:'Citi', steps:[
+  'Citi': { steps:[
     'Sign in at citi.com and open the account you want.',
     'On the account activity page, select the Download option.',
     'Choose a date range and the CSV (or Excel) file format.',
     'Click Download.'
   ] },
-  capitalone: { name:'Capital One', steps:[
+  'Capital One': { steps:[
     'Sign in at capitalone.com and open your account.',
     'Select "Download Transactions" (under "View More" or the account menu).',
     'Choose a date range and the CSV file type.',
     'Click Download.'
   ] },
-  usbank: { name:'U.S. Bank', steps:[
+  'U.S. Bank': { steps:[
     'Sign in at usbank.com and select your account.',
     'From the account activity page, choose "Download Transactions."',
     'Pick a date range and the "Spreadsheet (CSV)" format.',
     'Click Download.'
   ] },
-  pnc: { name:'PNC', steps:[
+  'PNC': { steps:[
     'Sign in at pnc.com and open your account\'s Activity.',
     'Select the Export or Download option.',
     'Choose a date range and the CSV format.',
     'Click Download.'
   ] },
-  truist: { name:'Truist', steps:[
+  'Truist': { steps:[
     'Sign in at truist.com and open the account.',
     'From the transaction history, choose the Export or Download option.',
     'Choose a date range and the CSV format.',
     'Click Download.'
   ] },
-  tdbank: { name:'TD Bank', steps:[
+  'TD Bank': { steps:[
     'Sign in at td.com and select your account.',
     'On the account activity page, choose Download.',
     'Pick a date range and the CSV (spreadsheet) format.',
     'Click Download.'
   ] },
-  amex: { name:'American Express', steps:[
+  'American Express': { steps:[
     'Sign in at americanexpress.com and open "Statements & Activity."',
     'Choose the Download option for the period you want.',
     'Select the CSV (Excel) file format.',
     'Click Download.'
   ] },
-  other: { name:'Other / not listed', steps:[
+  'Other / not listed': { steps:[
     'Sign in to your bank\'s website or app and open the account.',
     'Find "Account Activity," "Transaction History," or "Statements."',
     'Look for a Download, Export, or Statements option, and choose CSV (sometimes labeled "Comma Delimited" or "Spreadsheet").',
