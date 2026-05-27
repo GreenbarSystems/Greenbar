@@ -2,6 +2,33 @@
 // Foundational layer. Loaded after state.js. render.js / features.js / security.js
 // / boot.js all depend on the functions defined here.
 
+// ──────── gbDialog: native confirm/alert via Capacitor when present ────────
+// When running inside the Capacitor shell (iOS/Android), prompts route through
+// @capacitor/dialog so the user gets a native system alert/confirm instead of
+// a browser sheet. Outside Capacitor (web preview, Pages site), falls back to
+// the browser's window.confirm / window.alert. All API surface is async so
+// callers can `await gbDialog.confirm(...)` uniformly across both modes.
+const gbDialog = {
+  async confirm(message, title='Greenbar'){
+    const cap = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Dialog;
+    if(cap){
+      try{
+        const r = await cap.confirm({ title, message });
+        return !!r.value;
+      }catch(e){ return false; }
+    }
+    return window.confirm(message);
+  },
+  async alert(message, title='Greenbar'){
+    const cap = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Dialog;
+    if(cap){
+      try{ await cap.alert({ title, message }); }catch(e){}
+      return;
+    }
+    window.alert(message);
+  },
+};
+
 // ──────── Storage: load/save config + quota helpers ────────
 function loadCFG(){
   try{
@@ -48,7 +75,7 @@ let _quotaWarned = false;
 function _warnQuota(what){
   if(_quotaWarned) return;
   _quotaWarned = true;
-  alert('Storage is full -- your latest '+what+' change was not saved.\n\n'
+  gbDialog.alert('Storage is full -- your latest '+what+' change was not saved.\n\n'
       + 'Go to Settings -> Data Backup -> Export a Backup to save what you have, '
       + 'then clear old months in the Settings tab to free up space.');
 }
@@ -58,7 +85,7 @@ function saveCFG(){
   try{ localStorage.setItem('gb_cfg2',JSON.stringify(CFG)); _clearQuotaWarning(); }
   catch(e){ if(_isQuotaErr(e)) _warnQuota('settings'); else console.warn('Greenbar: saveCFG failed',e); }
 }
-function resetSettings(){ if(!confirm('Reset all settings?')) return; CFG=JSON.parse(JSON.stringify(DEFAULTS)); saveCFG(); syncUI(); renderBudgetInputs(); }
+async function resetSettings(){ if(!await gbDialog.confirm('Reset all settings?')) return; CFG=JSON.parse(JSON.stringify(DEFAULTS)); saveCFG(); syncUI(); renderBudgetInputs(); }
 
 function syncUI(){
   document.getElementById('col-date').value=CFG.cols.date||'';
@@ -170,8 +197,8 @@ function parseDateParts(str,fmt){
 }
 
 function processCSV(rows,headers){
-  if(!headers||headers.length<2){ alert('These Bank Transactions have no headers. Check the file format and try again.'); return []; }
-  if(!rows||rows.length===0){ alert('This Bank Transactions file appears to be empty.'); return []; }
+  if(!headers||headers.length<2){ gbDialog.alert('These Bank Transactions have no headers. Check the file format and try again.'); return []; }
+  if(!rows||rows.length===0){ gbDialog.alert('This Bank Transactions file appears to be empty.'); return []; }
   const colDate=CFG.cols.date||autoCol(headers,['date','posted','transaction date']);
   const colDesc=CFG.cols.desc||autoCol(headers,['description','merchant','memo','payee']);
   const colAmt=CFG.cols.amt||autoCol(headers,['amount','transaction amount']);
@@ -181,7 +208,7 @@ function processCSV(rows,headers){
   const colCat=CFG.cols.cat||autoCol(headers,['category']);
   const fmt=CFG.cols.fmt||'MM/DD/YY';
   if(!colDate||!colAmt){
-    alert('Couldn’t identify the Date and Amount columns in this file. Open Settings → Column Mapping, enter your bank’s exact column names, then import again.');
+    gbDialog.alert('Couldn’t identify the Date and Amount columns in this file. Open Settings → Column Mapping, enter your bank’s exact column names, then import again.');
     return [];
   }
   const txs=[];
@@ -276,29 +303,29 @@ async function exportData(){
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(()=>URL.revokeObjectURL(url),1000);
     showToast('Backup downloaded to your device.');
-  }catch(e){ alert('Could not create a backup: '+(e&&e.message||e)); }
+  }catch(e){ gbDialog.alert('Could not create a backup: '+(e&&e.message||e)); }
 }
 async function restoreData(file){
   if(!file) return;
   // Phase B: biometric/PIN gate before overwriting all data with a backup.
   if(!await gbAuth.unlock('Restore backup')) return;
   const rd=new FileReader();
-  rd.onload=e=>{
+  rd.onload=async e=>{
     let payload;
     try{ payload=JSON.parse(e.target.result); }
-    catch(err){ alert('That file is not a valid Greenbar backup.'); return; }
+    catch(err){ gbDialog.alert('That file is not a valid Greenbar backup.'); return; }
     if(!payload || payload._greenbar_backup!==1 || !payload.data){
-      alert('That file is not a valid Greenbar backup.'); return;
+      gbDialog.alert('That file is not a valid Greenbar backup.'); return;
     }
     // Pre-flight: a single value over ~4.9 MB will fail localStorage on most
     // browsers. Bail before touching anything so the user's data is untouched.
     const oversizedKey = GB_KEYS.find(k => typeof payload.data[k] === 'string' && payload.data[k].length > 4900000);
     if(oversizedKey){
-      alert('This backup is too large to fit in browser storage (key "'+oversizedKey+'" alone is '
+      gbDialog.alert('This backup is too large to fit in browser storage (key "'+oversizedKey+'" alone is '
           + Math.round(payload.data[oversizedKey].length/1024) + ' KB). Restore aborted -- your current data is unchanged.');
       return;
     }
-    if(!confirm('Restore this backup? It replaces ALL data currently on this device.')) return;
+    if(!await gbDialog.confirm('Restore this backup? It replaces ALL data currently on this device.')) return;
 
     // Snapshot every key BEFORE writing so we can roll back atomically if a
     // mid-restore setItem fails (quota exceeded after some keys already wrote).
@@ -322,13 +349,13 @@ async function restoreData(file){
       const reason = _isQuotaErr(err)
         ? 'this device does not have enough storage space for the backup'
         : 'a storage error occurred ('+(err&&err.message||err)+')';
-      alert('Restore was rolled back -- ' + reason + '.\n\nYour current data is unchanged.');
+      gbDialog.alert('Restore was rolled back -- ' + reason + '.\n\nYour current data is unchanged.');
       return;
     }
-    alert('Backup restored. Greenbar will now reload.');
+    await gbDialog.alert('Backup restored. Greenbar will now reload.');
     location.reload();
   };
-  rd.onerror=()=>alert('Could not read that file.');
+  rd.onerror=()=>gbDialog.alert('Could not read that file.');
   rd.readAsText(file);
 }
 // Rough indicator of how much device storage Greenbar is using.
@@ -362,7 +389,7 @@ function updateLogBadge(){
   else { badge.style.display='none'; }
 }
 async function clearAllData(){
-  if(!confirm('Delete ALL data? This cannot be undone.')) return;
+  if(!await gbDialog.confirm('Delete ALL data? This cannot be undone.')) return;
   // Phase B: biometric/PIN gate after the user confirms intent.
   if(!await gbAuth.unlock('Clear all data')) return;
   // GB_KEYS is the single source of truth for user-data keys -- iterating
@@ -385,8 +412,8 @@ async function clearAllData(){
   setTimeout(()=>{ runFlashIntro(); },100);
 }
 
-function clearLog(){
-  if(!confirm('Clear all upload history?')) return;
+async function clearLog(){
+  if(!await gbDialog.confirm('Clear all upload history?')) return;
   localStorage.removeItem('gb_log');
   updateLogBadge();
   renderLog();
@@ -478,11 +505,11 @@ function processNextFile(){
     }catch(err){
       // A bug in parseCSV / processCSV / aggregate must not strand _importBusy.
       console.warn('Greenbar: error processing "'+f.name+'"',err);
-      alert('Could not process "'+f.name+'": '+(err&&err.message||err));
+      gbDialog.alert('Could not process "'+f.name+'": '+(err&&err.message||err));
       processNextFile();
     }
   };
-  rd.onerror=()=>{ alert('Could not read "'+f.name+'". Please make sure it is a valid Bank Transactions file.'); processNextFile(); };
+  rd.onerror=()=>{ gbDialog.alert('Could not read "'+f.name+'". Please make sure it is a valid Bank Transactions file.'); processNextFile(); };
   rd.readAsArrayBuffer(f);
 }
 

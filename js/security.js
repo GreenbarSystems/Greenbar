@@ -172,8 +172,8 @@ const gbAuth = (() => {
     });
   }
   function lock(){ if(isEnabled() && hasPIN()){ showLockScreen('open'); } }
-  function forgotPIN(){
-    if(!confirm('Forgot your PIN?\n\nThe only way to reset is to wipe all data on this device. Your backups (if any) are unaffected.\n\nWipe and start over?')) return;
+  async function forgotPIN(){
+    if(!await gbDialog.confirm('Forgot your PIN?\n\nThe only way to reset is to wipe all data on this device. Your backups (if any) are unaffected.\n\nWipe and start over?')) return;
     // Nuclear: clear EVERYTHING and reload.
     GB_KEYS.forEach(k => delItem(k));
     [K.hash, K.salt, K.enabled, K.attempts, K.lockUntil, K.autoBg, K.autoIdle].forEach(delItem);
