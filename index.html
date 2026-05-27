@@ -41,7 +41,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 <!-- Single global screen-reader announcer. The render functions and showScreen()
      write short status messages here so VoiceOver / TalkBack announce changes.
      Kept outside #app so it survives any future SPA-level re-renders. -->
-<div id="sr-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+<div id="sr-status" class="sr-only" role="status"></div>
 
 <!-- LOCK SCREEN — overlays the entire app when security is enabled. Mounted in
      the DOM at all times; gbAuth.lock() / .unlock() flip the .active class.
