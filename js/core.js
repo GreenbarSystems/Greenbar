@@ -230,7 +230,7 @@ function processCSV(rows,headers){
       'Telephone Services':'Wireless','Cell Phone':'Wireless','Mobile Phone':'Wireless',
       'Dues and Subscriptions':'Subscriptions','Online Services':'Subscriptions',
       'Clothing/Shoes':'Clothing','Shopping':'General Merchandise',
-      'Home Improvement':'Home Improvement','Home Maintenance':'Home Improvement',
+      'Home Maintenance':'Home Improvement',
       'Entertainment':'Entertainment','Movies & Music':'Entertainment',
       'ATM/Cash Withdrawals':'ATM/Cash','ATM':'ATM/Cash','Cash':'ATM/Cash',
       'Uncategorized Transaction':'Uncategorized',
@@ -257,7 +257,11 @@ function sortKeys(mo){ return Object.keys(mo).sort((a,b)=>{ const[am,ay]=a.split
 // null so callers without a guard can still call it safely.
 function sumExpenses(m){ return m && m.expenses ? Object.values(m.expenses).reduce((s,v)=>s+v,0) : 0; }
 // Identity key for a transaction row -- used to merge overlapping imports.
-function txKey(tx){ return tx.date+'|'+tx.desc+'|'+tx.amount; }
+// Uses U+0001 (Start-of-Heading control char) as separator: illegal in CSV
+// text per spec, so descriptions can't collide. Prior `|` separator could
+// theoretically collide if a description ended with a pipe and the next row's
+// date started with one (vanishingly unlikely in practice, but free to fix).
+function txKey(tx){ return tx.date+''+tx.desc+''+tx.amount; }
 
 // ──────── Storage: transaction data + upload log + backup/restore ────────
 function saveData(){
@@ -316,6 +320,18 @@ async function restoreData(file){
     catch(err){ gbDialog.alert('That file is not a valid Greenbar backup.'); return; }
     if(!payload || payload._greenbar_backup!==1 || !payload.data){
       gbDialog.alert('That file is not a valid Greenbar backup.'); return;
+    }
+    // Defense-in-depth: every value we'll write must be a string. localStorage
+    // coerces non-strings to "[object Object]" or similar, which then poisons
+    // those keys (loadData() etc. would JSON.parse-throw forever after).
+    // Tampered backup files are the only trust boundary in the app -- catch
+    // bad shapes here, before we touch the user's existing data.
+    for(const k of GB_KEYS){
+      const v = payload.data[k];
+      if(v !== undefined && typeof v !== 'string'){
+        gbDialog.alert('That backup contains a non-text value for "'+k+'". Restore aborted -- your current data is unchanged.');
+        return;
+      }
     }
     // Pre-flight: a single value over ~4.9 MB will fail localStorage on most
     // browsers. Bail before touching anything so the user's data is untouched.
@@ -377,7 +393,10 @@ function saveLog(log){
 function addToLog(filename, txCount, monthCount, months){
   const log=getLog();
   log.unshift({ id: Date.now(), filename, txCount, monthCount, months, date: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}) });
-  if(log.length>50) log.pop(); // keep last 50
+  // Hard-cap retention: a single pop() leaves the log oversize if it ever
+  // started larger than the cap (e.g. after a backup restore from a future
+  // version that allowed more entries).
+  while(log.length > 50) log.pop();
   saveLog(log);
   updateLogBadge();
 }
@@ -425,16 +444,20 @@ function renderLog(){
   if(!list) return;
   if(log.length===0){ list.innerHTML=''; empty.style.display='block'; return; }
   empty.style.display='none';
+  // Defense-in-depth: every interpolated entry value is escaped, in case a
+  // restored backup contains a tampered log row. Filename was already escaped;
+  // the rest are now too. txCount/monthCount are numbers in normal use but a
+  // malicious backup could put a script-bearing string here.
   list.innerHTML=log.map(entry=>`
     <div style="background:var(--glass);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:10px;">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;">
         <div style="font-size:14px;font-weight:600;flex:1;word-break:break-all;">${esc(entry.filename)}</div>
-        <div style="font-size:11px;color:var(--muted);flex-shrink:0;margin-top:2px;">${entry.date}</div>
+        <div style="font-size:11px;color:var(--muted);flex-shrink:0;margin-top:2px;">${esc(entry.date)}</div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <span style="background:rgba(0,214,143,0.10);border:1px solid rgba(0,214,143,0.2);border-radius:8px;padding:3px 10px;font-size:11px;font-weight:600;color:var(--green)">${entry.txCount} transaction${entry.txCount===1?'':'s'}</span>
-        <span style="background:rgba(41,121,255,0.10);border:1px solid rgba(41,121,255,0.2);border-radius:8px;padding:3px 10px;font-size:11px;font-weight:600;color:#2979ff">${entry.monthCount} month${entry.monthCount===1?'':'s'}</span>
-        <span style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:3px 10px;font-size:11px;color:var(--muted)">${entry.months}</span>
+        <span style="background:rgba(0,214,143,0.10);border:1px solid rgba(0,214,143,0.2);border-radius:8px;padding:3px 10px;font-size:11px;font-weight:600;color:var(--green)">${esc(String(entry.txCount))} transaction${entry.txCount===1?'':'s'}</span>
+        <span style="background:rgba(41,121,255,0.10);border:1px solid rgba(41,121,255,0.2);border-radius:8px;padding:3px 10px;font-size:11px;font-weight:600;color:#2979ff">${esc(String(entry.monthCount))} month${entry.monthCount===1?'':'s'}</span>
+        <span style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:3px 10px;font-size:11px;color:var(--muted)">${esc(entry.months)}</span>
       </div>
     </div>`).join('');
 }
@@ -588,9 +611,11 @@ function applyImport(f, newTxs, newMonths, newKeys, mode){
     }
   }
 
-  // Rebuild _allTxs from the per-month data so it stays consistent with _months
-  _allTxs = [];
-  for(const mk of Object.keys(_months)){ _allTxs = _allTxs.concat(_months[mk].txs || []); }
+  // Rebuild _allTxs from per-month data so it stays consistent with _months.
+  // Iterate via sortKeys() so the array is in chronological order -- raw
+  // iteration by other render paths (streak detection etc.) sees sorted data
+  // without each consumer having to sort.
+  _allTxs = sortKeys(_months).flatMap(mk => _months[mk].txs || []);
 
   _sel = newKeys[newKeys.length-1];
   addToLog(f.name, newTxs.length, newKeys.length, newKeys.join(', '));
