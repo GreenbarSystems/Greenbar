@@ -423,8 +423,12 @@ button.settings-row:hover { background: rgba(255,255,255,0.02); }
 }
 .skip-link:focus { top: calc(var(--safe-t) + 12px); outline: 2px solid #fff; outline-offset: 2px; }
 /* Make the main content area programmatically focusable so the skip link can
-   land focus there (a bare anchor target only scrolls; it doesn't move focus). */
+   land focus there (a bare anchor target only scrolls; it doesn't move focus).
+   Keyboard users (skip link / Tab) get a visible green outline -- WCAG 2.4.7
+   Focus Visible. Mouse / touch focus stays clean (no outline) so accidental
+   click-focus on the scrolling content region doesn't paint a big border. */
 .content[tabindex="-1"]:focus { outline: none; }
+.content[tabindex="-1"]:focus-visible { outline: 2px solid var(--green); outline-offset: -2px; }
 .s-icon { font-size: 20px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border-radius: 10px; flex-shrink: 0; }
 /* .s-body/.s-label/.s-desc are spans (not divs) so they can live inside
    <button class="settings-row"> -- button content model is phrasing only. */
