@@ -230,8 +230,8 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
         <!-- How to export from your bank -->
         <div id="bank-export-section" class="guide-sec-hdr">How to export from your bank</div>
         <div style="background:var(--glass);border:1px solid var(--border);border-radius:20px;padding:16px;margin-bottom:14px;">
-          <label for="bank-export-select" style="display:block;font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px;">Pick your bank for step-by-step instructions to download your transactions.</label>
-          <select id="bank-export-select" class="bank-select" onchange="showBankExport(this.value)">
+          <label id="bank-export-label" for="bank-export-select" style="display:block;font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px;">Pick your bank for step-by-step instructions to download your transactions.</label>
+          <select id="bank-export-select" class="bank-select" aria-labelledby="bank-export-label" onchange="showBankExport(this.value)">
             <option value="" disabled selected>Select your bank…</option>
             <option value="Chase">Chase</option>
             <option value="Bank of America">Bank of America</option>
