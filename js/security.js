@@ -9,8 +9,19 @@ const gbAuth = (() => {
               autoBg:'gb_autolock_bg', autoIdle:'gb_autolock_idle' };
   const DEF_BG = 30, DEF_IDLE = 5*60;  // seconds: 30s background, 5min idle
   const LOCKOUT_STEPS = [30, 60, 300, 1800, 3600]; // 30s, 1m, 5m, 30m, 1h
-  let _pinBuf = '', _pinResolve = null, _pinReason = '';
+  let _pinBuf = '';
+  // Queue of pending unlock() promise resolvers. Replaces a single
+  // _pinResolve slot so two concurrent unlock() callers don't clobber
+  // each other -- the previous design only resolved the second caller
+  // and left the first hanging forever. resolveAllPending() drains the
+  // queue on every success path (PIN entry, biometric).
+  let _pinResolvers = [];
   let _idleTimer = null, _bgTimer = null;
+  function resolveAllPending(value){
+    const queue = _pinResolvers;
+    _pinResolvers = [];
+    queue.forEach(r => r(value));
+  }
   function getItem(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
   function setItem(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
   function delItem(k){ try{ localStorage.removeItem(k); }catch(e){} }
@@ -27,7 +38,7 @@ const gbAuth = (() => {
     return Array.from(new Uint8Array(bits)).map(b=>b.toString(16).padStart(2,'0')).join('');
   }
   function bytesToHex(b){ return Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join(''); }
-  function hexToBytes(h){ const b = new Uint8Array(h.length/2); for(let i=0;i<b.length;i++) b[i]=parseInt(h.substr(i*2,2),16); return b; }
+  function hexToBytes(h){ const b = new Uint8Array(h.length/2); for(let i=0;i<b.length;i++) b[i]=parseInt(h.slice(i*2, i*2+2),16); return b; }
   async function setPIN(pin){
     if(!/^\d{6}$/.test(pin)) throw new Error('PIN must be 6 digits');
     const salt = crypto.getRandomValues(new Uint8Array(16));
@@ -123,7 +134,7 @@ const gbAuth = (() => {
         if(ok){
           clearFailures();
           hideLockScreen();
-          if(_pinResolve){ const r = _pinResolve; _pinResolve = null; r(true); }
+          resolveAllPending(true);
         } else {
           recordFailure();
           shakePinDots();
@@ -159,7 +170,7 @@ const gbAuth = (() => {
       });
       clearFailures();
       hideLockScreen();
-      if(_pinResolve){ const r = _pinResolve; _pinResolve = null; r(true); }
+      resolveAllPending(true);
       return true;
     } catch (e) { return false; }
   }
@@ -171,11 +182,11 @@ const gbAuth = (() => {
       const ok = await tryBiometric(reason);
       if(ok) return true;
     }
-    // Fall through to PIN pad
+    // Fall through to PIN pad. Concurrent unlock() callers queue up here;
+    // only the first paints the lock screen (subsequent calls share it).
     return new Promise(resolve => {
-      _pinResolve = resolve;
-      _pinReason = reason;
-      showLockScreen(reason);
+      _pinResolvers.push(resolve);
+      if(_pinResolvers.length === 1) showLockScreen(reason);
     });
   }
   function lock(){ if(isEnabled() && hasPIN()){ showLockScreen('open'); } }
@@ -215,7 +226,6 @@ const gbAuth = (() => {
 // ════ Privacy mode: blur amounts until the user taps to reveal ════
 const gbPrivacy = (() => {
   const K_DEFAULT = 'gb_privacy_default';
-  const K_ACTIVE  = '_gb_privacy_session'; // ephemeral, not persisted
   let _revealTimeout = null;
   function isOn(){ return document.body.classList.contains('privacy-mode'); }
   function isDefault(){ return localStorage.getItem(K_DEFAULT) === '1'; }
@@ -263,9 +273,8 @@ const gbSecurityUI = (() => {
     const desc = document.getElementById('security-status-desc');
     if(tog)  tog.textContent  = enabled ? 'On' : 'Off';
     if(desc) desc.textContent = enabled
-      ? 'On &middot; ' + (gbAuth.isBiometricAvailable() ? 'Biometrics or PIN required to open' : '6-digit PIN required to open')
+      ? 'On · ' + (gbAuth.isBiometricAvailable() ? 'Biometrics or PIN required to open' : '6-digit PIN required to open')
       : 'Off · anyone with this device can open the app';
-    if(desc) desc.innerHTML = desc.textContent; // re-parse the entity
     ['security-change-pin-row','security-autolock-row','security-idle-row'].forEach(id => {
       const el = document.getElementById(id);
       if(el) el.style.display = enabled ? '' : 'none';
@@ -335,6 +344,13 @@ const gbSecurityUI = (() => {
             closeModal('modal-setpin');
             refreshUI();
             showToast('PIN set. Greenbar will lock on close.');
+          }).catch(e => {
+            // Show validation failure (weak-PIN, crypto.subtle absent, etc.)
+            // inside the modal instead of leaving it silently stuck.
+            document.getElementById('setpin-error').textContent = (e && e.message) || 'Could not set PIN.';
+            _setpinBuf = ''; _setpinStage = 'first'; _setpinFirst = '';
+            renderSetPinDots();
+            document.getElementById('setpin-title').textContent = 'Set your 6-digit PIN';
           });
         } else {
           document.getElementById('setpin-error').textContent = 'PINs did not match. Try again.';
@@ -345,8 +361,8 @@ const gbSecurityUI = (() => {
       }
     }
   };
-  // Wire the set-PIN pad clicks through the same delegated handler. The existing
-  // delegated listener in gbAuth checks for #setpin-pad and calls handleSetPinKey.
+  // Delegated listener for the set-PIN pad. (gbAuth's lock-pin-pad listener
+  // above only handles the unlock pad; set-PIN has its own state machine.)
   document.addEventListener('click', (e) => {
     const key = e.target.closest('#setpin-pad .pin-key');
     if(!key) return;
