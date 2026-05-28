@@ -629,6 +629,9 @@ function showScreen(name,btn){
       if(!setupActive) setTimeout(()=>{ runFlashIntro(); }, 50);
     }
   }
+  // Notify other modules that the screen changed. Cleaner than each module
+  // monkey-patching window.showScreen -- avoids ordering / collision issues.
+  document.dispatchEvent(new CustomEvent('gb:screen', { detail: { name } }));
 }
 
 // ════ MODALS ════

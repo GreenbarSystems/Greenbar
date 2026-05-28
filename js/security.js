@@ -2,11 +2,29 @@
 // PBKDF2-SHA256 (OWASP 2023: 600k iterations) PIN hash. Biometric via Capacitor
 // BiometricAuth plugin when present. The same code works standalone (PIN-only) and
 // inside the Capacitor wrapper -- no JS change needed when biometric is wired up.
+//
+// External dependencies (must load before this file via index.html script order):
+//   state.js  -> GB_KEYS
+//   core.js   -> gbDialog, openModal, closeModal, showToast,
+//                emits the 'gb:screen' custom event from showScreen()
+
+// PIN-dot rendering helper shared by gbAuth (lock pad) and gbSecurityUI
+// (set-PIN pad). Caches the NodeList per CSS selector so we don't re-query
+// the DOM on every keystroke. Both pads are static markup, so the cache
+// stays valid across the app's lifetime.
+const _gbDotsCache = new Map();
+function _gbPaintDots(selector, count){
+  let dots = _gbDotsCache.get(selector);
+  if(!dots || !dots.length){ dots = document.querySelectorAll(selector); _gbDotsCache.set(selector, dots); }
+  dots.forEach((d, i) => d.classList.toggle('filled', i < count));
+}
 
 const gbAuth = (() => {
   const K = { hash:'gb_pin_hash', salt:'gb_pin_salt', enabled:'gb_security_enabled',
               attempts:'gb_pin_attempts', lockUntil:'gb_pin_lockout_until',
               autoBg:'gb_autolock_bg', autoIdle:'gb_autolock_idle' };
+  const PIN_LENGTH = 6;
+  const FAILURES_BEFORE_LOCKOUT = 5;
   const DEF_BG = 30, DEF_IDLE = 5*60;  // seconds: 30s background, 5min idle
   const LOCKOUT_STEPS = [30, 60, 300, 1800, 3600]; // 30s, 1m, 5m, 30m, 1h
   // PINs that show up in nearly every leaked-credential analysis as top-most-guessed.
@@ -60,7 +78,7 @@ const gbAuth = (() => {
     return diff === 0;
   }
   async function setPIN(pin){
-    if(!/^\d{6}$/.test(pin)) throw new Error('PIN must be 6 digits');
+    if(!new RegExp(`^\\d{${PIN_LENGTH}}$`).test(pin)) throw new Error(`PIN must be ${PIN_LENGTH} digits`);
     if(WEAK_PINS.has(pin)) throw new Error('That PIN is too common. Pick something less guessable.');
     const salt = crypto.getRandomValues(new Uint8Array(16));
     const hash = await hashPIN(pin, salt);
@@ -82,8 +100,8 @@ const gbAuth = (() => {
   function recordFailure(){
     const n = (parseInt(getItem(K.attempts)) || 0) + 1;
     setItem(K.attempts, String(n));
-    if(n >= 5){
-      const idx = Math.min(n - 5, LOCKOUT_STEPS.length - 1);
+    if(n >= FAILURES_BEFORE_LOCKOUT){
+      const idx = Math.min(n - FAILURES_BEFORE_LOCKOUT, LOCKOUT_STEPS.length - 1);
       setItem(K.lockUntil, String(Date.now() + LOCKOUT_STEPS[idx] * 1000));
     }
   }
@@ -123,10 +141,7 @@ const gbAuth = (() => {
     el.classList.remove('active');
     el.removeAttribute('open');
   }
-  function renderPinDots(){
-    const dots = document.querySelectorAll('#lock-pin-dots .pin-dot');
-    dots.forEach((d, i) => d.classList.toggle('filled', i < _pinBuf.length));
-  }
+  function renderPinDots(){ _gbPaintDots('#lock-pin-dots .pin-dot', _pinBuf.length); }
   function shakePinDots(){
     document.querySelectorAll('#lock-pin-dots .pin-dot').forEach(d => {
       d.classList.add('shake');
@@ -145,10 +160,10 @@ const gbAuth = (() => {
   });
   function handleLockKey(d){
     if(d === 'back'){ _pinBuf = _pinBuf.slice(0, -1); renderPinDots(); return; }
-    if(_pinBuf.length >= 6) return;
+    if(_pinBuf.length >= PIN_LENGTH) return;
     _pinBuf += d;
     renderPinDots();
-    if(_pinBuf.length === 6){
+    if(_pinBuf.length === PIN_LENGTH){
       const attempt = _pinBuf;
       (async () => {
         const ok = await verifyPIN(attempt);
@@ -258,6 +273,7 @@ const gbAuth = (() => {
 // ════ Privacy mode: blur amounts until the user taps to reveal ════
 const gbPrivacy = (() => {
   const K_DEFAULT = 'gb_privacy_default';
+  const REVEAL_MS = 12000;  // auto-re-blur after this many ms once revealed
   let _revealTimeout = null;
   function isOn(){ return document.body.classList.contains('privacy-mode'); }
   function isDefault(){ return localStorage.getItem(K_DEFAULT) === '1'; }
@@ -279,7 +295,7 @@ const gbPrivacy = (() => {
     if(!ok) return;
     document.body.classList.add('revealed');
     if(_revealTimeout) clearTimeout(_revealTimeout);
-    _revealTimeout = setTimeout(()=>{ document.body.classList.remove('revealed'); }, 12000);
+    _revealTimeout = setTimeout(()=>{ document.body.classList.remove('revealed'); }, REVEAL_MS);
   }
   // Tap any blurred amount → reveal
   document.addEventListener('click', (e) => {
@@ -298,6 +314,7 @@ const gbPrivacy = (() => {
 
 // ════ Security UI controller for the Settings screen ════
 const gbSecurityUI = (() => {
+  const PIN_LENGTH = 6;
   let _setpinBuf = '', _setpinStage = 'first', _setpinFirst = '';
   function refreshUI(){
     const enabled = gbAuth.isEnabled() && gbAuth.hasPIN();
@@ -352,17 +369,14 @@ const gbSecurityUI = (() => {
     if(!ok) return;
     openSetPIN(false);
   }
-  function renderSetPinDots(){
-    const dots = document.querySelectorAll('#setpin-dots .pin-dot');
-    dots.forEach((d, i) => d.classList.toggle('filled', i < _setpinBuf.length));
-  }
+  function renderSetPinDots(){ _gbPaintDots('#setpin-dots .pin-dot', _setpinBuf.length); }
   // Set-PIN flow: enter PIN, then confirm by re-entering.
   window.__handleSetPinKey = function(d){
     if(d === 'back'){ _setpinBuf = _setpinBuf.slice(0, -1); renderSetPinDots(); return; }
-    if(_setpinBuf.length >= 6) return;
+    if(_setpinBuf.length >= PIN_LENGTH) return;
     _setpinBuf += d;
     renderSetPinDots();
-    if(_setpinBuf.length === 6){
+    if(_setpinBuf.length === PIN_LENGTH){
       if(_setpinStage === 'first'){
         _setpinFirst = _setpinBuf;
         _setpinBuf = '';
@@ -418,11 +432,9 @@ const gbSecurityUI = (() => {
 })();
 
 // Refresh the Security UI whenever the user navigates to Settings.
-(function hookSettingsRefresh(){
-  const origShowScreen = window.showScreen;
-  window.showScreen = function(name, btn){
-    const r = origShowScreen.apply(this, arguments);
-    if(name === 'settings') gbSecurityUI.refreshUI();
-    return r;
-  };
-})();
+// Subscribes to the 'gb:screen' custom event that core.js's showScreen()
+// dispatches -- cleaner than monkey-patching window.showScreen, which was
+// fragile if any other module wrapped it later.
+document.addEventListener('gb:screen', (e) => {
+  if(e.detail && e.detail.name === 'settings') gbSecurityUI.refreshUI();
+});
