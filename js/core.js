@@ -536,12 +536,14 @@ function showConflictModal(filename, conflictingMonths, allNewMonths){
     </div>`;
 
   document.getElementById('conflict-months').innerHTML = monthsHtml;
-  document.getElementById('modal-conflict').classList.add('open');
+  const conflict = document.getElementById('modal-conflict');
+  conflict.classList.add('open');
+  conflict.setAttribute('open', '');
 }
 
 function resolveConflict(action){
   const conflictModal = document.getElementById('modal-conflict');
-  if(conflictModal) conflictModal.classList.remove('open');
+  if(conflictModal){ conflictModal.classList.remove('open'); conflictModal.removeAttribute('open'); }
 
   if(action === 'cancel' || action === 'skip'){
     _pendingConflict = null;
@@ -638,7 +640,10 @@ function openModal(id){
   // than via closeModal() because closeModal restores _modalReturnFocus, and
   // we want focus to flow into the new modal instead.
   document.querySelectorAll('.modal-overlay.open').forEach(m=>{
-    if(m !== el){ m.classList.remove('open'); m.classList.remove('closing'); }
+    if(m !== el){
+      m.classList.remove('open'); m.classList.remove('closing');
+      m.removeAttribute('open');
+    }
   });
   // If this modal is mid-close-animation, cancel it so the open animation plays cleanly.
   el.classList.remove('closing');
@@ -646,6 +651,10 @@ function openModal(id){
   const _sheet = el.querySelector('.sheet');
   if(_sheet){ _sheet.style.transform=''; _sheet.style.transition=''; }
   el.classList.add('open');
+  // Sync the native <dialog> open attribute so the children only register in
+  // the a11y tree while the modal is visible. (We don't use .showModal()
+  // because it would conflict with our custom .open animation + focus trap.)
+  el.setAttribute('open', '');
   if(id==='modal-remaps')renderRemaps();
   if(id==='modal-log')renderLog();
   // Accessibility: remember where focus was, then move it into the dialog.
@@ -661,12 +670,13 @@ function closeModal(id){
   // Respect prefers-reduced-motion: skip the slide-down and just remove the
   // class immediately, matching the existing no-animation feel for those users.
   const reduceMotion = (typeof matchMedia==='function') && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(reduceMotion){ el.classList.remove('open'); return; }
+  if(reduceMotion){ el.classList.remove('open'); el.removeAttribute('open'); return; }
   // Otherwise play the reverse animation (~220ms), then hide.
   el.classList.add('closing');
   setTimeout(()=>{
     el.classList.remove('open');
     el.classList.remove('closing');
+    el.removeAttribute('open');
     // Clear any inline transform left over from a partial swipe-dismiss.
     const sheet = el.querySelector('.sheet');
     if(sheet){ sheet.style.transform=''; sheet.style.transition=''; }

@@ -76,13 +76,20 @@ const gbAuth = (() => {
     const biometricBtn = document.getElementById('lock-biometric-btn');
     biometricBtn.hidden = !isBiometricAvailable();
     el.classList.add('active');
+    // Mirror state in the native dialog `open` attribute so static a11y
+    // scanners see the children as legitimately in the AT tree only while
+    // the dialog is actually shown. (We don't use .showModal() because it
+    // conflicts with our custom .active animation + focus management.)
+    el.setAttribute('open', '');
     updateLockoutDisplay();
     // Auto-try biometric on app open (not on every gate so the user isn't pestered)
     if(reason === 'open' && isBiometricAvailable()){ setTimeout(tryBiometric, 200); }
   }
   function hideLockScreen(){
     _locked = false;
-    document.getElementById('screen-lock').classList.remove('active');
+    const el = document.getElementById('screen-lock');
+    el.classList.remove('active');
+    el.removeAttribute('open');
   }
   function renderPinDots(){
     const dots = document.querySelectorAll('#lock-pin-dots .pin-dot');
