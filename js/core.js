@@ -1,6 +1,38 @@
 // ════ Greenbar — core: util, storage, parsing, import, modals, nav, toast ════
 // Foundational layer. Loaded after state.js. render.js / features.js / security.js
 // / boot.js all depend on the functions defined here.
+//
+// External dependencies (must load before this file via index.html script order):
+//   state.js    -> CFG, DEFAULTS, MN, GB_KEYS, _months, _allTxs, _sel,
+//                  _flashTimers, _flashDone
+//   render.js   -> renderAll, renderBudget, renderTxs, renderSummary,
+//                  renderBudgetInputs
+//   features.js -> runFlashIntro
+//   security.js -> gbAuth (unlock gate on data-affecting actions)
+// Emits the 'gb:screen' CustomEvent from showScreen() for other modules to hook.
+
+// ──────── Named constants ────────
+// Hoisted out of inline magic numbers throughout the file -- single source of
+// truth for each tunable, easier to spot at a glance, easier to grep when
+// tuning.
+const LIMITS = {
+  STORAGE_NEAR_FULL:    4_800_000, // soft toast when localStorage payload approaches limit
+  RESTORE_MAX_KEY_BYTES: 4_900_000, // single-key cap; backups exceeding this are rejected pre-flight
+  LOG_RETENTION:        50,        // most-recent N upload-log entries kept
+  LOG_BADGE_MAX:        9,         // log-badge displays "9+" past this count
+  VENDOR_TRUNCATE:      40,        // chars kept in cleaned vendor name
+};
+const TIMING = {
+  MODAL_CLOSE_MS:       230,       // matches CSS sheetDown animation duration
+  TOAST_VISIBLE_MS:     2_800,
+  TOAST_SLOT_MS:        3_300,     // visible + fade-out + small gap between toasts
+  SR_ANNOUNCE_DELAY:    30,        // tiny gap so empty -> text diff registers for AT
+};
+const SWIPE = {
+  TOP_STRIP_PX:         60,        // touch must start in this top zone to begin a swipe
+  DISMISS_DISTANCE_PX:  80,        // drag farther than this -> close
+  FLICK_VELOCITY:       0.5,       // px/ms; faster flick also closes
+};
 
 // ──────── gbDialog: native confirm/alert via Capacitor when present ────────
 // When running inside the Capacitor shell (iOS/Android), prompts route through
@@ -10,7 +42,7 @@
 // callers can `await gbDialog.confirm(...)` uniformly across both modes.
 const gbDialog = {
   async confirm(message, title='Greenbar'){
-    const cap = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Dialog;
+    const cap = window.Capacitor?.Plugins?.Dialog;
     if(cap){
       try{
         const r = await cap.confirm({ title, message });
@@ -20,7 +52,7 @@ const gbDialog = {
     return window.confirm(message);
   },
   async alert(message, title='Greenbar'){
-    const cap = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Dialog;
+    const cap = window.Capacitor?.Plugins?.Dialog;
     if(cap){
       try{ await cap.alert({ title, message }); }catch(e){}
       return;
@@ -115,7 +147,7 @@ function cleanVendor(desc){
     .replace(/^(Point Of Sale Withdrawal|External Withdrawal|NOW Withdrawal|NOW Deposit|Withdrawal Transfer|Withdrawal|Deposit)\s*/i,'')
     .replace(/\s{2,}/g,' ')
     .trim()
-    .substring(0,40)
+    .substring(0,LIMITS.VENDOR_TRUNCATE)
     .trim();
 }
 
@@ -307,7 +339,7 @@ function saveData(){
     const payload={months:_months,txs:_allTxs,sel:_sel};
     const str=JSON.stringify(payload);
     // Near-full warning is a soft toast, not a blocking alert -- saves still work.
-    if(str.length>4800000 && typeof showToast==='function'){
+    if(str.length>LIMITS.STORAGE_NEAR_FULL && typeof showToast==='function'){
       showToast('Storage nearly full ('+Math.round(str.length/1024)+' KB). Export a backup soon.');
     }
     localStorage.setItem('gb_data',str);
@@ -373,7 +405,7 @@ async function restoreData(file){
     }
     // Pre-flight: a single value over ~4.9 MB will fail localStorage on most
     // browsers. Bail before touching anything so the user's data is untouched.
-    const oversizedKey = GB_KEYS.find(k => typeof payload.data[k] === 'string' && payload.data[k].length > 4900000);
+    const oversizedKey = GB_KEYS.find(k => typeof payload.data[k] === 'string' && payload.data[k].length > LIMITS.RESTORE_MAX_KEY_BYTES);
     if(oversizedKey){
       gbDialog.alert('This backup is too large to fit in browser storage (key "'+oversizedKey+'" alone is '
           + Math.round(payload.data[oversizedKey].length/1024) + ' KB). Restore aborted -- your current data is unchanged.');
@@ -428,13 +460,15 @@ function saveLog(log){
   try{ localStorage.setItem('gb_log',JSON.stringify(log)); _clearQuotaWarning(); }
   catch(e){ if(_isQuotaErr(e)) _warnQuota('upload log'); /* not critical -- log is rebuildable */ }
 }
-function addToLog(filename, txCount, monthCount, months){
+// Object-destructured params: `monthCount` (number) and `months` (string) used
+// to be adjacent positional args -- easy to swap by accident. Now self-documenting.
+function addToLog({ filename, txCount, monthCount, months }){
   const log=getLog();
   log.unshift({ id: Date.now(), filename, txCount, monthCount, months, date: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}) });
   // Hard-cap retention: a single pop() leaves the log oversize if it ever
   // started larger than the cap (e.g. after a backup restore from a future
   // version that allowed more entries).
-  while(log.length > 50) log.pop();
+  while(log.length > LIMITS.LOG_RETENTION) log.pop();
   saveLog(log);
   updateLogBadge();
 }
@@ -442,7 +476,7 @@ function updateLogBadge(){
   const log=getLog();
   const badge=document.getElementById('log-badge');
   if(!badge) return;
-  if(log.length>0){ badge.style.display='block'; badge.textContent=log.length>9?'9+':log.length; }
+  if(log.length>0){ badge.style.display='block'; badge.textContent=log.length>LIMITS.LOG_BADGE_MAX?LIMITS.LOG_BADGE_MAX+'+':log.length; }
   else { badge.style.display='none'; }
 }
 async function clearAllData(){
@@ -529,10 +563,10 @@ function processNextFile(){
     showScreen('summary', _navBtn(0));
     return;
   }
-  const f = _pendingFiles.shift();
+  const file = _pendingFiles.shift();
   // Tell the user something is happening -- parseCSV / aggregate can block
   // 100-500ms on a multi-thousand-row file and a frozen UI feels broken.
-  if(typeof showToast === 'function') showToast('Reading ' + f.name + '…');
+  if(typeof showToast === 'function') showToast('Reading ' + file.name + '…');
   const rd = new FileReader();
   rd.onload = e => {
     try{
@@ -556,22 +590,22 @@ function processNextFile(){
         // Show conflict resolution modal. _pendingConflict only ever holds
         // ONE file at a time -- handleFiles queues additional files into
         // _pendingFiles, so resolution proceeds serially.
-        _pendingConflict = { f, newTxs, newMonths, newKeys, conflictingMonths };
-        showConflictModal(f.name, conflictingMonths, newKeys);
+        _pendingConflict = { file, newTxs, newMonths, newKeys, conflictingMonths };
+        showConflictModal(file.name, conflictingMonths, newKeys);
       } else {
         // No conflict -- merge automatically
-        applyImport(f, newTxs, newMonths, newKeys, 'merge');
+        applyImport(file, newTxs, newMonths, newKeys, 'merge');
         processNextFile();
       }
     }catch(err){
       // A bug in parseCSV / processCSV / aggregate must not strand _importBusy.
-      console.warn('Greenbar: error processing "'+f.name+'"',err);
-      gbDialog.alert('Could not process "'+f.name+'": '+(err&&err.message||err));
+      console.warn('Greenbar: error processing "'+file.name+'"',err);
+      gbDialog.alert('Could not process "'+file.name+'": '+(err&&err.message||err));
       processNextFile();
     }
   };
-  rd.onerror=()=>{ gbDialog.alert('Could not read "'+f.name+'". Please make sure it is a valid Bank Transactions file.'); processNextFile(); };
-  rd.readAsArrayBuffer(f);
+  rd.onerror=()=>{ gbDialog.alert('Could not read "'+file.name+'". Please make sure it is a valid Bank Transactions file.'); processNextFile(); };
+  rd.readAsArrayBuffer(file);
 }
 
 function showConflictModal(filename, conflictingMonths, allNewMonths){
@@ -612,7 +646,7 @@ function resolveConflict(action){
     return;
   }
 
-  const { f, newTxs, newMonths, newKeys } = _pendingConflict;
+  const { file, newTxs, newMonths, newKeys } = _pendingConflict;
   _pendingConflict = null;
 
   if(action === 'replace'){
@@ -622,11 +656,11 @@ function resolveConflict(action){
   }
 
   // Apply import (merge or clean replace)
-  applyImport(f, newTxs, newMonths, newKeys, action);
+  applyImport(file, newTxs, newMonths, newKeys, action);
   processNextFile();
 }
 
-function applyImport(f, newTxs, newMonths, newKeys, mode){
+function applyImport(file, newTxs, newMonths, newKeys, mode){
   // Merge month aggregates
   for(const mk of newKeys){
     if(mode === 'replace' || !_months[mk]){
@@ -656,7 +690,12 @@ function applyImport(f, newTxs, newMonths, newKeys, mode){
   _allTxs = sortKeys(_months).flatMap(mk => _months[mk].txs || []);
 
   _sel = newKeys[newKeys.length-1];
-  addToLog(f.name, newTxs.length, newKeys.length, newKeys.join(', '));
+  addToLog({
+    filename:   file.name,
+    txCount:    newTxs.length,
+    monthCount: newKeys.length,
+    months:     newKeys.join(', '),
+  });
 }
 
 
@@ -746,7 +785,7 @@ function closeModal(id){
     // Clear any inline transform left over from a partial swipe-dismiss.
     const sheet = el.querySelector('.sheet');
     if(sheet){ sheet.style.transform=''; sheet.style.transition=''; }
-  }, 230);
+  }, TIMING.MODAL_CLOSE_MS);
 }
 function closeOut(e,id){ if(e.target===document.getElementById(id)) closeModal(id); }
 // Keyboard support for modal dialogs: Esc closes, Tab is trapped inside.
@@ -783,7 +822,7 @@ document.addEventListener('touchstart', function(e){
   const rectTop = sheet.getBoundingClientRect().top;
   const touchY = e.touches[0].clientY;
   // Only start the gesture if the user grabbed the top strip (handle/title area).
-  if(touchY - rectTop > 60) return;
+  if(touchY - rectTop > SWIPE.TOP_STRIP_PX) return;
   _swipe = { sheet, overlay, startY: touchY, dy: 0, t0: Date.now() };
   sheet.style.transition = 'none';
 },{passive:true});
@@ -799,8 +838,8 @@ document.addEventListener('touchend', function(){
   const { sheet, overlay, dy, t0 } = _swipe;
   _swipe = null;
   const velocity = dy / Math.max(1, Date.now() - t0); // px/ms
-  // Dismiss if dragged > 80px OR flicked hard (>0.5 px/ms).
-  if(dy > 80 || velocity > 0.5){
+  // Dismiss if dragged past threshold OR flicked hard.
+  if(dy > SWIPE.DISMISS_DISTANCE_PX || velocity > SWIPE.FLICK_VELOCITY){
     sheet.style.transition = '';   // let closeModal's animation take over
     if(overlay.id === 'modal-conflict') resolveConflict('cancel');
     else closeModal(overlay.id);
@@ -822,7 +861,7 @@ function srAnnounce(msg){
   if(!el) return;
   if(el.textContent === msg) el.textContent = '';
   // tiny delay lets the empty -> text diff register as a change
-  setTimeout(()=>{ el.textContent = msg; }, 30);
+  setTimeout(()=>{ el.textContent = msg; }, TIMING.SR_ANNOUNCE_DELAY);
 }
 // Toasts queue rather than overwrite. A second showToast() call while the
 // first is still on screen used to clobber the message and fight the fade
@@ -848,8 +887,8 @@ function _drainToast(){
   }
   toast.textContent = msg;
   setTimeout(()=>{ toast.style.opacity='1'; toast.style.transform='translateX(-50%) translateY(0)'; },10);
-  setTimeout(()=>{ toast.style.opacity='0'; toast.style.transform='translateX(-50%) translateY(10px)'; },2800);
+  setTimeout(()=>{ toast.style.opacity='0'; toast.style.transform='translateX(-50%) translateY(10px)'; },TIMING.TOAST_VISIBLE_MS);
   // Advance to the next queued message after the fade-out, with a small
   // gap so messages don't visually overlap.
-  setTimeout(()=>{ _drainToast(); }, 3300);
+  setTimeout(()=>{ _drainToast(); }, TIMING.TOAST_SLOT_MS);
 }
