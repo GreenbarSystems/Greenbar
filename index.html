@@ -97,8 +97,8 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
     </div>
     <div class="hdr-right">
       <button type="button" id="hdr-import-btn" class="fab" onclick="document.getElementById('csv-input').click()" style="opacity:0;pointer-events:none;width:auto;padding:0 16px;font-size:13px;font-weight:800;font-family:var(--font-display);letter-spacing:0.3px;color:#050a14;background:var(--grad-primary);box-shadow:0 4px 16px rgba(0,214,143,0.4);opacity:0;pointer-events:none;transition:opacity 0.6s ease;">Import</button>
-      <input type="file" id="csv-input" aria-label="Import bank transactions CSV file" accept=".csv,.tsv,.txt" multiple onchange="handleFiles(this.files)">
-      <input type="file" id="restore-input" aria-label="Restore a Greenbar backup JSON file" accept=".json,application/json" style="display:none" onchange="restoreData(this.files[0]); this.value='';">
+      <input type="file" id="csv-input" aria-label="Import bank transactions CSV file" accept=".csv,.tsv,.txt" multiple onchange="handleFiles(this.files)" autocomplete="off">
+      <input type="file" id="restore-input" aria-label="Restore a Greenbar backup JSON file" accept=".json,application/json" style="display:none" onchange="restoreData(this.files[0]); this.value='';" autocomplete="off">
     </div>
   </div>
 
@@ -636,7 +636,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 
           <div class="setup-input-wrap">
             <span class="prefix">$</span>
-            <input class="setup-input" id="s3-income" aria-label="Monthly take-home income in dollars" type="number" placeholder="Monthly amount" min="0" inputmode="decimal" oninput="_setupState.income=parseFloat(this.value)||0;updateGivingFromIncome()">
+            <input class="setup-input" id="s3-income" aria-label="Monthly take-home income in dollars" type="number" placeholder="Monthly amount" min="0" inputmode="decimal" oninput="_setupState.income=parseFloat(this.value)||0;updateGivingFromIncome()" autocomplete="off">
           </div>
 
           <div class="setup-income-note" id="s3-income-note" style="display:none;margin-top:16px;background:rgba(0,214,143,0.07);border:1px solid rgba(0,214,143,0.15);border-radius:14px;padding:14px 16px;">
@@ -658,7 +658,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 
           <div class="setup-input-wrap">
             <span class="prefix">$</span>
-            <input class="setup-input" id="s2-housing" aria-label="Monthly housing cost in dollars" type="number" placeholder="Amount" min="0" inputmode="decimal" oninput="_setupState.housing=parseFloat(this.value)||0">
+            <input class="setup-input" id="s2-housing" aria-label="Monthly housing cost in dollars" type="number" placeholder="Amount" min="0" inputmode="decimal" oninput="_setupState.housing=parseFloat(this.value)||0" autocomplete="off">
           </div>
 
           <div class="ht-row">
@@ -688,11 +688,11 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
               <div>
                 <div style="font-size:10px;color:var(--muted);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Groceries</div>
-                <div class="setup-input-wrap" style="margin:0;"><span class="prefix" style="font-size:13px;">$</span><input class="setup-input" id="s4-groc" aria-label="Groceries budget in dollars" type="number" placeholder="Amount" style="font-size:15px;padding:10px 10px 10px 22px;" min="0" inputmode="decimal" oninput="_setupState.groceries=parseFloat(this.value)||0"></div>
+                <div class="setup-input-wrap" style="margin:0;"><span class="prefix" style="font-size:13px;">$</span><input class="setup-input" id="s4-groc" aria-label="Groceries budget in dollars" type="number" placeholder="Amount" style="font-size:15px;padding:10px 10px 10px 22px;" min="0" inputmode="decimal" oninput="_setupState.groceries=parseFloat(this.value)||0" autocomplete="off"></div>
               </div>
               <div>
                 <div style="font-size:10px;color:var(--muted);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Dining Out</div>
-                <div class="setup-input-wrap" style="margin:0;"><span class="prefix" style="font-size:13px;">$</span><input class="setup-input" id="s4-dine-in" aria-label="Dining-out budget in dollars" type="number" placeholder="Amount" style="font-size:15px;padding:10px 10px 10px 22px;" min="0" inputmode="decimal" oninput="_setupState.dining=parseFloat(this.value)||0"></div>
+                <div class="setup-input-wrap" style="margin:0;"><span class="prefix" style="font-size:13px;">$</span><input class="setup-input" id="s4-dine-in" aria-label="Dining-out budget in dollars" type="number" placeholder="Amount" style="font-size:15px;padding:10px 10px 10px 22px;" min="0" inputmode="decimal" oninput="_setupState.dining=parseFloat(this.value)||0" autocomplete="off"></div>
               </div>
             </div>
           </div>
@@ -725,7 +725,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
             <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--soft);">What percentage of your income do you give?</div>
             <div class="setup-input-wrap" style="margin:0;">
               <span class="prefix" style="font-size:15px;">%</span>
-              <input class="setup-input" id="s5-giving-custom" aria-label="Giving as percent of income" type="number" placeholder="Enter %" min="0" max="100" inputmode="decimal" style="padding-left:32px;" oninput="const gv=parseFloat(this.value)||0; if(gv>100){this.value=100;} if(gv<0){this.value=0;} _setupState.givingPct=Math.min(100,Math.max(0,gv));">
+              <input class="setup-input" id="s5-giving-custom" aria-label="Giving as percent of income" type="number" placeholder="Enter %" min="0" max="100" inputmode="decimal" style="padding-left:32px;" oninput="const gv=parseFloat(this.value)||0; if(gv>100){this.value=100;} if(gv<0){this.value=0;} _setupState.givingPct=Math.min(100,Math.max(0,gv));" autocomplete="off">
             </div>
           </div>
 
@@ -919,10 +919,10 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
       <button type="button" aria-label="Close" onclick="closeModal('modal-cols')" class="sheet-close">✕</button>
     </div>
     <div class="sheet-sub">Enter exact column headers from your Bank Transactions. Leave blank to auto-detect.</div>
-    <div class="sheet-label">Date Column</div><input class="sheet-input" id="col-date" aria-label="Date column header" placeholder="e.g. Date, Transaction Date">
-    <div class="sheet-label">Description Column</div><input class="sheet-input" id="col-desc-inp" aria-label="Description column header" placeholder="e.g. Description, Merchant">
-    <div class="sheet-label">Amount Column</div><input class="sheet-input" id="col-amt" aria-label="Amount column header" placeholder="e.g. Amount">
-    <div class="sheet-label">Category Column (optional)</div><input class="sheet-input" id="col-cat" aria-label="Category column header" placeholder="e.g. Category">
+    <div class="sheet-label">Date Column</div><input class="sheet-input" id="col-date" aria-label="Date column header" placeholder="e.g. Date, Transaction Date" autocomplete="off">
+    <div class="sheet-label">Description Column</div><input class="sheet-input" id="col-desc-inp" aria-label="Description column header" placeholder="e.g. Description, Merchant" autocomplete="off">
+    <div class="sheet-label">Amount Column</div><input class="sheet-input" id="col-amt" aria-label="Amount column header" placeholder="e.g. Amount" autocomplete="off">
+    <div class="sheet-label">Category Column (optional)</div><input class="sheet-input" id="col-cat" aria-label="Category column header" placeholder="e.g. Category" autocomplete="off">
     <div class="sheet-label">Date Format</div>
     <select class="sheet-input" id="col-fmt" aria-label="Date format" style="appearance:none">
       <option value="MM/DD/YY">MM/DD/YY  (05/04/26)</option>
