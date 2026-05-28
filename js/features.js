@@ -493,7 +493,7 @@ function buildSetupReview(){
             data-cat="${esc(cat)}"
             onchange="updateReviewBudget(this)"
             onfocus="this.style.borderColor='rgba(0,214,143,0.5)'"
-            onblur="this.style.borderColor=''">
+            onblur="this.style.borderColor=''" autocomplete="off">
         </div>
       </div>
     </div>`).join('') +
