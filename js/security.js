@@ -9,6 +9,16 @@ const gbAuth = (() => {
               autoBg:'gb_autolock_bg', autoIdle:'gb_autolock_idle' };
   const DEF_BG = 30, DEF_IDLE = 5*60;  // seconds: 30s background, 5min idle
   const LOCKOUT_STEPS = [30, 60, 300, 1800, 3600]; // 30s, 1m, 5m, 30m, 1h
+  // PINs that show up in nearly every leaked-credential analysis as top-most-guessed.
+  // Reject these so a user can't pick something a casual attacker would brute-force in
+  // seconds. 6-digit space is already only 10^6; this trims the worst ~0.1% that
+  // disproportionately appears in real-world device PINs.
+  const WEAK_PINS = new Set([
+    '000000','111111','222222','333333','444444','555555',
+    '666666','777777','888888','999999',
+    '123456','654321','012345','123123','121212','112233',
+    '789456','159753','147258','852456','159357',
+  ]);
   let _pinBuf = '';
   // Queue of pending unlock() promise resolvers. Replaces a single
   // _pinResolve slot so two concurrent unlock() callers don't clobber
@@ -39,8 +49,19 @@ const gbAuth = (() => {
   }
   function bytesToHex(b){ return Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join(''); }
   function hexToBytes(h){ const b = new Uint8Array(h.length/2); for(let i=0;i<b.length;i++) b[i]=parseInt(h.slice(i*2, i*2+2),16); return b; }
+  // Constant-time hex-string compare. Avoids `===` short-circuit timing leakage
+  // when comparing the PBKDF2 output against the stored hash. Practical impact
+  // is negligible (PBKDF2 dominates the verify cost by ~6 orders of magnitude)
+  // but standard precaution on any hash-equality check.
+  function constantTimeEqualHex(a, b){
+    if(a.length !== b.length) return false;
+    let diff = 0;
+    for(let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+    return diff === 0;
+  }
   async function setPIN(pin){
     if(!/^\d{6}$/.test(pin)) throw new Error('PIN must be 6 digits');
+    if(WEAK_PINS.has(pin)) throw new Error('That PIN is too common. Pick something less guessable.');
     const salt = crypto.getRandomValues(new Uint8Array(16));
     const hash = await hashPIN(pin, salt);
     setItem(K.salt, bytesToHex(salt));
@@ -52,7 +73,7 @@ const gbAuth = (() => {
     const salt = getItem(K.salt); const expected = getItem(K.hash);
     if(!salt || !expected) return false;
     const got = await hashPIN(pin, hexToBytes(salt));
-    return got === expected;
+    return constantTimeEqualHex(got, expected);
   }
   function lockoutRemaining(){
     const until = parseInt(getItem(K.lockUntil)) || 0;
@@ -172,7 +193,18 @@ const gbAuth = (() => {
       hideLockScreen();
       resolveAllPending(true);
       return true;
-    } catch (e) { return false; }
+    } catch (e) {
+      // Distinguishing user-cancel / fallback (expected, silent) from real
+      // plugin failures (worth logging) saves debugging time in the field
+      // -- otherwise every report just shows "biometric didn't work" with
+      // no way to tell whether the device is misconfigured or the user
+      // simply tapped Cancel.
+      const code = e && e.code;
+      if(code && code !== 'userCancel' && code !== 'userFallback'){
+        console.warn('Greenbar: biometric error', e);
+      }
+      return false;
+    }
   }
   // ── Public unlock() — used by app-open + every destructive gate ──
   async function unlock(reason){
