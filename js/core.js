@@ -136,13 +136,49 @@ function decodeBytes(buf){
   try{ return new TextDecoder('utf-8',{fatal:false}).decode(buf); }
   catch(_){ return new TextDecoder().decode(buf); }
 }
+// Streaming CSV tokenizer. Walks the input character-by-character tracking
+// quote state, so values containing embedded newlines (e.g. memos with
+// `\n` inside a quoted field, common in Sparkasse / ING / Excel-edited CSVs)
+// stay one cell instead of breaking the row. Falls back to detectDelim()
+// against the first physical line for the column separator.
 function parseCSV(text){
   if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
-  text=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
-  const lines=text.trim().split('\n');
-  const delim=detectDelim(lines[0]||'');
-  const h=parseL(lines[0],delim);
-  return{headers:h,rows:lines.slice(1).filter(l=>l.trim()).map(l=>{ const v=parseL(l,delim); const o={}; h.forEach((k,i)=>o[k.trim()]=(v[i]||'').trim()); return o; })}; }
+  // detectDelim only inspects the header line, so split on the FIRST physical
+  // newline (which is necessarily outside any quoted field -- a CSV with a
+  // newline embedded in the header would be malformed beyond our recovery).
+  const headerLine = text.split(/[\r\n]/, 1)[0] || '';
+  const delim = detectDelim(headerLine);
+  const rows = [];
+  let cur = '', inQ = false, row = [];
+  for(let i = 0; i < text.length; i++){
+    const c = text[i];
+    if(c === '"'){
+      if(inQ && text[i+1] === '"'){ cur += '"'; i++; }   // "" -> literal "
+      else inQ = !inQ;
+    } else if(!inQ && c === delim){
+      row.push(cur); cur = '';
+    } else if(!inQ && (c === '\r' || c === '\n')){
+      // Row terminator. Push the in-progress cell, then the row, but skip
+      // wholly-blank rows (common after a trailing newline in the source).
+      if(cur !== '' || row.length){ row.push(cur); rows.push(row); row = []; cur = ''; }
+      if(c === '\r' && text[i+1] === '\n') i++;          // CRLF -> single break
+    } else {
+      cur += c;
+    }
+  }
+  // Final cell / row if the file didn't end on a newline.
+  if(cur !== '' || row.length){ row.push(cur); rows.push(row); }
+  if(!rows.length) return { headers: [], rows: [] };
+  const headers = rows[0].map(s => s.trim());
+  const data = rows.slice(1)
+    .filter(r => r.some(c => c.trim()))
+    .map(r => {
+      const o = {};
+      headers.forEach((k, i) => { o[k] = (r[i] || '').trim(); });
+      return o;
+    });
+  return { headers, rows: data };
+}
 // Auto-detect the column delimiter (comma, tab, or semicolon) from the header line.
 function detectDelim(line){
   const counts={',':0,'\t':0,';':0}; let inQ=false;
@@ -151,21 +187,6 @@ function detectDelim(line){
   if(counts['\t']>n){ best='\t'; n=counts['\t']; }
   if(counts[';']>n){ best=';'; }
   return best;
-}
-// Split one delimited line into fields, honoring quotes and "" escaped quotes.
-function parseL(line,delim){
-  delim=delim||',';
-  const r=[]; let cur='',inQ=false;
-  for(let i=0;i<line.length;i++){
-    const c=line[i];
-    if(c==='"'){
-      if(inQ && line[i+1]==='"'){ cur+='"'; i++; } // "" inside a quoted field -> a literal "
-      else inQ=!inQ;
-    } else if(c===delim && !inQ){ r.push(cur); cur=''; }
-    else cur+=c;
-  }
-  r.push(cur);
-  return r;
 }
 function parseAmt(s){ if(!s)return 0; const c=s.replace(/[",\$ ]/g,''); const neg=c.startsWith('-')||c.startsWith('('); const n=parseFloat(c.replace(/[^0-9.]/g,'')); if(!isFinite(n))return 0; return neg?-n:n; }
 // Find a header matching one of the candidate names. Returns '' when nothing
@@ -196,6 +217,27 @@ function parseDateParts(str,fmt){
   return { key:y*10000+m*100+d, month:`${MN[m-1]} ${y}`, label:`${MN[m-1]} ${d}, ${y}` };
 }
 
+// Bank category name -> Greenbar canonical category. Hoisted out of the
+// processCSV loop -- previously this 24-entry object was re-allocated per
+// row, so a 1000-row CSV did 1000 redundant allocations. Now created once
+// at module load.
+const CAT_NORM = {
+  'Restaurants/Dining':'Dining Out','Dining':'Dining Out','Food & Drink':'Dining Out',
+  'Groceries/Supermarkets':'Groceries','Supermarkets':'Groceries',
+  'Gas/Automotive':'Gas/Fuel','Gasoline':'Gas/Fuel','Auto & Transport':'Automotive',
+  'Healthcare/Medical':'Healthcare','Medical':'Healthcare','Pharmacy':'Healthcare',
+  'Cable/Satellite Services':'Internet/Cable','Internet':'Internet/Cable',
+  'Telephone Services':'Wireless','Cell Phone':'Wireless','Mobile Phone':'Wireless',
+  'Dues and Subscriptions':'Subscriptions','Online Services':'Subscriptions',
+  'Clothing/Shoes':'Clothing','Shopping':'General Merchandise',
+  'Home Maintenance':'Home Improvement',
+  'Movies & Music':'Entertainment',
+  'ATM/Cash Withdrawals':'ATM/Cash','ATM':'ATM/Cash','Cash':'ATM/Cash',
+  'Uncategorized Transaction':'Uncategorized',
+  'Transfers':'Other Transfers','Transfer':'Other Transfers',
+  'Credit Card Payment':'Credit Card Payments','Credit Card':'Credit Card Payments',
+};
+
 function processCSV(rows,headers){
   if(!headers||headers.length<2){ gbDialog.alert('These Bank Transactions have no headers. Check the file format and try again.'); return []; }
   if(!rows||rows.length===0){ gbDialog.alert('This Bank Transactions file appears to be empty.'); return []; }
@@ -221,22 +263,7 @@ function processCSV(rows,headers){
     if(CFG.skipKw.some(kw=>desc.includes(kw))) continue;
     let cat=(row[colCat]||'Uncategorized').trim();
     // Normalize common bank category names to standard budget names
-    const CAT_NORM={
-      'Restaurants/Dining':'Dining Out','Dining':'Dining Out','Food & Drink':'Dining Out',
-      'Groceries/Supermarkets':'Groceries','Supermarkets':'Groceries',
-      'Gas/Automotive':'Gas/Fuel','Gasoline':'Gas/Fuel','Auto & Transport':'Automotive',
-      'Healthcare/Medical':'Healthcare','Medical':'Healthcare','Pharmacy':'Healthcare',
-      'Cable/Satellite Services':'Internet/Cable','Internet':'Internet/Cable',
-      'Telephone Services':'Wireless','Cell Phone':'Wireless','Mobile Phone':'Wireless',
-      'Dues and Subscriptions':'Subscriptions','Online Services':'Subscriptions',
-      'Clothing/Shoes':'Clothing','Shopping':'General Merchandise',
-      'Home Maintenance':'Home Improvement',
-      'Entertainment':'Entertainment','Movies & Music':'Entertainment',
-      'ATM/Cash Withdrawals':'ATM/Cash','ATM':'ATM/Cash','Cash':'ATM/Cash',
-      'Uncategorized Transaction':'Uncategorized',
-      'Transfers':'Other Transfers','Transfer':'Other Transfers',
-      'Credit Card Payment':'Credit Card Payments','Credit Card':'Credit Card Payments',
-    };
+    // (CAT_NORM is hoisted to module scope above; see comment there).
     if(CAT_NORM[cat]) cat=CAT_NORM[cat];
     // Income is keyword-driven only. A positive amount with no income keyword is
     // a refund -- it nets against its category rather than counting as income.
@@ -252,6 +279,17 @@ function processCSV(rows,headers){
 // its category: a normal expense (negative amount) adds to spend, a refund
 // (positive amount) subtracts -- so refunds reduce a category, not inflate income.
 function aggregate(txs){ const mo={}; for(const tx of txs){ if(!mo[tx.month])mo[tx.month]={income:0,expenses:{},txs:[]}; mo[tx.month].txs.push(tx); if(tx.isIncome)mo[tx.month].income+=tx.amount; else mo[tx.month].expenses[tx.cat]=(mo[tx.month].expenses[tx.cat]||0)-tx.amount; } return mo; }
+// Single-month variant used by applyImport's merge path: avoids allocating
+// the outer { [month]: {...} } map just to read one key. Caller already
+// knows the month -- we just need the totals.
+function aggregateOneMonth(txs){
+  const m = { income: 0, expenses: {}, txs };
+  for(const tx of txs){
+    if(tx.isIncome) m.income += tx.amount;
+    else m.expenses[tx.cat] = (m.expenses[tx.cat] || 0) - tx.amount;
+  }
+  return m;
+}
 function sortKeys(mo){ return Object.keys(mo).sort((a,b)=>{ const[am,ay]=a.split(' '),[bm,by]=b.split(' '); return parseInt(ay)!==parseInt(by)?parseInt(ay)-parseInt(by):MN.indexOf(am)-MN.indexOf(bm); }); }
 // Total spend for a month object. Defensive against m / m.expenses being
 // null so callers without a guard can still call it safely.
@@ -607,7 +645,7 @@ function applyImport(f, newTxs, newMonths, newKeys, mode){
         seen[k]=(seen[k]||0)+1;
         if(seen[k] > (have[k]||0)) combined.push(tx);
       }
-      _months[mk] = aggregate(combined)[mk] || {income:0,expenses:{},txs:[]};
+      _months[mk] = aggregateOneMonth(combined);
     }
   }
 
