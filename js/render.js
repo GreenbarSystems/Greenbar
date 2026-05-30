@@ -2,6 +2,8 @@
 // Depends on state.js + core.js (util, storage, sortKeys, sumExpenses, esc, fmt).
 
 // ──────── Palette + grade explanation lookup ────────
+// 15-colour cycling palette for category bars + vendor rows. Sites read
+// PAL[i % PAL.length] so resizing the array doesn't desync the call sites.
 const PAL=['#00d68f','#2979ff','#00c9b1','#ffa502','#ff4757','#7c4dff','#ff6b81','#1de9b6','#ff9f43','#5352ed','#26de81','#4bcffa','#fd9644','#a55eea','#45aaf2'];
 
 // ════ RENDER ════
@@ -24,6 +26,43 @@ const GRADE_EXPLAIN = {
 // ──────── Health score: compute + breakdown modal ────────
 // ════ GAMIFICATION ════
 
+// Named thresholds shared by computeHealthScore, renderHealthBreakdown,
+// and isBudgetMonth. Adjusting these in one place keeps every dependent
+// surface in sync (modal copy + grade + "is this month on plan").
+const HEALTH = {
+  POINTS: { SAVINGS: 40, BUDGET: 40, DIVERSITY: 20 }, // sum = 100
+  SAVINGS: {
+    TARGET_RATE: 0.20,   // 20%+ saved -> full SAVINGS points
+    MID_RATE:    0.10,   // 10% saved  -> MID_PTS (interpolate in/out)
+    MID_PTS:     28,     // pts at the MID_RATE breakpoint
+  },
+  BUDGET: {
+    ON_TRACK_RATIO:    1.10,  // <= 1.10x target counts as on-track
+    SLIGHT_OVER_RATIO: 1.25,
+    OVER_RATIO:        1.50,
+    ON_TRACK_SCORE:    1.0,   // per-category score multipliers
+    SLIGHT_OVER_SCORE: 0.7,
+    OVER_SCORE:        0.4,
+    NEUTRAL_PTS:       20,    // awarded when no budgets are set
+  },
+  DIVERSITY: {
+    TARGET_CATS: 5,  // 5+ categories with real spend -> full DIVERSITY pts
+    MIN_SPEND:   5,  // categories above $5 count as "real spend"
+  },
+  GRADE_THRESHOLDS: { A: 90, B: 80, C: 70, D: 60 },
+  GRADE_COLORS:     { GOOD: '#00d68f', WARN: '#ffa502', BAD: '#ff4757' },
+};
+
+// Achievement thresholds — kept beside HEALTH so the gamification surface
+// has one place to tune unlock difficulty.
+const BADGES = {
+  POS_STREAK:    { ROLL: 1, MOMENTUM: 3 },      // consecutive positive months
+  BUDGET_STREAK: { EARNED: 2, MASTER: 3 },      // consecutive under-budget months
+  MONTHS:        { FIRST: 1, QUARTER: 3, HALF: 6, FULL: 12 },
+  TOTAL_POS_SAVER: 2,                           // any 2 positive months in history
+  NEXT_UP_LIMIT:   3,                           // locked badges shown in UI
+};
+
 // ── Feature 1: Financial Health Score ──
 function computeHealthScore(monthKey){
   const m = _months[monthKey];
@@ -35,56 +74,63 @@ function computeHealthScore(monthKey){
   let score = 0;
   const details = {};
 
-  // 1. Savings rate (0–40 pts)
-  // 20%+ = 40pts, 10% = 28pts, 0% = 0pts; deficits scale down and clamp to 0.
-  // One continuous line below 20% -- no jump at the break-even point.
+  // 1. Savings rate (0..POINTS.SAVINGS)
+  // TARGET_RATE+ saved -> full points; MID_RATE -> MID_PTS; 0 -> 0;
+  // deficits scale down and clamp to 0. One continuous line below the
+  // target so there's no jump at the break-even point.
   const savingsRate = (income - expTotal) / income;
-  const savePts = savingsRate >= 0.20 ? 40
-    : savingsRate >= 0.10 ? Math.round(28 + (savingsRate - 0.10)/0.10 * 12)
-    : Math.round(savingsRate / 0.10 * 28);
+  const { TARGET_RATE, MID_RATE, MID_PTS } = HEALTH.SAVINGS;
+  const SAVE_MAX = HEALTH.POINTS.SAVINGS;
+  const savePts = savingsRate >= TARGET_RATE ? SAVE_MAX
+    : savingsRate >= MID_RATE ? Math.round(MID_PTS + (savingsRate - MID_RATE)/MID_RATE * (SAVE_MAX - MID_PTS))
+    : Math.round(savingsRate / MID_RATE * MID_PTS);
   score += Math.max(0, savePts);
   details.savePts = Math.max(0, savePts);
   details.savingsRate = savingsRate;
 
-  // 2. Budget adherence (0–40 pts)
-  // For each budgeted category, score how close spending is to target
+  // 2. Budget adherence (0..POINTS.BUDGET)
+  // For each budgeted category, score how close spending is to target.
   const budgetCats = Object.keys(CFG.budget).filter(k => CFG.budget[k] > 0);
   if(budgetCats.length > 0){
     let budgetScore = 0;
     let counted = 0;
+    const B = HEALTH.BUDGET;
     for(const cat of budgetCats){
       const actual = m.expenses[cat] || 0;
       const target = CFG.budget[cat];
       if(target <= 0) continue;
       const ratio = actual / target;
-      // Under by up to 10% = perfect (1.0), over by 50%+ = 0
-      const catScore = ratio <= 1.1 ? 1.0
-        : ratio <= 1.25 ? 0.7
-        : ratio <= 1.5  ? 0.4
+      // Under by up to ON_TRACK_RATIO = perfect; degrades through SLIGHT_OVER/OVER bands.
+      const catScore = ratio <= B.ON_TRACK_RATIO    ? B.ON_TRACK_SCORE
+        : ratio <= B.SLIGHT_OVER_RATIO ? B.SLIGHT_OVER_SCORE
+        : ratio <= B.OVER_RATIO        ? B.OVER_SCORE
         : 0;
       budgetScore += catScore;
       counted++;
     }
-    const budPts = counted > 0 ? Math.round((budgetScore / counted) * 40) : 20; // 20 if no budget set
+    const budPts = counted > 0 ? Math.round((budgetScore / counted) * HEALTH.POINTS.BUDGET) : B.NEUTRAL_PTS;
     score += budPts;
     details.budPts = budPts;
     details.budgetCoverage = counted;
   } else {
-    score += 20; // no budget set -- neutral
-    details.budPts = 20;
+    score += HEALTH.BUDGET.NEUTRAL_PTS; // no budget set -- neutral
+    details.budPts = HEALTH.BUDGET.NEUTRAL_PTS;
   }
 
-  // 3. Spending diversity (0–20 pts)
-  // Having 5+ distinct categories = max points (shows balanced tracking)
-  const catCount = Object.keys(m.expenses).filter(k => m.expenses[k] > 5).length;
-  const divPts = Math.min(20, Math.round(catCount / 5 * 20));
+  // 3. Spending diversity (0..POINTS.DIVERSITY)
+  // Having TARGET_CATS+ distinct categories = max points (rewards balanced tracking).
+  const { TARGET_CATS, MIN_SPEND } = HEALTH.DIVERSITY;
+  const DIV_MAX = HEALTH.POINTS.DIVERSITY;
+  const catCount = Object.keys(m.expenses).filter(k => m.expenses[k] > MIN_SPEND).length;
+  const divPts = Math.min(DIV_MAX, Math.round(catCount / TARGET_CATS * DIV_MAX));
   score += divPts;
   details.divPts = divPts;
 
   score = Math.min(100, Math.max(0, score));
-  const grade = score >= 90 ? 'A' : score >= 80 ? 'B' : score >= 70 ? 'C' : score >= 60 ? 'D' : 'F';
-  const gradeColor = score >= 80 ? '#00d68f' : score >= 60 ? '#ffa502' : '#ff4757';
-  const label = score >= 90 ? 'Excellent' : score >= 80 ? 'Great' : score >= 70 ? 'Good' : score >= 60 ? 'Fair' : 'Needs Work';
+  const T = HEALTH.GRADE_THRESHOLDS, C = HEALTH.GRADE_COLORS;
+  const grade = score >= T.A ? 'A' : score >= T.B ? 'B' : score >= T.C ? 'C' : score >= T.D ? 'D' : 'F';
+  const gradeColor = score >= T.B ? C.GOOD : score >= T.D ? C.WARN : C.BAD;
+  const label = score >= T.A ? 'Excellent' : score >= T.B ? 'Great' : score >= T.C ? 'Good' : score >= T.D ? 'Fair' : 'Needs Work';
 
   return { score, grade, gradeColor, label, details };
 }
@@ -123,10 +169,11 @@ function renderHealthBreakdown(hs, monthKey){
       const target = CFG.budget[cat];
       const ratio  = actual / target;
       const pct    = Math.round(ratio * 100);
-      const status = ratio <= 1.1 ? {txt:'On track', col:'#00d68f'}
-                   : ratio <= 1.25 ? {txt:'Slightly over', col:'#ffa502'}
-                   : ratio <= 1.5  ? {txt:'Over', col:'#ffa502'}
-                   :                 {txt:'Way over', col:'#ff4757'};
+      const B = HEALTH.BUDGET, C = HEALTH.GRADE_COLORS;
+      const status = ratio <= B.ON_TRACK_RATIO    ? {txt:'On track',      col:C.GOOD}
+                   : ratio <= B.SLIGHT_OVER_RATIO ? {txt:'Slightly over', col:C.WARN}
+                   : ratio <= B.OVER_RATIO        ? {txt:'Over',          col:C.WARN}
+                   :                                {txt:'Way over',      col:C.BAD};
       return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px;">
         <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(cat)}</span>
         <span style="color:var(--muted);font-size:12px;margin:0 10px;flex-shrink:0;">${fmt(actual)} / ${fmt(target)} <span style="opacity:0.7;">(${pct}%)</span></span>
@@ -135,31 +182,35 @@ function renderHealthBreakdown(hs, monthKey){
     }).join('');
     budgetRowsHtml = `<div style="margin-top:8px;">${rows}</div>`;
   } else {
-    budgetRowsHtml = `<div style="font-size:12px;color:var(--muted);margin-top:6px;">No budget set for any category. Setting budgets unlocks the full 40 points here.</div>`;
+    budgetRowsHtml = `<div style="font-size:12px;color:var(--muted);margin-top:6px;">No budget set for any category. Setting budgets unlocks the full ${HEALTH.POINTS.BUDGET} points here.</div>`;
   }
 
   // What's driving the grade -- pick the weakest component for a "next step" hint
+  const P = HEALTH.POINTS;
   const components = [
-    { key:'savings',  pts:hs.details.savePts, max:40, label:'Savings rate' },
-    { key:'budget',   pts:hs.details.budPts,  max:40, label:'Budget adherence' },
-    { key:'tracking', pts:hs.details.divPts,  max:20, label:'Tracking diversity' },
+    { key:'savings',  pts:hs.details.savePts, max:P.SAVINGS,   label:'Savings rate' },
+    { key:'budget',   pts:hs.details.budPts,  max:P.BUDGET,    label:'Budget adherence' },
+    { key:'tracking', pts:hs.details.divPts,  max:P.DIVERSITY, label:'Tracking diversity' },
   ];
   // Weakest = lowest pts/max ratio
   const weakest = components.slice().sort((a,b)=> (a.pts/a.max) - (b.pts/b.max))[0];
+  const midPct    = Math.round(HEALTH.SAVINGS.MID_RATE    * 100);  // 10
+  const targetPct = Math.round(HEALTH.SAVINGS.TARGET_RATE * 100);  // 20
+  const realSpend = Object.keys(m.expenses).filter(k=>m.expenses[k]>HEALTH.DIVERSITY.MIN_SPEND).length;
   const nextStepCopy = {
     savings:  savePct < 0 ? 'You spent more than you earned this month. Trimming the biggest categories would lift this fastest.'
-            : savePct < 10 ? `You saved ${savePct}% of income. Pushing toward 20% unlocks the full 40 points here.`
-            : savePct < 20 ? `You saved ${savePct}% — close to the 20% target that maxes this out.`
-            :                `You saved ${savePct}% of income — this component is already maxed out.`,
+            : savePct < midPct    ? `You saved ${savePct}% of income. Pushing toward ${targetPct}% unlocks the full ${P.SAVINGS} points here.`
+            : savePct < targetPct ? `You saved ${savePct}% — close to the ${targetPct}% target that maxes this out.`
+            :                       `You saved ${savePct}% of income — this component is already maxed out.`,
     budget:   budgetCats.length === 0
               ? 'You have no budgets set. Add a few in the Budget tab — even rough numbers count.'
               : 'Spending in budgeted categories was further over target than ideal. Tighten the categories above marked "Over" or "Way over".',
-    tracking: `${Object.keys(m.expenses).filter(k=>m.expenses[k]>5).length} categories had real spend this month. Maxes out at 5+.`,
+    tracking: `${realSpend} categories had real spend this month. Maxes out at ${HEALTH.DIVERSITY.TARGET_CATS}+.`,
   }[weakest.key];
 
-  const savingsBarPct  = Math.round(hs.details.savePts / 40 * 100);
-  const budgetBarPct   = Math.round(hs.details.budPts  / 40 * 100);
-  const trackingBarPct = Math.round(hs.details.divPts  / 20 * 100);
+  const savingsBarPct  = Math.round(hs.details.savePts / P.SAVINGS   * 100);
+  const budgetBarPct   = Math.round(hs.details.budPts  / P.BUDGET    * 100);
+  const trackingBarPct = Math.round(hs.details.divPts  / P.DIVERSITY * 100);
 
   // Component card helper. Each card shows the label, points, a progress bar and an explanation.
   const card = (label, pts, max, barPct, barColor, explainHtml) => `
@@ -185,14 +236,14 @@ function renderHealthBreakdown(hs, monthKey){
       </div>
     </div>
 
-    ${card('Savings rate', hs.details.savePts, 40, savingsBarPct, hs.gradeColor,
-      `Income ${fmt(income)} &minus; spend ${fmt(expTotal)} = <strong>${savePct >= 0 ? `${savePct}% saved` : `${Math.abs(savePct)}% over income`}</strong>. Full 40 points at 20%+ saved; partial credit below that; 0 if you spent more than you earned.`)}
+    ${card('Savings rate', hs.details.savePts, P.SAVINGS, savingsBarPct, hs.gradeColor,
+      `Income ${fmt(income)} &minus; spend ${fmt(expTotal)} = <strong>${savePct >= 0 ? `${savePct}% saved` : `${Math.abs(savePct)}% over income`}</strong>. Full ${P.SAVINGS} points at ${targetPct}%+ saved; partial credit below that; 0 if you spent more than you earned.`)}
 
-    ${card('Budget adherence', hs.details.budPts, 40, budgetBarPct, '#2979ff',
-      `${budgetCats.length ? `How close each budgeted category was to its target. Up to 10% over still counts as on-track.` : 'Neutral 20/40 awarded because no budgets are set yet.'}${budgetRowsHtml}`)}
+    ${card('Budget adherence', hs.details.budPts, P.BUDGET, budgetBarPct, '#2979ff',
+      `${budgetCats.length ? `How close each budgeted category was to its target. Up to ${Math.round((HEALTH.BUDGET.ON_TRACK_RATIO - 1) * 100)}% over still counts as on-track.` : `Neutral ${HEALTH.BUDGET.NEUTRAL_PTS}/${P.BUDGET} awarded because no budgets are set yet.`}${budgetRowsHtml}`)}
 
-    ${card('Tracking diversity', hs.details.divPts, 20, trackingBarPct, '#7c4dff',
-      `<strong>${Object.keys(m.expenses).filter(k=>m.expenses[k]>5).length}</strong> categories had real spend this month (over $5). Reaches the full 20 points at 5+ categories — rewards balanced tracking rather than lumping everything into one bucket.`)}
+    ${card('Tracking diversity', hs.details.divPts, P.DIVERSITY, trackingBarPct, '#7c4dff',
+      `<strong>${realSpend}</strong> categories had real spend this month (over $${HEALTH.DIVERSITY.MIN_SPEND}). Reaches the full ${P.DIVERSITY} points at ${HEALTH.DIVERSITY.TARGET_CATS}+ categories — rewards balanced tracking rather than lumping everything into one bucket.`)}
 
     <div style="background:rgba(0,214,143,0.07);border:1px solid rgba(0,214,143,0.25);border-radius:14px;padding:12px 14px;margin-top:6px;">
       <div style="font-family:var(--font-display);font-size:12px;font-weight:800;color:var(--green);letter-spacing:0.04em;text-transform:uppercase;margin-bottom:4px;">Biggest lever</div>
@@ -250,7 +301,7 @@ function isBudgetMonth(mk){
   let overCount = 0;
   for(const cat of budgetCats){
     const actual = m.expenses[cat] || 0;
-    if(actual > CFG.budget[cat] * 1.1) overCount++;
+    if(actual > CFG.budget[cat] * HEALTH.BUDGET.ON_TRACK_RATIO) overCount++;
   }
   return overCount === 0;
 }
@@ -258,23 +309,24 @@ function isBudgetMonth(mk){
 function computeBadges(keys, curPos, curBudget, maxPos, maxBudget, totalPos){
   const badges = [];
   const total = keys.length;
+  const PS = BADGES.POS_STREAK, BS = BADGES.BUDGET_STREAK, MO = BADGES.MONTHS;
 
   // Streak badges
-  if(curPos >= 1)  badges.push({ label:'On a Roll',     desc:`${curPos} positive month${curPos>1?'s':''} in a row`,    earned:true });
-  if(curPos >= 3)  badges.push({ label:'Momentum',       desc:`3+ consecutive positive months`,                          earned:true });
-  if(curBudget>=2) badges.push({ label:'Budget Streak',  desc:`${curBudget} months in a row under budget`,               earned:true });
+  if(curPos >= PS.ROLL)        badges.push({ label:'On a Roll',     desc:`${curPos} positive month${curPos>1?'s':''} in a row`,        earned:true });
+  if(curPos >= PS.MOMENTUM)    badges.push({ label:'Momentum',      desc:`${PS.MOMENTUM}+ consecutive positive months`,                 earned:true });
+  if(curBudget >= BS.EARNED)   badges.push({ label:'Budget Streak', desc:`${curBudget} months in a row under budget`,                   earned:true });
 
   // Achievement badges
-  if(total >= 1)   badges.push({ label:'First Month',    desc:'Imported your first month of transactions',               earned:true });
-  if(total >= 3)   badges.push({ label:'Quarter Done',   desc:'Tracking 3+ months of spending',                         earned:true });
-  if(total >= 6)   badges.push({ label:'Half Year',      desc:'6 months of consistent tracking',                        earned:true });
-  if(total >= 12)  badges.push({ label:'Full Year',      desc:'A complete year of financial visibility',                 earned:true });
-  if(totalPos >= 2) badges.push({ label:'Saver',          desc:'2+ months finishing in the green',                       earned:true });
+  if(total >= MO.FIRST)        badges.push({ label:'First Month',   desc:'Imported your first month of transactions',                   earned:true });
+  if(total >= MO.QUARTER)      badges.push({ label:'Quarter Done',  desc:`Tracking ${MO.QUARTER}+ months of spending`,                  earned:true });
+  if(total >= MO.HALF)         badges.push({ label:'Half Year',     desc:`${MO.HALF} months of consistent tracking`,                    earned:true });
+  if(total >= MO.FULL)         badges.push({ label:'Full Year',     desc:'A complete year of financial visibility',                     earned:true });
+  if(totalPos >= BADGES.TOTAL_POS_SAVER) badges.push({ label:'Saver', desc:`${BADGES.TOTAL_POS_SAVER}+ months finishing in the green`,  earned:true });
 
   // Locked badges (things to work toward)
-  if(curPos < 3)   badges.push({ label:'Momentum',       desc:'Finish 3 months positive in a row',                      earned:false, progress: curPos, target: 3 });
-  if(curBudget < 3) badges.push({ label:'Budget Master', desc:'Stay under budget for 3 months straight',                earned:false, progress: curBudget, target: 3 });
-  if(total < 6)    badges.push({ label:'Quarter Done',   desc:`Track ${6-total} more months`,                           earned:false, progress: total, target: 6 });
+  if(curPos < PS.MOMENTUM)     badges.push({ label:'Momentum',      desc:`Finish ${PS.MOMENTUM} months positive in a row`,              earned:false, progress: curPos,    target: PS.MOMENTUM });
+  if(curBudget < BS.MASTER)    badges.push({ label:'Budget Master', desc:`Stay under budget for ${BS.MASTER} months straight`,          earned:false, progress: curBudget, target: BS.MASTER });
+  if(total < MO.HALF)          badges.push({ label:'Quarter Done',  desc:`Track ${MO.HALF-total} more months`,                          earned:false, progress: total,     target: MO.HALF });
 
   // Deduplicate (earned version takes precedence)
   const seen = new Set();
@@ -335,7 +387,7 @@ function renderStreaks(){
       </div>
     </div>
     ${earned.length ? `<div class="badge-section-title">Earned</div><div class="badge-grid">${badgeHTML(earned, false)}</div>` : ''}
-    ${locked.length ? `<div class="badge-section-title c-muted">Next Up</div><div class="badge-grid">${badgeHTML(locked.slice(0,3), true)}</div>` : ''}
+    ${locked.length ? `<div class="badge-section-title c-muted">Next Up</div><div class="badge-grid">${badgeHTML(locked.slice(0,BADGES.NEXT_UP_LIMIT), true)}</div>` : ''}
   </div>`;
 }
 
@@ -511,7 +563,7 @@ function showVendorDrill(cat){
     return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
       <div style="flex:1;min-width:0;">
         <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;">${esc(vendor)}</div>
-        <div style="height:3px;background:rgba(255,255,255,0.07);border-radius:3px;"><div style="height:3px;border-radius:3px;width:${barW}%;background:${PAL[i%15]};"></div></div>
+        <div style="height:3px;background:rgba(255,255,255,0.07);border-radius:3px;"><div style="height:3px;border-radius:3px;width:${barW}%;background:${PAL[i%PAL.length]};"></div></div>
       </div>
       <div style="text-align:right;flex-shrink:0;">
         <div style="font-family: var(--font-display);font-size:14px;font-weight:800;">${fmt(amt)}</div>
@@ -557,7 +609,7 @@ function renderSummary(){
         <div class="cat-item">
           <div class="cat-body">
             <div class="cat-name">${esc(cat)}</div>
-            <div class="cat-bar-bg"><div class="cat-bar-fg" style="width:${Math.round(amt/maxAmt*100)}%;background:${PAL[i%15]}"></div></div>
+            <div class="cat-bar-bg"><div class="cat-bar-fg" style="width:${Math.round(amt/maxAmt*100)}%;background:${PAL[i%PAL.length]}"></div></div>
           </div>
           <div class="cat-right">
             <div class="cat-amt">${fmt(amt)}</div>
@@ -686,7 +738,7 @@ function renderSummaryAll(){
           <div style="display:flex;align-items:center;gap:12px;">
             <div class="cat-body">
               <div class="cat-name">${esc(cat)}</div>
-              <div class="cat-bar-bg"><div class="cat-bar-fg" style="width:${Math.round(avg/maxAvg*100)}%;background:${PAL[i%15]}"></div></div>
+              <div class="cat-bar-bg"><div class="cat-bar-fg" style="width:${Math.round(avg/maxAvg*100)}%;background:${PAL[i%PAL.length]}"></div></div>
             </div>
             <div class="cat-right">
               <div class="cat-amt">${fmt(avg)}/mo</div>
