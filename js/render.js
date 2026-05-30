@@ -874,7 +874,11 @@ function renderTxs(filter=''){
   if(!rows.length){
     const html = filter
       ? `<div class="empty"><p>No matches for &ldquo;${esc(filter)}&rdquo;.</p><button type="button" class="empty-link" onclick="renderTxs('')">Clear search</button></div>`
-      : `<div class="empty"><p>No transactions in this month.</p></div>`;
+      : `<div class="tx-empty">
+           <div class="tx-empty-icon" aria-hidden="true">✎</div>
+           <div class="tx-empty-title">No transactions yet</div>
+           <div class="tx-empty-sub">Import a CSV or tap <span class="fab-ref">+</span> to add a cash transaction.</div>
+         </div>`;
     document.getElementById('txs-content').innerHTML = html;
     srAnnounce(filter?`No transactions match "${filter}"`:'No transactions');
     return;
@@ -891,9 +895,20 @@ function renderTxs(filter=''){
       <div class="tx-date-hdr">${esc(date)}</div>
       <div class="tx-group">
         ${dTxs.map(tx=>{
+          const manual = tx.source === 'manual';
+          // Locate this tx's index within _months[mk].txs. After a reload,
+          // loadData() parses _months and _allTxs separately, so reference
+          // equality fails — match by stable id, with a value-fallback for any
+          // legacy manual rows saved before ids existed. Recomputed each render
+          // (safe: renderAll() runs after every add/delete).
+          const idx = manual && _months[tx.month]
+            ? _months[tx.month].txs.findIndex(t => tx.id ? t.id === tx.id
+                : (t.source === 'manual' && t.ts === tx.ts && t.desc === tx.desc && t.amount === tx.amount))
+            : -1;
           return`<div class="tx-item">
-            <div class="tx-bd"><div class="tx-desc">${esc(cleanVendor(tx.desc)||tx.desc)}</div><div class="tx-cat">${esc(tx.cat)}</div></div>
+            <div class="tx-bd"><div class="tx-desc">${esc(cleanVendor(tx.desc)||tx.desc)}${manual?'<span class="tx-badge-manual">M</span>':''}</div><div class="tx-cat">${esc(tx.cat)}</div></div>
             <div class="tx-amt ${tx.amount<0?'neg':'pos'}">${tx.amount<0?'−':'+'}${fmt(Math.abs(tx.amount))}</div>
+            ${manual && idx>=0 ? `<button type="button" class="tx-del" aria-label="Delete transaction" data-mk="${esc(tx.month)}" data-idx="${idx}" onclick="deleteManualTransaction(this.dataset.mk, parseInt(this.dataset.idx,10))">✕</button>` : ''}
           </div>`;}).join('')}
       </div>`).join('')}`;
   srAnnounce(`${rows.length} ${rows.length===1?'transaction':'transactions'}${filter?` matching "${filter}"`:''}`);

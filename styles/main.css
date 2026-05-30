@@ -943,3 +943,83 @@ body.privacy-mode.revealed .sec-total {
   /* Disable active-state scale "press" effect for users who set reduce-motion */
   .fab:active, #ai-help-btn:active { transform: none !important; }
 }
+
+/* ════ Manual transaction entry ════ */
+
+/* Floating add button (Transactions screen only) */
+#fab-add-tx {
+  position: fixed; right: 18px; bottom: calc(78px + env(safe-area-inset-bottom,0px));
+  width: 52px; height: 52px; border-radius: 50%; border: none;
+  background: var(--green); color: #fff; font-size: 30px; line-height: 1; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 6px 18px rgba(0,214,143,0.40); cursor: pointer; z-index: 90;
+  opacity: 0; transform: translateY(8px) scale(.9); pointer-events: none;
+  transition: opacity .25s ease, transform .25s ease;
+}
+#fab-add-tx.visible { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+#fab-add-tx:active { transform: scale(.94); }
+
+/* Type toggle (segmented control) */
+.addtx-toggle {
+  display: flex; gap: 6px; background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border); border-radius: 14px; padding: 5px; margin: 8px 0 4px;
+}
+.addtx-seg {
+  flex: 1; min-height: 44px; border: none; border-radius: 10px; background: transparent;
+  color: var(--soft); font-family: var(--font-display); font-weight: 800; font-size: 15px;
+  cursor: pointer; transition: background .15s ease, color .15s ease;
+}
+.addtx-seg.active { color: #050a14; }
+#add-tx-type-expense.active { background: var(--red); }
+#add-tx-type-income.active  { background: var(--green); }
+
+/* Amount field (accent follows type) */
+.addtx-amount-wrap {
+  display: flex; align-items: center; gap: 8px; margin-top: 4px;
+  border: 1.5px solid var(--red); border-radius: 14px; padding: 10px 14px;
+  transition: border-color .15s ease;
+}
+.addtx-amount-wrap.income { border-color: var(--green); }
+.addtx-currency { font-size: 24px; font-weight: 800; color: var(--muted); font-family: var(--font-display); }
+.addtx-amount {
+  flex: 1; width: 100%; border: none; background: transparent; outline: none; color: var(--text);
+  font-size: 30px; font-weight: 800; font-family: var(--font-display);
+}
+.addtx-amount::placeholder { color: var(--muted); }
+
+/* Labels / counters / collapsible links / footer */
+.addtx-label {
+  display: block; font-size: 12px; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .05em; margin: 14px 2px 6px;
+}
+.addtx-counter { font-size: 11px; color: var(--muted); text-align: right; margin: 4px 2px 0; }
+.addtx-toggle-link {
+  display: inline-flex; align-items: center; gap: 6px; background: none; border: none;
+  color: var(--green); font-size: 13px; font-weight: 700; cursor: pointer; padding: 14px 2px 4px;
+}
+.addtx-toggle-link .tw-arrow { font-size: 11px; }
+.addtx-footer { display: flex; gap: 10px; margin-top: 18px; }
+.addtx-footer .btn-secondary, .addtx-footer .btn-primary { flex: 1; }
+
+/* Scrollable modal on small screens */
+#modal-add-tx .sheet { max-height: 90vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
+/* Manual badge + delete icon in the tx list */
+.tx-badge-manual {
+  display: inline-block; font-size: 9px; font-weight: 800; letter-spacing: .04em;
+  color: var(--muted); border: 1px solid var(--border); border-radius: 5px;
+  padding: 0 4px; margin-left: 6px; line-height: 14px; vertical-align: middle;
+}
+.tx-del {
+  flex-shrink: 0; margin-left: 10px; width: 30px; height: 30px; border: none; border-radius: 8px;
+  background: transparent; color: var(--muted); font-size: 15px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: background .15s ease, color .15s ease;
+}
+.tx-del:hover, .tx-del:active { background: rgba(255,71,87,0.12); color: var(--red); }
+
+/* Empty state (Transactions screen) */
+.tx-empty { text-align: center; padding: 56px 24px; color: var(--muted); }
+.tx-empty-icon { font-size: 34px; margin-bottom: 12px; opacity: .7; }
+.tx-empty-title { font-family: var(--font-display); font-size: 17px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+.tx-empty-sub { font-size: 13px; line-height: 1.6; }
+.tx-empty-sub .fab-ref { color: var(--green); font-weight: 800; }
