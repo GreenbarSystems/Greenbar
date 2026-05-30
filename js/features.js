@@ -2,6 +2,13 @@
 // Self-contained interactive flows. Each has its own module-local state
 // (_aiOpen, _flashTimers, _setupState).
 
+// Best-effort localStorage write. Swallowed errors (quota, private mode,
+// disabled storage) are intentional — the wizard's "done" flag and similar
+// one-shot writes should never crash the UI if the platform rejects them.
+function safeSetLocal(key, val){
+  try{ localStorage.setItem(key, val); }catch(e){}
+}
+
 // ──────── AI help panel + topic-keyword routing ────────
 let _aiOpen = false;
 let _aiTyping = false;
@@ -286,7 +293,7 @@ function startSetupFromFlash(){
   // Flash intro -> Get Started -> setup wizard. The contextual coachmark
   // tour is opt-in via the Guide page (and Settings -> Help) -- it no
   // longer runs automatically as part of onboarding.
-  try{ localStorage.setItem('gb_wt_done','1'); }catch(e){}
+  safeSetLocal('gb_wt_done', '1');
   showHeaderButtons();
   showScreen('setup', _navBtn(0));
   resetSetupState();
@@ -491,18 +498,34 @@ function setupGo(step){
   if(step === 6) buildSetupReview();
 }
 
+// Advance the wizard to `step` only if the input at `inputId` parses to a
+// positive number; otherwise focus the input and flash its border red for
+// 2s. `msg` is currently unused — kept in the signature because call sites
+// in index.html pass a description that could later drive a toast/aria-live
+// announcement.
+const VALIDATE_FLASH_MS = 2000;
 function setupGoValidate(step, inputId, msg){
   const el = document.getElementById(inputId);
   const val = parseFloat(el?.value);
-  if(!val || val <= 0){ el?.focus(); el?.style && (el.style.borderColor='rgba(255,71,87,0.6)'); setTimeout(()=>el?.style&&(el.style.borderColor=''),2000); return; }
+  if(!val || val <= 0){
+    if(el){
+      el.focus();
+      el.style.borderColor = 'rgba(255,71,87,0.6)';
+      setTimeout(() => { el.style.borderColor = ''; }, VALIDATE_FLASH_MS);
+    }
+    return;
+  }
   setupGo(step);
 }
 
-function setupToggle(el, group){
+// Toggle a multi-select lifestyle chip. `idPrefix` is the leading segment
+// of the element's id (e.g. 's5' for #s5-car) that gets stripped to derive
+// the lifestyle key ('car') stored in _setupState.lifestyle.
+function setupToggle(el, idPrefix){
   el.classList.toggle('chosen');
-  const id = el.id.replace(group + '-','');
-  if(el.classList.contains('chosen')) _setupState.lifestyle.add(id);
-  else _setupState.lifestyle.delete(id);
+  const key = el.id.replace(idPrefix + '-', '');
+  if(el.classList.contains('chosen')) _setupState.lifestyle.add(key);
+  else _setupState.lifestyle.delete(key);
 }
 
 function toggleHousingType(type){
@@ -672,7 +695,7 @@ function finishSetup(){
   CFG.budget = finalBudget;
   CFG.income = Number(_setupState.income)||0;
   saveCFG();
-  try{ localStorage.setItem('gb_setup_done','1'); }catch(e){}
+  safeSetLocal('gb_setup_done', '1');
 
   // Smooth transition to summary with success indicator
   const navBtns = document.querySelectorAll('.nav-btn');
@@ -692,7 +715,7 @@ function finishSetup(){
 function skipSetup(){
   // Restore nav after wizard
   document.getElementById('bottom-nav')?.classList.add('visible');
-  try{ localStorage.setItem('gb_setup_done','1'); }catch(e){}
+  safeSetLocal('gb_setup_done', '1');
   showScreen('summary', _navBtn(0));
   showHeaderButtons();
 }
