@@ -312,6 +312,59 @@ button.stat-tile:disabled:active { transform: none; }
 /* Common flex-between row used in Storage card key-value layout. */
 .row-between { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
 
+/* ── Insights modal: metric tile + section card primitives ──────────────────
+   Extracted from showCatInsights, which previously inlined the same
+   rgba-glass + eyebrow + value composition at every site. Re-usable
+   across any drill-down modal that wants the same look. Dynamic colors
+   (trend, vs-budget) stay inline at the call site since they depend on
+   per-render data. */
+
+/* Small metric card used inside a 2-column grid (Avg/month, Trend, …). */
+.metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.metric-tile {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+/* Variance modifiers — "is-over" tints red, "is-under" tints green. Used by
+   the vs-Budget tile in showCatInsights to signal direction at a glance. */
+.metric-tile.is-over  { background: rgba(255,71,87,0.10); border-color: rgba(255,71,87,0.20); }
+.metric-tile.is-under { background: rgba(0,214,143,0.10); border-color: rgba(0,214,143,0.20); }
+.metric-tile-eyebrow {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.metric-tile-value {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 900;
+}
+
+/* Larger section container used for chart/list groupings inside the same
+   modal (Month-by-Month, Top Vendors). Same colour family as .metric-tile
+   but with bigger padding/radius to read as a distinct grouping. */
+.section-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+.section-card-header {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+}
+
 /* ── Section header ── */
 .sec-hdr { font-family: var(--font-display); font-size: 13px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin: 22px 0 10px; display: flex; align-items: center; justify-content: space-between; }
 .sec-total { font-size: 13px; font-weight: 700; color: var(--soft); letter-spacing: 0; text-transform: none; }
