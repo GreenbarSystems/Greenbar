@@ -181,7 +181,7 @@ function renderHealthBreakdown(hs, monthKey){
       </div>
       <div style="flex:1;min-width:0;">
         <div style="font-family:var(--font-display);font-size:22px;font-weight:900;color:${hs.gradeColor};">${hs.score}<span style="color:var(--muted);font-size:14px;font-weight:700;">/100</span></div>
-        <div style="font-size:13px;color:var(--soft);">${esc(hs.label)} &middot; ${monthKey}</div>
+        <div style="font-size:13px;color:var(--soft);">${esc(hs.label)} &middot; ${esc(monthKey)}</div>
       </div>
     </div>
 
@@ -335,7 +335,7 @@ function renderStreaks(){
       </div>
     </div>
     ${earned.length ? `<div class="badge-section-title">Earned</div><div class="badge-grid">${badgeHTML(earned, false)}</div>` : ''}
-    ${locked.length ? `<div class="badge-section-title" class="c-muted">Next Up</div><div class="badge-grid">${badgeHTML(locked.slice(0,3), true)}</div>` : ''}
+    ${locked.length ? `<div class="badge-section-title c-muted">Next Up</div><div class="badge-grid">${badgeHTML(locked.slice(0,3), true)}</div>` : ''}
   </div>`;
 }
 
@@ -350,7 +350,9 @@ function showCatInsights(cat){
   const total = txsForCat.reduce((s,tx)=>s+Math.abs(tx.amount),0);
   const keys = sortKeys(_months);
   const n = keys.length;
-  const avgMo = total / n;
+  // total covers only `monthFilter` months when one is selected, so divide by 1
+  // (not the full tracked-month count) to keep avg-per-month honest.
+  const avgMo = total / (monthFilter ? 1 : Math.max(1, n));
 
   // Build vendor breakdown for context
   const byVendor = {};
@@ -461,7 +463,7 @@ function showCatInsights(cat){
             ? `Spending is <b>on target</b> -- averaging ${fmt(avgMo)}/mo, within 10% of your ${fmt(budget)} budget.`
             : `No budget set for this category. Consider setting a target in Settings.`,
           highMonth && keys.length > 1
-            ? `<b>${highMonth}</b> was your highest spend month at ${fmt(byMonth[highMonth])}.`
+            ? `<b>${esc(highMonth)}</b> was your highest spend month at ${fmt(byMonth[highMonth])}.`
             : null,
           trend > 100
             ? `Spending is <b>trending up</b> -- ${fmt(Math.abs(trend))} more than when tracking started.`
@@ -480,10 +482,14 @@ function showVendorDrill(cat){
   const monthFilter = (_sel && _sel !== '__all') ? _sel : null;
   const txsForCat = _allTxs.filter(tx => tx.cat === cat && tx.amount < 0 && (!monthFilter || tx.month === monthFilter));
   const byVendor = {};
+  const vendorCounts = {};
   for(const tx of txsForCat){
-    // Clean up description to get vendor name (first ~30 chars, strip bank prefixes)
+    // Clean up description to get vendor name (first ~30 chars, strip bank prefixes).
+    // Aggregate amount and per-vendor tx count in the same pass so the rendering
+    // loop below doesn't re-scan txsForCat per vendor (was O(N×M); now O(N)).
     const v = cleanVendor(tx.desc);
     byVendor[v] = (byVendor[v] || 0) + Math.abs(tx.amount);
+    vendorCounts[v] = (vendorCounts[v] || 0) + 1;
   }
 
   const vendors = Object.entries(byVendor).sort((a,b) => b[1]-a[1]);
@@ -501,9 +507,7 @@ function showVendorDrill(cat){
   list.innerHTML = vendors.slice(0,30).map(([vendor, amt], i)=>{
     const pct = (amt/total*100).toFixed(1);
     const barW = Math.round(amt/maxAmt*100);
-    const count = txsForCat.filter(tx=>{
-      return cleanVendor(tx.desc)===vendor;
-    }).length;
+    const count = vendorCounts[vendor] || 0;
     return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
       <div style="flex:1;min-width:0;">
         <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;">${esc(vendor)}</div>
@@ -545,7 +549,7 @@ function renderSummary(){
   const maxAmt=spend[0]?.[1]||1;
 
   const pills=hasData
-    ? `<div class="pills-row" role="group" aria-label="Select month" style="margin-bottom:12px;">${keys.map(k=>`<button type="button" class="pill ${k===sel?'active':''}" onclick="selMonth('${k}')"${k===sel?' aria-current="true"':''}>${k}</button>`).join('')}<button type="button" class="pill" onclick="selMonth('__all')">All</button></div>`
+    ? `<div class="pills-row" role="group" aria-label="Select month" style="margin-bottom:12px;">${keys.map(k=>`<button type="button" class="pill ${k===sel?'active':''}" onclick="selMonth(this.dataset.mk)" data-mk="${esc(k)}"${k===sel?' aria-current="true"':''}>${esc(k)}</button>`).join('')}<button type="button" class="pill" onclick="selMonth('__all')">All</button></div>`
     : '';
 
   const topSpendBody=spend.length
@@ -610,7 +614,7 @@ function renderSummary(){
             const ariaSign = positive ? 'saved' : 'over income';
             return `<button class="stat-tile" type="button" onclick="openHealthBreakdown()" aria-label="Savings rate ${sign}${Math.abs(pct)} percent ${ariaSign} this month — see what's driving it"><div class="st-lbl">Savings Rate</div><div class="st-val" style="color:${valColor};">${sign}${Math.abs(pct)}%</div><div class="st-tap-hint" style="margin-top:3px;color:var(--soft);">${subText} &rsaquo;</div></button>`;
           }
-          return `<button class="stat-tile" type="button" disabled aria-label="Savings rate not available yet — add a month with income"><div class="st-lbl">Savings Rate</div><div class="st-val" class="c-muted">—</div></button>`;
+          return `<button class="stat-tile" type="button" disabled aria-label="Savings rate not available yet — add a month with income"><div class="st-lbl">Savings Rate</div><div class="st-val c-muted">—</div></button>`;
         })()}
         <button class="stat-tile" type="button" ${hs?`onclick="openHealthBreakdown()" aria-label="Health score ${hs.grade}, ${hs.score} out of 100 — see what's driving it"`:'disabled aria-label="Health score not available yet"'}><div class="st-lbl">Health Score</div><div class="st-val" style="color:${gradeColor};">${grade}</div>${hs?`<div class="st-tap-hint">Tap for details &rsaquo;</div>`:''}</button>
       </div>
@@ -633,7 +637,7 @@ function selMonth(mk){
 
 function renderSummaryAll(){
   const keys=sortKeys(_months);
-  const pills=keys.map(k=>`<button type="button" class="pill" onclick="selMonth('${k}')">${k}</button>`).join('')
+  const pills=keys.map(k=>`<button type="button" class="pill" onclick="selMonth(this.dataset.mk)" data-mk="${esc(k)}">${esc(k)}</button>`).join('')
     +`<button type="button" class="pill active" onclick="selMonth('__all')" aria-current="true">All</button>`;
   const allCats={};let totalInc=0,totalExp=0;
   for(const mk of keys){const m=_months[mk];totalInc+=m.income;for(const[c,v]of Object.entries(m.expenses)){allCats[c]=(allCats[c]||0)+v;totalExp+=v;}}
