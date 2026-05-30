@@ -290,14 +290,20 @@ function flashSkipToCTA(e){
 }
 
 function startSetupFromFlash(){
-  // Flash intro -> Get Started -> setup wizard. The contextual coachmark
-  // tour is opt-in via the Guide page (and Settings -> Help) -- it no
-  // longer runs automatically as part of onboarding.
+  // Flash intro -> Get Started -> setup wizard. Land on Step 1 (welcome
+  // + "Skip — use default values") so users see the escape hatch before
+  // being asked their first personal question. The previous setupGo(2)
+  // dropped straight into "What's your monthly housing cost?" with no
+  // preamble and no visible skip, costing wizard completions.
+  //
+  // The contextual coachmark tour is opt-in via the Guide page (and
+  // Settings -> Help) -- it no longer runs automatically as part of
+  // onboarding.
   safeSetLocal('gb_wt_done', '1');
   showHeaderButtons();
   showScreen('setup', _navBtn(0));
   resetSetupState();
-  setupGo(2);
+  setupGo(1);
   // Hide nav while wizard is active -- prevents nav taps interrupting setup
   document.getElementById('bottom-nav')?.classList.remove('visible');
 }
@@ -386,12 +392,12 @@ function showBankExport(key){
     + `<div style="font-size:11px;color:var(--muted);line-height:1.5;margin-top:8px;">Exact labels and steps can change — if something looks different, search your bank's help center for &ldquo;download transactions.&rdquo;</div>`;
 }
 
-// Post-setup import button: open the file picker, then reveal a shortcut to the
-// bank-export instructions for first-timers who don't have a file yet.
+// Post-setup import button: open the file picker. The bank-export shortcut
+// for first-timers without a file is rendered inline alongside this button
+// (see renderSummary's importPrompt) so they see the offer BEFORE tapping
+// import — not after a useless picker opens.
 function startFirstImport(){
   document.getElementById('csv-input').click();
-  const help=document.getElementById('first-import-help');
-  if(help) help.style.display='block';
 }
 function goToBankExport(){
   showScreen('intro', _navBtn(3));
@@ -499,10 +505,10 @@ function setupGo(step){
 }
 
 // Advance the wizard to `step` only if the input at `inputId` parses to a
-// positive number; otherwise focus the input and flash its border red for
-// 2s. `msg` is currently unused — kept in the signature because call sites
-// in index.html pass a description that could later drive a toast/aria-live
-// announcement.
+// positive number; otherwise focus the input, flash its border red for 2s,
+// and surface `msg` as a toast + aria-live announcement so the user knows
+// WHY the advance was blocked (the red border alone was easy to miss on
+// small screens and invisible to screen readers).
 const VALIDATE_FLASH_MS = 2000;
 function setupGoValidate(step, inputId, msg){
   const el = document.getElementById(inputId);
@@ -512,6 +518,10 @@ function setupGoValidate(step, inputId, msg){
       el.focus();
       el.style.borderColor = 'rgba(255,71,87,0.6)';
       setTimeout(() => { el.style.borderColor = ''; }, VALIDATE_FLASH_MS);
+    }
+    if(msg){
+      if(typeof showToast === 'function') showToast(msg);
+      if(typeof srAnnounce === 'function') srAnnounce(msg);
     }
     return;
   }
