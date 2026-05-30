@@ -64,6 +64,20 @@ const BADGES = {
 };
 
 // ── Feature 1: Financial Health Score ──
+// Returns { score, grade, gradeColor, label, details } or null if the month
+// has no income (grade is undefined without an income baseline).
+//
+// `details` shape — consumed by renderHealthBreakdown:
+//   savePts          number  0..HEALTH.POINTS.SAVINGS    (post-clamp)
+//   savingsRate      number  raw (income-expTotal)/income; can be negative
+//   budPts           number  0..HEALTH.POINTS.BUDGET     (incl. NEUTRAL_PTS
+//                            when no budgets are set)
+//   budgetCoverage   number  count of budgeted categories scored (omitted
+//                            when no budgets are set at all)
+//   divPts           number  0..HEALTH.POINTS.DIVERSITY
+//
+// All keys are present except budgetCoverage, which is only set when the
+// budget arm took the budgeted-categories path.
 function computeHealthScore(monthKey){
   const m = _months[monthKey];
   if(!m) return null;
@@ -691,10 +705,22 @@ function renderSummaryAll(){
   const keys=sortKeys(_months);
   const pills=keys.map(k=>`<button type="button" class="pill" onclick="selMonth(this.dataset.mk)" data-mk="${esc(k)}">${esc(k)}</button>`).join('')
     +`<button type="button" class="pill active" onclick="selMonth('__all')" aria-current="true">All</button>`;
-  const allCats={};let totalInc=0,totalExp=0;
-  for(const mk of keys){const m=_months[mk];totalInc+=m.income;for(const[c,v]of Object.entries(m.expenses)){allCats[c]=(allCats[c]||0)+v;totalExp+=v;}}
-  const n=keys.length;
-  const cats=Object.entries(allCats).map(([c,t])=>([c,t/n])).sort((a,b)=>b[1]-a[1]);
+  // Aggregate income + per-category spend across every month in a single pass.
+  const allCats = {};
+  let totalInc = 0, totalExp = 0;
+  for(const mk of keys){
+    const m = _months[mk];
+    totalInc += m.income;
+    for(const [c, v] of Object.entries(m.expenses)){
+      allCats[c] = (allCats[c] || 0) + v;
+      totalExp += v;
+    }
+  }
+  const n = keys.length;
+  // Switch totals to per-month averages and sort biggest-first.
+  const cats = Object.entries(allCats)
+    .map(([c, t]) => [c, t / n])
+    .sort((a, b) => b[1] - a[1]);
   const maxAvg=cats[0]?.[1]||1;
 
   document.getElementById('summary-content').innerHTML=`
@@ -756,13 +782,29 @@ function renderSummaryAll(){
 }
 
 function renderBudget(){
-  const mk=_sel==='__all'?sortKeys(_months).slice(-1)[0]:_sel;
-  const m=_months[mk];
-  if(!m){document.getElementById('budget-content').innerHTML='<div class="empty"><p>Your budget is ready. Import your Bank Transactions to compare actual spending.</p><button type="button" class="empty-action" onclick="document.getElementById(\'csv-input\').click()">Import a CSV file</button></div>';srAnnounce('Budget, no transactions yet');return;}
-  const expTotal=sumExpenses(m);
-  const budTotal=Object.values(CFG.budget).reduce((s,v)=>s+v,0);
-  const rows=Object.entries(CFG.budget).map(([cat,bud])=>({cat,bud,actual:m.expenses[cat]||0})).filter(r=>r.bud>0||r.actual>0).sort((a,b)=>b.actual-a.actual);
-  const unb=Object.entries(m.expenses).filter(([cat])=>!CFG.budget[cat]).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const mk = _sel === '__all' ? sortKeys(_months).slice(-1)[0] : _sel;
+  const m = _months[mk];
+  if(!m){
+    document.getElementById('budget-content').innerHTML =
+      '<div class="empty">' +
+        '<p>Your budget is ready. Import your Bank Transactions to compare actual spending.</p>' +
+        '<button type="button" class="empty-action" onclick="document.getElementById(\'csv-input\').click()">Import a CSV file</button>' +
+      '</div>';
+    srAnnounce('Budget, no transactions yet');
+    return;
+  }
+  const expTotal = sumExpenses(m);
+  const budTotal = Object.values(CFG.budget).reduce((s, v) => s + v, 0);
+  // Budgeted categories — drop rows with neither budget nor actual; biggest spend first.
+  const rows = Object.entries(CFG.budget)
+    .map(([cat, bud]) => ({ cat, bud, actual: m.expenses[cat] || 0 }))
+    .filter(r => r.bud > 0 || r.actual > 0)
+    .sort((a, b) => b.actual - a.actual);
+  // Top 5 unbudgeted spends (categories that have actual but no target).
+  const unb = Object.entries(m.expenses)
+    .filter(([cat]) => !CFG.budget[cat])
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
   const totalVar=budTotal-expTotal;
   const varColor = totalVar >= 0 ? 'var(--green)' : '#ff4757';
   const varTint  = totalVar >= 0 ? 'rgba(0,214,143,0.07)' : 'rgba(255,71,87,0.07)';
@@ -780,27 +822,50 @@ function renderBudget(){
     <div style="font-size:12px;color:var(--muted);margin:-4px 2px 14px;line-height:1.5;">Targets come from your Setup &mdash; update them in Settings anytime.</div>
     <div class="bva-card">
       <div class="bva-head"><span>Category</span><span>Budget</span><span>Actual</span><span>Δ</span></div>
-      ${rows.map(r=>{const v=r.bud-r.actual;const cls=v<-20?'v-over':v>20?'v-under':'v-flat';
-        return`<div class="bva-row"><div class="bva-cat">${esc(r.cat)}</div><div class="bva-num" style="color:var(--muted)">${fmt(r.bud)}</div><div class="bva-num">${fmt(r.actual)}</div><div class="bva-num ${cls}">${v>=0?'+':''}${fmt(v)}</div></div>`;}).join('')}
+      ${rows.map(r => {
+        const v = r.bud - r.actual;
+        // ±$20 dead-zone keeps tiny deltas from flashing red/green — feels noisy otherwise.
+        const cls = v < -20 ? 'v-over' : v > 20 ? 'v-under' : 'v-flat';
+        return `<div class="bva-row">`
+          + `<div class="bva-cat">${esc(r.cat)}</div>`
+          + `<div class="bva-num" style="color:var(--muted)">${fmt(r.bud)}</div>`
+          + `<div class="bva-num">${fmt(r.actual)}</div>`
+          + `<div class="bva-num ${cls}">${v >= 0 ? '+' : ''}${fmt(v)}</div>`
+          + `</div>`;
+      }).join('')}
     </div>
-    ${unb.length?`<h2 class="sec-hdr">Unbudgeted</h2><div class="bva-card">${unb.map(([cat,amt])=>`<div class="bva-row"><div class="bva-cat">${esc(cat)}</div><div class="bva-num" style="color:var(--muted)">-</div><div class="bva-num">${fmt(amt)}</div><div class="bva-num v-flat">--</div></div>`).join('')}</div>`:''}`;
+    ${unb.length ? `<h2 class="sec-hdr">Unbudgeted</h2><div class="bva-card">${
+      unb.map(([cat, amt]) =>
+        `<div class="bva-row">`
+        + `<div class="bva-cat">${esc(cat)}</div>`
+        + `<div class="bva-num" style="color:var(--muted)">-</div>`
+        + `<div class="bva-num">${fmt(amt)}</div>`
+        + `<div class="bva-num v-flat">--</div>`
+        + `</div>`
+      ).join('')
+    }</div>` : ''}`;
   srAnnounce(`Budget for ${mk}, ${rows.length} ${rows.length===1?'category':'categories'}`);
 }
 
 function renderTxs(filter=''){
-  const mk=_sel==='__all'?null:_sel;
-  const dateFmt=CFG.cols.fmt||'MM/DD/YY';
+  const mk = _sel === '__all' ? null : _sel;
+  const dateFmt = CFG.cols.fmt || 'MM/DD/YY';
+  // Lowercase the search term once instead of per-tx in the filter callback.
+  const needle = filter ? filter.toLowerCase() : '';
+  const matchesFilter = needle
+    ? tx => tx.desc.toLowerCase().includes(needle) || tx.cat.toLowerCase().includes(needle)
+    : () => true;
   // Resolve each tx to a sortable key + readable label. Prefer the ts stored at
   // import; fall back to parsing the raw date for data saved by older versions.
-  const rows=(_allTxs||[])
-    .filter(tx=>(!mk||tx.month===mk)&&(!filter||tx.desc.toLowerCase().includes(filter.toLowerCase())||tx.cat.toLowerCase().includes(filter.toLowerCase())))
-    .map(tx=>{
-      const pd=parseDateParts(tx.date,dateFmt);
-      const key=(typeof tx.ts==='number'&&tx.ts)||(pd&&pd.key)||0;
-      const label=(pd&&pd.label)||tx.date||'Undated';
-      return {tx,key,label};
+  const rows = (_allTxs || [])
+    .filter(tx => (!mk || tx.month === mk) && matchesFilter(tx))
+    .map(tx => {
+      const pd = parseDateParts(tx.date, dateFmt);
+      const key   = (typeof tx.ts === 'number' && tx.ts) || (pd && pd.key) || 0;
+      const label = (pd && pd.label) || tx.date || 'Undated';
+      return { tx, key, label };
     })
-    .sort((a,b)=>b.key-a.key);
+    .sort((a, b) => b.key - a.key);
   if(!rows.length){
     const html = filter
       ? `<div class="empty"><p>No matches for &ldquo;${esc(filter)}&rdquo;.</p><button type="button" class="empty-link" onclick="renderTxs('')">Clear search</button></div>`
