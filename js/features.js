@@ -290,22 +290,32 @@ function flashSkipToCTA(e){
 }
 
 function startSetupFromFlash(){
-  // Flash intro -> Get Started -> setup wizard. Land on Step 1 (welcome
-  // + "Skip — use default values") so users see the escape hatch before
-  // being asked their first personal question. The previous setupGo(2)
-  // dropped straight into "What's your monthly housing cost?" with no
-  // preamble and no visible skip, costing wizard completions.
+  // UX Tier 3 Phase 1 — import-first: Flash CTA now routes straight to
+  // Summary so users can import immediately and see real spend before
+  // committing to any budget questions. Previously this dropped users
+  // into the 6-step wizard (60-90s upfront commitment before any value).
+  //
+  // The wizard is still available — and still recommended for users who
+  // prefer to define their budget targets up front — via
+  // Settings -> Budget Setup Wizard ("Open ->"). A future phase will add
+  // a "Want a budget? We can suggest one from what you actually spent"
+  // card on Summary after first import, replacing the wizard for most
+  // new users.
+  //
+  // gb_setup_done is marked so subsequent launches route via the
+  // _continueBoot "setup done but no data" branch (empty Summary) rather
+  // than firing the flash intro again. The flag's semantic broadens
+  // here from strictly "wizard completed" to "user has been onboarded
+  // past the flash intro" — see boot.js for the consumer side.
   //
   // The contextual coachmark tour is opt-in via the Guide page (and
   // Settings -> Help) -- it no longer runs automatically as part of
   // onboarding.
   safeSetLocal('gb_wt_done', '1');
+  safeSetLocal('gb_setup_done', '1');
   showHeaderButtons();
-  showScreen('setup', _navBtn(0));
-  resetSetupState();
-  setupGo(1);
-  // Hide nav while wizard is active -- prevents nav taps interrupting setup
-  document.getElementById('bottom-nav')?.classList.remove('visible');
+  showScreen('summary', _navBtn(0));
+  renderAll();
 }
 
 

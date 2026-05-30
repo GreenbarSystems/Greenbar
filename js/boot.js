@@ -44,8 +44,10 @@ function _continueBoot(){
     renderAll();
     showScreen('summary',_navBtn(0));
   } else if(localStorage.getItem('gb_setup_done')){
-    // User finished setup previously but has no data (cleared or pre-import).
-    // Show the empty Summary so they can re-import.
+    // User has been onboarded past the flash intro (either via the wizard
+    // or via the import-first flash CTA — gb_setup_done covers both since
+    // UX Tier 3 Phase 1 broadened its semantic) but has no data yet, or
+    // cleared their data. Show the empty Summary so they can import.
     showHeaderButtons();
     showScreen('summary',_navBtn(0));
   } else {

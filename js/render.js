@@ -647,10 +647,15 @@ function renderSummary(){
     </div>`;
   }
 
+  // UX Tier 3 Phase 1 — copy updated for the import-first flow. Users
+  // arrive here straight from the flash intro (no wizard), so we no
+  // longer promise "your budget is ready" (it isn't until they either
+  // run the wizard from Settings or, in Phase 3, accept a suggested
+  // budget). Welcome copy is honest about the next step.
   const importPrompt=hasData ? '' : `
       <div class="g-card" style="padding:18px;margin:14px 0 0;text-align:center;">
-        <div style="font-family:var(--font-display);font-size:16px;font-weight:900;margin-bottom:6px;">You're all set!</div>
-        <div style="font-size:13px;color:var(--soft);line-height:1.6;margin-bottom:14px;">Your budget is ready. Import your bank transactions to track spending against these targets.</div>
+        <div style="font-family:var(--font-display);font-size:16px;font-weight:900;margin-bottom:6px;">Welcome to Greenbar</div>
+        <div style="font-size:13px;color:var(--soft);line-height:1.6;margin-bottom:14px;">Import a Bank Transaction file to see your spending broken down by category. Everything stays on your device.</div>
         <button type="button" class="btn-primary" onclick="startFirstImport()">Import your first Bank Transaction file now</button>
         <div id="first-import-help" style="margin-top:12px;font-size:12px;color:var(--soft);line-height:1.5;">Don't have a file yet? <span onclick="goToBankExport()" style="color:var(--green);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:2px;">See how to export from your bank &rarr;</span></div>
       </div>`;
