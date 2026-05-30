@@ -42,6 +42,11 @@ export async function withOrg<T>(
 // org comes from a job payload rather than an authenticated session (§1.3).
 export const withOrgWorker = withOrg;
 
+/** Close the shared connection. For graceful shutdown / test teardown. */
+export async function disconnectDb(): Promise<void> {
+  await prisma.$disconnect();
+}
+
 function isUuid(value: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
     value

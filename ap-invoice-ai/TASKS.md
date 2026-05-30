@@ -97,7 +97,7 @@ Goal: a user can review, correct, approve, or reject extracted invoices.
 - [ ] **RVW-1** Review Queue list (`GET /api/ap/review`) + Review Detail (`GET /api/ap/review/:id`) UIs: side-by-side original preview + extracted fields, warnings, vendor suggestions, raw-text drawer, audit history. *(VAL-1, FILE-1)* — **PRD P0**
 - [ ] **RVW-2** Editable fields (`PATCH`): `If-Match` optimistic concurrency → 409 on stale; every save writes `audit_events`. *(RVW-1, IDEM-1)* — **addendum §4.7**
 - [ ] **RVW-3** Approve / reject (`POST .../approve|reject`): approve blocked on unresolved blocking issues; reject logs reason; retry of an upstream job on an already-approved invoice fails with a structured error. *(RVW-2)* — **addendum §4.2**
-- [ ] **AUD-1** Audit logging helper used by all mutations (edit/approve/reject/export) writing before/after JSON. *(AUTH-1)* — **PRD NFR Auditability**
+- [x] **AUD-1** `recordAudit(tx, {...})` (`src/lib/audit/log.ts`) writes `audit_events` with before/after JSON. Verified by a live-Supabase integration test exercising the real `withOrg()` under RLS. Mutations (RVW-2/3, EXP-2) call it. — **PRD NFR Auditability**
 - [ ] **RVW-4** Concurrency test: two simultaneous PATCHes → one 200, one 409. *(RVW-2)* — **CI gate**
 - **Phase 4 exit:** review → correct → approve/reject works end-to-end with audit trail.
 
@@ -108,7 +108,7 @@ Goal: a user can review, correct, approve, or reject extracted invoices.
 Goal: approved invoices export; pilot users can process real batches.
 
 - [ ] **EXP-1** `POST /api/ap/exports`: confirm all targets approved; create `exports` row up-front; enqueue `export-invoices`. *(RVW-3)*
-- [ ] **EXP-2** `export-invoices` job: generate CSV + JSON, store file, compare-and-set `exports.status`, flip invoices to `exported`, audit. *(EXP-1)* — **idempotent on `export_id`**
+- [~] **EXP-2** Serializer done (`src/lib/export/serialize.ts`): `toCsv` (core fields, RFC 4180 escaping) + `toJson` (PRD normalized shape), unit-tested. Remaining: the `export-invoices` job wiring — store file, compare-and-set `exports.status`, flip invoices to `exported`, audit. *(EXP-1)* — **idempotent on `export_id`**
 - [ ] **EXP-3** Export History UI (list, format, created-by/date, signed download link, invoice count). *(EXP-2)*
 - [ ] **MET-1** Pilot dashboard metrics (activation / quality / workflow / business per PRD "Pilot Metrics"). *(EXP-2)*
 - [ ] **RET-1** Retention/deletion jobs: null `llm_runs.output_json` at 90 days; purge orphaned storage keys; org-delete cascade completes ≤ 30 days. *(FILE-1)* — **addendum §2.5**
