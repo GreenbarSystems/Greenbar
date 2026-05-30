@@ -143,6 +143,12 @@ function runFlashIntro(){
   const cta = document.getElementById('flash-cta');
   const intro = document.getElementById('flash-intro');
   if(!p1) return;
+  // Cancel any pending timers from a prior runFlashIntro before scheduling
+  // new ones — this function is called from multiple boot paths (core.js,
+  // boot.js) and a stale phase-3 timer could otherwise flip _flashDone=true
+  // mid-way through the second run.
+  _flashTimers.forEach(id => clearTimeout(id));
+  _flashTimers = [];
   _flashDone = false;
 
   // Respect prefers-reduced-motion: skip the animated intro and land on CTA immediately
@@ -179,19 +185,22 @@ function runFlashIntro(){
 
   // Phase 1: "Hey there." fades in
   schedule(()=>{
+    if(!p1) return;
     p1.style.transition = 'opacity 0.4s ease';
     p1.style.opacity = '1';
   }, 150);
 
   // Phase 1 fades out
   schedule(()=>{
+    if(!p1) return;
     p1.style.transition = 'opacity 0.5s ease';
     p1.style.opacity = '0';
   }, 2200);
 
   // Phase 2: fades in as phase 1 is fading out -- crossfade, no blank gap
   schedule(()=>{
-    const shimmer = p2 ? p2.querySelector('.gb-shimmer') : null;
+    if(!p2) return;
+    const shimmer = p2.querySelector('.gb-shimmer');
     if(shimmer){
       // Restart so the shimmer plays in sync with phase 2 appearing.
       shimmer.style.animation = 'none';
@@ -204,9 +213,12 @@ function runFlashIntro(){
 
   // CTA fades in
   schedule(()=>{
+    // Always flip _flashDone even if the CTA element vanished — the user
+    // can no longer skip, but state stays consistent for the next entry.
+    _flashDone = true;
+    if(!cta) return;
     cta.style.transition = 'opacity 0.5s ease';
     cta.style.opacity = '1';
-    _flashDone = true;
   }, 3700);
 }
 
@@ -229,9 +241,12 @@ function flashSkipToCTA(e){
     // Restart shimmer so it plays fresh on tap-to-skip
     const shimmer = p2.querySelector('.gb-shimmer');
     if(shimmer){
-      shimmer.style.animation='none'; shimmer.offsetWidth; shimmer.style.animation='';
-      }
-    p2.style.transition = 'opacity 0.4s ease'; p2.style.opacity = '1';
+      shimmer.style.animation = 'none';
+      shimmer.offsetWidth;
+      shimmer.style.animation = '';
+    }
+    p2.style.transition = 'opacity 0.4s ease';
+    p2.style.opacity = '1';
   }
   if(cta){ setTimeout(()=>{ cta.style.transition = 'opacity 0.4s ease'; cta.style.opacity = '1'; }, 350); }
 }
@@ -412,13 +427,19 @@ function setupToggle(el, group){
 function toggleHousingType(type){
   const tile = document.getElementById('ht-' + type);
   if(!tile) return;
-  const isOn = tile.classList.contains('chosen');
-  tile.classList.toggle('chosen');
-  if(!isOn){ _setupState.housingType = type; }
-  else {
-    const other = type === 'own' ? 'rent' : 'own';
-    const otherTile = document.getElementById('ht-' + other);
-    _setupState.housingType = otherTile?.classList.contains('chosen') ? other : 'own';
+  const other = type === 'own' ? 'rent' : 'own';
+  const otherTile = document.getElementById('ht-' + other);
+  const wasOn = tile.classList.contains('chosen');
+  // Radio semantics: exactly one of {own, rent} is selected at a time. Tapping
+  // an already-chosen tile deselects it (state falls back to default 'own');
+  // tapping the other tile flips the selection.
+  if(wasOn){
+    tile.classList.remove('chosen');
+    _setupState.housingType = 'own'; // sensible default when neither is chosen
+  } else {
+    tile.classList.add('chosen');
+    if(otherTile) otherTile.classList.remove('chosen');
+    _setupState.housingType = type;
   }
 }
 
