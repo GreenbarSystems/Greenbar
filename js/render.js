@@ -457,29 +457,29 @@ function showCatInsights(cat){
   document.getElementById('ins-loading').style.display = 'none';
   document.getElementById('ins-content').innerHTML = `
       <!-- Key metrics -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
-        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:12px 14px;">
-          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:700;margin-bottom:4px;">Avg/month</div>
-          <div style="font-family: var(--font-display);font-size:20px;font-weight:900;">${fmt(avgMo)}</div>
+      <div class="metric-grid">
+        <div class="metric-tile">
+          <div class="metric-tile-eyebrow">Avg/month</div>
+          <div class="metric-tile-value">${fmt(avgMo)}</div>
         </div>
-        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:12px 14px;">
-          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:700;margin-bottom:4px;">Trend</div>
-          <div style="font-family: var(--font-display);font-size:20px;font-weight:900;color:${trendColor};">${trendDir}</div>
+        <div class="metric-tile">
+          <div class="metric-tile-eyebrow">Trend</div>
+          <div class="metric-tile-value" style="color:${trendColor};">${trendDir}</div>
         </div>
         ${budget>0?`
-        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:12px 14px;">
-          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:700;margin-bottom:4px;">Budget</div>
-          <div style="font-family: var(--font-display);font-size:20px;font-weight:900;">${fmt(budget)}/mo</div>
+        <div class="metric-tile">
+          <div class="metric-tile-eyebrow">Budget</div>
+          <div class="metric-tile-value">${fmt(budget)}/mo</div>
         </div>
-        <div style="background:${parseFloat(vsBudget)>0?'rgba(255,71,87,0.1)':'rgba(0,214,143,0.1)'};border:1px solid ${parseFloat(vsBudget)>0?'rgba(255,71,87,0.2)':'rgba(0,214,143,0.2)'};border-radius:14px;padding:12px 14px;">
-          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:700;margin-bottom:4px;">vs Budget</div>
-          <div style="font-family: var(--font-display);font-size:20px;font-weight:900;color:${parseFloat(vsBudget)>0?'var(--red)':'var(--green)'};">${parseFloat(vsBudget)>0?'+':''}${vsBudget}%</div>
+        <div class="metric-tile ${parseFloat(vsBudget)>0?'is-over':'is-under'}">
+          <div class="metric-tile-eyebrow">vs Budget</div>
+          <div class="metric-tile-value" style="color:${parseFloat(vsBudget)>0?'var(--red)':'var(--green)'};">${parseFloat(vsBudget)>0?'+':''}${vsBudget}%</div>
         </div>`:''}
       </div>
 
       <!-- Monthly trend chart -->
-      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:14px 16px;margin-bottom:12px;">
-        <div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;font-family: var(--font-display);">Month by Month</div>
+      <div class="section-card">
+        <div class="section-card-header">Month by Month</div>
         ${keys.map(mk=>{
           const amt=byMonth[mk];
           // Math.max(...[]) is -Infinity, which is truthy -- ||1 wouldn't catch it.
@@ -502,8 +502,8 @@ function showCatInsights(cat){
 
       <!-- Top vendors -->
       ${topVendors.length?`
-      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:14px 16px;margin-bottom:12px;">
-        <div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;font-family: var(--font-display);">Top Vendors</div>
+      <div class="section-card">
+        <div class="section-card-header">Top Vendors</div>
         ${topVendors.map(([v,a],i)=>`
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;${i===topVendors.length-1?'margin-bottom:0':''}">
             <div style="font-size:12px;color:var(--soft);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(v)}</div>
