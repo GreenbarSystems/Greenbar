@@ -35,10 +35,33 @@ async function _continueBoot(){
   // it on the first Summary load; users replay the tour via Settings -> Help.
 }
 if(gbAuth.isEnabled() && gbAuth.hasPIN()){
-  // Lock first, then continue boot once the user unlocks.
+  // Lock first, then continue boot once the user unlocks. The whole flow
+  // is wrapped in try/catch:
+  //   - gbAuth.unlock() can reject if the biometric API throws (the PIN-pad
+  //     Promise itself never rejects — it just stays pending until input).
+  //     One retry typically falls through to the PIN pad even when biometric
+  //     is broken; if the retry also fails, we log and leave the lock screen
+  //     visible. The user can reload to attempt again.
+  //   - _continueBoot() is sync today but defensively wrapped so a render
+  //     exception doesn't silently kill the post-unlock setup (badge,
+  //     privacy toggle, auth timer reset).
   (async () => {
-    await gbAuth.unlock('open');
-    _continueBoot();
+    try {
+      await gbAuth.unlock('open');
+    } catch (err) {
+      console.error('Boot unlock failed, retrying:', err);
+      try {
+        await gbAuth.unlock('open');
+      } catch (retryErr) {
+        console.error('Retry failed; staying locked:', retryErr);
+        return;
+      }
+    }
+    try {
+      _continueBoot();
+    } catch (err) {
+      console.error('Post-unlock boot threw:', err);
+    }
   })();
 } else {
   _continueBoot();
