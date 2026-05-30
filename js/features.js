@@ -119,6 +119,29 @@ function showHeaderButtons(){
 let _flashTimers = [];
 let _flashDone = false;
 
+// All timing for the intro animation lives here. Phase delays are absolute
+// ms from runFlashIntro entry; durations are CSS transition lengths.
+const FLASH = {
+  PHASE: {
+    P1_IN:     150,   // "Hey there." fades in
+    P1_OUT:    2200,  // "Hey there." fades out
+    P2_IN:     2450,  // "Welcome to Greenbar" crossfades in
+    CTA_IN:    3700,  // "Get Started" button fades in
+  },
+  FADE: {
+    P1_IN_S:   '0.4s',  // Phase-1 fade-in duration
+    P1_OUT_S:  '0.5s',  // Phase-1 fade-out duration
+    P2_IN_S:   '0.7s',  // Phase-2 fade-in duration
+    CTA_IN_S:  '0.5s',  // CTA fade-in duration
+  },
+  SKIP: {
+    P1_OUT_S:  '0.25s', // tap-to-skip: phase-1 dismissal
+    P2_IN_S:   '0.4s',  // tap-to-skip: phase-2 reveal
+    CTA_IN_S:  '0.4s',  // tap-to-skip: CTA reveal
+    CTA_DELAY: 350,     // ms to wait before CTA reveal on skip
+  },
+};
+
 function runFlashIntro(){
   // Restore flash HTML if it was replaced by renderSummary (e.g. after data clear)
   const sc = document.getElementById('summary-content');
@@ -186,16 +209,16 @@ function runFlashIntro(){
   // Phase 1: "Hey there." fades in
   schedule(()=>{
     if(!p1) return;
-    p1.style.transition = 'opacity 0.4s ease';
+    p1.style.transition = `opacity ${FLASH.FADE.P1_IN_S} ease`;
     p1.style.opacity = '1';
-  }, 150);
+  }, FLASH.PHASE.P1_IN);
 
   // Phase 1 fades out
   schedule(()=>{
     if(!p1) return;
-    p1.style.transition = 'opacity 0.5s ease';
+    p1.style.transition = `opacity ${FLASH.FADE.P1_OUT_S} ease`;
     p1.style.opacity = '0';
-  }, 2200);
+  }, FLASH.PHASE.P1_OUT);
 
   // Phase 2: fades in as phase 1 is fading out -- crossfade, no blank gap
   schedule(()=>{
@@ -207,9 +230,9 @@ function runFlashIntro(){
       shimmer.offsetWidth;
       shimmer.style.animation = '';
     }
-    p2.style.transition = 'opacity 0.7s ease';
+    p2.style.transition = `opacity ${FLASH.FADE.P2_IN_S} ease`;
     p2.style.opacity = '1';
-  }, 2450);
+  }, FLASH.PHASE.P2_IN);
 
   // CTA fades in
   schedule(()=>{
@@ -217,9 +240,9 @@ function runFlashIntro(){
     // can no longer skip, but state stays consistent for the next entry.
     _flashDone = true;
     if(!cta) return;
-    cta.style.transition = 'opacity 0.5s ease';
+    cta.style.transition = `opacity ${FLASH.FADE.CTA_IN_S} ease`;
     cta.style.opacity = '1';
-  }, 3700);
+  }, FLASH.PHASE.CTA_IN);
 }
 
 function flashSkipToCTA(e){
@@ -235,7 +258,10 @@ function flashSkipToCTA(e){
   const p2  = document.getElementById('flash-phase-2');
   const cta = document.getElementById('flash-cta');
   // Force phase 1 off immediately
-  if(p1){ p1.style.transition = 'opacity 0.25s ease'; p1.style.opacity = '0'; }
+  if(p1){
+    p1.style.transition = `opacity ${FLASH.SKIP.P1_OUT_S} ease`;
+    p1.style.opacity = '0';
+  }
   // Bring in phase 2 + CTA quickly
   if(p2){
     // Restart shimmer so it plays fresh on tap-to-skip
@@ -245,10 +271,15 @@ function flashSkipToCTA(e){
       shimmer.offsetWidth;
       shimmer.style.animation = '';
     }
-    p2.style.transition = 'opacity 0.4s ease';
+    p2.style.transition = `opacity ${FLASH.SKIP.P2_IN_S} ease`;
     p2.style.opacity = '1';
   }
-  if(cta){ setTimeout(()=>{ cta.style.transition = 'opacity 0.4s ease'; cta.style.opacity = '1'; }, 350); }
+  if(cta){
+    setTimeout(()=>{
+      cta.style.transition = `opacity ${FLASH.SKIP.CTA_IN_S} ease`;
+      cta.style.opacity = '1';
+    }, FLASH.SKIP.CTA_DELAY);
+  }
 }
 
 function startSetupFromFlash(){
@@ -364,10 +395,60 @@ function goToBankExport(){
 // ──────── Setup wizard (6 steps: income / housing / food / lifestyle / giving / review) ────────
 // ════ SETUP WALKTHROUGH ════
 // ════ SETUP WIZARD ════
+
+// All default budget numbers used by the wizard live here. Tuning the
+// generated budget should not require touching code below this block.
+const BUDGET_DEFAULTS = {
+  // Initial groceries/dining values _setupState carries before the user
+  // picks a food-style tile. Matches the "Mix" preset roughly.
+  FOOD_INIT: { GROC: 600, DINING: 300 },
+
+  // Fast Food is auto-derived: a fraction of the dining-out budget, with
+  // a floor so it never lands at $0 when dining is set.
+  FAST_FOOD_RATIO: 0.15,
+  FAST_FOOD_MIN:   50,
+
+  // Utilities scales with income, capped and floored.
+  UTILITIES_RATIO:    0.03,
+  UTILITIES_MAX:      200,
+  UTILITIES_FALLBACK: 150,
+
+  // Fixed-cost defaults applied every run regardless of income / lifestyle.
+  FIXED: {
+    'Wireless':        80,
+    'Internet/Cable':  80,
+    'Subscriptions':   50,
+    'Personal Care':   80,
+    'Clothing':        100,
+    'Entertainment':   80,
+    'Healthcare':      80,
+    'Other':           150,
+  },
+
+  // Lifestyle add-ons — keys mirror _setupState.lifestyle entries. Each
+  // value is a category->$/mo map merged into the budget when the entry
+  // is in the Set. (Investments uses a separate ratio rule, below.)
+  LIFESTYLE: {
+    car:    { 'Gas/Fuel': 200, 'Auto Insurance': 150, 'Automotive': 80 },
+    pets:   { 'Pets': 120 },
+    kids:   { 'Childcare': 600, 'Kids': 150 },
+    gym:    { 'Fitness': 80 },
+    travel: { 'Travel': 200 },
+    side:   { 'Business Expenses': 150 },
+  },
+
+  // Investments scales with income with a fixed fallback when income is 0.
+  INVEST_RATIO:    0.10,
+  INVEST_FALLBACK: 200,
+
+  // Rule-of-thumb shown in the income-step explainer copy.
+  HOUSING_GUIDELINE_PCT: 30,
+};
+
 let _setupState = {
   housing: 0, housingType: 'own',
   income: 0,
-  groceries: 600, dining: 300,
+  groceries: BUDGET_DEFAULTS.FOOD_INIT.GROC, dining: BUDGET_DEFAULTS.FOOD_INIT.DINING,
   lifestyle: new Set(),
   givingPct: 0,
   currentStep: 1
@@ -378,8 +459,8 @@ function resetSetupState(){
   _setupState.housing = 0;
   _setupState.housingType = 'own';
   _setupState.income = 0;
-  _setupState.groceries = 600;
-  _setupState.dining = 300;
+  _setupState.groceries = BUDGET_DEFAULTS.FOOD_INIT.GROC;
+  _setupState.dining = BUDGET_DEFAULTS.FOOD_INIT.DINING;
   _setupState.lifestyle = new Set();
   _setupState.givingPct = 0;
   _setupState.currentStep = 1;
@@ -469,11 +550,12 @@ function updateGivingFromIncome(){
   if(income > 0 && noteEl && breakEl){
     noteEl.style.display = 'block';
     const housing = _setupState.housing;
+    const guidePct = BUDGET_DEFAULTS.HOUSING_GUIDELINE_PCT;
     const pctHousing = housing > 0 ? Math.round(housing/income*100) : '--';
-    const pct30 = Math.round(income*0.30);
+    const guideCap   = Math.round(income * guidePct / 100);
     breakEl.innerHTML = housing > 0
-      ? 'Housing is <b>' + pctHousing + '%</b> of your income. ' + (pctHousing <= 30 ? 'Under the 30% guideline.' : 'Above the 30% guideline.')
-      : '30% rule guideline: keep housing under <b>$' + pct30.toLocaleString() + '/mo</b>.';
+      ? 'Housing is <b>' + pctHousing + '%</b> of your income. ' + (pctHousing <= guidePct ? `Under the ${guidePct}% guideline.` : `Above the ${guidePct}% guideline.`)
+      : `${guidePct}% rule guideline: keep housing under <b>$` + guideCap.toLocaleString() + '/mo</b>.';
   } else if(noteEl){
     noteEl.style.display = 'none';
   }
@@ -537,6 +619,7 @@ function updateReviewBudget(input){
 
 function computeBudgetFromState(){
   const { housing, housingType, income, groceries, dining, lifestyle, givingPct } = _setupState;
+  const D = BUDGET_DEFAULTS;
   const budget = {};
 
   // Housing
@@ -544,30 +627,23 @@ function computeBudgetFromState(){
     budget[housingType === 'rent' ? 'Rent' : 'Mortgage/Housing'] = housing;
   }
 
-  // Food
+  // Food — Fast Food is derived from dining: a fixed % with a $-floor.
   if(groceries > 0) budget['Groceries'] = groceries;
   if(dining > 0) budget['Dining Out'] = dining;
-  budget['Fast Food'] = Math.round(dining * 0.15) || 50;
+  budget['Fast Food'] = Math.round(dining * D.FAST_FOOD_RATIO) || D.FAST_FOOD_MIN;
 
-  // Fixed essentials
-  budget['Utilities'] = Math.round(Math.min(income * 0.03, 200)) || 150;
-  budget['Wireless'] = 80;
-  budget['Internet/Cable'] = 80;
-  budget['Subscriptions'] = 50;
-  budget['Personal Care'] = 80;
-  budget['Clothing'] = 100;
-  budget['Entertainment'] = 80;
-  budget['Healthcare'] = 80;
-  budget['Other'] = 150;
+  // Fixed essentials. Utilities scales with income, capped + floored.
+  budget['Utilities'] = Math.round(Math.min(income * D.UTILITIES_RATIO, D.UTILITIES_MAX)) || D.UTILITIES_FALLBACK;
+  Object.assign(budget, D.FIXED);
 
-  // Lifestyle add-ons
-  if(lifestyle.has('car')){ budget['Gas/Fuel'] = 200; budget['Auto Insurance'] = 150; budget['Automotive'] = 80; }
-  if(lifestyle.has('pets')){ budget['Pets'] = 120; }
-  if(lifestyle.has('kids')){ budget['Childcare'] = 600; budget['Kids'] = 150; }
-  if(lifestyle.has('gym')){ budget['Fitness'] = 80; }
-  if(lifestyle.has('travel')){ budget['Travel'] = 200; }
-  if(lifestyle.has('invest')){ budget['Investments'] = Math.round(income * 0.10) || 200; }
-  if(lifestyle.has('side')){ budget['Business Expenses'] = 150; }
+  // Lifestyle add-ons. Each lifestyle key maps to a category->$/mo group.
+  for(const key of Object.keys(D.LIFESTYLE)){
+    if(lifestyle.has(key)) Object.assign(budget, D.LIFESTYLE[key]);
+  }
+  // Investments is income-scaled, kept separate from the LIFESTYLE map.
+  if(lifestyle.has('invest')){
+    budget['Investments'] = Math.round(income * D.INVEST_RATIO) || D.INVEST_FALLBACK;
+  }
 
   // Giving
   if(givingPct > 0 && income > 0){
