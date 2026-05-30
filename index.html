@@ -155,7 +155,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 
         <!-- Opt-in coachmark tour: routes to Summary then fires gbTour. -->
         <div class="glass-card" style="margin-bottom:14px;">
-          <button type="button" class="settings-row" onclick="gbTour.reset(); showScreen('summary', _navBtn(0)); setTimeout(()=>gbTour.start(), 250);" aria-labelledby="tour-guide-label" aria-describedby="tour-guide-desc">
+          <button type="button" class="settings-row" onclick="gbTour.reset(); showScreen('summary', _navBtn(0)); gbTour.startAfterScreen();" aria-labelledby="tour-guide-label" aria-describedby="tour-guide-desc">
             <span class="s-body">
               <span class="s-label" id="tour-guide-label">Tour the app</span>
               <span class="s-desc" id="tour-guide-desc">Replay the on-screen guide on the Summary page</span>
@@ -837,7 +837,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 
       <h2 class="sec-hdr">Help</h2>
       <div class="settings-section">
-        <button type="button" class="settings-row" onclick="gbTour.reset(); showScreen('summary', _navBtn(0)); setTimeout(()=>gbTour.start(), 250);" aria-labelledby="tour-help-label" aria-describedby="tour-help-desc">
+        <button type="button" class="settings-row" onclick="gbTour.reset(); showScreen('summary', _navBtn(0)); gbTour.startAfterScreen();" aria-labelledby="tour-help-label" aria-describedby="tour-help-desc">
           <span class="s-body"><span class="s-label" id="tour-help-label">Tour the app</span><span class="s-desc" id="tour-help-desc">Replay the on-screen guide on the Summary page</span></span>
           <span class="s-arrow" aria-hidden="true">›</span>
         </button>
