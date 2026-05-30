@@ -853,6 +853,14 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
           <span class="s-body"><span class="s-label" id="restore-label">Restore from Backup</span><span class="s-desc" id="restore-desc">Replace current data with a backup file</span></span>
           <span class="s-arrow" aria-hidden="true">›</span>
         </button>
+        <button type="button" class="settings-row" onclick="exportEncrypted()" aria-labelledby="enc-export-label" aria-describedby="enc-export-desc">
+          <span class="s-body"><span class="s-label" id="enc-export-label">Export Encrypted Backup</span><span class="s-desc" id="enc-export-desc" style="color:var(--muted);">Saves an encrypted .greenbar file only you can open.</span></span>
+          <span class="s-arrow" aria-hidden="true">›</span>
+        </button>
+        <button type="button" class="settings-row" onclick="restoreEncrypted()" aria-labelledby="enc-restore-label" aria-describedby="enc-restore-desc">
+          <span class="s-body"><span class="s-label" id="enc-restore-label">Restore from Backup</span><span class="s-desc" id="enc-restore-desc" style="color:var(--muted);">Restores data from a .greenbar file using your passphrase.</span></span>
+          <span class="s-arrow" aria-hidden="true">›</span>
+        </button>
       </div>
       <div style="font-size:12px;color:var(--muted);line-height:1.5;margin:-4px 2px 14px;">Greenbar stores everything in this browser only. Export a backup before clearing browser data or switching devices.</div>
 
@@ -981,6 +989,7 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 <script src="js/render.js"></script>
 <script src="js/features.js"></script>
 <script src="js/security.js"></script>
+<script src="js/backup.js"></script>
 <script src="js/tour.js"></script>
 <script src="js/boot.js"></script>
 
@@ -1097,6 +1106,100 @@ document.getElementById('manifest-link').href = URL.createObjectURL(blob);
     </div>
     <div id="ins-loading" style="display:none;text-align:center;padding:30px 0;color:var(--muted);font-size:13px;">Analyzing…</div>
     <div id="ins-content"></div>
+  </div>
+</dialog>
+
+<!-- ════ ENCRYPTED EXPORT: passphrase entry ════ -->
+<dialog class="modal-overlay" id="modal-enc-export" aria-modal="true" aria-labelledby="enc-export-title" onclick="closeOut(event,'modal-enc-export')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="row-between">
+      <h2 class="sheet-title" id="enc-export-title" style="margin-bottom:0">Encrypt backup</h2>
+      <button type="button" aria-label="Close" class="sheet-close" onclick="_gbEncCancel()">✕</button>
+    </div>
+    <div class="sheet-sub">Choose a passphrase. You'll need it — or your recovery key — to restore this file.</div>
+
+    <div class="sheet-label">Passphrase</div>
+    <div style="position:relative;">
+      <input class="sheet-input" id="enc-pass" type="password" autocomplete="new-password" aria-label="Backup passphrase" oninput="_gbUpdatePassStrength()" style="padding-right:62px;">
+      <button type="button" onclick="_gbToggleReveal('enc-pass',this)" aria-label="Show or hide passphrase" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--soft);font-size:12px;font-weight:700;cursor:pointer;">Show</button>
+    </div>
+
+    <div class="sheet-label">Confirm passphrase</div>
+    <div style="position:relative;">
+      <input class="sheet-input" id="enc-pass-confirm" type="password" autocomplete="new-password" aria-label="Confirm passphrase" oninput="_gbUpdatePassStrength()" style="padding-right:62px;">
+      <button type="button" onclick="_gbToggleReveal('enc-pass-confirm',this)" aria-label="Show or hide confirm passphrase" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--soft);font-size:12px;font-weight:700;cursor:pointer;">Show</button>
+    </div>
+
+    <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:4px;margin:14px 0 4px;overflow:hidden;">
+      <div id="enc-strength-bar" style="height:100%;width:0;background:#ff4757;border-radius:4px;transition:width .2s ease,background .2s ease;"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;min-height:14px;">
+      <span id="enc-strength-lbl" style="font-weight:700;"></span>
+      <span id="enc-match-hint" style="color:#ff4757;"></span>
+    </div>
+
+    <button type="button" class="btn-primary" id="enc-confirm-btn" onclick="_gbEncConfirm()" disabled style="margin-top:16px;">Encrypt &amp; Download</button>
+    <button type="button" class="btn-secondary" onclick="_gbEncCancel()">Cancel</button>
+  </div>
+</dialog>
+
+<!-- ════ ENCRYPTED EXPORT: recovery key display ════ -->
+<dialog class="modal-overlay" id="modal-enc-recovery" aria-modal="true" aria-labelledby="enc-rec-title" onclick="">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2 class="sheet-title" id="enc-rec-title">Your recovery key</h2>
+    <div class="sheet-sub" style="color:#ffa502;font-weight:600;">Save this. We cannot recover your data without it.</div>
+    <div id="enc-recovery-display" style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:18px;font-weight:700;letter-spacing:1.5px;text-align:center;background:rgba(0,214,143,0.07);border:1px solid rgba(0,214,143,0.25);border-radius:14px;padding:18px 12px;margin:16px 0;word-break:break-all;color:var(--text);"></div>
+    <button type="button" class="btn-secondary" onclick="_gbCopyRecovery()" style="margin-bottom:16px;">Copy recovery key</button>
+    <label style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--soft);cursor:pointer;margin-bottom:16px;line-height:1.5;">
+      <input type="checkbox" id="enc-recovery-saved" onchange="_gbRecoveryCheckbox()" style="margin-top:2px;width:18px;height:18px;flex-shrink:0;accent-color:var(--green);">
+      <span>I have saved my recovery key somewhere safe.</span>
+    </label>
+    <button type="button" class="btn-primary" id="enc-recovery-dismiss" onclick="_gbDismissRecovery()" disabled>Done</button>
+  </div>
+</dialog>
+
+<!-- ════ ENCRYPTED RESTORE: passphrase / recovery-key flow ════ -->
+<dialog class="modal-overlay" id="modal-enc-restore" aria-modal="true" aria-labelledby="enc-restore-title" data-mode="pass" onclick="closeOut(event,'modal-enc-restore')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="row-between">
+      <h2 class="sheet-title" id="enc-restore-title" style="margin-bottom:0">Restore backup</h2>
+      <button type="button" aria-label="Close" class="sheet-close" onclick="_gbRestoreCancel()">✕</button>
+    </div>
+    <div class="sheet-sub">Unlock your .greenbar file with your passphrase or recovery key.</div>
+
+    <div style="display:flex;gap:8px;margin:8px 0 16px;">
+      <button type="button" id="enc-tab-pass" onclick="_gbRestoreTab('pass')" style="flex:1;padding:10px;border-radius:12px;border:1px solid var(--green);background:var(--glass);color:var(--green);font-family:var(--font-display);font-weight:700;font-size:13px;cursor:pointer;">Passphrase</button>
+      <button type="button" id="enc-tab-rec" onclick="_gbRestoreTab('rec')" style="flex:1;padding:10px;border-radius:12px;border:1px solid var(--border);background:var(--glass);color:var(--text);font-family:var(--font-display);font-weight:700;font-size:13px;cursor:pointer;">Recovery key</button>
+    </div>
+
+    <div id="enc-restore-pass-pane">
+      <div class="sheet-label">Passphrase</div>
+      <input class="sheet-input" id="enc-restore-pass" type="password" autocomplete="off" aria-label="Backup passphrase">
+    </div>
+    <div id="enc-restore-rec-pane" style="display:none;">
+      <div class="sheet-label">Recovery key</div>
+      <input class="sheet-input" id="enc-restore-reckey" type="text" autocomplete="off" inputmode="text" placeholder="XXXX-XXXX-XXXX-XXXX-XXXX-XXXX" aria-label="Recovery key" style="font-family:ui-monospace,Menlo,monospace;letter-spacing:1px;">
+    </div>
+
+    <button type="button" class="btn-primary" onclick="_gbRestoreConfirm()" style="margin-top:16px;">Decrypt &amp; Restore</button>
+    <button type="button" class="btn-secondary" onclick="_gbRestoreCancel()">Cancel</button>
+  </div>
+</dialog>
+
+<!-- Hidden picker for the .greenbar file -->
+<input type="file" id="enc-restore-file" accept=".greenbar,application/json" style="display:none" onchange="_gbRestoreFileChosen(this)" aria-hidden="true">
+
+<!-- ════ POST-RESTORE: reload prompt ════ -->
+<dialog class="modal-overlay" id="modal-enc-reload" aria-modal="true" aria-labelledby="enc-reload-title" onclick="">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2 class="sheet-title" id="enc-reload-title">Backup restored</h2>
+    <div class="sheet-sub">Reload Greenbar to see your restored data.</div>
+    <button type="button" class="btn-primary" onclick="location.reload()" style="margin-top:16px;">Reload now</button>
+    <button type="button" class="btn-secondary" onclick="closeModal('modal-enc-reload')">Later</button>
   </div>
 </dialog>
 
