@@ -14,17 +14,24 @@ const FLASH_INTRO_DELAY_MS = 200;
 
 loadCFG();
 
-// Show the privacy toggle whenever the user has any persisted data.
-// Contract note: turnOn() runs unconditionally on first launch (when
-// isDefault() is true) so the "privacy on by default" stance applies
-// even before the user has any data. The toggle BUTTON is gated by the
-// data check so brand-new users don't see a control with nothing to
-// toggle; once they finish setup or import, the button appears.
+// Show the privacy toggle when there's data to be private about.
+//
+// The toggle BUTTON appears once setup is done OR data exists (so users
+// who finish the wizard see the control before they import).
+//
+// The privacy STATE (turnOn) is gated on data actually existing. Without
+// that gate, a brand-new user who finished setup would see amounts blurred
+// the instant their first import lands — within the same session, with no
+// toggle yet rendered, no way to discover why. Holding turnOn until data
+// exists means the privacy-by-default stance kicks in on the NEXT boot
+// (when both data + toggle exist), not surprisingly mid-session.
 function _maybeShowPrivacyToggle(){
-  if(localStorage.getItem('gb_setup_done') || localStorage.getItem('gb_data')){
+  const hasData  = !!localStorage.getItem('gb_data');
+  const hasSetup = !!localStorage.getItem('gb_setup_done');
+  if(hasData || hasSetup){
     gbPrivacy.showToggleBtn();
   }
-  if(gbPrivacy.isDefault()) gbPrivacy.turnOn();
+  if(hasData && gbPrivacy.isDefault()) gbPrivacy.turnOn();
 }
 
 // Sync today — declared without `async` because there is no await. If a

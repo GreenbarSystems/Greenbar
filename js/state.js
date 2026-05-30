@@ -4,6 +4,15 @@
 // stay in that feature file -- this file only carries cross-cutting state.
 
 // ════ DEFAULTS ════
+// IMPORTANT: this object is deep-cloned via JSON.parse(JSON.stringify(...))
+// below, so it must contain ONLY primitives, plain arrays, and plain objects.
+// Adding a Date, Set, Map, RegExp, or function here will silently lose or
+// corrupt that field on every load.
+//
+// incomeKw / skipKw / remaps are consumed by _categorize in core.js (first
+// keyword match wins). budget seeds the Budget tab if the user skips the
+// wizard or has a corrupted CFG; the wizard's computeBudgetFromState in
+// features.js produces a richer overriding set in the normal flow.
 const DEFAULTS = {
   cols:{ date:'',desc:'',amt:'',cat:'',fmt:'MM/DD/YY' },
   incomeKw:['PAYROLL','DIRECT DEPOSIT','SALARY','TAX REFUND','CASHOUT','MOBILE DEPOSIT','ZELLE FROM','VENMO CASHOUT'],
@@ -54,13 +63,32 @@ const DEFAULTS = {
   }
 };
 
+// Reassigned wholesale by loadCFG() in core.js — declared with `let` for that.
 let CFG = JSON.parse(JSON.stringify(DEFAULTS));
 
+// Month-name abbreviations. ZERO-INDEXED: MN[0] === 'Jan'. Use MN[monthNum-1]
+// when bridging from a 1-based human month number.
 const MN='Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec'.split(',');
 
-// Volatile app state -- the user`s imported data. Mutated by import/aggregate
+// Volatile app state -- the user's imported data. Mutated by import/aggregate
 // and read by every render function. Stays in memory; persisted via saveData().
+//
+// Shapes (contract for every consumer in render.js / core.js):
+//   _months : { [monthKey]: { income: number,
+//                              expenses: { [category]: amount } } }
+//             where monthKey is 'YYYY-MM' (e.g. '2026-05').
+//   _allTxs : Array<{ date:string, desc:string, amount:number,
+//                     cat:string, month:string, ts?:number }>
+//             amount is signed: negative = expense, positive = income.
+//             ts is a millisecond epoch stamped at import; older saves
+//             may lack it (renderTxs falls back to parseDateParts).
+//   _sel    : month key 'YYYY-MM' | sentinel '__all' | null (no data yet).
 let _months={},_allTxs=[],_sel=null;
 
-// Keys that exist in localStorage. Used by exportData / restoreData / clearAllData.
+// App-data localStorage keys. NOT a complete localStorage manifest — the
+// security module (gbAuth) manages its own keys (K.hash, K.salt, K.enabled,
+// K.attempts, K.lockUntil, K.autoBg, K.autoIdle) and the privacy module
+// stores 'gb_privacy_default' separately. exportData / restoreData /
+// clearAllData operate on this app-data subset; gbAuth.forgotPIN wipes
+// both GB_KEYS and the security keys.
 const GB_KEYS=['gb_data','gb_cfg2','gb_log','gb_setup_done','gb_wt_done','gb_tour_done'];
