@@ -28,6 +28,17 @@ const manifest = {
 const blob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
 document.getElementById('manifest-link').href = URL.createObjectURL(blob);
 </script>
+<script>
+// Register the service worker so Greenbar works offline as an installable PWA.
+// Scope-relative './sw.js' supports both root and sub-path (project Pages) deploys.
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(err => {
+      console.warn('Greenbar: service worker registration failed', err);
+    });
+  });
+}
+</script>
 <title>Greenbar</title>
 
 <link rel="stylesheet" href="styles/main.css">
