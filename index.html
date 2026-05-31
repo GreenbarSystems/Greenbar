@@ -999,6 +999,7 @@ if('serviceWorker' in navigator){
 <script src="js/core.js"></script>
 <script src="js/render.js"></script>
 <script src="js/manual-tx.js"></script>
+<script src="js/anomaly.js"></script>
 <script src="js/features.js"></script>
 <script src="js/security.js"></script>
 <script src="js/backup.js"></script>
@@ -1286,6 +1287,25 @@ if('serviceWorker' in navigator){
 
 <!-- ════ FLOATING ADD BUTTON (Transactions screen) ════ -->
 <button type="button" id="fab-add-tx" aria-label="Add transaction" onclick="openAddTransactionModal()">+</button>
+
+<!-- ════ ANOMALY REPORT MODAL ════ -->
+<dialog class="modal-overlay" id="modal-anomaly-report" aria-modal="true" aria-labelledby="anom-title" onclick="closeOut(event,'modal-anomaly-report')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="anom-header">
+      <span class="anom-head-icon" id="anom-head-icon" aria-hidden="true">⚠</span>
+      <div>
+        <h2 class="sheet-title" id="anom-title" style="margin-bottom:2px;">We noticed something</h2>
+        <div class="sheet-sub" id="anom-subtitle" style="margin:0;"></div>
+      </div>
+    </div>
+    <div id="anom-body" style="margin-top:6px;"></div>
+    <div class="anom-footer">
+      <button type="button" class="btn-secondary" onclick="dismissAllAnomalies()">Dismiss all</button>
+      <button type="button" class="btn-primary" onclick="viewAnomalyTransactions()">View Transactions</button>
+    </div>
+  </div>
+</dialog>
 
 
 
