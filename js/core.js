@@ -538,6 +538,7 @@ function renderLog(){
 let _pendingFiles = [];       // queue of File objects waiting to process
 let _pendingConflict = null;  // { file, newTxs, newMonths, newKeys, conflictingMonths }
 let _importBusy = false;      // true between handleFiles start and final processNextFile drain
+let _lastImportedMonths = null; // accumulates month keys across a batch for anomaly detection
 
 function handleFiles(files){
   if(!files || !files.length) return;
@@ -561,6 +562,12 @@ function processNextFile(){
     saveData();
     renderAll();
     showScreen('summary', _navBtn(0));
+    // Anomaly detection runs after the render is queued. runAnomalyDetection()
+    // yields via setTimeout(0), so it never delays the import UI.
+    if(typeof runAnomalyDetection === 'function' && _lastImportedMonths && _lastImportedMonths.size){
+      runAnomalyDetection([..._lastImportedMonths]);
+    }
+    _lastImportedMonths = null;
     return;
   }
   const file = _pendingFiles.shift();
@@ -690,6 +697,10 @@ function applyImport(file, newTxs, newMonths, newKeys, mode){
   _allTxs = sortKeys(_months).flatMap(mk => _months[mk].txs || []);
 
   _sel = newKeys[newKeys.length-1];
+  // Accumulate the months touched by this batch so processNextFile() can run
+  // anomaly detection over all of them once the whole import drains.
+  if(!_lastImportedMonths) _lastImportedMonths = new Set();
+  newKeys.forEach(k => _lastImportedMonths.add(k));
   addToLog({
     filename:   file.name,
     txCount:    newTxs.length,
