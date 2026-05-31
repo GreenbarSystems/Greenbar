@@ -1,0 +1,8 @@
+// Fixture for SEC-4. NOT a real module (.fixture extension keeps it out of the
+// build + normal lint). The lint-bypass test points ESLint at a temp copy of
+// this and asserts the no-restricted-imports rule fires (addendum §1.4).
+import { prisma } from "@/lib/db/prisma";
+
+export async function leaky() {
+  return prisma.document.findMany();
+}

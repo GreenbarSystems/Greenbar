@@ -1,0 +1,28 @@
+{
+  "extends": ["next/core-web-vitals", "next/typescript"],
+  "rules": {
+    "no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          {
+            "name": "@/lib/db/prisma",
+            "message": "Do not import the raw Prisma client directly. All tenant data access must go through withOrg() in @/lib/db/with-org (addendum §1.4)."
+          }
+        ],
+        "patterns": [
+          {
+            "group": ["**/lib/db/prisma"],
+            "message": "Import the raw Prisma client only inside @/lib/db. Request/job code must use withOrg() (addendum §1.4)."
+          }
+        ]
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["src/lib/db/**"],
+      "rules": { "no-restricted-imports": "off" }
+    }
+  ]
+}
