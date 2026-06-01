@@ -213,23 +213,78 @@ function initAddTxForm(){
   _validateAddTxForm();
 }
 
-// ── builds the category <select> ──
-function populateCategorySelect(){
-  const sel = document.getElementById('add-tx-category');
-  if(!sel) return;
+// ── category universe (fallback defaults ∪ categories seen in data ∪ budget
+//    categories), sorted with "Other" pinned last. Shared by the add-tx
+//    <select> and the per-transaction recategorize picker. ──
+function getAllCategories(){
   const FALLBACK = ["Groceries","Dining Out","Transport","Utilities","Housing","Healthcare",
     "Entertainment","Shopping","Personal Care","Subscriptions","Education","Travel","Giving","Other"];
   const set = new Set(FALLBACK);
   (_allTxs || []).forEach(t => { if(t && t.cat && t.cat !== '_income') set.add(t.cat); });
   Object.keys((CFG && CFG.budget) || {}).forEach(c => set.add(c));
-
   let cats = Array.from(set).filter(c => c !== 'Other').sort((a,b) => a.localeCompare(b));
   cats.push('Other'); // always last
+  return cats;
+}
 
+// ── builds the category <select> ──
+function populateCategorySelect(){
+  const sel = document.getElementById('add-tx-category');
+  if(!sel) return;
+  const cats = getAllCategories();
   sel.innerHTML =
     `<option value="" disabled selected hidden>Select category…</option>` +
     `<option value="__new__">+ Add new category</option>` +
     cats.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+}
+
+// ── Per-transaction recategorization (fix a miscategorized row in place) ──
+// renderTxs() passes the row's index into the live _allTxs array; we mutate that
+// entry, re-aggregate the months from _allTxs, persist and re-render. A pinned
+// row (catLocked) is protected from later rule-based recategorization.
+let _recatIndex = null;
+function openRecatModal(allTxIndex){
+  const tx = _allTxs[allTxIndex];
+  if(!tx){ showToast('Transaction not found.', 'error'); return; }
+  _recatIndex = allTxIndex;
+  const vend = (typeof cleanVendor === 'function' ? cleanVendor(tx.desc) : tx.desc) || tx.desc;
+  const v = document.getElementById('recat-vendor'); if(v) v.textContent = vend;
+  const cur = document.getElementById('recat-current');
+  if(cur) cur.textContent = 'Currently in ' + (tx.cat === '_income' ? 'Income' : tx.cat);
+  const grid = document.getElementById('recat-grid');
+  if(grid){
+    grid.innerHTML = getAllCategories().map(cat =>
+      `<button type="button" data-cat="${esc(cat)}" onclick="chooseTxCategory(this.dataset.cat)" style="padding:9px 12px;border-radius:12px;border:1px solid ${cat===tx.cat?'rgba(0,214,143,0.5)':'var(--border)'};background:${cat===tx.cat?'rgba(0,214,143,0.12)':'var(--glass)'};color:var(--text);font-size:13px;font-weight:600;cursor:pointer;text-align:left;">${esc(cat)}</button>`
+    ).join('');
+  }
+  openModal('modal-recat');
+}
+function chooseTxCategory(newCat){
+  if(_recatIndex == null) return;
+  setTxCategory(_recatIndex, newCat);
+  _recatIndex = null;
+  closeModal('modal-recat');
+}
+function setTxCategory(allTxIndex, newCat){
+  const tx = _allTxs[allTxIndex];
+  if(!tx || !newCat || tx.cat === newCat) return;
+  const old = { cat: tx.cat, isIncome: tx.isIncome, catLocked: tx.catLocked };
+  tx.cat = newCat;
+  tx.catLocked = true;   // pin: future rule-based recategorization won't override
+  tx.isIncome = false;   // assigning a spend category de-classifies any false income
+  _months = aggregate(_allTxs);
+  try{
+    _persistData();
+  }catch(e){
+    tx.cat = old.cat; tx.isIncome = old.isIncome;
+    if(old.catLocked === undefined) delete tx.catLocked; else tx.catLocked = old.catLocked;
+    _months = aggregate(_allTxs);
+    try{ renderAll(); }catch(_){}
+    showToast(_isQuotaErr(e) ? 'Storage full. Clear older months in Settings.' : 'Could not save change.', 'error');
+    return;
+  }
+  renderAll();
+  showToast('Moved to ' + newCat, 'success');
 }
 
 // ── switches Expense/Income UI state ──

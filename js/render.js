@@ -864,12 +864,13 @@ function renderTxs(filter=''){
   // Resolve each tx to a sortable key + readable label. Prefer the ts stored at
   // import; fall back to parsing the raw date for data saved by older versions.
   const rows = (_allTxs || [])
-    .filter(tx => (!mk || tx.month === mk) && matchesFilter(tx))
-    .map(tx => {
+    .map((tx, i) => ({ tx, i }))   // keep the live _allTxs index for in-place recategorization
+    .filter(({ tx }) => (!mk || tx.month === mk) && matchesFilter(tx))
+    .map(({ tx, i }) => {
       const pd = parseDateParts(tx.date, dateFmt);
       const key   = (typeof tx.ts === 'number' && tx.ts) || (pd && pd.key) || 0;
       const label = (pd && pd.label) || tx.date || 'Undated';
-      return { tx, key, label };
+      return { tx, i, key, label };
     })
     .sort((a, b) => b.key - a.key);
   if(!rows.length){
@@ -884,7 +885,7 @@ function renderTxs(filter=''){
     srAnnounce(filter?`No transactions match "${filter}"`:'No transactions');
     return;
   }
-  const byDate={};for(const r of rows){(byDate[r.label]=byDate[r.label]||[]).push(r.tx);}
+  const byDate={};for(const r of rows){(byDate[r.label]=byDate[r.label]||[]).push(r);}
   document.getElementById('txs-content').innerHTML=`
     <div class="search-wrap${filter?' has-value':''}">
       <input type="text" aria-label="Search transactions" placeholder="Search…" value="${esc(filter)}"
@@ -892,10 +893,11 @@ function renderTxs(filter=''){
         autocomplete="off">
       <button type="button" class="search-clear" aria-label="Clear search" onclick="const i=this.previousElementSibling; if(i){ i.value=''; clearTimeout(i._t); } renderTxs('')">&#x2715;</button>
     </div>
-    ${Object.entries(byDate).map(([date,dTxs])=>`
+    ${Object.entries(byDate).map(([date,dRows])=>`
       <div class="tx-date-hdr">${esc(date)}</div>
       <div class="tx-group">
-        ${dTxs.map(tx=>{
+        ${dRows.map(r=>{
+          const tx = r.tx, i = r.i;
           const manual = tx.source === 'manual';
           // Locate this tx's index within _months[mk].txs. After a reload,
           // loadData() parses _months and _allTxs separately, so reference
@@ -906,8 +908,11 @@ function renderTxs(filter=''){
             ? _months[tx.month].txs.findIndex(t => tx.id ? t.id === tx.id
                 : (t.source === 'manual' && t.ts === tx.ts && t.desc === tx.desc && t.amount === tx.amount))
             : -1;
+          // Category is a button: tap to recategorize this row in place. `i` is
+          // the live _allTxs index passed straight to openRecatModal.
+          const catLabel = tx.cat === '_income' ? 'Income' : tx.cat;
           return`<div class="tx-item">
-            <div class="tx-bd"><div class="tx-desc">${esc(cleanVendor(tx.desc)||tx.desc)}${manual?'<span class="tx-badge-manual">M</span>':''}</div><div class="tx-cat">${esc(tx.cat)}</div></div>
+            <div class="tx-bd"><div class="tx-desc">${esc(cleanVendor(tx.desc)||tx.desc)}${manual?'<span class="tx-badge-manual">M</span>':''}</div><button type="button" onclick="openRecatModal(${i})" aria-label="Change category, currently ${esc(catLabel)}" style="background:none;border:none;padding:0;margin-top:2px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;color:var(--muted);font-size:11px;font-weight:500;font-family:inherit;">${esc(catLabel)}<span aria-hidden="true" style="opacity:0.55;font-size:10px;">✎</span></button></div>
             <div class="tx-amt ${tx.amount<0?'neg':'pos'}">${tx.amount<0?'−':'+'}${fmt(Math.abs(tx.amount))}</div>
             ${manual && idx>=0 ? `<button type="button" class="tx-del" aria-label="Delete transaction" data-mk="${esc(tx.month)}" data-idx="${idx}" onclick="deleteManualTransaction(this.dataset.mk, parseInt(this.dataset.idx,10))">✕</button>` : ''}
           </div>`;}).join('')}
