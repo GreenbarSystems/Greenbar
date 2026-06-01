@@ -257,13 +257,50 @@ function openRecatModal(allTxIndex){
       `<button type="button" data-cat="${esc(cat)}" onclick="chooseTxCategory(this.dataset.cat)" style="padding:9px 12px;border-radius:12px;border:1px solid ${cat===tx.cat?'rgba(0,214,143,0.5)':'var(--border)'};background:${cat===tx.cat?'rgba(0,214,143,0.12)':'var(--glass)'};color:var(--text);font-size:13px;font-weight:600;cursor:pointer;text-align:left;">${esc(cat)}</button>`
     ).join('');
   }
+  // "Make a rule" defaults off; the label names the merchant the rule will match.
+  const rule = document.getElementById('recat-make-rule'); if(rule) rule.checked = false;
+  const rl = document.getElementById('recat-rule-label'); if(rl) rl.textContent = 'Always categorize “' + vend + '” this way';
   openModal('modal-recat');
 }
 function chooseTxCategory(newCat){
   if(_recatIndex == null) return;
-  setTxCategory(_recatIndex, newCat);
-  _recatIndex = null;
+  const idx = _recatIndex; _recatIndex = null;
+  const ruleEl = document.getElementById('recat-make-rule');
+  const makeRule = !!(ruleEl && ruleEl.checked);
+  const tx = _allTxs[idx];
+  setTxCategory(idx, newCat);
+  if(makeRule && tx) addVendorRule(tx, newCat);
   closeModal('modal-recat');
+}
+// Derive a remap keyword that generalizes across a merchant's per-charge
+// variants. Conservatively strips a trailing transaction-id token (e.g.
+// "AMZN MKTP US*A1B2" -> "AMZN MKTP US") and trailing store/ref numbers, but
+// leaves "*MERCHANT"-style processor prefixes (Square/PayPal) intact and falls
+// back to the full cleaned vendor if stripping would leave too little to match
+// on (avoids an over-broad rule that mis-tags unrelated merchants).
+function _vendorRuleKeyword(desc){
+  const full = ((typeof cleanVendor === 'function' ? cleanVendor(desc) : desc) || desc || '').toUpperCase().trim();
+  const stripped = full
+    .replace(/[*#]\S*\s*$/, '')   // trailing *CODE / #CODE
+    .replace(/\s+\d{2,}\s*$/, '') // trailing store / reference numbers
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+  return stripped.length >= 4 ? stripped : full;
+}
+
+// Turn a one-off fix into a durable remap rule so future imports (and the rest
+// of history) categorize this merchant automatically — the "less work next
+// month" payoff. Keyword generalizes across per-charge variants; editable in
+// Settings → Category Remaps if it needs broadening.
+function addVendorRule(tx, cat){
+  const vk = _vendorRuleKeyword(tx.desc);
+  if(!vk) return;
+  if(!Array.isArray(CFG.remaps)) CFG.remaps = [];
+  const existing = CFG.remaps.find(r => String(r.kw).toUpperCase() === vk);
+  if(existing) existing.cat = cat; else CFG.remaps.push({ kw: vk, cat: cat });
+  saveCFG();
+  if(typeof recategorizeAll === 'function') recategorizeAll();   // apply to existing history too
+  showToast('Rule saved — future “' + vk + '” transactions → ' + cat, 'success');
 }
 function setTxCategory(allTxIndex, newCat){
   const tx = _allTxs[allTxIndex];

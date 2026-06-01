@@ -135,9 +135,11 @@ function syncUI(){
 // buttons used to mutate CFG in memory only, so rules were silently lost on
 // reload unless the user also hit "Save & Apply" on the Settings screen.
 function saveCols(){ CFG.cols={date:document.getElementById('col-date').value.trim(),desc:document.getElementById('col-desc-inp').value.trim(),amt:document.getElementById('col-amt').value.trim(),cat:document.getElementById('col-cat').value.trim(),fmt:document.getElementById('col-fmt').value}; saveCFG(); }
-function saveIncome(){ CFG.incomeKw=document.getElementById('income-kw').value.split('\n').map(s=>s.trim().toUpperCase()).filter(Boolean); document.getElementById('inc-desc').textContent=`${CFG.incomeKw.length} keywords`; saveCFG(); }
+function saveIncome(){ CFG.incomeKw=document.getElementById('income-kw').value.split('\n').map(s=>s.trim().toUpperCase()).filter(Boolean); document.getElementById('inc-desc').textContent=`${CFG.incomeKw.length} keywords`; saveCFG(); _recategorizeAfterRuleChange(); }
+// Skip keywords only drop rows at import time, so changing them is not applied
+// retroactively (existing rows stay) -- it just affects the next import.
 function saveSkip(){ CFG.skipKw=document.getElementById('skip-kw').value.split('\n').map(s=>s.trim().toUpperCase()).filter(Boolean); document.getElementById('skip-desc').textContent=CFG.skipKw.length?`${CFG.skipKw.length} rules`:'None set'; saveCFG(); }
-function saveRemaps(){ CFG.remaps=[]; document.querySelectorAll('.remap-row').forEach(r=>{ const k=r.querySelector('.rk').value.trim().toUpperCase(); const c=r.querySelector('.rc').value.trim(); if(k&&c) CFG.remaps.push({kw:k,cat:c}); }); document.getElementById('remap-desc').textContent=`${CFG.remaps.length} rules active`; saveCFG(); }
+function saveRemaps(){ CFG.remaps=[]; document.querySelectorAll('.remap-row').forEach(r=>{ const k=r.querySelector('.rk').value.trim().toUpperCase(); const c=r.querySelector('.rc').value.trim(); if(k&&c) CFG.remaps.push({kw:k,cat:c}); }); document.getElementById('remap-desc').textContent=`${CFG.remaps.length} rules active`; saveCFG(); _recategorizeAfterRuleChange(); }
 function renderRemaps(){ document.getElementById('remap-list').innerHTML=(CFG.remaps||[]).map(r=>`<div class="remap-row"><input class="rk" aria-label="Remap keyword"placeholder="Keyword" value="${esc(r.kw||'')}" autocomplete="off"><input class="rc" aria-label="Target category"placeholder="Category" value="${esc(r.cat||'')}" autocomplete="off"><button type="button" class="del-btn" aria-label="Remove rule"onclick="this.parentElement.remove()">×</button></div>`).join(''); }
 function addRemap(){ const d=document.createElement('div'); d.className='remap-row'; d.innerHTML=`<input class="rk" aria-label="Remap keyword"placeholder="Keyword" autocomplete="off"><input class="rc" aria-label="Target category"placeholder="Category" autocomplete="off"><button type="button" class="del-btn" aria-label="Remove rule"onclick="this.parentElement.remove()">×</button>`; document.getElementById('remap-list').appendChild(d); }
 function renderBudgetInputs(){ document.getElementById('budget-inputs').innerHTML=Object.entries(CFG.budget).map(([c,v])=>`<div class="budget-row"><span class="budget-label">${esc(c)}</span><input class="budget-input" type="number" data-cat="${esc(c)}" aria-label="${esc(c)} budget in dollars" value="${v}" min="0" step="10" autocomplete="off"></div>`).join('')+`<div class="budget-row"><input class="budget-input" id="new-cat" aria-label="New category name" placeholder="New category…" style="width:auto;flex:1;margin-right:8px;text-align:left" autocomplete="off"><input class="budget-input" id="new-val" type="number" aria-label="New category budget in dollars" placeholder="$0" style="width:72px" autocomplete="off"><button type="button" onclick="addBudgetCat()" aria-label="Add budget category" style="margin-left:8px;padding:7px 12px;background:rgba(0,214,143,0.1);border:1px solid rgba(0,214,143,0.3);border-radius:10px;color:var(--green);font-weight:700;cursor:pointer;font-size:14px">+</button></div>`; }
@@ -272,6 +274,20 @@ const CAT_NORM = {
   'Credit Card Payment':'Credit Card Payments','Credit Card':'Credit Card Payments',
 };
 
+// Categorize one row from its raw description + the bank-provided category
+// (origCat; '' when the file had no category column). Precedence:
+//   income keyword  >  remap rule  >  normalized bank category  >  Uncategorized
+// Extracted so processCSV (import) and recategorizeAll (rule changes) share one
+// definition of how a row gets its category + income flag.
+function categorizeTx(rawDesc, origCat){
+  const desc = String(rawDesc||'').toUpperCase();
+  if(CFG.incomeKw.some(kw => desc.includes(kw))) return { cat:'_income', isIncome:true };
+  for(const r of CFG.remaps){ if(r.kw && desc.includes(String(r.kw).toUpperCase())) return { cat:r.cat, isIncome:false }; }
+  let cat = (origCat||'Uncategorized').trim() || 'Uncategorized';
+  if(CAT_NORM[cat]) cat = CAT_NORM[cat];
+  return { cat, isIncome:false };
+}
+
 function processCSV(rows,headers){
   if(!headers||headers.length<2){ gbDialog.alert('These Bank Transactions have no headers. Check the file format and try again.'); return []; }
   if(!rows||rows.length===0){ gbDialog.alert('This Bank Transactions file appears to be empty.'); return []; }
@@ -295,18 +311,40 @@ function processCSV(rows,headers){
     if(!pd) continue;
     const month=pd.month;
     if(CFG.skipKw.some(kw=>desc.includes(kw))) continue;
-    let cat=(row[colCat]||'Uncategorized').trim();
-    // Normalize common bank category names to standard budget names
-    // (CAT_NORM is hoisted to module scope above; see comment there).
-    if(CAT_NORM[cat]) cat=CAT_NORM[cat];
-    // Income is keyword-driven only. A positive amount with no income keyword is
-    // a refund -- it nets against its category rather than counting as income.
-    let isIncome=false;
-    if(CFG.incomeKw.some(kw=>desc.includes(kw))){isIncome=true;cat='_income';}
-    else{ for(const r of CFG.remaps){ if(desc.includes(r.kw.toUpperCase())){cat=r.cat;break;} } }
-    txs.push({date:row[colDate]||'',ts:pd.key,month,desc:raw,amount,cat,isIncome});
+    // Keep the raw bank category (origCat) so rules can be re-applied later via
+    // recategorizeAll() without re-importing. categorizeTx() owns the
+    // income-keyword / remap / normalization precedence.
+    const origCat=(row[colCat]||'').trim();
+    const {cat,isIncome}=categorizeTx(raw, origCat);
+    txs.push({date:row[colDate]||'',ts:pd.key,month,desc:raw,origCat,amount,cat,isIncome});
   }
   return txs;
+}
+
+// Re-derive category + income for every imported transaction from the CURRENT
+// rules, then rebuild the month aggregates. Manual entries and rows the user
+// pinned via the per-transaction picker (catLocked) are left untouched. Returns
+// the count of rows whose category changed. Lets a rule edit apply to existing
+// data immediately -- no re-import needed.
+function recategorizeAll(){
+  let changed = 0;
+  for(const tx of _allTxs){
+    if(tx.source === 'manual' || tx.catLocked) continue;
+    // Legacy rows saved before origCat existed fall back to their current cat
+    // as the bank-category base, so a no-rule-match row keeps its category.
+    const base = (tx.origCat != null) ? tx.origCat : tx.cat;
+    const { cat, isIncome } = categorizeTx(tx.desc, base);
+    if(tx.cat !== cat || tx.isIncome !== isIncome){ tx.cat = cat; tx.isIncome = isIncome; changed++; }
+  }
+  if(changed){ _months = aggregate(_allTxs); saveData(); renderAll(); }
+  return changed;
+}
+// Shared post-rule-change hook: re-apply rules across history and tell the user
+// how many rows moved. Called by the income/remap editors after they persist.
+function _recategorizeAfterRuleChange(){
+  if(!_allTxs.length) return;
+  const n = recategorizeAll();
+  if(typeof showToast === 'function' && n > 0) showToast(n + ' transaction' + (n===1?'':'s') + ' recategorized', 'success');
 }
 
 // Income comes only from keyword-tagged transactions. Everything else nets into

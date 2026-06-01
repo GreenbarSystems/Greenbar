@@ -1331,6 +1331,10 @@ if('serviceWorker' in navigator){
     <h2 class="sheet-title" id="recat-title" style="margin-bottom:2px;">Change category</h2>
     <div class="sheet-sub" id="recat-vendor" style="margin-top:0;font-weight:700;color:var(--text);"></div>
     <div class="sheet-sub" id="recat-current" style="margin-top:2px;"></div>
+    <label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;color:var(--soft);cursor:pointer;">
+      <input type="checkbox" id="recat-make-rule" style="width:16px;height:16px;accent-color:var(--green);flex-shrink:0;">
+      <span id="recat-rule-label">Always categorize this merchant this way</span>
+    </label>
     <div id="recat-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;"></div>
   </div>
 </dialog>
