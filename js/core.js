@@ -288,9 +288,14 @@ function categorizeTx(rawDesc, origCat){
   return { cat, isIncome:false };
 }
 
+// Returns { txs, mapping, counts } so the import-preview can show the user how
+// the file was understood (which columns, date format) and how many rows were
+// imported vs dropped — instead of silently keeping survivors. Hard format
+// errors still alert and return an empty result.
 function processCSV(rows,headers){
-  if(!headers||headers.length<2){ gbDialog.alert('These Bank Transactions have no headers. Check the file format and try again.'); return []; }
-  if(!rows||rows.length===0){ gbDialog.alert('This Bank Transactions file appears to be empty.'); return []; }
+  const empty = { txs:[], mapping:null, counts:{ total:0, imported:0, skipped:0, undated:0 } };
+  if(!headers||headers.length<2){ gbDialog.alert('These Bank Transactions have no headers. Check the file format and try again.'); return empty; }
+  if(!rows||rows.length===0){ gbDialog.alert('This Bank Transactions file appears to be empty.'); return empty; }
   const colDate=CFG.cols.date||autoCol(headers,['date','posted','transaction date']);
   const colDesc=CFG.cols.desc||autoCol(headers,['description','merchant','memo','payee']);
   const colAmt=CFG.cols.amt||autoCol(headers,['amount','transaction amount']);
@@ -301,16 +306,17 @@ function processCSV(rows,headers){
   const fmt=CFG.cols.fmt||'MM/DD/YY';
   if(!colDate||!colAmt){
     gbDialog.alert('Couldn’t identify the Date and Amount columns in this file. Open Settings → Column Mapping, enter your bank’s exact column names, then import again.');
-    return [];
+    return empty;
   }
   const txs=[];
+  let skipped=0, undated=0;     // dropped-row tallies surfaced in the preview
   for(const row of rows){
     const raw=row[colDesc]||''; const desc=raw.toUpperCase();
     const amount=parseAmt(row[colAmt]||'0');
     const pd=parseDateParts(row[colDate]||'',fmt);
-    if(!pd) continue;
+    if(!pd){ undated++; continue; }
     const month=pd.month;
-    if(CFG.skipKw.some(kw=>desc.includes(kw))) continue;
+    if(CFG.skipKw.some(kw=>desc.includes(kw))){ skipped++; continue; }
     // Keep the raw bank category (origCat) so rules can be re-applied later via
     // recategorizeAll() without re-importing. categorizeTx() owns the
     // income-keyword / remap / normalization precedence.
@@ -318,7 +324,7 @@ function processCSV(rows,headers){
     const {cat,isIncome}=categorizeTx(raw, origCat);
     txs.push({date:row[colDate]||'',ts:pd.key,month,desc:raw,origCat,amount,cat,isIncome});
   }
-  return txs;
+  return { txs, mapping:{ date:colDate, desc:colDesc, amt:colAmt, cat:colCat, fmt }, counts:{ total:rows.length, imported:txs.length, skipped, undated } };
 }
 
 // Re-derive category + income for every imported transaction from the CURRENT
@@ -577,13 +583,14 @@ function renderLog(){
 // ──────── Import flow (multi-file + conflict resolution) ────────
 let _pendingFiles = [];       // queue of File objects waiting to process
 let _pendingConflict = null;  // { file, newTxs, newMonths, newKeys, conflictingMonths }
+let _pendingPreview = null;   // { file, result } awaiting user confirm in the import-preview modal
 let _importBusy = false;      // true between handleFiles start and final processNextFile drain
 let _lastImportedMonths = null; // accumulates month keys across a batch for anomaly detection
 
 function handleFiles(files){
   if(!files || !files.length) return;
   const incoming = Array.from(files);
-  if(_importBusy || _pendingFiles.length || _pendingConflict){
+  if(_importBusy || _pendingFiles.length || _pendingConflict || _pendingPreview){
     // An import is already in progress. Append rather than overwrite so we
     // never drop files the user picked earlier or clobber a pending conflict.
     _pendingFiles.push(...incoming);
@@ -622,28 +629,28 @@ function processNextFile(){
       // garbled as UTF-8.
       const text = decodeBytes(e.target.result);
       const{headers,rows} = parseCSV(text);
-      const newTxs = processCSV(rows, headers);
-      if(!newTxs.length){ processNextFile(); return; } // file empty or rejected -- skip it, don't log an empty import
-      const newMonths = aggregate(newTxs);
-      const newKeys = sortKeys(newMonths);
-      // Friendly summary toast: how many transactions, how many months covered.
-      const monthSpan = newKeys.length === 1 ? newKeys[0] : newKeys[0] + '–' + newKeys[newKeys.length-1];
-      showToast('Imported ' + newTxs.length + ' transaction' + (newTxs.length===1?'':'s') + ' (' + monthSpan + ')');
-
-      // Check for month conflicts with existing data
-      const conflictingMonths = newKeys.filter(mk => _months[mk] && _months[mk].txs.length > 0);
-
-      if(conflictingMonths.length > 0){
-        // Show conflict resolution modal. _pendingConflict only ever holds
-        // ONE file at a time -- handleFiles queues additional files into
-        // _pendingFiles, so resolution proceeds serially.
-        _pendingConflict = { file, newTxs, newMonths, newKeys, conflictingMonths };
-        showConflictModal(file.name, conflictingMonths, newKeys);
-      } else {
-        // No conflict -- merge automatically
-        applyImport(file, newTxs, newMonths, newKeys, 'merge');
+      const result = processCSV(rows, headers);
+      if(!result.txs.length){
+        // Nothing usable. If the file had rows but every one was dropped, say
+        // why rather than failing silently (the core "confirm it was understood"
+        // gap) -- the date format is the usual culprit.
+        const c = result.counts;
+        if(c.total > 0){
+          const reasons = [];
+          if(c.undated) reasons.push(c.undated + ' had unreadable dates');
+          if(c.skipped) reasons.push(c.skipped + ' matched your skip rules');
+          gbDialog.alert('No transactions could be read from "' + file.name + '".\n\n'
+            + c.total + ' row' + (c.total===1?'':'s') + ' found'
+            + (reasons.length ? ' — ' + reasons.join(', ') : '')
+            + '.\n\nCheck Settings → Column Mapping, especially the date format.');
+        }
         processNextFile();
+        return;
       }
+      // Pause and let the user confirm the file was understood before committing.
+      // Confirm/cancel resume the flow via confirmImportPreview / cancelImportPreview.
+      _pendingPreview = { file, result };
+      showImportPreview(file.name, result);
     }catch(err){
       // A bug in parseCSV / processCSV / aggregate must not strand _importBusy.
       console.warn('Greenbar: error processing "'+file.name+'"',err);
@@ -653,6 +660,83 @@ function processNextFile(){
   };
   rd.onerror=()=>{ gbDialog.alert('Could not read "'+file.name+'". Please make sure it is a valid Bank Transactions file.'); processNextFile(); };
   rd.readAsArrayBuffer(file);
+}
+
+// ──────── Import confirmation (preview before commit) ────────
+// Show how the file was parsed: detected columns + date format, imported vs
+// dropped counts, and a small sample. The user confirms or cancels; only on
+// confirm do we aggregate, check month conflicts, and apply.
+function showImportPreview(filename, result){
+  const m = result.mapping || {};
+  const c = result.counts || {};
+  const dropped = (c.undated||0) + (c.skipped||0);
+
+  const mapRow = (label, val, ok) => `<div style="display:flex;justify-content:space-between;gap:10px;padding:5px 0;font-size:12.5px;">
+      <span style="color:var(--muted);">${esc(label)}</span>
+      <span style="font-weight:600;color:${ok?'var(--text)':'var(--amber)'};text-align:right;word-break:break-word;">${esc(val)}</span>
+    </div>`;
+
+  const sampleRows = result.txs.slice(0,5).map(t => {
+    const lbl = (parseDateParts(t.date, m.fmt)||{}).label || t.date || '';
+    const cat = t.isIncome ? 'Income' : t.cat;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(cleanVendor(t.desc)||t.desc)}</div>
+        <div style="font-size:11px;color:var(--muted);">${esc(lbl)} · ${esc(cat)}</div>
+      </div>
+      <div style="font-family:var(--font-display);font-size:13px;font-weight:800;flex-shrink:0;color:${t.amount<0?'var(--text)':'var(--green)'};">${t.amount<0?'−':'+'}${fmt(Math.abs(t.amount))}</div>
+    </div>`;
+  }).join('');
+
+  const sub = document.getElementById('import-preview-sub');
+  if(sub) sub.textContent = filename;
+  document.getElementById('import-preview-body').innerHTML = `
+    <div style="background:var(--glass);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:12px;">
+      <div style="font-family:var(--font-display);font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px;">Columns detected</div>
+      ${mapRow('Date', m.date||'—', !!m.date)}
+      ${mapRow('Amount', m.amt||'—', !!m.amt)}
+      ${mapRow('Description', m.desc||'(none — left blank)', !!m.desc)}
+      ${mapRow('Category', m.cat||'(none — auto-categorized)', true)}
+      ${mapRow('Date format', m.fmt||'MM/DD/YY', true)}
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:${dropped?'8px':'12px'};">
+      <div style="flex:1;background:rgba(0,214,143,0.08);border:1px solid rgba(0,214,143,0.2);border-radius:12px;padding:10px;text-align:center;">
+        <div style="font-family:var(--font-display);font-size:20px;font-weight:900;color:var(--green);">${c.imported||0}</div>
+        <div style="font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">Ready to import</div>
+      </div>
+      <div style="flex:1;background:${dropped?'rgba(255,165,2,0.08)':'rgba(255,255,255,0.04)'};border:1px solid ${dropped?'rgba(255,165,2,0.25)':'var(--border)'};border-radius:12px;padding:10px;text-align:center;">
+        <div style="font-family:var(--font-display);font-size:20px;font-weight:900;color:${dropped?'var(--amber)':'var(--muted)'};">${dropped}</div>
+        <div style="font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">Skipped</div>
+      </div>
+    </div>
+    ${dropped ? `<div style="font-size:11.5px;color:var(--soft);margin:0 2px 12px;line-height:1.5;">${c.undated?c.undated+' row'+(c.undated===1?'':'s')+' with unreadable dates':''}${c.undated&&c.skipped?'; ':''}${c.skipped?c.skipped+' matched skip rules':''}. If the date count looks wrong, fix the date format in Settings → Column Mapping.</div>` : ''}
+    <div style="font-family:var(--font-display);font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:2px;">Sample</div>
+    ${sampleRows || '<div style="font-size:12px;color:var(--muted);padding:6px 0;">No rows to preview.</div>'}`;
+  openModal('modal-import-preview');
+}
+
+function confirmImportPreview(){
+  closeModal('modal-import-preview');
+  const pend = _pendingPreview; _pendingPreview = null;
+  if(!pend){ processNextFile(); return; }
+  const { file, result } = pend;
+  const newTxs = result.txs;
+  const newMonths = aggregate(newTxs);
+  const newKeys = sortKeys(newMonths);
+  const conflictingMonths = newKeys.filter(mk => _months[mk] && _months[mk].txs.length > 0);
+  if(conflictingMonths.length > 0){
+    _pendingConflict = { file, newTxs, newMonths, newKeys, conflictingMonths };
+    showConflictModal(file.name, conflictingMonths, newKeys);
+  } else {
+    applyImport(file, newTxs, newMonths, newKeys, 'merge');
+    processNextFile();
+  }
+}
+
+function cancelImportPreview(){
+  closeModal('modal-import-preview');
+  _pendingPreview = null;
+  processNextFile();   // skip this file, continue the queue
 }
 
 function showConflictModal(filename, conflictingMonths, allNewMonths){
@@ -747,6 +831,12 @@ function applyImport(file, newTxs, newMonths, newKeys, mode){
     monthCount: newKeys.length,
     months:     newKeys.join(', '),
   });
+  // Summary toast fires here (on actual apply) rather than at parse time, so it
+  // reflects a committed import — not one the user might still cancel/skip.
+  if(typeof showToast === 'function'){
+    const span = newKeys.length === 1 ? newKeys[0] : newKeys[0] + '–' + newKeys[newKeys.length-1];
+    showToast('Imported ' + newTxs.length + ' transaction' + (newTxs.length===1?'':'s') + ' (' + span + ')');
+  }
 }
 
 
@@ -846,6 +936,7 @@ document.addEventListener('keydown',function(e){
   if(e.key==='Escape'){
     e.preventDefault();
     if(open.id==='modal-conflict') resolveConflict('cancel');
+    else if(open.id==='modal-import-preview') cancelImportPreview();
     else closeModal(open.id);
     return;
   }
@@ -867,7 +958,7 @@ document.addEventListener('keydown',function(e){
 let _swipe = null;
 document.addEventListener('touchstart', function(e){
   const overlay = e.target.closest('.modal-overlay.open');
-  if(!overlay || overlay.id === 'modal-conflict') return; // conflict modal must use buttons
+  if(!overlay || overlay.id === 'modal-conflict' || overlay.id === 'modal-import-preview') return; // these modals must use buttons
   const sheet = overlay.querySelector('.sheet');
   if(!sheet || !sheet.contains(e.target)) return;
   const rectTop = sheet.getBoundingClientRect().top;

@@ -1339,6 +1339,20 @@ if('serviceWorker' in navigator){
   </div>
 </dialog>
 
+<!-- IMPORT PREVIEW / CONFIRMATION MODAL -->
+<dialog class="modal-overlay" id="modal-import-preview" aria-modal="true" aria-labelledby="import-preview-title" onclick="if(event.target===this)cancelImportPreview()">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2 class="sheet-title" id="import-preview-title" style="margin-bottom:2px;">Does this look right?</h2>
+    <div class="sheet-sub" id="import-preview-sub" style="margin-top:0;word-break:break-all;"></div>
+    <div id="import-preview-body" style="margin-top:8px;"></div>
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button type="button" class="btn-secondary" style="flex:1;" onclick="cancelImportPreview()">Cancel</button>
+      <button type="button" class="btn-primary" style="flex:1;" onclick="confirmImportPreview()">Import</button>
+    </div>
+  </div>
+</dialog>
+
 
 
 <!-- AI HELP AGENT -->
