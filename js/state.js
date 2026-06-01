@@ -91,4 +91,9 @@ let _months={},_allTxs=[],_sel=null;
 // stores 'gb_privacy_default' separately. exportData / restoreData /
 // clearAllData operate on this app-data subset; gbAuth.forgotPIN wipes
 // both GB_KEYS and the security keys.
-const GB_KEYS=['gb_data','gb_cfg2','gb_log','gb_setup_done','gb_wt_done','gb_tour_done'];
+//
+// gb_anomalies / gb_anomaly_ready are import-review state written by
+// anomaly.js. They live here so clearAllData() (which iterates GB_KEYS)
+// wipes them too — otherwise a stale anomaly badge/report survives a data
+// wipe and reappears on the next Summary load.
+const GB_KEYS=['gb_data','gb_cfg2','gb_log','gb_setup_done','gb_wt_done','gb_tour_done','gb_anomalies','gb_anomaly_ready'];

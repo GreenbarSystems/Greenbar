@@ -449,7 +449,6 @@ function showCatInsights(cat){
   const trendDir = trend > 50 ? '↑ increasing' : trend < -50 ? '↓ decreasing' : '→ stable';
   const trendColor = trend > 50 ? 'var(--red)' : trend < -50 ? 'var(--green)' : 'var(--muted)';
   const highMonth = keys.reduce((b,k)=>byMonth[k]>byMonth[b]?k:b, keys[0]);
-  const lowMonth = keys.reduce((b,k)=>byMonth[k]<byMonth[b]&&byMonth[k]>0?k:b, keys[0]);
   const vsBudget = budget > 0 ? ((avgMo - budget) / budget * 100).toFixed(0) : null;
   const topVendor = topVendors[0];
   const topVendorPct = topVendor ? (topVendor[1]/total*100).toFixed(0) : 0;

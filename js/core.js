@@ -141,7 +141,7 @@ function renderBudgetInputs(){ document.getElementById('budget-inputs').innerHTM
 function addBudgetCat(){ const n=document.getElementById('new-cat').value.trim(); const v=parseFloat(document.getElementById('new-val').value)||0; if(!n) return; CFG.budget[n]=v; renderBudgetInputs(); }
 function saveSettings(){ document.querySelectorAll('.budget-input[data-cat]').forEach(i=>{ if(i.dataset.cat){ const bv=parseFloat(i.value); CFG.budget[i.dataset.cat]=(isNaN(bv)||bv<0)?0:Math.round(bv*100)/100; i.value=CFG.budget[i.dataset.cat]; } }); saveCFG(); if(_allTxs.length) renderAll(); }
 
-// ──────── Util helpers (esc, fmt, fmtS, _navBtn, cleanVendor) ────────
+// ──────── Util helpers (esc, fmt, _navBtn, cleanVendor) ────────
 function cleanVendor(desc){
   return desc
     .replace(/^(Point Of Sale Withdrawal|External Withdrawal|NOW Withdrawal|NOW Deposit|Withdrawal Transfer|Withdrawal|Deposit)\s*/i,'')
@@ -157,7 +157,6 @@ function _navBtn(i){ return document.querySelectorAll('.nav-btn')[i||0]; }
 // ════ FORMAT ════
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
 function fmt(n){ if(n===undefined||n===null||!isFinite(n))return'—'; const a=Math.abs(n); return(n<0?'(':'')+'$'+a.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})+(n<0?')':''); }
-function fmtS(n){ return n>=0?`+${fmt(n)}`:`-${fmt(Math.abs(n))}`; }
 
 // ──────── CSV parsing pipeline ────────
 function decodeBytes(buf){
@@ -657,8 +656,8 @@ function resolveConflict(action){
   _pendingConflict = null;
 
   if(action === 'replace'){
-    // Remove existing data for conflicting months
-    _allTxs = _allTxs.filter(tx => !newKeys.includes(tx.month));
+    // Drop existing aggregates for conflicting months. _allTxs is rebuilt
+    // wholesale from _months at the end of applyImport, so it needs no edit here.
     for(const mk of newKeys){ delete _months[mk]; }
   }
 
@@ -879,23 +878,35 @@ function srAnnounce(msg){
 // timer. Now each message gets its own ~3.2s slot in order.
 let _toastQueue = [];
 let _toastShowing = false;
-function showToast(msg){
-  _toastQueue.push(msg);
+// type: 'success' (default) | 'error'. Callers across backup.js / manual-tx.js
+// pass an explicit type; it drives the toast color in _drainToast so failures
+// don't read as success-green.
+function showToast(msg, type){
+  _toastQueue.push({ msg, type: type || 'success' });
   if(!_toastShowing) _drainToast();
 }
+// Per-type toast palette. Default/unknown types fall back to success.
+const _TOAST_COLORS = {
+  success: { bg:'rgba(0,214,143,0.95)', fg:'#050a14' },
+  error:   { bg:'rgba(255,71,87,0.97)', fg:'#fff'     },
+};
 function _drainToast(){
   if(!_toastQueue.length){ _toastShowing = false; return; }
   _toastShowing = true;
-  const msg = _toastQueue.shift();
+  const { msg, type } = _toastQueue.shift();
   let toast = document.getElementById('gb-toast');
   if(!toast){
     toast = document.createElement('div');
     toast.id = 'gb-toast';
     toast.setAttribute('role','status');
     toast.setAttribute('aria-live','polite');
-    toast.style.cssText = 'position:fixed;bottom:calc(70px + var(--safe-b));left:50%;transform:translateX(-50%) translateY(20px);background:rgba(0,214,143,0.95);color:#050a14;padding:12px 20px;border-radius:14px;font-size:13px;font-weight:700;font-family:var(--font-display);white-space:nowrap;z-index:999;opacity:0;transition:all 0.3s cubic-bezier(0.34,1.4,0.64,1);pointer-events:none;max-width:90vw;white-space:normal;text-align:center;';
+    toast.style.cssText = 'position:fixed;bottom:calc(70px + var(--safe-b));left:50%;transform:translateX(-50%) translateY(20px);padding:12px 20px;border-radius:14px;font-size:13px;font-weight:700;font-family:var(--font-display);white-space:nowrap;z-index:999;opacity:0;transition:all 0.3s cubic-bezier(0.34,1.4,0.64,1);pointer-events:none;max-width:90vw;white-space:normal;text-align:center;';
     document.body.appendChild(toast);
   }
+  // Recolor per message type (error toasts must not read as success-green).
+  const pal = _TOAST_COLORS[type] || _TOAST_COLORS.success;
+  toast.style.background = pal.bg;
+  toast.style.color = pal.fg;
   toast.textContent = msg;
   setTimeout(()=>{ toast.style.opacity='1'; toast.style.transform='translateX(-50%) translateY(0)'; },10);
   setTimeout(()=>{ toast.style.opacity='0'; toast.style.transform='translateX(-50%) translateY(10px)'; },TIMING.TOAST_VISIBLE_MS);

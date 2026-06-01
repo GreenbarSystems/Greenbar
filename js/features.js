@@ -713,7 +713,6 @@ function finishSetup(){
   const finalBudget = Object.keys(budget).length > 0 ? budget : computeBudgetFromState();
 
   CFG.budget = finalBudget;
-  CFG.income = Number(_setupState.income)||0;
   saveCFG();
   safeSetLocal('gb_setup_done', '1');
 

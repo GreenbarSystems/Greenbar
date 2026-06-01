@@ -291,8 +291,8 @@ function showAnomalyReport(anomalies){
       <div class="anom-card-row">
         <span class="anom-card-icon" aria-hidden="true">${_ANOM_ICON[a.type]||'•'}</span>
         <div class="anom-card-body">
-          <div class="anom-card-msg">${_escAnom(a.message)}</div>
-          <div class="anom-card-sub">${_escAnom(_anomSecondary(a))}</div>
+          <div class="anom-card-msg">${esc(a.message)}</div>
+          <div class="anom-card-sub">${esc(_anomSecondary(a))}</div>
           ${a.type==='duplicate' ? `<button type="button" class="anom-review-btn" onclick="_markAnomalyReviewed(${i}, this)">Mark as reviewed</button>` : ''}
         </div>
       </div>
@@ -302,7 +302,6 @@ function showAnomalyReport(anomalies){
   document.getElementById('modal-anomaly-report').dataset.month = items[0].month;
   openModal('modal-anomaly-report');
 }
-function _escAnom(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
 
 function _markAnomalyReviewed(idx, btn){
   const card = btn.closest('.anom-card');
