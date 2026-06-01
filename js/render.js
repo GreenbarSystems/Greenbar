@@ -847,7 +847,9 @@ function renderBudget(){
         + `<div class="bva-num v-flat">--</div>`
         + `</div>`
       ).join('')
-    }</div>` : ''}`;
+    }</div>` : ''}
+    ${typeof gbTrends !== 'undefined' ? gbTrends.varianceSectionHTML(mk) : ''}
+    ${typeof gbTrends !== 'undefined' ? gbTrends.recurringCardHTML() : ''}`;
   srAnnounce(`Budget for ${mk}, ${rows.length} ${rows.length===1?'category':'categories'}`);
 }
 
