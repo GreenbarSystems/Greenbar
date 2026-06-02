@@ -993,6 +993,28 @@ if('serviceWorker' in navigator){
   </div>
 </dialog>
 
+<!-- ════ SAVINGS GOALS MODAL ════ -->
+<dialog class="modal-overlay" id="modal-goals" aria-modal="true" aria-labelledby="goals-title" onclick="closeOut(event,'modal-goals')">
+  <div class="sheet">
+    <div class="sheet-close-row">
+      <button type="button" aria-label="Close" onclick="closeModal('modal-goals')" class="sheet-close">✕</button>
+    </div>
+    <div class="sheet-handle" style="margin-top:0;"></div>
+    <h2 class="sheet-title" id="goals-title" style="margin-bottom:2px;">Savings Goals</h2>
+    <div class="sheet-sub">Track what you're saving toward — stored on your device.</div>
+    <div id="goals-body" style="margin:6px 0 4px;"></div>
+    <div style="border-top:1px solid var(--border);margin-top:10px;padding-top:14px;">
+      <div class="sheet-label">New goal</div>
+      <input class="sheet-input" id="goal-name" type="text" maxlength="40" placeholder="Goal name (e.g. Vacation)" autocomplete="off">
+      <div style="display:flex;gap:10px;">
+        <input class="sheet-input" id="goal-target" type="number" min="0" step="50" inputmode="decimal" placeholder="Target $" autocomplete="off" style="flex:1;">
+        <input class="sheet-input" id="goal-date" type="date" aria-label="Target date (optional)" autocomplete="off" style="flex:1;">
+      </div>
+      <button type="button" class="btn-primary" onclick="gbGoals.addFromForm()">Add goal</button>
+    </div>
+  </div>
+</dialog>
+
 <!-- ════ INSIGHTS MODAL (on-device, private) ════ -->
 <dialog class="modal-overlay" id="modal-insights" aria-modal="true" aria-labelledby="insights-title" onclick="closeOut(event,'modal-insights')">
   <div class="sheet">
@@ -1017,6 +1039,7 @@ if('serviceWorker' in navigator){
 <script src="js/forecast.js"></script>
 <script src="js/suggest-budget.js"></script>
 <script src="js/insights.js"></script>
+<script src="js/goals.js"></script>
 <script src="js/features.js"></script>
 <script src="js/security.js"></script>
 <script src="js/backup.js"></script>

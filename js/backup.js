@@ -8,8 +8,8 @@
 //   core.js   -> openModal, closeModal, closeOut, showToast
 // All functions are globally scoped, matching the existing codebase pattern.
 
-// The five localStorage keys included in every backup.
-const GB_BACKUP_KEYS = ['gb_data', 'gb_cfg2', 'gb_log', 'gb_setup_done', 'gb_wt_done'];
+// The localStorage keys included in every backup.
+const GB_BACKUP_KEYS = ['gb_data', 'gb_cfg2', 'gb_log', 'gb_setup_done', 'gb_wt_done', 'gb_goals'];
 
 // 32-symbol alphabet (Crockford-style, no I/L/O/U) for the readable recovery key.
 const _GB_REC_ALPHABET = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
