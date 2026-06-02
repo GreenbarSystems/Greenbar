@@ -665,18 +665,28 @@ function processNextFile(){
   // 100-500ms on a multi-thousand-row file and a frozen UI feels broken.
   if(typeof showToast === 'function') showToast('Reading ' + file.name + '…');
   const rd = new FileReader();
-  rd.onload = e => {
+  rd.onload = async e => {
     try{
-      // Decode the raw bytes ourselves so a UTF-16-encoded CSV (e.g. saved
-      // from Excel on Windows) is read with the right encoding instead of
-      // garbled as UTF-8.
-      const text = decodeBytes(e.target.result);
-      const{headers,rows} = parseCSV(text);
-      const result = processCSV(rows, headers);
+      const isPdf = /\.pdf$/i.test(file.name) || file.type === 'application/pdf';
+      let result;
+      if(isPdf){
+        // PDF statements: text-extract + heuristic row parse (gbPdf), returning
+        // the same { txs, mapping, counts } shape the CSV path produces.
+        if(typeof gbPdf === 'undefined') throw new Error('PDF support is unavailable in this build.');
+        result = await gbPdf.parse(e.target.result);
+      } else {
+        // Decode the raw bytes ourselves so a UTF-16-encoded CSV (e.g. saved
+        // from Excel on Windows) is read with the right encoding instead of
+        // garbled as UTF-8.
+        const text = decodeBytes(e.target.result);
+        const{headers,rows} = parseCSV(text);
+        result = processCSV(rows, headers);
+      }
       if(!result.txs.length){
         // Nothing usable. If the file had rows but every one was dropped, say
         // why rather than failing silently (the core "confirm it was understood"
         // gap) -- the date format is the usual culprit.
+        if(result.note){ gbDialog.alert(result.note); processNextFile(); return; }
         const c = result.counts;
         if(c.total > 0){
           const reasons = [];

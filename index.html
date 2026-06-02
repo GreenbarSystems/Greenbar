@@ -108,7 +108,7 @@ if('serviceWorker' in navigator){
     </div>
     <div class="hdr-right">
       <button type="button" id="hdr-import-btn" class="fab" onclick="document.getElementById('csv-input').click()" style="opacity:0;pointer-events:none;width:auto;padding:0 16px;font-size:13px;font-weight:800;font-family:var(--font-display);letter-spacing:0.3px;color:#050a14;background:var(--grad-primary);box-shadow:0 4px 16px rgba(0,214,143,0.4);opacity:0;pointer-events:none;transition:opacity 0.6s ease;">Import</button>
-      <input type="file" id="csv-input" aria-label="Import bank transactions CSV file" accept=".csv,.tsv,.txt" multiple onchange="handleFiles(this.files)" autocomplete="off">
+      <input type="file" id="csv-input" aria-label="Import bank transactions CSV or PDF file" accept=".csv,.tsv,.txt,.pdf,application/pdf" multiple onchange="handleFiles(this.files)" autocomplete="off">
       <input type="file" id="restore-input" aria-label="Restore a Greenbar backup JSON file" accept=".json,application/json" style="display:none" onchange="restoreData(this.files[0]); this.value='';" autocomplete="off">
     </div>
   </div>
@@ -1039,6 +1039,7 @@ if('serviceWorker' in navigator){
 <script src="js/manual-tx.js"></script>
 <script src="js/anomaly.js"></script>
 <script src="js/recurring.js"></script>
+<script src="js/pdf-import.js"></script>
 <script src="js/forecast.js"></script>
 <script src="js/suggest-budget.js"></script>
 <script src="js/insights.js"></script>
