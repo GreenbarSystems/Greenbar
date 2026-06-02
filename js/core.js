@@ -743,7 +743,12 @@ function showImportPreview(filename, result){
 
   const sub = document.getElementById('import-preview-sub');
   if(sub) sub.textContent = filename;
-  document.getElementById('import-preview-body').innerHTML = `
+  // Low-confidence parses (e.g. a PDF with no clear table header) surface a
+  // warning so the user scrutinizes the sample before committing.
+  const warnHtml = result.warn
+    ? `<div style="background:rgba(255,165,2,0.08);border:1px solid rgba(255,165,2,0.3);border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--amber);line-height:1.5;">⚠ ${esc(result.warn)}</div>`
+    : '';
+  document.getElementById('import-preview-body').innerHTML = warnHtml + `
     <div style="background:var(--glass);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:12px;">
       <div style="font-family:var(--font-display);font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px;">Columns detected</div>
       ${mapRow('Date', m.date||'—', !!m.date)}

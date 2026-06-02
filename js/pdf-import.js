@@ -1,33 +1,46 @@
 // ════ Greenbar — PDF bank-statement import (on-device, no network) ════
 // Parses text-based statement PDFs into the SAME { txs, mapping, counts } shape
 // processCSV() returns, so the existing import-preview → confirm → applyImport
-// pipeline handles everything downstream (preview, conflict, dedup, logging).
-// PDF.js (vendored under js/vendor/, lazy-loaded on first use) extracts text in a
-// worker; row parsing is heuristic (line reconstruction + leading-date /
-// trailing-amount), so the preview confirmation is the safety net.
+// pipeline handles everything downstream. PDF.js (vendored under js/vendor/,
+// lazy-loaded on first use) extracts text in a worker.
 //
-// Scope (Phase 1 / MVP): text-based PDFs, US MM/DD[/YYYY] dates, single amount or
-// amount+running-balance columns. Out of scope (later phases): scanned/OCR PDFs,
-// debit/credit column inference, non-US date orders, multi-line descriptions.
+// Two parsing strategies, tried in order:
+//   1. Columnar (Phase 2): when a table header is detected, tokens are assigned
+//      to columns by x-position. Cleanly separates amount vs running balance and
+//      infers sign from separate Debit/Credit columns. High confidence.
+//   2. Line-based fallback (Phase 1): leading-date + trailing-amount per line,
+//      choosing the value before a trailing balance. Low confidence (no header).
+// Heuristic either way, so the import-preview confirmation is the safety net; a
+// low-confidence parse surfaces a warning there.
 //
-// Globals used (defined by load time): parseDateParts, parseAmt, categorizeTx,
-// newTxId, CFG, gbDialog (only via thrown messages / returned note — no direct UI).
+// Scope: text-based PDFs, US MM/DD[/YYYY] dates. Later: OCR for scanned PDFs,
+// non-US date orders, multi-line descriptions.
+//
+// Globals used (by load time): parseDateParts, parseAmt, categorizeTx, newTxId, CFG.
 
 const gbPdf = (() => {
   const LIB_SRC    = 'js/vendor/pdf.min.js';
   const WORKER_SRC = 'js/vendor/pdf.worker.min.js';
-  const MAX_PAGES  = 40;     // hard cap so a pathological PDF can't hang the UI
-  const Y_TOL      = 3;      // text items within this many y-units share a line
+  const MAX_PAGES  = 40;
+  const Y_TOL      = 3;
 
-  // Amount token: optional $ / leading-minus / parens, thousands OR plain digits,
-  // mandatory 2-decimal cents (so account numbers / dates don't match).
   const AMT_CORE = '\\(?-?\\$?(?:\\d{1,3}(?:,\\d{3})+|\\d+)\\.\\d{2}\\)?-?';
   const AMT_RE_G = new RegExp(AMT_CORE, 'g');
   const AMT_RE_1 = new RegExp(AMT_CORE);
   const DATE_LEAD_RE = /^(\d{1,2})[\/-](\d{1,2})(?:[\/-](\d{2,4}))?\b/;
-  // Non-transaction lines (balances, totals, page chrome) — never rows.
   const SKIP_RE = /\b(beginning|ending|opening|closing|previous|new|available|present|statement)\s+balance\b|balance\s+forward|\btotal\b|subtotal|page\s+\d+\s+of\s+\d+|account\s+number|minimum\s+payment|payment\s+due|statement\s+period/i;
   const MONTHS = { jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12 };
+
+  // Header column matchers (single-token, anchored). Order matters: first match
+  // per token wins, and each column key is assigned at most once.
+  const COL_DEFS = [
+    ['date',    /^(date|posted|post)$/i],
+    ['desc',    /^(description|desc|payee|merchant|memo|details|transaction|activity)$/i],
+    ['debit',   /^(debit|debits|withdrawals?|payments?|charges?)$/i],
+    ['credit',  /^(credits?|deposits?)$/i],
+    ['amount',  /^(amount|amt)$/i],
+    ['balance', /^(balance|bal)$/i],
+  ];
 
   // ── lazy-load the vendored PDF.js (kept out of the precached shell) ──
   let _libPromise = null;
@@ -55,7 +68,7 @@ const gbPdf = (() => {
       if(!line){ line = { y, tokens: [] }; lines.push(line); }
       line.tokens.push({ str: it.str, x });
     }
-    lines.sort((a,b) => b.y - a.y);              // top of page first
+    lines.sort((a,b) => b.y - a.y);
     for(const L of lines){
       L.tokens.sort((a,b) => a.x - b.x);
       L.text = L.tokens.map(t => t.str).join(' ').replace(/\s+/g,' ').trim();
@@ -83,49 +96,121 @@ const gbPdf = (() => {
     return null;
   }
 
-  // ── reconstructed lines -> raw { dateStr, desc, amount } rows ──
-  function _parseRows(lines, ctx){
-    const rows = [];
-    let undated = 0;
-    for(const L of lines){
-      const text = L.text;
-      if(!text || SKIP_RE.test(text)) continue;
-      const dm = text.match(DATE_LEAD_RE);
-      if(!dm) continue;                              // no leading date -> not a row
-      const amts = text.match(AMT_RE_G);
-      if(!amts || !amts.length) continue;            // no money -> not a row (e.g. wrapped desc)
-      // Transaction amount: the value BEFORE a trailing running-balance when two
-      // amounts are present; otherwise the only/last amount.
-      const amtTok = amts.length >= 2 ? amts[amts.length - 2] : amts[amts.length - 1];
-      const amount = parseAmt(amtTok);
-      if(!amount) continue;                          // zero / unparseable -> ignore
+  // Resolve a row's year: explicit on the row, else backfilled from the period
+  // (Dec→prior-year when the statement closes early in the year). Null = unplaceable.
+  function _resolveYear(dm, ctx){
+    if(dm[3]) return dm[3].length === 2 ? 2000 + (+dm[3]) : +dm[3];
+    if(ctx.year){ return (ctx.month && +dm[1] === 12 && ctx.month <= 2) ? ctx.year - 1 : ctx.year; }
+    return null;
+  }
+  function _dateStr(dm, year){ return dm[1].padStart(2,'0') + '/' + dm[2].padStart(2,'0') + '/' + year; }
 
-      // Description = text between the leading date and the first amount.
-      let desc = text.slice(dm[0].length);
-      const firstAmt = desc.search(AMT_RE_1);
-      if(firstAmt > 0) desc = desc.slice(0, firstAmt);
-      desc = desc.replace(/\s+/g,' ').trim() || 'Transaction';
+  // ── Strategy 1: columnar (header-anchored) ──
+  function _detectHeader(lines){
+    for(let i = 0; i < lines.length; i++){
+      const cols = [], taken = new Set();
+      for(const t of lines[i].tokens){
+        const w = (t.str || '').trim();
+        if(!w) continue;
+        for(const [key, re] of COL_DEFS){
+          if(taken.has(key)) continue;
+          if(re.test(w)){ cols.push({ key, x: t.x }); taken.add(key); break; }
+        }
+      }
+      const hasDate  = cols.some(c => c.key === 'date');
+      const hasMoney = cols.some(c => c.key === 'amount' || c.key === 'debit' || c.key === 'credit');
+      if(hasDate && hasMoney && cols.length >= 2){
+        cols.sort((a,b) => a.x - b.x);
+        return { idx: i, cols };
+      }
+    }
+    return null;
+  }
 
-      // Year: explicit on the row, else backfilled from the statement period
-      // (with a Dec→prior-year guard when the statement closes early in the year).
-      const mm = dm[1].padStart(2,'0'), dd = dm[2].padStart(2,'0');
-      let year;
-      if(dm[3]){ year = dm[3].length === 2 ? 2000 + (+dm[3]) : +dm[3]; }
-      else if(ctx.year){
-        year = ctx.year;
-        if(ctx.month && +dm[1] === 12 && ctx.month <= 2) year = ctx.year - 1;
-      } else { undated++; continue; }                // no year anywhere -> can't place it
-      rows.push({ dateStr: mm + '/' + dd + '/' + year, desc, amount });
+  function _parseColumnar(lines, header, ctx){
+    const xs = header.cols.map(c => c.x);
+    const colOf = (tokenX) => {            // nearest header anchor by left-x
+      let best = 0, bestD = Infinity;
+      for(let j = 0; j < xs.length; j++){ const d = Math.abs(tokenX - xs[j]); if(d < bestD){ bestD = d; best = j; } }
+      return header.cols[best].key;
+    };
+    const rows = []; let undated = 0;
+    for(let i = header.idx + 1; i < lines.length; i++){
+      const L = lines[i];
+      if(!L.text || SKIP_RE.test(L.text)) continue;
+      const buckets = {};
+      for(const t of L.tokens){ const s = (t.str || '').trim(); if(!s) continue; const k = colOf(t.x); (buckets[k] = buckets[k] || []).push(s); }
+      const dm = (buckets.date || []).join('').match(DATE_LEAD_RE);
+      if(!dm) continue;                    // no date in the date column -> not a row
+      let amount = null;
+      if(buckets.amount){ amount = parseAmt(buckets.amount.join('')); }
+      else {
+        const deb = buckets.debit  ? parseAmt(buckets.debit.join(''))  : 0;
+        const cred = buckets.credit ? parseAmt(buckets.credit.join('')) : 0;
+        if(deb)       amount = -Math.abs(deb);   // debit column -> expense
+        else if(cred) amount =  Math.abs(cred);  // credit column -> income/refund
+      }
+      if(!amount) continue;
+      const year = _resolveYear(dm, ctx);
+      if(year === null){ undated++; continue; }
+      const desc = (buckets.desc || []).join(' ').replace(/\s+/g,' ').trim() || 'Transaction';
+      rows.push({ dateStr: _dateStr(dm, year), desc, amount });
     }
     return { rows, undated };
   }
 
-  // ── public: parse(ArrayBuffer) -> { txs, mapping, counts, note? } ──
+  // ── Strategy 2: line-based fallback ──
+  function _parseLineBased(lines, ctx){
+    const rows = []; let undated = 0;
+    for(const L of lines){
+      const text = L.text;
+      if(!text || SKIP_RE.test(text)) continue;
+      const dm = text.match(DATE_LEAD_RE);
+      if(!dm) continue;
+      const amts = text.match(AMT_RE_G);
+      if(!amts || !amts.length) continue;
+      const amtTok = amts.length >= 2 ? amts[amts.length - 2] : amts[amts.length - 1];
+      const amount = parseAmt(amtTok);
+      if(!amount) continue;
+      const year = _resolveYear(dm, ctx);
+      if(year === null){ undated++; continue; }
+      let desc = text.slice(dm[0].length);
+      const firstAmt = desc.search(AMT_RE_1);
+      if(firstAmt > 0) desc = desc.slice(0, firstAmt);
+      desc = desc.replace(/\s+/g,' ').trim() || 'Transaction';
+      rows.push({ dateStr: _dateStr(dm, year), desc, amount });
+    }
+    return { rows, undated };
+  }
+
+  // ── raw rows -> the shared { txs, mapping, counts } result (reuses CSV path) ──
+  function _rowsToResult(rows, undated, confidence){
+    const txs = []; let skipped = 0, und = undated;
+    for(const r of rows){
+      const U = r.desc.toUpperCase();
+      if(CFG.skipKw.some(kw => U.includes(kw))){ skipped++; continue; }
+      const pd = parseDateParts(r.dateStr, 'MM/DD/YYYY');
+      if(!pd){ und++; continue; }
+      const { cat, isIncome } = categorizeTx(r.desc, '');
+      txs.push({ id: newTxId(), date: r.dateStr, ts: pd.key, month: pd.month,
+                 desc: r.desc, origCat: '', amount: r.amount, cat, isIncome, source: 'pdf' });
+    }
+    if(!txs.length) return null;
+    const res = {
+      txs,
+      mapping: { date: 'auto (PDF layout)', amt: 'auto (PDF layout)', desc: 'auto (PDF layout)', cat: '', fmt: 'MM/DD/YYYY' },
+      counts: { total: txs.length + skipped + und, imported: txs.length, skipped, undated: und }
+    };
+    if(confidence === 'low')
+      res.warn = 'No clear table header was found — Greenbar inferred the columns from the page layout. Please review the sample below carefully.';
+    return res;
+  }
+
+  // ── public: parse(ArrayBuffer) -> { txs, mapping, counts, warn?, note? } ──
   async function parse(buf){
     await _ensureLib();
     pdfjsLib.GlobalWorkerOptions.workerSrc = WORKER_SRC;
-    // getDocument transfers (neuters) the buffer — hand it a private copy.
-    const data = new Uint8Array(buf.slice ? buf.slice(0) : buf);
+    const data = new Uint8Array(buf.slice ? buf.slice(0) : buf);   // getDocument neuters the buffer
 
     let pdf;
     try{
@@ -148,33 +233,25 @@ const gbPdf = (() => {
       if(!period) period = _detectPeriod(lines);
       allLines = allLines.concat(lines);
     }
-
     if(!anyText)
       return empty('This looks like a scanned PDF (no selectable text). Export a CSV from your bank instead.');
 
     const ctx = period || { year: null, month: null };
-    const parsed = _parseRows(allLines, ctx);
 
-    const txs = [];
-    let skipped = 0, undated = parsed.undated;
-    for(const r of parsed.rows){
-      const U = r.desc.toUpperCase();
-      if(CFG.skipKw.some(kw => U.includes(kw))){ skipped++; continue; }
-      const pd = parseDateParts(r.dateStr, 'MM/DD/YYYY');
-      if(!pd){ undated++; continue; }
-      const { cat, isIncome } = categorizeTx(r.desc, '');
-      txs.push({ id: newTxId(), date: r.dateStr, ts: pd.key, month: pd.month,
-                 desc: r.desc, origCat: '', amount: r.amount, cat, isIncome, source: 'pdf' });
+    // Prefer columnar when a header is found; fall back to line-based otherwise.
+    let result = null;
+    const header = _detectHeader(allLines);
+    if(header){
+      const c = _parseColumnar(allLines, header, ctx);
+      result = _rowsToResult(c.rows, c.undated, 'high');
     }
-
-    if(!txs.length)
+    if(!result){
+      const lb = _parseLineBased(allLines, ctx);
+      result = _rowsToResult(lb.rows, lb.undated, 'low');
+    }
+    if(!result)
       return empty('Couldn’t find transactions in this PDF — the statement layout may be unusual. Try your bank’s CSV export instead.');
-
-    return {
-      txs,
-      mapping: { date: 'auto (PDF layout)', amt: 'auto (PDF layout)', desc: 'auto (PDF layout)', cat: '', fmt: 'MM/DD/YYYY' },
-      counts: { total: txs.length + skipped + undated, imported: txs.length, skipped, undated }
-    };
+    return result;
   }
 
   return { parse };
