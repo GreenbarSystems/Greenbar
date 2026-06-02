@@ -21,7 +21,13 @@
   --red: #ff4757;
   --amber: #ffa502;
   --purple: #7c4dff;
-  --text: #eef2ff;
+  /* Primary text is a softened off-white rather than near-pure white: at 52px/900
+     the old #eef2ff bloomed/glared against the near-black --bg. #dfe4f1 still
+     measures ~14:1 on --bg (far above the 4.5:1 AA floor) but reads calmer for
+     the large, bold KPI numbers and headings. --muted/--soft stay tied to the
+     original (238,242,255) base via alpha — they're already dimmed, so they
+     aren't a glare source and their tuned contrast must not change. */
+  --text: #dfe4f1;
   /* WCAG 2.1 AA requires 4.5:1 for normal text. --muted at alpha 0.4
      measured 3.49:1 on --bg; raising to 0.55 gives ~4.87:1 while
      keeping a clear visual tier below --soft (0.65). */
@@ -247,8 +253,11 @@ button.pill { font: inherit; line-height: 1.2; -webkit-appearance: none; appeara
 .net-lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; margin-bottom: 10px; }
 .net-amt { font-family: var(--font-display); font-size: 52px; font-weight: 900; line-height: 1; margin-bottom: 8px; letter-spacing: -2px; }
 .net-mo { font-size: 13px; color: var(--muted); }
-.surplus { color: var(--green); text-shadow: 0 0 30px rgba(0,214,143,0.4); }
-.deficit { color: var(--red); text-shadow: 0 0 30px rgba(255,71,87,0.3); }
+/* Subtle accent glow only — the old 30px/0.4 halo bloomed into noticeable glare
+   around the 52px budget number. A tighter, fainter shadow keeps a hint of depth
+   without the halo. */
+.surplus { color: var(--green); text-shadow: 0 0 14px rgba(0,214,143,0.18); }
+.deficit { color: var(--red); text-shadow: 0 0 14px rgba(255,71,87,0.15); }
 
 /* ── Stat row ── */
 .stat-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
