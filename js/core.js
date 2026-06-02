@@ -508,9 +508,12 @@ function saveLog(log){
 }
 // Object-destructured params: `monthCount` (number) and `months` (string) used
 // to be adjacent positional args -- easy to swap by accident. Now self-documenting.
-function addToLog({ filename, txCount, monthCount, months }){
+function addToLog({ id, filename, txCount, monthCount, months }){
   const log=getLog();
-  log.unshift({ id: Date.now(), filename, txCount, monthCount, months, date: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}) });
+  // `id` links the log entry to the transactions tagged with tx.imp at import
+  // time, so the clean-up center can undo exactly this batch. Falls back to a
+  // timestamp for any caller that doesn't supply one.
+  log.unshift({ id: id || Date.now(), filename, txCount, monthCount, months, date: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}) });
   // Hard-cap retention: a single pop() leaves the log oversize if it ever
   // started larger than the cap (e.g. after a backup restore from a future
   // version that allowed more entries).
@@ -792,6 +795,11 @@ function resolveConflict(action){
 }
 
 function applyImport(file, newTxs, newMonths, newKeys, mode){
+  // Tag every row in this batch with a shared import id so the clean-up center
+  // can undo exactly these transactions later. newMonths[mk].txs are the same
+  // objects as newTxs, so tagging here covers both the replace and merge paths.
+  const importId = 'imp_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+  for(const tx of newTxs){ tx.imp = importId; }
   // Merge month aggregates
   for(const mk of newKeys){
     if(mode === 'replace' || !_months[mk]){
@@ -826,6 +834,7 @@ function applyImport(file, newTxs, newMonths, newKeys, mode){
   if(!_lastImportedMonths) _lastImportedMonths = new Set();
   newKeys.forEach(k => _lastImportedMonths.add(k));
   addToLog({
+    id:         importId,
     filename:   file.name,
     txCount:    newTxs.length,
     monthCount: newKeys.length,
