@@ -8,13 +8,14 @@
 <meta name="theme-color" content="#050a14">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="application-name" content="Greenbar">
+<meta name="description" content="Greenbar — private, on-device budgeting for US, UK, Australian & Canadian bank statements. Import a CSV or PDF; your data never leaves your phone.">
 <link rel="manifest" id="manifest-link">
 <script>
 // Inline manifest injection
 const manifest = {
   name: "Greenbar",
   short_name: "Greenbar",
-  description: "Private, on-device personal finance — your data stays on your phone.",
+  description: "Private, on-device budgeting for US, UK, Australian & Canadian bank statements. Your data stays on your phone.",
   start_url: "./",
   display: "standalone",
   background_color: "#050a14",
@@ -244,18 +245,8 @@ if('serviceWorker' in navigator){
         <div style="background:var(--glass);border:1px solid var(--border);border-radius:20px;padding:16px;margin-bottom:14px;">
           <label id="bank-export-label" for="bank-export-select" style="display:block;font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px;">Pick your bank for step-by-step instructions to download your transactions.</label>
           <select id="bank-export-select" class="bank-select" aria-labelledby="bank-export-label" onchange="showBankExport(this.value)">
+            <!-- Options are populated by populateBankSelect() for the active region (US/UK/AU/CA). -->
             <option value="" disabled selected>Select your bank…</option>
-            <option value="Chase">Chase</option>
-            <option value="Bank of America">Bank of America</option>
-            <option value="Wells Fargo">Wells Fargo</option>
-            <option value="Citi">Citi</option>
-            <option value="Capital One">Capital One</option>
-            <option value="U.S. Bank">U.S. Bank</option>
-            <option value="PNC">PNC</option>
-            <option value="Truist">Truist</option>
-            <option value="TD Bank">TD Bank</option>
-            <option value="American Express">American Express</option>
-            <option value="Other / not listed">Other / not listed</option>
           </select>
           <div id="bank-export-steps" style="margin-top:12px;"><div style="font-size:12px;color:var(--muted);padding:2px;">Pick your bank above for step-by-step export instructions.</div></div>
         </div>
@@ -498,7 +489,7 @@ if('serviceWorker' in navigator){
               </div>
             </div>
             <div style="background:rgba(255,165,2,0.07);border:1px solid rgba(255,165,2,0.2);border-radius:12px;padding:10px 13px;font-size:11px;color:var(--muted);line-height:1.6;">
-              Files from most US banks import without any setup. If something looks wrong, check Settings &rarr; Column Mapping.
+              Files from most US, UK, Australian and Canadian banks import without any setup. If something looks wrong, check Settings &rarr; Column Mapping (region, currency and date format).
             </div>
           </div>
 

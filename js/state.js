@@ -19,7 +19,10 @@ const DEFAULTS = {
   // browser on first run (loadCFG) and changeable in Settings → Column Mapping.
   region:'US',
   cols:{ date:'',desc:'',amt:'',cat:'',fmt:'MM/DD/YY' },
-  incomeKw:['PAYROLL','DIRECT DEPOSIT','SALARY','TAX REFUND','CASHOUT','MOBILE DEPOSIT','ZELLE FROM','VENMO CASHOUT'],
+  // Income markers (substring, case-insensitive). Includes UK/AU/CA-friendly
+  // terms (WAGES/PENSION/DIVIDEND) alongside US ones; kept conservative to avoid
+  // mis-tagging expenses as income. Users can edit this list in Settings.
+  incomeKw:['PAYROLL','DIRECT DEPOSIT','SALARY','WAGES','PENSION','DIVIDEND','TAX REFUND','CASHOUT','MOBILE DEPOSIT','ZELLE FROM','VENMO CASHOUT'],
   skipKw:[],
   // Curated default merchant rules -- distinctive keyword substrings, matched
   // case-insensitively against the description (first match wins).

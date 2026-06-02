@@ -324,74 +324,207 @@ function startSetupFromFlash(){
 
 
 // ──────── Bank export instructions (per-bank steps) ────────
+// Each entry is tagged with a region so the picker (populateBankSelect) shows
+// the banks for the user's CFG.region. "Other / not listed" is region 'ALL'.
 const BANK_EXPORTS = {
-  'Chase': { steps:[
+  'Chase': { region:'US', steps:[
     'Sign in at chase.com and select the account you want to export.',
     'On the account activity page, click "Download account activity."',
     'Choose a date range (or "All transactions") and the "Spreadsheet (CSV)" file type.',
     'Click Download — the file saves to your Downloads folder.'
   ], note:'Chase\'s CSV export covers roughly the last 24 months. For older history, download monthly statements instead.' },
-  'Bank of America': { steps:[
+  'Bank of America': { region:'US', steps:[
     'Sign in at bankofamerica.com and select your account.',
     'On the Activity tab, choose Download (Bank of America labels it "Download Transactions").',
     'Pick a date range and the CSV file format.',
     'Click Download.'
   ], note:'Bank of America limits each download to about 60 days, so a full year may take several downloads.' },
-  'Wells Fargo': { steps:[
+  'Wells Fargo': { region:'US', steps:[
     'Sign in at wellsfargo.com and open your account.',
     'Click "Download Account Activity" above your transaction list.',
     'Choose a date range and set the format to "Comma Delimited (CSV)."',
     'Click Download.'
   ], note:'Wells Fargo offers up to about 18 months of activity for CSV download.' },
-  'Citi': { steps:[
+  'Citi': { region:'US', steps:[
     'Sign in at citi.com and open the account you want.',
     'On the account activity page, select the Download option.',
     'Choose a date range and the CSV (or Excel) file format.',
     'Click Download.'
   ] },
-  'Capital One': { steps:[
+  'Capital One': { region:'US', steps:[
     'Sign in at capitalone.com and open your account.',
     'Select "Download Transactions" (under "View More" or the account menu).',
     'Choose a date range and the CSV file type.',
     'Click Download.'
   ] },
-  'U.S. Bank': { steps:[
+  'U.S. Bank': { region:'US', steps:[
     'Sign in at usbank.com and select your account.',
     'From the account activity page, choose "Download Transactions."',
     'Pick a date range and the "Spreadsheet (CSV)" format.',
     'Click Download.'
   ] },
-  'PNC': { steps:[
+  'PNC': { region:'US', steps:[
     'Sign in at pnc.com and open your account\'s Activity.',
     'Select the Export or Download option.',
     'Choose a date range and the CSV format.',
     'Click Download.'
   ] },
-  'Truist': { steps:[
+  'Truist': { region:'US', steps:[
     'Sign in at truist.com and open the account.',
     'From the transaction history, choose the Export or Download option.',
     'Choose a date range and the CSV format.',
     'Click Download.'
   ] },
-  'TD Bank': { steps:[
+  'TD Bank': { region:'US', steps:[
     'Sign in at td.com and select your account.',
     'On the account activity page, choose Download.',
     'Pick a date range and the CSV (spreadsheet) format.',
     'Click Download.'
   ] },
-  'American Express': { steps:[
+  'American Express': { region:'US', steps:[
     'Sign in at americanexpress.com and open "Statements & Activity."',
     'Choose the Download option for the period you want.',
     'Select the CSV (Excel) file format.',
     'Click Download.'
   ] },
-  'Other / not listed': { steps:[
+
+  // ── United Kingdom ──
+  'Barclays (UK)': { region:'GB', steps:[
+    'Sign in to Barclays online banking at barclays.co.uk and open the account.',
+    'Open the account\'s transactions, then choose "Export" / "Download".',
+    'Select CSV (Excel) and a date range.',
+    'Download the file.'
+  ], note:'In the Barclays app, statements export may be limited — online banking gives the fullest CSV export.' },
+  'HSBC UK': { region:'GB', steps:[
+    'Sign in at hsbc.co.uk and open the account.',
+    'Select "Download" above your transactions.',
+    'Choose CSV (or QIF/Excel) and a date range.',
+    'Download the file.'
+  ] },
+  'Lloyds Bank': { region:'GB', steps:[
+    'Sign in at lloydsbank.com and open the account.',
+    'Choose "Search, view or download transactions" / "Export".',
+    'Select the CSV / "Internet banking text file" format and a date range.',
+    'Download the file.'
+  ] },
+  'NatWest': { region:'GB', steps:[
+    'Sign in at natwest.com and open the account.',
+    'Select "Download transactions" / "Statements".',
+    'Choose CSV (Excel) and a date range.',
+    'Download the file.'
+  ] },
+  'Santander UK': { region:'GB', steps:[
+    'Sign in at santander.co.uk and open the account.',
+    'Open transactions and choose "Download" / "Export".',
+    'Select CSV (Excel) and a date range.',
+    'Download the file.'
+  ] },
+  'Monzo': { region:'GB', steps:[
+    'Open the Monzo app and go to the account.',
+    'Tap the account, then "Statements" / "Export".',
+    'Choose CSV and the month or date range.',
+    'Save or share the file to your device.'
+  ], note:'Monzo also lets you export from monzo.com — handy on a computer.' },
+  'Starling Bank': { region:'GB', steps:[
+    'Open the Starling app and go to the account.',
+    'Open "Statements" and choose to export.',
+    'Select CSV and a date range.',
+    'Save or share the file to your device.'
+  ] },
+  'Nationwide': { region:'GB', steps:[
+    'Sign in at nationwide.co.uk and open the account.',
+    'Choose "Manage / download statements" or "Download transactions".',
+    'Select CSV and a date range.',
+    'Download the file.'
+  ] },
+
+  // ── Australia ──
+  'Commonwealth Bank (CBA)': { region:'AU', steps:[
+    'Sign in to NetBank at commbank.com.au and open the account.',
+    'Select "Export transactions".',
+    'Choose CSV and a date range.',
+    'Download the file.'
+  ] },
+  'Westpac': { region:'AU', steps:[
+    'Sign in to Westpac online banking and open the account.',
+    'Choose "Export" above your transactions.',
+    'Select CSV and a date range.',
+    'Download the file.'
+  ] },
+  'ANZ (Australia)': { region:'AU', steps:[
+    'Sign in to ANZ Internet Banking and open the account.',
+    'Select "Export" / "Download transactions".',
+    'Choose CSV and a date range.',
+    'Download the file.'
+  ] },
+  'NAB': { region:'AU', steps:[
+    'Sign in to NAB Internet Banking and open the account.',
+    'Choose "Export transactions".',
+    'Select CSV and a date range.',
+    'Download the file.'
+  ] },
+  'ING (Australia)': { region:'AU', steps:[
+    'Sign in at ing.com.au and open the account.',
+    'Choose "Export" on the transactions page.',
+    'Select CSV and a date range.',
+    'Download the file.'
+  ] },
+
+  // ── Canada ──
+  'RBC Royal Bank': { region:'CA', steps:[
+    'Sign in at rbcroyalbank.com and open the account.',
+    'Choose "Download Transactions".',
+    'Select the Spreadsheet (CSV) format and a date range.',
+    'Download the file.'
+  ] },
+  'TD Canada Trust': { region:'CA', steps:[
+    'Sign in to EasyWeb at td.com and open the account.',
+    'Choose "Download" above your transactions.',
+    'Select CSV and a date range.',
+    'Download the file.'
+  ] },
+  'Scotiabank': { region:'CA', steps:[
+    'Sign in at scotiabank.com and open the account.',
+    'Choose "Download" / "Export transactions".',
+    'Select CSV and a date range.',
+    'Download the file.'
+  ] },
+  'BMO': { region:'CA', steps:[
+    'Sign in at bmo.com and open the account.',
+    'Choose "Download Transactions".',
+    'Select CSV and a date range.',
+    'Download the file.'
+  ] },
+  'CIBC': { region:'CA', steps:[
+    'Sign in at cibc.com and open the account.',
+    'Choose "Download Transactions".',
+    'Select CSV and a date range.',
+    'Download the file.'
+  ] },
+
+  'Other / not listed': { region:'ALL', steps:[
     'Sign in to your bank\'s website or app and open the account.',
     'Find "Account Activity," "Transaction History," or "Statements."',
     'Look for a Download, Export, or Statements option, and choose CSV (sometimes labeled "Comma Delimited" or "Spreadsheet").',
     'Pick a date range and download the file.'
   ] },
 };
+// Fill the bank picker with the banks for the active region (+ "Other"). Called
+// when the Guide screen opens and after the region changes.
+function populateBankSelect(){
+  const sel = document.getElementById('bank-export-select');
+  if(!sel) return;
+  const region = (typeof CFG !== 'undefined' && CFG.region) || 'US';
+  const names = Object.keys(BANK_EXPORTS).filter(k => BANK_EXPORTS[k].region === region);
+  sel.innerHTML = '<option value="" disabled selected>Select your bank…</option>'
+    + names.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('')
+    + '<option value="Other / not listed">Other / not listed</option>';
+  showBankExport('');   // reset the steps panel
+}
+// Repopulate when the user opens the Guide screen (region may have changed).
+document.addEventListener('gb:screen', (e) => {
+  if(e.detail && e.detail.name === 'intro') populateBankSelect();
+});
 function showBankExport(key){
   const el=document.getElementById('bank-export-steps');
   if(!el) return;

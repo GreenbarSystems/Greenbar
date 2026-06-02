@@ -24,10 +24,13 @@ const gbPdf = (() => {
   const MAX_PAGES  = 40;
   const Y_TOL      = 3;
 
-  const AMT_CORE = '\\(?-?\\$?(?:\\d{1,3}(?:,\\d{3})+|\\d+)\\.\\d{2}\\)?-?';
+  // Currency symbol is optional and may be $ or £ (US/AU/CA use $, UK uses £);
+  // amounts still need 2 decimals so dates/IDs don't match.
+  const AMT_CORE = '\\(?-?[\\$£]?(?:\\d{1,3}(?:,\\d{3})+|\\d+)\\.\\d{2}\\)?-?';
   const AMT_RE_G = new RegExp(AMT_CORE, 'g');
   const AMT_RE_1 = new RegExp(AMT_CORE);
-  const DATE_LEAD_RE = /^(\d{1,2})[\/-](\d{1,2})(?:[\/-](\d{2,4}))?\b/;
+  const DATE_DMY_RE = /^(\d{1,2})[\/-](\d{1,2})(?:[\/-](\d{2,4}))?\b/;   // DD/MM or MM/DD (+ optional year)
+  const DATE_YMD_RE = /^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})\b/;          // YYYY-MM-DD (Canada)
   const SKIP_RE = /\b(beginning|ending|opening|closing|previous|new|available|present|statement)\s+balance\b|balance\s+forward|\btotal\b|subtotal|page\s+\d+\s+of\s+\d+|account\s+number|minimum\s+payment|payment\s+due|statement\s+period/i;
   const MONTHS = { jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12 };
 
@@ -96,14 +99,37 @@ const gbPdf = (() => {
     return null;
   }
 
+  // Active date order from CFG.cols.fmt (region-driven): 'YMD' | 'DMY' | 'MDY'.
+  function _fmtNow(){ return (typeof CFG !== 'undefined' && CFG.cols && CFG.cols.fmt) || 'MM/DD/YYYY'; }
+  function _dateOrder(){ const f = _fmtNow(); if(/^Y/i.test(f)) return 'YMD'; if(/^D/i.test(f)) return 'DMY'; return 'MDY'; }
+  // Parse a leading date token per the active order -> { m, d, yRaw, len } | null.
+  // This is what makes UK/AU (DD/MM) and CA (YYYY-MM-DD) statements read correctly
+  // instead of being mis-interpreted as US MM/DD.
+  function _matchLeadDate(text){
+    const order = _dateOrder();
+    if(order === 'YMD'){
+      const m = text.match(DATE_YMD_RE); if(!m) return null;
+      return { m:+m[2], d:+m[3], yRaw:m[1], len:m[0].length };
+    }
+    const m = text.match(DATE_DMY_RE); if(!m) return null;
+    return order === 'DMY' ? { m:+m[2], d:+m[1], yRaw:m[3], len:m[0].length }
+                           : { m:+m[1], d:+m[2], yRaw:m[3], len:m[0].length };
+  }
   // Resolve a row's year: explicit on the row, else backfilled from the period
   // (Dec→prior-year when the statement closes early in the year). Null = unplaceable.
-  function _resolveYear(dm, ctx){
-    if(dm[3]) return dm[3].length === 2 ? 2000 + (+dm[3]) : +dm[3];
-    if(ctx.year){ return (ctx.month && +dm[1] === 12 && ctx.month <= 2) ? ctx.year - 1 : ctx.year; }
+  function _resolveYear(p, ctx){
+    if(p.yRaw) return String(p.yRaw).length === 2 ? 2000 + (+p.yRaw) : +p.yRaw;
+    if(ctx.year) return (ctx.month && p.m === 12 && ctx.month <= 2) ? ctx.year - 1 : ctx.year;
     return null;
   }
-  function _dateStr(dm, year){ return dm[1].padStart(2,'0') + '/' + dm[2].padStart(2,'0') + '/' + year; }
+  // Build the date string in the active CFG order, so renderTxs() (which parses
+  // tx.date with CFG.cols.fmt) reads it back correctly.
+  function _dateStr(p, year){
+    const MM = String(p.m).padStart(2,'0'), DD = String(p.d).padStart(2,'0'), order = _dateOrder();
+    if(order === 'YMD') return year + '-' + MM + '-' + DD;
+    if(order === 'DMY') return DD + '/' + MM + '/' + year;
+    return MM + '/' + DD + '/' + year;
+  }
 
   // ── Strategy 1: columnar (header-anchored) ──
   function _detectHeader(lines){
@@ -140,8 +166,8 @@ const gbPdf = (() => {
       if(!L.text || SKIP_RE.test(L.text)) continue;
       const buckets = {};
       for(const t of L.tokens){ const s = (t.str || '').trim(); if(!s) continue; const k = colOf(t.x); (buckets[k] = buckets[k] || []).push(s); }
-      const dm = (buckets.date || []).join('').match(DATE_LEAD_RE);
-      if(!dm) continue;                    // no date in the date column -> not a row
+      const p = _matchLeadDate((buckets.date || []).join(''));
+      if(!p) continue;                     // no date in the date column -> not a row
       let amount = null;
       if(buckets.amount){ amount = parseAmt(buckets.amount.join('')); }
       else {
@@ -151,10 +177,10 @@ const gbPdf = (() => {
         else if(cred) amount =  Math.abs(cred);  // credit column -> income/refund
       }
       if(!amount) continue;
-      const year = _resolveYear(dm, ctx);
+      const year = _resolveYear(p, ctx);
       if(year === null){ undated++; continue; }
       const desc = (buckets.desc || []).join(' ').replace(/\s+/g,' ').trim() || 'Transaction';
-      rows.push({ dateStr: _dateStr(dm, year), desc, amount });
+      rows.push({ dateStr: _dateStr(p, year), desc, amount });
     }
     return { rows, undated };
   }
@@ -165,20 +191,20 @@ const gbPdf = (() => {
     for(const L of lines){
       const text = L.text;
       if(!text || SKIP_RE.test(text)) continue;
-      const dm = text.match(DATE_LEAD_RE);
-      if(!dm) continue;
+      const p = _matchLeadDate(text);
+      if(!p) continue;
       const amts = text.match(AMT_RE_G);
       if(!amts || !amts.length) continue;
       const amtTok = amts.length >= 2 ? amts[amts.length - 2] : amts[amts.length - 1];
       const amount = parseAmt(amtTok);
       if(!amount) continue;
-      const year = _resolveYear(dm, ctx);
+      const year = _resolveYear(p, ctx);
       if(year === null){ undated++; continue; }
-      let desc = text.slice(dm[0].length);
+      let desc = text.slice(p.len);
       const firstAmt = desc.search(AMT_RE_1);
       if(firstAmt > 0) desc = desc.slice(0, firstAmt);
       desc = desc.replace(/\s+/g,' ').trim() || 'Transaction';
-      rows.push({ dateStr: _dateStr(dm, year), desc, amount });
+      rows.push({ dateStr: _dateStr(p, year), desc, amount });
     }
     return { rows, undated };
   }
@@ -189,7 +215,7 @@ const gbPdf = (() => {
     for(const r of rows){
       const U = r.desc.toUpperCase();
       if(CFG.skipKw.some(kw => U.includes(kw))){ skipped++; continue; }
-      const pd = parseDateParts(r.dateStr, 'MM/DD/YYYY');
+      const pd = parseDateParts(r.dateStr, _fmtNow());
       if(!pd){ und++; continue; }
       const { cat, isIncome } = categorizeTx(r.desc, '');
       txs.push({ id: newTxId(), date: r.dateStr, ts: pd.key, month: pd.month,
@@ -198,7 +224,7 @@ const gbPdf = (() => {
     if(!txs.length) return null;
     const res = {
       txs,
-      mapping: { date: 'auto (PDF layout)', amt: 'auto (PDF layout)', desc: 'auto (PDF layout)', cat: '', fmt: 'MM/DD/YYYY' },
+      mapping: { date: 'auto (PDF layout)', amt: 'auto (PDF layout)', desc: 'auto (PDF layout)', cat: '', fmt: _fmtNow() },
       counts: { total: txs.length + skipped + und, imported: txs.length, skipped, undated: und }
     };
     if(confidence === 'low')

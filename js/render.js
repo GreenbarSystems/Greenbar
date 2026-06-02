@@ -666,6 +666,7 @@ function renderSummary(){
             No file yet? <button type="button" onclick="goToBankExport()" class="link-btn">Export from your bank &rarr;</button><br>
             Just exploring? <button type="button" onclick="gbDemo.load()" class="link-btn">Load sample data &rarr;</button>
           </div>
+          <div style="margin-top:14px;font-size:11px;color:var(--muted);">🇺🇸 🇬🇧 🇦🇺 🇨🇦 US, UK, Australia &amp; Canada &middot; ${esc(gbRegion().currency)}</div>
         </div>
         <h2 class="sec-hdr">What you'll unlock</h2>
         ${achievements}

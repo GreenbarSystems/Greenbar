@@ -119,6 +119,7 @@ function setRegion(code){
   CFG.cols.fmt = REGIONS[code].dateFmt;   // adopt the region's date order as the default
   saveCFG();
   syncUI();
+  if(typeof populateBankSelect === 'function') populateBankSelect();  // show this region's bank list
   if(typeof renderAll === 'function' && _allTxs.length) renderAll();
 }
 // ════ STORAGE-QUOTA HELPERS ════
