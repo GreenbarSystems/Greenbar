@@ -806,6 +806,10 @@ if('serviceWorker' in navigator){
           <span id="log-badge" style="display:none;background:var(--green);color:#050a14;font-size:11px;font-weight:800;border-radius:9px;padding:2px 7px;font-family:var(--font-display);"></span>
           <span class="s-arrow" aria-hidden="true">›</span>
         </button>
+        <button type="button" class="settings-row" onclick="gbCleanup.openCleanup()" aria-labelledby="cleanup-label" aria-describedby="cleanup-desc">
+          <span class="s-body"><span class="s-label" id="cleanup-label">Review &amp; clean up</span><span class="s-desc" id="cleanup-desc">Undo an import, delete a month, or remove duplicates</span></span>
+          <span class="s-arrow" aria-hidden="true">›</span>
+        </button>
       </div>
 
       <h2 class="sec-hdr">Security</h2>
@@ -850,6 +854,14 @@ if('serviceWorker' in navigator){
       <div class="settings-section">
         <button type="button" class="settings-row" onclick="gbTour.reset(); showScreen('summary', _navBtn(0)); gbTour.startAfterScreen();" aria-labelledby="tour-help-label" aria-describedby="tour-help-desc">
           <span class="s-body"><span class="s-label" id="tour-help-label">Tour the app</span><span class="s-desc" id="tour-help-desc">Replay the on-screen guide on the Summary page</span></span>
+          <span class="s-arrow" aria-hidden="true">›</span>
+        </button>
+      </div>
+
+      <h2 class="sec-hdr">Sample Data</h2>
+      <div class="settings-section">
+        <button type="button" class="settings-row" onclick="gbDemo.toggle()" aria-labelledby="demo-label" aria-describedby="demo-desc">
+          <span class="s-body"><span class="s-label" id="demo-label">Load or remove sample data</span><span class="s-desc" id="demo-desc" style="color:var(--muted);">Explore Greenbar with a built-in demo dataset — remove it anytime.</span></span>
           <span class="s-arrow" aria-hidden="true">›</span>
         </button>
       </div>
@@ -1040,6 +1052,8 @@ if('serviceWorker' in navigator){
 <script src="js/suggest-budget.js"></script>
 <script src="js/insights.js"></script>
 <script src="js/goals.js"></script>
+<script src="js/demo.js"></script>
+<script src="js/cleanup.js"></script>
 <script src="js/features.js"></script>
 <script src="js/security.js"></script>
 <script src="js/backup.js"></script>
@@ -1067,6 +1081,19 @@ if('serviceWorker' in navigator){
 </dialog>
 
 <!-- UPLOAD LOG MODAL -->
+<!-- ════ IMPORT REVIEW & CLEAN-UP CENTER ════ -->
+<dialog class="modal-overlay" id="modal-cleanup" aria-modal="true" aria-labelledby="cleanup-title" onclick="closeOut(event,'modal-cleanup')">
+  <div class="sheet">
+    <div class="sheet-close-row">
+      <button type="button" aria-label="Close" onclick="closeModal('modal-cleanup')" class="sheet-close">✕</button>
+    </div>
+    <div class="sheet-handle" style="margin-top:0;"></div>
+    <h2 class="sheet-title" id="cleanup-title" style="margin-bottom:2px;">Review &amp; clean up</h2>
+    <div class="sheet-sub">Undo an import, delete a month, or remove duplicate charges. Changes apply on your device.</div>
+    <div id="cleanup-body" style="margin-top:8px;"></div>
+  </div>
+</dialog>
+
 <dialog class="modal-overlay" id="modal-log" aria-modal="true" aria-labelledby="log-title" onclick="closeOut(event,'modal-log')">
   <div class="sheet">
     <div class="sheet-close-row">
