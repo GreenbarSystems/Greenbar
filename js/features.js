@@ -167,7 +167,7 @@ function runFlashIntro(){
           <div style="font-size:16px;color:var(--soft);letter-spacing:0.02em;margin-bottom:40px;">Your money, clearly.</div>
           <div id="flash-cta" style="opacity:0;transition:opacity 1.2s ease;">
             <button type="button" class="btn-flash-cta" onclick="startSetupFromFlash()">Get Started &rarr;</button>
-
+            <div style="margin-top:16px;"><button type="button" onclick="gbDemo.load()" style="background:none;border:none;color:var(--soft);font-size:14px;font-weight:700;font-family:var(--font-display);cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:6px;">Explore with sample data &rarr;</button></div>
           </div>
         </div>
       </div>`;
