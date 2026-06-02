@@ -677,7 +677,7 @@ function renderLog(){
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <span style="background:rgba(0,214,143,0.10);border:1px solid rgba(0,214,143,0.2);border-radius:8px;padding:3px 10px;font-size:11px;font-weight:600;color:var(--green)">${esc(String(entry.txCount))} transaction${entry.txCount===1?'':'s'}</span>
         <span style="background:rgba(41,121,255,0.10);border:1px solid rgba(41,121,255,0.2);border-radius:8px;padding:3px 10px;font-size:11px;font-weight:600;color:#2979ff">${esc(String(entry.monthCount))} month${entry.monthCount===1?'':'s'}</span>
-        <span style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:3px 10px;font-size:11px;color:var(--muted)">${esc(entry.months)}</span>
+        <span style="background:var(--o05);border:1px solid var(--o08);border-radius:8px;padding:3px 10px;font-size:11px;color:var(--muted)">${esc(entry.months)}</span>
       </div>
     </div>`).join('');
 }
@@ -791,7 +791,7 @@ function showImportPreview(filename, result){
   const sampleRows = result.txs.slice(0,5).map(t => {
     const lbl = (parseDateParts(t.date, m.fmt)||{}).label || t.date || '';
     const cat = t.isIncome ? 'Income' : t.cat;
-    return `<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+    return `<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--o05);">
       <div style="flex:1;min-width:0;">
         <div style="font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(cleanVendor(t.desc)||t.desc)}</div>
         <div style="font-size:11px;color:var(--muted);">${esc(lbl)} · ${esc(cat)}</div>
@@ -821,7 +821,7 @@ function showImportPreview(filename, result){
         <div style="font-family:var(--font-display);font-size:20px;font-weight:900;color:var(--green);">${c.imported||0}</div>
         <div style="font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">Ready to import</div>
       </div>
-      <div style="flex:1;background:${dropped?'rgba(255,165,2,0.08)':'rgba(255,255,255,0.04)'};border:1px solid ${dropped?'rgba(255,165,2,0.25)':'var(--border)'};border-radius:12px;padding:10px;text-align:center;">
+      <div style="flex:1;background:${dropped?'rgba(255,165,2,0.08)':'var(--o04)'};border:1px solid ${dropped?'rgba(255,165,2,0.25)':'var(--border)'};border-radius:12px;padding:10px;text-align:center;">
         <div style="font-family:var(--font-display);font-size:20px;font-weight:900;color:${dropped?'var(--amber)':'var(--muted)'};">${dropped}</div>
         <div style="font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">Skipped</div>
       </div>
@@ -862,12 +862,12 @@ function showConflictModal(filename, conflictingMonths, allNewMonths){
     `"${filename}" contains data for months you've already imported. How would you like to handle it?`;
 
   const monthsHtml = `
-    <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:14px;padding:12px 14px;">
+    <div style="background:var(--o04);border:1px solid var(--border);border-radius:14px;padding:12px 14px;">
       <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px;font-family: var(--font-display);">Overlapping months</div>
       ${conflictingMonths.map(mk => {
         const existing = _months[mk];
         const existingTxs = existing ? existing.txs.length : 0;
-        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px;">
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--o05);font-size:13px;">
           <span style="font-weight:600;">${esc(mk)}</span>
           <span style="color:var(--muted);font-size:11px;">${existingTxs} existing txs</span>
         </div>`;

@@ -105,7 +105,7 @@ const gbGoals = (() => {
           <div style="font-size:14px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(g.name)}</div>
           <button type="button" aria-label="Delete goal" onclick="gbGoals.remove('${g.id}')" style="background:none;border:none;color:var(--muted);font-size:14px;cursor:pointer;flex-shrink:0;padding:2px 4px;">✕</button>
         </div>
-        <div style="height:8px;background:rgba(255,255,255,0.08);border-radius:5px;overflow:hidden;margin:8px 0 6px;">
+        <div style="height:8px;background:var(--o08);border-radius:5px;overflow:hidden;margin:8px 0 6px;">
           <div style="height:100%;width:${pct}%;background:${bar};border-radius:5px;transition:width .4s ease;"></div>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;">
@@ -162,7 +162,7 @@ const gbGoals = (() => {
             <span style="font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(g.name)}</span>
             <span style="color:var(--muted);">${_money(g.saved)} / ${_money(g.target)} (${pct}%)</span>
           </div>
-          <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden;">
+          <div style="height:6px;background:var(--o08);border-radius:4px;overflow:hidden;">
             <div style="height:100%;width:${pct}%;background:${done?'var(--green)':'#2979ff'};border-radius:4px;"></div>
           </div>
         </div>`;

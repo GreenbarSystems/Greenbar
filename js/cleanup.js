@@ -113,7 +113,7 @@ const gbCleanup = (() => {
       <h3 class="sec-hdr" style="margin-top:0;">Months (${months.length})</h3>
       <div class="section-card" style="margin-bottom:14px;">
         ${months.map(s => `
-          <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--o05);">
             <div style="flex:1;min-width:0;">
               <div style="font-size:13px;font-weight:700;">${esc(s.mk)}</div>
               <div style="font-size:11px;color:var(--muted);">${s.txCount} txs · net <span style="color:${s.net>=0?'var(--green)':'var(--red)'};">${s.net>=0?'+':'−'}${_money(s.net)}</span></div>
@@ -127,7 +127,7 @@ const gbCleanup = (() => {
     const dupHtml = `
       <h3 class="sec-hdr" style="margin-top:0;">Possible duplicates${dups.length?` (${dups.length})`:''}</h3>
       ${dups.length ? `<div class="section-card">${dups.map(d => `
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--o05);">
           <div style="flex:1;min-width:0;">
             <div style="font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(d.vendor)} ${_money(d.amount)}</div>
             <div style="font-size:11px;color:var(--muted);">${esc(d.dateA)} &amp; ${esc(d.dateB)}</div>

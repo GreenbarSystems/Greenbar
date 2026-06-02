@@ -203,7 +203,7 @@ const gbTrends = (() => {
       const rUp = r.delta > 0;
       const rc  = rUp ? 'var(--red)' : 'var(--green)';
       const pct = r.pct === null ? '' : ` · ${rUp?'+':''}${r.pct}%`;
-      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px;">
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--o05);font-size:13px;">
         <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(r.cat)}</span>
         <span style="color:var(--muted);font-size:11px;margin:0 10px;flex-shrink:0;">${fmt(r.prior)} → ${fmt(r.current)}</span>
         <span style="color:${rc};font-weight:700;font-size:12px;flex-shrink:0;min-width:74px;text-align:right;">${rUp?'+':'−'}${fmt(Math.abs(r.delta))}${pct}</span>
@@ -263,9 +263,9 @@ const gbTrends = (() => {
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
           <span style="background:rgba(0,214,143,0.10);border:1px solid rgba(0,214,143,0.2);border-radius:8px;padding:3px 9px;font-size:11px;font-weight:600;color:var(--green);">${esc(s.category)}</span>
-          <span style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:3px 9px;font-size:11px;color:var(--muted);">${esc(s.cadence)}</span>
-          <span style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:3px 9px;font-size:11px;color:var(--muted);">${s.monthsSeen}/${s.totalMonths} months</span>
-          <span style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:3px 9px;font-size:11px;color:var(--muted);">${conf(s.confidence)} ${s.confidence}</span>
+          <span style="background:var(--o05);border:1px solid var(--o08);border-radius:8px;padding:3px 9px;font-size:11px;color:var(--muted);">${esc(s.cadence)}</span>
+          <span style="background:var(--o05);border:1px solid var(--o08);border-radius:8px;padding:3px 9px;font-size:11px;color:var(--muted);">${s.monthsSeen}/${s.totalMonths} months</span>
+          <span style="background:var(--o05);border:1px solid var(--o08);border-radius:8px;padding:3px 9px;font-size:11px;color:var(--muted);">${conf(s.confidence)} ${s.confidence}</span>
         </div>
         ${s.nextExpected ? `<div style="font-size:11.5px;color:var(--soft);margin-top:8px;">Last ${esc(s.lastDate)} · next expected around <strong>${esc(s.nextExpected)}</strong></div>` : ''}
       </div>`).join('');

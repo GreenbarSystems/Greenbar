@@ -6,6 +6,12 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#050a14">
+<script>
+// Apply the saved/OS theme before first paint to avoid a flash of the wrong
+// theme. Full toggle logic lives in js/theme.js (gbTheme); this just sets the
+// attribute as early as possible. Default is dark; 'system' follows the OS.
+(function(){ try{ var t=localStorage.getItem('gb_theme'); var light = t==='light' || (t!=='dark' && window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches); document.documentElement.setAttribute('data-theme', light?'light':'dark'); }catch(e){} })();
+</script>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="application-name" content="Greenbar">
 <meta name="description" content="Greenbar — private, on-device budgeting for US, UK, Australian & Canadian bank statements. Import a CSV or PDF; your data never leaves your phone.">
@@ -181,7 +187,7 @@ if('serviceWorker' in navigator){
         <div class="guide-sec-hdr">How to get started</div>
         <div class="glass-card">
 
-          <div style="display:flex;gap:14px;padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);">
+          <div style="display:flex;gap:14px;padding:16px;border-bottom:1px solid var(--o05);">
             <div class="step-badge">1</div>
             <div>
               <div class="row-label">Adjust Settings (optional)</div>
@@ -189,7 +195,7 @@ if('serviceWorker' in navigator){
             </div>
           </div>
 
-          <div style="display:flex;gap:14px;padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);">
+          <div style="display:flex;gap:14px;padding:16px;border-bottom:1px solid var(--o05);">
             <div class="step-badge">2</div>
             <div>
               <div class="row-label">Download your Bank Transactions</div>
@@ -197,7 +203,7 @@ if('serviceWorker' in navigator){
             </div>
           </div>
 
-          <div style="display:flex;gap:14px;padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);">
+          <div style="display:flex;gap:14px;padding:16px;border-bottom:1px solid var(--o05);">
             <div class="step-badge">3</div>
             <div>
               <div class="row-label">Tap Import and select your file</div>
@@ -218,25 +224,25 @@ if('serviceWorker' in navigator){
         <div class="guide-sec-hdr">What is a CSV file?</div>
         <div class="glass-card">
 
-          <div style="padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);">
+          <div style="padding:16px;border-bottom:1px solid var(--o05);">
             <div style="font-size:13px;color:var(--soft);line-height:1.7;">
-              <strong class="c-text">CSV</strong> stands for <strong class="c-text">Comma-Separated Values</strong>. It&rsquo;s a plain-text spreadsheet file where each line is one transaction and the columns &mdash; date, description, amount &mdash; are separated by commas. Files end in <code style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;background:rgba(255,255,255,0.06);padding:1px 6px;border-radius:5px;color:var(--text);">.csv</code>.
+              <strong class="c-text">CSV</strong> stands for <strong class="c-text">Comma-Separated Values</strong>. It&rsquo;s a plain-text spreadsheet file where each line is one transaction and the columns &mdash; date, description, amount &mdash; are separated by commas. Files end in <code style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;background:var(--o06);padding:1px 6px;border-radius:5px;color:var(--text);">.csv</code>.
             </div>
           </div>
 
-          <div style="padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);">
+          <div style="padding:16px;border-bottom:1px solid var(--o05);">
             <div style="font-size:13px;font-weight:700;margin-bottom:6px;color:var(--green);">What to pick at your bank</div>
             <div class="row-desc">When your bank lists export options, choose <strong class="c-text">CSV</strong> &mdash; sometimes labeled &ldquo;Comma-Separated Values,&rdquo; &ldquo;Excel-compatible CSV,&rdquo; or just &ldquo;spreadsheet.&rdquo;</div>
           </div>
 
-          <div style="padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);">
+          <div style="padding:16px;border-bottom:1px solid var(--o05);">
             <div style="font-size:13px;font-weight:700;margin-bottom:6px;color:var(--green);">Other formats Greenbar accepts</div>
-            <div class="row-desc">If CSV isn&rsquo;t offered, <code style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:4px;color:var(--text);">.tsv</code> (tab-separated) and <code style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:4px;color:var(--text);">.txt</code> files with the same row-per-transaction layout work too.</div>
+            <div class="row-desc">If CSV isn&rsquo;t offered, <code style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;background:var(--o06);padding:1px 5px;border-radius:4px;color:var(--text);">.tsv</code> (tab-separated) and <code style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;background:var(--o06);padding:1px 5px;border-radius:4px;color:var(--text);">.txt</code> files with the same row-per-transaction layout work too.</div>
           </div>
 
           <div style="padding:16px;">
             <div style="font-size:13px;font-weight:700;margin-bottom:6px;color:#ff4757;">Formats that won&rsquo;t work</div>
-            <div class="row-desc">PDFs (statements), OFX / QFX (Quicken), and Excel workbooks (<code style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:4px;color:var(--text);">.xls</code>, <code style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:4px;color:var(--text);">.xlsx</code>) aren&rsquo;t plain text and can&rsquo;t be read. Pick CSV instead.</div>
+            <div class="row-desc">PDFs (statements), OFX / QFX (Quicken), and Excel workbooks (<code style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;background:var(--o06);padding:1px 5px;border-radius:4px;color:var(--text);">.xls</code>, <code style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;background:var(--o06);padding:1px 5px;border-radius:4px;color:var(--text);">.xlsx</code>) aren&rsquo;t plain text and can&rsquo;t be read. Pick CSV instead.</div>
           </div>
         </div>
 
@@ -355,19 +361,19 @@ if('serviceWorker' in navigator){
               Everything happens instantly on your device. Your file is never sent anywhere.
             </div>
             <div style="display:flex;flex-direction:column;gap:0;">
-              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--o05);">
                 <div class="step-badge-sm">1</div>
                 <div><div class="row-label-s">Read the file</div><div class="caption-xs">Greenbar reads your Bank Transactions and works out which column is which &mdash; date, description, amount. If your bank uses unusual column names, you can set them in Settings.</div></div>
               </div>
-              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--o05);">
                 <div class="step-badge-sm">2</div>
                 <div><div class="row-label-s">Sort into categories</div><div class="caption-xs">Each transaction gets a category. Banks label things differently, so Greenbar translates common names &mdash; &ldquo;Restaurants/Dining&rdquo; becomes &ldquo;Dining Out,&rdquo; for example. You can customize these rules in Settings.</div></div>
               </div>
-              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--o05);">
                 <div class="step-badge-sm">3</div>
                 <div><div class="row-label-s">Build your dashboard</div><div class="caption-xs">Transactions are grouped by month, totals are calculated, and the Summary screen updates immediately.</div></div>
               </div>
-              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--o05);">
                 <div class="step-badge-sm">4</div>
                 <div><div class="row-label-s">Handle overlapping months</div><div class="caption-xs">If you import a file that covers months you&rsquo;ve already imported, Greenbar asks what you want to do &mdash; keep the old data, use the new data, or combine both.</div></div>
               </div>
@@ -385,19 +391,19 @@ if('serviceWorker' in navigator){
               Greenbar keeps your data in your device's local storage. Nothing is ever sent anywhere. The main pieces:
             </div>
             <div style="display:flex;flex-direction:column;gap:8px;">
-              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid var(--o05);">
                 <div class="kv-label-amber">Transactions</div>
                 <div class="caption-xs-r">All your imported transactions and monthly summaries. It grows as you import more history.</div>
               </div>
-              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid var(--o05);">
                 <div class="kv-label-amber">Settings</div>
                 <div class="caption-xs-r">Your budget targets, custom category rules, and any column names you&rsquo;ve set for your bank.</div>
               </div>
-              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid var(--o05);">
                 <div class="kv-label-amber">Import log</div>
                 <div class="caption-xs-r">A record of every file you&rsquo;ve imported &mdash; name, date, and how many transactions it had. The last 50 are kept.</div>
               </div>
-              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid var(--o05);">
                 <div class="kv-label-amber">Setup status</div>
                 <div class="caption-xs-r">A simple note of whether you&rsquo;ve been through the budget setup.</div>
               </div>
@@ -536,7 +542,7 @@ if('serviceWorker' in navigator){
 
         <div class="glass-card">
           <!-- Data flow -->
-          <div style="padding:20px;border-bottom:1px solid rgba(255,255,255,0.05);">
+          <div style="padding:20px;border-bottom:1px solid var(--o05);">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;">
               <div style="text-align:center;flex:1;">
                 <div style="font-size:11px;font-weight:600;color:var(--soft);">Your Bank</div>
@@ -561,7 +567,7 @@ if('serviceWorker' in navigator){
           </div>
 
           <!-- Storage explanation -->
-          <div style="padding:16px;border-bottom:1px solid rgba(255,255,255,0.05);">
+          <div style="padding:16px;border-bottom:1px solid var(--o05);">
             <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px;font-family:var(--font-display);">Where your data lives</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
               <div style="background:rgba(0,214,143,0.07);border:1px solid rgba(0,214,143,0.15);border-radius:12px;padding:12px;text-align:center;">
@@ -757,7 +763,17 @@ if('serviceWorker' in navigator){
         <button type="button" onclick="resetSetupState();showScreen('setup',document.querySelector('.nav-btn'));setupGo(1);document.getElementById('bottom-nav')?.classList.remove('visible');" style="padding:9px 16px;border:none;border-radius:12px;background:var(--grad-primary);color:#050a14;font-size:13px;font-weight:800;cursor:pointer;font-family:var(--font-display);flex-shrink:0;">Open &rarr;</button>
       </div>
 
-      <h2 class="sec-hdr" style="margin-top:0">Bank Transactions Format</h2>
+      <h2 class="sec-hdr" style="margin-top:0">Appearance</h2>
+      <div class="settings-section" style="padding:14px 16px;">
+        <div class="s-body" style="display:block;"><span class="s-label">Theme</span><span class="s-desc">Light, dark, or match your device</span></div>
+        <div id="theme-seg" role="group" aria-label="Theme" style="display:flex;gap:6px;margin-top:12px;">
+          <button type="button" class="choice-pill theme-opt" data-theme="light"  onclick="gbTheme.set('light')"  aria-pressed="false" style="flex:1;">Light</button>
+          <button type="button" class="choice-pill theme-opt" data-theme="dark"   onclick="gbTheme.set('dark')"   aria-pressed="false" style="flex:1;">Dark</button>
+          <button type="button" class="choice-pill theme-opt" data-theme="system" onclick="gbTheme.set('system')" aria-pressed="false" style="flex:1;">System</button>
+        </div>
+      </div>
+
+      <h2 class="sec-hdr">Bank Transactions Format</h2>
       <div class="settings-section">
         <button type="button" class="settings-row" onclick="openModal('modal-cols')" aria-labelledby="col-label" aria-describedby="col-desc">
           <span class="s-body"><span class="s-label" id="col-label">Column Mapping</span><span class="s-desc" id="col-desc">Map Date, Description, Amount columns</span></span>
@@ -1033,6 +1049,7 @@ if('serviceWorker' in navigator){
 
 <!-- Greenbar JS modules — classic scripts in dependency order -->
 <script src="js/state.js"></script>
+<script src="js/theme.js"></script>
 <script src="js/core.js"></script>
 <script src="js/render.js"></script>
 <script src="js/manual-tx.js"></script>
@@ -1202,7 +1219,7 @@ if('serviceWorker' in navigator){
       <button type="button" onclick="_gbToggleReveal('enc-pass-confirm',this)" aria-label="Show or hide confirm passphrase" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--soft);font-size:12px;font-weight:700;cursor:pointer;">Show</button>
     </div>
 
-    <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:4px;margin:14px 0 4px;overflow:hidden;">
+    <div style="height:6px;background:var(--o08);border-radius:4px;margin:14px 0 4px;overflow:hidden;">
       <div id="enc-strength-bar" style="height:100%;width:0;background:#ff4757;border-radius:4px;transition:width .2s ease,background .2s ease;"></div>
     </div>
     <div style="display:flex;justify-content:space-between;font-size:11px;min-height:14px;">
@@ -1422,7 +1439,7 @@ if('serviceWorker' in navigator){
     display:flex;flex-direction:column;max-height:72vh;">
 
   <!-- Panel header -->
-  <div style="display:flex;align-items:center;gap:12px;padding:16px 20px 12px;border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0;">
+  <div style="display:flex;align-items:center;gap:12px;padding:16px 20px 12px;border-bottom:1px solid var(--o06);flex-shrink:0;">
     <div style="flex:1;">
       <div style="font-family:var(--font-display);font-size:15px;font-weight:800;">Greens</div>
       <div class="caption-xs">Ask me anything about how the app works</div>

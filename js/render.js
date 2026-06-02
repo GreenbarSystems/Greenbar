@@ -188,7 +188,7 @@ function renderHealthBreakdown(hs, monthKey){
                    : ratio <= B.SLIGHT_OVER_RATIO ? {txt:'Slightly over', col:C.WARN}
                    : ratio <= B.OVER_RATIO        ? {txt:'Over',          col:C.WARN}
                    :                                {txt:'Way over',      col:C.BAD};
-      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px;">
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--o05);font-size:13px;">
         <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(cat)}</span>
         <span style="color:var(--muted);font-size:12px;margin:0 10px;flex-shrink:0;">${fmt(actual)} / ${fmt(target)} <span style="opacity:0.7;">(${pct}%)</span></span>
         <span style="color:${status.col};font-weight:700;font-size:12px;flex-shrink:0;">${status.txt}</span>
@@ -233,7 +233,7 @@ function renderHealthBreakdown(hs, monthKey){
         <div style="font-family:var(--font-display);font-size:14px;font-weight:800;">${label}</div>
         <div style="font-family:var(--font-display);font-size:14px;font-weight:900;color:${barColor};">${pts}<span style="color:var(--muted);font-weight:700;">/${max}</span></div>
       </div>
-      <div style="height:6px;background:rgba(255,255,255,0.07);border-radius:4px;overflow:hidden;margin-bottom:10px;">
+      <div style="height:6px;background:var(--o07);border-radius:4px;overflow:hidden;margin-bottom:10px;">
         <div style="height:100%;width:${barPct}%;background:${barColor};border-radius:4px;"></div>
       </div>
       <div style="font-size:12.5px;color:var(--soft);line-height:1.5;">${explainHtml}</div>
@@ -241,7 +241,7 @@ function renderHealthBreakdown(hs, monthKey){
 
   return `
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
-      <div style="width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.04);border:2px solid ${hs.gradeColor};flex-shrink:0;">
+      <div style="width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--o04);border:2px solid ${hs.gradeColor};flex-shrink:0;">
         <div style="font-family:var(--font-display);font-size:30px;font-weight:900;color:${hs.gradeColor};line-height:1;">${hs.grade}</div>
       </div>
       <div style="flex:1;min-width:0;">
@@ -380,7 +380,7 @@ function renderStreaks(){
       ${badgeIconHTML(b.label)}
       <div class="badge-name">${b.label}</div>
       <div class="badge-desc">${b.desc}</div>
-      ${b.progress !== undefined ? `<div class="badge-prog"><div style="width:${Math.round(b.progress/b.target*100)}%;height:100%;border-radius:3px;background:rgba(255,255,255,0.3);transition:width 0.8s;"></div></div>` : ''}
+      ${b.progress !== undefined ? `<div class="badge-prog"><div style="width:${Math.round(b.progress/b.target*100)}%;height:100%;border-radius:3px;background:var(--o30);transition:width 0.8s;"></div></div>` : ''}
     </div>`).join('');
 
   return `<div class="streaks-card">
@@ -488,13 +488,13 @@ function showCatInsights(cat){
           const isHigh=mk===highMonth;
           return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
             <div style="font-size:11px;color:var(--muted);width:52px;flex-shrink:0;">${esc(mk)}</div>
-            <div style="flex:1;height:6px;background:rgba(255,255,255,0.07);border-radius:3px;">
+            <div style="flex:1;height:6px;background:var(--o07);border-radius:3px;">
               <div style="height:6px;border-radius:3px;width:${barPct}%;background:${isHigh?'var(--red)':'#00d68f'};"></div>
             </div>
             <div style="font-family: var(--font-display);font-size:12px;font-weight:700;min-width:56px;text-align:right;color:${isHigh?'var(--red)':'inherit'};">${fmt(amt)}</div>
           </div>`;
         }).join('')}
-        ${budget>0?`<div style="margin-top:6px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);">
+        ${budget>0?`<div style="margin-top:6px;padding-top:8px;border-top:1px solid var(--o07);display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);">
           <div style="width:24px;height:2px;background:rgba(255,165,2,0.6);border-radius:1px;border:1px dashed rgba(255,165,2,0.5);"></div> Budget: ${fmt(budget)}/mo
         </div>`:''}
       </div>
@@ -576,10 +576,10 @@ function showVendorDrill(cat){
     const pct = (amt/total*100).toFixed(1);
     const barW = Math.round(amt/maxAmt*100);
     const count = vendorCounts[vendor] || 0;
-    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--o05);">
       <div style="flex:1;min-width:0;">
         <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;">${esc(vendor)}</div>
-        <div style="height:3px;background:rgba(255,255,255,0.07);border-radius:3px;"><div style="height:3px;border-radius:3px;width:${barW}%;background:${PAL[i%PAL.length]};"></div></div>
+        <div style="height:3px;background:var(--o07);border-radius:3px;"><div style="height:3px;border-radius:3px;width:${barW}%;background:${PAL[i%PAL.length]};"></div></div>
       </div>
       <div style="text-align:right;flex-shrink:0;">
         <div style="font-family: var(--font-display);font-size:14px;font-weight:800;">${fmt(amt)}</div>
@@ -644,7 +644,7 @@ function renderSummary(){
           ${badgeIconHTML(b.label)}
           <div class="badge-name">${esc(b.label)}</div>
           <div class="badge-desc">${esc(b.desc)}</div>
-          <div class="badge-prog"><div style="width:0%;height:100%;border-radius:3px;background:rgba(255,255,255,0.3);"></div></div>
+          <div class="badge-prog"><div style="width:0%;height:100%;border-radius:3px;background:var(--o30);"></div></div>
         </div>`).join('')}</div>
     </div>`;
   }
@@ -760,8 +760,8 @@ function renderSummaryAll(){
           <rect x="164" y="90" width="28" height="70" rx="6" fill="url(#barGrad2b)" opacity="0.8"/>
           <rect x="200" y="60" width="28" height="100" rx="6" fill="url(#barGrad1b)" opacity="0.9"/>
           <rect x="236" y="40" width="28" height="120" rx="6" fill="url(#barGrad1b)"/>
-          <rect x="10" y="161" width="260" height="2" rx="1" fill="rgba(255,255,255,0.1)"/>
-          <polyline points="34,110 70,80 106,50 142,70 178,90 214,60 250,40" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" fill="none" stroke-dasharray="4,3"/>
+          <rect x="10" y="161" width="260" height="2" rx="1" fill="var(--o10)"/>
+          <polyline points="34,110 70,80 106,50 142,70 178,90 214,60 250,40" stroke="var(--o30)" stroke-width="1.5" fill="none" stroke-dasharray="4,3"/>
           <defs>
             <linearGradient id="barGrad1b" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00d68f"/><stop offset="100%" stop-color="#00a86b" stop-opacity="0.7"/></linearGradient>
             <linearGradient id="barGrad2b" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00c9b1"/><stop offset="100%" stop-color="#0099a0" stop-opacity="0.7"/></linearGradient>
@@ -797,7 +797,7 @@ function renderSummaryAll(){
             </div>
           </div>
           <div style="display:flex;gap:8px;">
-            <button type="button" onclick="showVendorDrill(this.dataset.cat)" data-cat="${esc(cat)}" style="flex:1;padding:7px 0;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:var(--soft);font-size:11px;font-weight:600;cursor:pointer;font-family: var(--font-display);">Transactions</button>
+            <button type="button" onclick="showVendorDrill(this.dataset.cat)" data-cat="${esc(cat)}" style="flex:1;padding:7px 0;border-radius:10px;border:1px solid var(--o10);background:var(--o05);color:var(--soft);font-size:11px;font-weight:600;cursor:pointer;font-family: var(--font-display);">Transactions</button>
             <button type="button" onclick="showCatInsights(this.dataset.cat)" data-cat="${esc(cat)}" style="flex:1;padding:7px 0;border-radius:10px;border:1px solid rgba(0,214,143,0.25);background:rgba(0,214,143,0.08);color:#00d68f;font-size:11px;font-weight:600;cursor:pointer;font-family: var(--font-display);">Insights</button>
           </div>
         </div>`).join('')}

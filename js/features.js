@@ -747,7 +747,7 @@ function buildSetupReview(){
   const total = categories.reduce((s,[,v])=>s+v,0);
 
   listEl.innerHTML = categories.map(([cat,amt])=>`
-    <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+    <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--o05);">
       <div style="flex:1;font-size:14px;font-weight:500;">${esc(cat)}</div>
       <div style="display:flex;align-items:center;gap:8px;">
         <div class="caption-xs">${Math.round(amt/total*100)}%</div>
