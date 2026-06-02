@@ -562,10 +562,13 @@ function showVendorDrill(cat){
   const maxAmt = vendors[0]?.[1] || 1;
   const keys = sortKeys(_months);
   const n = keys.length;
+  // total covers only the selected month when one is filtered, so divide by 1
+  // then (not the full tracked-month count) and guard against n===0.
+  const moDivisor = monthFilter ? 1 : Math.max(1, n);
 
   // Set modal header
   document.getElementById('vendor-cat-title').textContent = cat;
-  document.getElementById('vendor-cat-sub').textContent = `${txsForCat.length} transactions · ${fmt(total)} total · ${fmt(total/n)}/mo avg`;
+  document.getElementById('vendor-cat-sub').textContent = `${txsForCat.length} transactions · ${fmt(total)} total · ${fmt(total/moDivisor)}/mo avg`;
 
   // Build vendor list
   const list = document.getElementById('vendor-list');
@@ -712,6 +715,9 @@ function selMonth(mk){
 
 function renderSummaryAll(){
   const keys=sortKeys(_months);
+  // Guard the empty case: if all months were deleted while '__all' was the
+  // selection, dividing by n===0 would leak "NaN"/"NaN%" into the DOM.
+  if(!keys.length){ _sel = null; return renderSummary(); }
   const pills=keys.map(k=>`<button type="button" class="pill" onclick="selMonth(this.dataset.mk)" data-mk="${esc(k)}">${esc(k)}</button>`).join('')
     +`<button type="button" class="pill active" onclick="selMonth('__all')" aria-current="true">All</button>`;
   // Aggregate income + per-category spend across every month in a single pass.
@@ -865,7 +871,7 @@ function renderTxs(filter=''){
   // Lowercase the search term once instead of per-tx in the filter callback.
   const needle = filter ? filter.toLowerCase() : '';
   const matchesFilter = needle
-    ? tx => tx.desc.toLowerCase().includes(needle) || tx.cat.toLowerCase().includes(needle)
+    ? tx => (tx.desc||'').toLowerCase().includes(needle) || (tx.cat||'').toLowerCase().includes(needle)
     : () => true;
   // Resolve each tx to a sortable key + readable label. Prefer the ts stored at
   // import; fall back to parsing the raw date for data saved by older versions.

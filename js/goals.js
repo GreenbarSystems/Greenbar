@@ -33,11 +33,9 @@ const gbGoals = (() => {
   }
   function all(){ return _load(); }
 
-  // Monthly net from the forecast (guarded) -> "~N months at your pace".
-  function _eta(remaining){
+  // ETA from a precomputed monthly net -> "~N months at your pace".
+  function _eta(remaining, net){
     if(remaining <= 0) return null;
-    const net = (typeof gbForecast !== 'undefined' && gbForecast.compute)
-      ? ((gbForecast.compute() || {}).projectedNet) : null;
     if(net && net > 0) return { months: Math.ceil(remaining / net), perMonth: net };
     return null;
   }
@@ -89,11 +87,11 @@ const gbGoals = (() => {
   }
 
   // ── render ──
-  function _goalCard(g){
+  function _goalCard(g, net){
     const pct = g.target > 0 ? Math.min(100, Math.round(g.saved / g.target * 100)) : 0;
     const remaining = Math.max(0, g.target - g.saved);
     const done = g.saved >= g.target && g.target > 0;
-    const eta = !done ? _eta(remaining) : null;
+    const eta = !done ? _eta(remaining, net) : null;
     const bar = done ? 'var(--green)' : '#2979ff';
     const meta = done
       ? `<span style="color:var(--green);font-weight:700;">Reached 🎉</span>`
@@ -130,8 +128,12 @@ const gbGoals = (() => {
     const body = document.getElementById('goals-body');
     if(!body) return;
     const list = _load();
+    // Forecast net is identical for every goal — compute it once per render
+    // instead of once per card.
+    const net = (typeof gbForecast !== 'undefined' && gbForecast.compute)
+      ? ((gbForecast.compute() || {}).projectedNet) : null;
     body.innerHTML = list.length
-      ? list.map(_goalCard).join('')
+      ? list.map(g => _goalCard(g, net)).join('')
       : `<div style="text-align:center;color:var(--muted);font-size:13px;padding:18px 4px;line-height:1.6;">No goals yet. Add one below — a vacation, an emergency fund, a big purchase.</div>`;
   }
 

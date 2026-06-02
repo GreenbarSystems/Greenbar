@@ -253,13 +253,16 @@ function _gbApplyRestore(payload){
       written.push(k);
     });
   }catch(_){
+    let rollbackOk = true;
     written.forEach(k => {
       try{
         if(snapshot[k] === null) localStorage.removeItem(k);
         else localStorage.setItem(k, snapshot[k]);
-      }catch(__){ /* nothing more we can do */ }
+      }catch(__){ rollbackOk = false; }   // a restore write ALSO failing leaves a mixed store
     });
-    throw new Error('Restore failed and was rolled back. Your existing data is unchanged.');
+    throw new Error(rollbackOk
+      ? 'Restore failed and was rolled back. Your existing data is unchanged.'
+      : 'Restore failed and the rollback was incomplete — some data may be inconsistent. Reload Greenbar before making further changes.');
   }
 }
 

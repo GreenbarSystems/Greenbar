@@ -40,7 +40,9 @@ const gbTrends = (() => {
     return { label:'Occasional', days:Math.max(30.44, days) };
   }
 
-  function _vendorOf(tx){ return (typeof cleanVendor==='function' ? cleanVendor(tx.desc) : tx.desc) || tx.desc || 'Unknown'; }
+  // Prefer an explicit curated vendor (manual txs) before deriving from desc,
+  // matching anomaly.js so the same merchant groups/labels identically.
+  function _vendorOf(tx){ return (tx.vendor && String(tx.vendor).trim()) || (typeof cleanVendor==='function' ? cleanVendor(tx.desc) : tx.desc) || tx.desc || 'Unknown'; }
 
   /* ════ A. Recurring-charge detection ════
    * Groups expenses by cleaned vendor name and keeps the groups that look like
@@ -222,8 +224,8 @@ const gbTrends = (() => {
     </button>`;
   }
 
-  function _recurringBodyHTML(){
-    const { series, totalMonthly, totalMonths } = detectRecurring();
+  function _recurringBodyHTML(rec){
+    const { series, totalMonthly, totalMonths } = rec || detectRecurring();
     if(!series.length){
       return `<div style="font-size:13px;color:var(--muted);padding:20px 4px;text-align:center;line-height:1.6;">
         No recurring charges detected yet. Import at least two months of transactions and Greenbar will spot subscriptions, rent, utilities and other repeats.</div>`;
@@ -256,13 +258,13 @@ const gbTrends = (() => {
   }
 
   function openRecurring(){
+    const rec = detectRecurring();   // compute once; reuse for body + subtitle
     const body = document.getElementById('recurring-body');
-    if(body) body.innerHTML = _recurringBodyHTML();
+    if(body) body.innerHTML = _recurringBodyHTML(rec);
     const sub = document.getElementById('recurring-sub');
     if(sub){
-      const { series, totalMonthly } = detectRecurring();
-      sub.textContent = series.length
-        ? `${series.length} repeating charge${series.length===1?'':'s'} · ~${fmt(totalMonthly)}/mo`
+      sub.textContent = rec.series.length
+        ? `${rec.series.length} repeating charge${rec.series.length===1?'':'s'} · ~${fmt(rec.totalMonthly)}/mo`
         : 'Nothing detected yet';
     }
     openModal('modal-recurring');

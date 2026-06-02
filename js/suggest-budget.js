@@ -52,19 +52,20 @@ const gbSuggest = (() => {
     return { budget, total, months: n };
   }
 
-  function _shouldShow(){
+  function _shouldShow(c){
     if(localStorage.getItem(K_DISMISS) === '1') return false;
     if(!_budgetIsDefault()) return false;          // already personalized
     if(!sortKeys(_months).length) return false;    // no data yet
-    return Object.keys(compute().budget).length >= MIN_CATS;
+    return Object.keys((c || compute()).budget).length >= MIN_CATS;
   }
 
   // Card markup, or '' when it shouldn't show. Inlined styles match the app's
-  // existing CTA-card look (no new CSS needed).
+  // existing CTA-card look (no new CSS needed). compute() once and reuse.
   function cardHTML(){
-    if(!_shouldShow()) return '';
-    const { total, months } = compute();
-    const n = Object.keys(compute().budget).length;
+    const c = compute();
+    if(!_shouldShow(c)) return '';
+    const { total, months } = c;
+    const n = Object.keys(c.budget).length;
     return `
       <div class="g-card" style="padding:16px 18px;margin-bottom:12px;background:linear-gradient(155deg,rgba(0,214,143,0.08),rgba(41,121,255,0.05));border:1px solid rgba(0,214,143,0.2);">
         <div style="font-family:var(--font-display);font-size:15px;font-weight:900;margin-bottom:4px;">Build your budget in one tap</div>

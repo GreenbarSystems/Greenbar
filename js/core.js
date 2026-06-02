@@ -472,16 +472,19 @@ async function restoreData(file){
       });
     }catch(err){
       // Roll back partial writes -- restore each key to its prior state.
+      let rollbackOk = true;
       written.forEach(k => {
         try{
           if(snapshot[k] === null) localStorage.removeItem(k);
           else localStorage.setItem(k, snapshot[k]);
-        }catch(_){ /* if rollback also fails there is nothing left to do */ }
+        }catch(_){ rollbackOk = false; }   // restore write also failed -> mixed store
       });
       const reason = _isQuotaErr(err)
         ? 'this device does not have enough storage space for the backup'
         : 'a storage error occurred ('+(err&&err.message||err)+')';
-      gbDialog.alert('Restore was rolled back -- ' + reason + '.\n\nYour current data is unchanged.');
+      gbDialog.alert(rollbackOk
+        ? 'Restore was rolled back -- ' + reason + '.\n\nYour current data is unchanged.'
+        : 'Restore failed -- ' + reason + ' -- and the rollback was incomplete. Some data may be inconsistent; reload Greenbar before making further changes.');
       return;
     }
     await gbDialog.alert('Backup restored. Greenbar will now reload.');
