@@ -649,20 +649,30 @@ function renderSummary(){
     </div>`;
   }
 
-  // UX Tier 3 Phase 1 — copy updated for the import-first flow. Users
-  // arrive here straight from the flash intro (no wizard), so we no
-  // longer promise "your budget is ready" (it isn't until they either
-  // run the wizard from Settings or accept the suggested-budget card that
-  // appears on Summary after the first import). Welcome copy is honest
-  // about the next step.
-  const importPrompt=hasData ? '' : `
-      <div class="g-card" style="padding:18px;margin:14px 0 0;text-align:center;">
-        <div style="font-family:var(--font-display);font-size:16px;font-weight:900;margin-bottom:6px;">Welcome to Greenbar</div>
-        <div style="font-size:13px;color:var(--soft);line-height:1.6;margin-bottom:14px;">Import a Bank Transaction file to see your spending broken down by category. Everything stays on your device.</div>
-        <button type="button" class="btn-primary" onclick="startFirstImport()">Import your first Bank Transaction file now</button>
-        <div id="first-import-help" style="margin-top:12px;font-size:12px;color:var(--soft);line-height:1.5;">Don't have a file yet? <button type="button" onclick="goToBankExport()" class="link-btn">See how to export from your bank &rarr;</button></div>
-        <div style="margin-top:10px;font-size:12px;line-height:1.5;">Just exploring? <button type="button" onclick="gbDemo.load()" class="link-btn">Load sample data &rarr;</button></div>
+  // Empty state (onboarded, but no data yet): Import is THE primary action, so
+  // lead with a single dominant, full-width CTA instead of a wall of $0
+  // placeholder cards (budget, disabled tiles, empty spending) that pushed the
+  // prompt to the bottom. The header Import pill is easy to miss on a phone —
+  // this hero is the unmissable call to action. The locked-achievements teaser
+  // stays below as motivation.
+  if(!hasData){
+    document.getElementById('summary-content').innerHTML = `
+      <div class="gb-welcome">
+        <div class="g-card empty-import-hero" style="padding:30px 22px 26px;text-align:center;margin-top:8px;background:linear-gradient(160deg,rgba(0,214,143,0.12),rgba(41,121,255,0.05));border:1px solid rgba(0,214,143,0.3);">
+          <div style="font-family:var(--font-display);font-size:23px;font-weight:900;letter-spacing:-0.5px;margin-bottom:8px;">See where your money goes</div>
+          <div style="font-size:13.5px;color:var(--soft);line-height:1.6;margin:0 auto 22px;max-width:300px;">Import a bank statement — CSV or PDF. It's read right here on your device; nothing is ever uploaded.</div>
+          <button type="button" onclick="startFirstImport()" aria-label="Import your transactions" style="width:100%;max-width:340px;padding:17px 24px;border:none;border-radius:16px;background:var(--grad-primary);color:#050a14;font-family:var(--font-display);font-size:16px;font-weight:900;letter-spacing:0.3px;cursor:pointer;box-shadow:0 8px 24px rgba(0,214,143,0.45);">Import transactions</button>
+          <div style="margin-top:16px;font-size:12.5px;color:var(--soft);line-height:1.8;">
+            No file yet? <button type="button" onclick="goToBankExport()" class="link-btn">Export from your bank &rarr;</button><br>
+            Just exploring? <button type="button" onclick="gbDemo.load()" class="link-btn">Load sample data &rarr;</button>
+          </div>
+        </div>
+        <h2 class="sec-hdr">What you'll unlock</h2>
+        ${achievements}
       </div>`;
+    srAnnounce('Summary. No transactions yet — import your transactions to begin.');
+    return;
+  }
 
   document.getElementById('summary-content').innerHTML=`
     <div class="gb-welcome">
@@ -701,7 +711,6 @@ function renderSummary(){
       ${typeof gbInsights !== 'undefined' ? gbInsights.cardHTML() : ''}
       <h2 class="sec-hdr">Achievements</h2>
       ${achievements}
-      ${importPrompt}
     </div>`;
   srAnnounce(hasData ? `Summary for ${sel}` : 'Summary, no transactions yet');
 }
