@@ -54,7 +54,18 @@ const gbTrends = (() => {
    * Returns { series:[…], totalMonthly, totalMonths }, series sorted by the
    * monthly-equivalent burden (largest first).
    */
+  // Memoized against _dataVersion: detectRecurring scans all transactions and is
+  // called by the recurring card, the forecast and the insights engine — several
+  // times per render. Caching collapses those to one scan per data change. The
+  // cached object is read-only to callers.
+  let _recCache = null, _recCacheVer = -1;
   function detectRecurring(){
+    if(_recCache && _recCacheVer === _dataVersion) return _recCache;
+    _recCache = _detectRecurring();
+    _recCacheVer = _dataVersion;
+    return _recCache;
+  }
+  function _detectRecurring(){
     const keys = sortKeys(_months);
     const totalMonths = keys.length;
     if(totalMonths < 2) return { series: [], totalMonthly: 0, totalMonths };
@@ -124,7 +135,18 @@ const gbTrends = (() => {
    * the trailing average across every month before mk. Returns null when mk is
    * the first tracked month (nothing to compare against).
    */
+  // Memoized per month-key against _dataVersion (the variance section and the
+  // insights engine both request the latest month each render). The cache clears
+  // whenever the data changes.
+  let _varCache = new Map(), _varCacheVer = -1;
   function computeMonthVariance(mk){
+    if(_varCacheVer !== _dataVersion){ _varCache.clear(); _varCacheVer = _dataVersion; }
+    if(_varCache.has(mk)) return _varCache.get(mk);
+    const v = _computeMonthVariance(mk);
+    _varCache.set(mk, v);
+    return v;
+  }
+  function _computeMonthVariance(mk){
     const keys = sortKeys(_months);
     const idx = keys.indexOf(mk);
     if(idx < 1) return null;                              // need a prior month

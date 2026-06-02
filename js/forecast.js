@@ -23,7 +23,17 @@ const gbForecast = (() => {
     return `${MN[mi]} ${y}`;
   }
 
+  // Memoized against _dataVersion — compute() runs another median pass and a
+  // detectRecurring() call, and is invoked by both the Budget forecast section
+  // and the Goals ETA each render. One computation per data change.
+  let _fcCache = null, _fcHasCache = false, _fcCacheVer = -1;
   function compute(){
+    if(_fcHasCache && _fcCacheVer === _dataVersion) return _fcCache;
+    _fcCache = _compute();
+    _fcHasCache = true; _fcCacheVer = _dataVersion;
+    return _fcCache;
+  }
+  function _compute(){
     const keys = sortKeys(_months);
     const n = keys.length;
     if(!n) return null;

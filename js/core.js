@@ -398,10 +398,15 @@ function rebuildMonths(){
   // Re-derive _allTxs from the freshly-built buckets so it lands in canonical
   // chronological (sortKeys) order and shares object identity with _months.txs.
   _allTxs = sortKeys(_months).flatMap(mk => _months[mk].txs || []);
+  _dataVersion++;   // invalidate analyzer memoization (recurring / variance / forecast)
 }
 
 // ──────── Storage: transaction data + upload log + backup/restore ────────
 function saveData(){
+  // The model is being persisted because it changed (import, edit, cleanup,
+  // demo). Bump here too so paths that mutate _allTxs/_months without going
+  // through rebuildMonths (e.g. applyImport) still invalidate the analyzer memo.
+  _dataVersion++;
   try{
     const payload={months:_months,txs:_allTxs,sel:_sel};
     const str=JSON.stringify(payload);
@@ -570,6 +575,7 @@ async function clearAllData(){
   // it here means any future onboarding/state key added there is wiped too.
   try{ GB_KEYS.forEach(k => localStorage.removeItem(k)); }catch(e){}
   _months={}; _allTxs=[]; _sel=null;
+  _dataVersion++;   // reset bypasses rebuildMonths/saveData — invalidate memo here
   _flashTimers=[]; _flashDone=false;
   CFG=JSON.parse(JSON.stringify(DEFAULTS));
   const badge=document.getElementById('log-badge');
