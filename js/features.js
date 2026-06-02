@@ -61,7 +61,7 @@ const HELP_TOPICS = [
   { kw:['insight','vendor','drill','breakdown','deep dive','observation'],
     a:'On the Summary screen, tap a category: Transactions shows every merchant in it ranked by spend, and Insights shows trends, top vendors and observations.' },
   { kw:['privacy','private','secure','safe','server','where is my data','data stored'],
-    a:'Everything stays on your device. Greenbar has no server and no separate account — your data is saved in private storage on your phone and never sent anywhere.' },
+    a:'Your transactions, budgets and settings stay on your device. Greenbar has no server and no account, so there\'s nowhere to send them and nothing to leak.' },
   { kw:['conflict','overlap','same month','already imported','merge','replace'],
     a:'If you import a file covering months you already have, Greenbar asks how to handle it: Replace wipes the old data for those months; Merge combines both sets and skips exact duplicate rows.' },
   { kw:['delete','clear','erase','reset','wipe','remove all'],
@@ -419,7 +419,7 @@ function goToBankExport(){
 }
 
 
-// ──────── Setup wizard (6 steps: income / housing / food / lifestyle / giving / review) ────────
+// ──────── Setup wizard (6 steps: income / housing / food / lifestyle / review) ────────
 // ════ SETUP WALKTHROUGH ════
 // ════ SETUP WIZARD ════
 
@@ -477,7 +477,6 @@ let _setupState = {
   income: 0,
   groceries: BUDGET_DEFAULTS.FOOD_INIT.GROC, dining: BUDGET_DEFAULTS.FOOD_INIT.DINING,
   lifestyle: new Set(),
-  givingPct: 0,
   currentStep: 1
 };
 
@@ -489,9 +488,8 @@ function resetSetupState(){
   _setupState.groceries = BUDGET_DEFAULTS.FOOD_INIT.GROC;
   _setupState.dining = BUDGET_DEFAULTS.FOOD_INIT.DINING;
   _setupState.lifestyle = new Set();
-  _setupState.givingPct = 0;
   _setupState.currentStep = 1;
-  ['s2-housing','s3-income','s4-groc','s4-dine-in','s5-giving-custom'].forEach(id => {
+  ['s2-housing','s3-income','s4-groc','s4-dine-in'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.value = '';
   });
@@ -503,8 +501,6 @@ function resetSetupState(){
   document.querySelectorAll('.lifestyle-btn').forEach(b => b.classList.remove('chosen'));
   const ci = document.getElementById('s4-custom-inputs');
   if(ci) ci.style.display = 'none';
-  const gw = document.getElementById('s5-giving-wrap');
-  if(gw) gw.style.display = 'none';
 }
 
 function setupGo(step){
@@ -590,7 +586,8 @@ function setFoodBudget(groc, dine){
   _setupState.dining = dine;
 }
 
-function updateGivingFromIncome(){
+// Income-step note: frames the entered housing cost against the 30% guideline.
+function updateIncomeNote(){
   const income = _setupState.income;
   const noteEl = document.getElementById('s3-income-note');
   const breakEl = document.getElementById('s3-income-breakdown');
@@ -605,21 +602,6 @@ function updateGivingFromIncome(){
       : `${guidePct}% rule guideline: keep housing under <b>$` + guideCap.toLocaleString() + '/mo</b>.';
   } else if(noteEl){
     noteEl.style.display = 'none';
-  }
-}
-
-function toggleGiving(){
-  const wrap = document.getElementById('s5-giving-wrap');
-  if(!wrap) return;
-  const isSelected = document.getElementById('s5-charity').classList.contains('chosen');
-  wrap.style.display = isSelected ? 'block' : 'none';
-  if(!isSelected){
-    _setupState.givingPct = 0;
-    const inp = document.getElementById('s5-giving-custom');
-    if(inp) inp.value = '';
-  } else {
-    // Focus the input when giving is selected
-    setTimeout(()=>{ document.getElementById('s5-giving-custom')?.focus(); }, 150);
   }
 }
 
@@ -665,7 +647,7 @@ function updateReviewBudget(input){
 }
 
 function computeBudgetFromState(){
-  const { housing, housingType, income, groceries, dining, lifestyle, givingPct } = _setupState;
+  const { housing, housingType, income, groceries, dining, lifestyle } = _setupState;
   const D = BUDGET_DEFAULTS;
   const budget = {};
 
@@ -690,11 +672,6 @@ function computeBudgetFromState(){
   // Investments is income-scaled, kept separate from the LIFESTYLE map.
   if(lifestyle.has('invest')){
     budget['Investments'] = Math.round(income * D.INVEST_RATIO) || D.INVEST_FALLBACK;
-  }
-
-  // Giving
-  if(givingPct > 0 && income > 0){
-    budget['Charitable Giving'] = Math.round(income * givingPct / 100);
   }
 
   // Remove zeros

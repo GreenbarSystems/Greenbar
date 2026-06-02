@@ -14,7 +14,7 @@
 const manifest = {
   name: "Greenbar",
   short_name: "Greenbar",
-  description: "Personal finance tracking -- private, offline, on-device",
+  description: "Private, on-device personal finance — your data stays on your phone.",
   start_url: "./",
   display: "standalone",
   background_color: "#050a14",
@@ -319,7 +319,7 @@ if('serviceWorker' in navigator){
 
         <!-- Privacy note -->
         <div style="background:rgba(0,214,143,0.06);border:1px solid rgba(0,214,143,0.15);border-radius:16px;padding:16px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start;">
-          <div style="font-size:12px;color:var(--soft);line-height:1.6;"><strong class="c-text">100% private.</strong> Greenbar runs entirely on your phone. Your transactions are never sent anywhere -- everything stays on your device.</div>
+          <div style="font-size:12px;color:var(--soft);line-height:1.6;"><strong class="c-text">Private by design.</strong> Your transactions, budgets and settings stay in Greenbar's storage on your device. There's no account and no server &mdash; so there's nowhere to send them.</div>
         </div>
 
       
@@ -352,7 +352,7 @@ if('serviceWorker' in navigator){
               </div>
               <div class="bullet-row">
                 <span class="bullet-arrow">→</span>
-                <span class="c-soft"><strong class="c-text">Nothing loaded from the internet</strong> &mdash; no outside files and no trackers of any kind</span>
+                <span class="c-soft"><strong class="c-text">No third-party code</strong> &mdash; Greenbar loads no outside scripts, fonts, analytics or trackers</span>
               </div>
             </div>
           </div>
@@ -391,7 +391,7 @@ if('serviceWorker' in navigator){
           <div class="glass-card-padded">
             <div style="font-family:var(--font-display);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:#ffa502;margin-bottom:10px;">How your data is stored</div>
             <div class="uth-intro">
-              Greenbar saves five things on your device. Nothing is ever sent anywhere.
+              Greenbar keeps your data in your device's local storage. Nothing is ever sent anywhere. The main pieces:
             </div>
             <div style="display:flex;flex-direction:column;gap:8px;">
               <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
@@ -591,7 +591,7 @@ if('serviceWorker' in navigator){
 
           <div class="list-row"><div><div class="row-label-m">No Greenbar account</div><div class="row-desc-t">You buy and sign in through the App Store or Google Play &mdash; there&rsquo;s no separate Greenbar login, email or password.</div></div></div>
           <div class="list-row"><div><div class="row-label-m">No analytics</div><div class="row-desc-t">Nothing about how you use the app is tracked or recorded.</div></div></div>
-          <div class="list-row"><div><div class="row-label-m">No outside code</div><div class="row-desc-t">Nothing is loaded from the internet &mdash; the app runs fully offline.</div></div></div>
+          <div class="list-row"><div><div class="row-label-m">No third-party code</div><div class="row-desc-t">No outside scripts, fonts or trackers &mdash; and the app works fully offline.</div></div></div>
           <div class="list-row"><div><div class="row-label-m">No server</div><div class="row-desc-t">There&rsquo;s no Greenbar server behind the app &mdash; nothing to break into, nothing to leak.</div></div></div>
           <div class="list-row"><div><div class="row-label-m">Nothing is sent</div><div class="row-desc-t">Your transactions are read on your device and never sent anywhere.</div></div></div>
           <div style="display:flex;gap:14px;padding:14px 16px;"><div><div class="row-label-m">You control deletion</div><div class="row-desc-t">Erase everything any time &mdash; no copies are left anywhere.</div></div></div>
@@ -644,11 +644,11 @@ if('serviceWorker' in navigator){
         <div class="setup-step" id="setup-step-2">
           <div class="setup-progress"><div class="setup-pip done"></div><div class="setup-pip active"></div><div class="setup-pip"></div><div class="setup-pip"></div><div class="setup-pip"></div><div class="setup-pip"></div></div>
           <h1 class="setup-q">What's your monthly take-home income?</h1>
-          <div class="setup-sub">After taxes. This stays on your device and is only used to calculate your giving and savings budgets.</div>
+          <div class="setup-sub">After taxes. This stays on your device and is only used to size your budget targets.</div>
 
           <div class="setup-input-wrap">
             <span class="prefix">$</span>
-            <input class="setup-input" id="s3-income" aria-label="Monthly take-home income in dollars" type="number" placeholder="Monthly amount" min="0" inputmode="decimal" oninput="_setupState.income=parseFloat(this.value)||0;updateGivingFromIncome()" autocomplete="off">
+            <input class="setup-input" id="s3-income" aria-label="Monthly take-home income in dollars" type="number" placeholder="Monthly amount" min="0" inputmode="decimal" oninput="_setupState.income=parseFloat(this.value)||0;updateIncomeNote()" autocomplete="off">
           </div>
 
           <div class="setup-income-note" id="s3-income-note" style="display:none;margin-top:16px;background:rgba(0,214,143,0.07);border:1px solid rgba(0,214,143,0.15);border-radius:14px;padding:14px 16px;">
@@ -729,16 +729,6 @@ if('serviceWorker' in navigator){
             <button type="button" class="lifestyle-btn" id="s5-travel" onclick="setupToggle(this,'s5')">Travel</button>
             <button type="button" class="lifestyle-btn" id="s5-invest" onclick="setupToggle(this,'s5')">Savings</button>
             <button type="button" class="lifestyle-btn" id="s5-side" onclick="setupToggle(this,'s5')">Side Hustle</button>
-            <button type="button" class="lifestyle-btn" id="s5-charity" onclick="setupToggle(this,'s5');toggleGiving()">Giving</button>
-          </div>
-
-          <!-- Giving % selector, shown when charity selected -->
-          <div id="s5-giving-wrap" style="display:none;margin-top:14px;background:rgba(0,214,143,0.06);border:1px solid rgba(0,214,143,0.15);border-radius:16px;padding:14px 16px;">
-            <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--soft);">What percentage of your income do you give?</div>
-            <div class="setup-input-wrap" style="margin:0;">
-              <span class="prefix" style="font-size:15px;">%</span>
-              <input class="setup-input" id="s5-giving-custom" aria-label="Giving as percent of income" type="number" placeholder="Enter %" min="0" max="100" inputmode="decimal" style="padding-left:32px;" oninput="const gv=parseFloat(this.value)||0; if(gv>100){this.value=100;} if(gv<0){this.value=0;} _setupState.givingPct=Math.min(100,Math.max(0,gv));" autocomplete="off">
-            </div>
           </div>
 
           <div class="setup-nav">

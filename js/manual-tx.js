@@ -217,7 +217,7 @@ function initAddTxForm(){
 //    <select> and the per-transaction recategorize picker. ──
 function getAllCategories(){
   const FALLBACK = ["Groceries","Dining Out","Transport","Utilities","Housing","Healthcare",
-    "Entertainment","Shopping","Personal Care","Subscriptions","Education","Travel","Giving","Other"];
+    "Entertainment","Shopping","Personal Care","Subscriptions","Education","Travel","Other"];
   const set = new Set(FALLBACK);
   (_allTxs || []).forEach(t => { if(t && t.cat && t.cat !== '_income') set.add(t.cat); });
   Object.keys((CFG && CFG.budget) || {}).forEach(c => set.add(c));
