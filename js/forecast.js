@@ -32,7 +32,9 @@ const gbForecast = (() => {
     // unusual month doesn't skew the projection.
     const recent  = keys.slice(-6);
     const incomes = recent.map(k => _months[k].income).filter(v => v > 0);
-    const spends  = recent.map(k => sumExpenses(_months[k])).filter(v => v >= 0);
+    // Exclude zero-spend (empty/partial) months — keeping them would drag the
+    // median down and over-optimistically inflate projected net. Mirrors income.
+    const spends  = recent.map(k => sumExpenses(_months[k])).filter(v => v > 0);
     const expectedIncome = _round(_median(incomes));
     const expectedSpend  = _round(_median(spends));
     const hasIncome = expectedIncome > 0;
