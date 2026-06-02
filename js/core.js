@@ -710,7 +710,11 @@ function processNextFile(){
     _importBusy = false;
     saveData();
     renderAll();
-    showScreen('summary', _navBtn(0));
+    // If the user is still on the default budget, land on the Budget screen where
+    // the "build my budget from your spending" card is pinned at the top — the
+    // highest-value next step right after a first import. Otherwise, Summary.
+    const _toBudget = (typeof gbSuggest !== 'undefined' && gbSuggest.shouldShow && gbSuggest.shouldShow());
+    showScreen(_toBudget ? 'budget' : 'summary', _navBtn(_toBudget ? 1 : 0));
     // Anomaly detection runs after the render is queued. runAnomalyDetection()
     // yields via setTimeout(0), so it never delays the import UI.
     if(typeof runAnomalyDetection === 'function' && _lastImportedMonths && _lastImportedMonths.size){

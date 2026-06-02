@@ -837,6 +837,7 @@ function renderBudget(){
   const varLabel = totalVar >= 0 ? 'under budget' : 'over budget';
   const varPrefix= totalVar >= 0 ? '+' : '−';
   document.getElementById('budget-content').innerHTML=`
+    ${typeof gbSuggest !== 'undefined' ? gbSuggest.cardHTML() : ''}
     <h2 class="sec-hdr" style="margin-top:0">Budget vs Actual <span class="sec-total">${esc(mk)}</span></h2>
     <!-- Variance hero: the headline number for this screen, sized accordingly. -->
     <div style="background:${varTint};border:1px solid ${varBdr};border-radius:20px;padding:18px 18px 16px;margin-bottom:14px;">

@@ -59,19 +59,27 @@ const gbSuggest = (() => {
     return Object.keys((c || compute()).budget).length >= MIN_CATS;
   }
 
-  // Card markup, or '' when it shouldn't show. Inlined styles match the app's
-  // existing CTA-card look (no new CSS needed). compute() once and reuse.
+  // Whether the suggestion is currently offerable (still on default budget, has
+  // data, enough real categories). Exposed so the import flow can route the user
+  // straight to the Budget screen — where this card is pinned at the top — only
+  // when there's actually a suggestion to make.
+  function shouldShow(){ return _shouldShow(); }
+
+  // Card markup, or '' when it shouldn't show. Pinned at the top of the Budget
+  // screen (and shown on Summary): full-width, distinct green accent border, and
+  // a single large primary CTA so it's impossible to miss. Inlined styles only —
+  // no new CSS.
   function cardHTML(){
     const c = compute();
     if(!_shouldShow(c)) return '';
     const { total, months } = c;
     const n = Object.keys(c.budget).length;
     return `
-      <div class="g-card" style="padding:16px 18px;margin-bottom:12px;background:linear-gradient(155deg,rgba(0,214,143,0.08),rgba(41,121,255,0.05));border:1px solid rgba(0,214,143,0.2);">
-        <div style="font-family:var(--font-display);font-size:15px;font-weight:900;margin-bottom:4px;">Build your budget in one tap</div>
-        <div style="font-size:12.5px;color:var(--soft);line-height:1.6;margin-bottom:12px;">Based on the ${months} month${months===1?'':'s'} you've imported, Greenbar can set <strong>${n} category targets</strong> totalling <strong>${fmt(total)}/mo</strong> from what you actually spent. Fine-tune any of them in Settings.</div>
-        <button type="button" class="btn-primary" onclick="gbSuggest.apply()">Use suggested budget</button>
-        <div style="text-align:center;margin-top:10px;"><button type="button" onclick="gbSuggest.dismiss()" class="link-btn" style="color:var(--muted);">No thanks</button></div>
+      <div class="g-card" style="padding:20px 18px;margin:0 0 16px;background:linear-gradient(155deg,rgba(0,214,143,0.14),rgba(41,121,255,0.06));border:2px solid var(--green);border-radius:20px;">
+        <div style="font-family:var(--font-display);font-size:17px;font-weight:900;letter-spacing:-0.3px;margin-bottom:6px;">Build your budget from your spending</div>
+        <div style="font-size:12.5px;color:var(--soft);line-height:1.6;margin-bottom:14px;">From the ${months} month${months===1?'':'s'} you've imported, Greenbar can set <strong>${n} category targets</strong> totalling <strong>${fmt(total)}/mo</strong> based on what you actually spent — fine-tune any of them later.</div>
+        <button type="button" class="btn-primary" style="width:100%;padding:15px;font-size:15px;font-weight:900;" onclick="gbSuggest.apply()">Build my budget from my actual spending</button>
+        <div style="text-align:center;margin-top:10px;"><button type="button" onclick="gbSuggest.dismiss()" class="link-btn" style="color:var(--muted);">Not now</button></div>
       </div>`;
   }
 
@@ -98,5 +106,5 @@ const gbSuggest = (() => {
     showToast('No problem — set targets anytime in Settings.', 'success');
   }
 
-  return { compute, cardHTML, apply, dismiss };
+  return { compute, cardHTML, apply, dismiss, shouldShow };
 })();
