@@ -1,8 +1,9 @@
 // ════ Greenbar — manual transaction entry ════
 // Adds cash/manual transactions that aggregate identically to CSV imports.
 // Loads after core.js + render.js. Globals used (all defined by load time):
-//   _months, _allTxs, _sel, CFG, parseDateParts, aggregateOneMonth, sortKeys,
-//   _isQuotaErr, esc, fmt, renderAll, openModal, closeModal, closeOut, showToast.
+//   _months, _allTxs, _sel, CFG, parseDateParts, rebuildMonths, newTxId,
+//   _txById, sortKeys, _isQuotaErr, esc, fmt, renderAll, openModal, closeModal,
+//   closeOut, showToast.
 
 const CURRENCY = "$"; // single localization point
 
@@ -29,15 +30,6 @@ function _formatDateForCfg(y, m, d){
 // which would silently drop a user-typed entry). Callers roll back on throw.
 function _persistData(){
   localStorage.setItem('gb_data', JSON.stringify({ months: _months, txs: _allTxs, sel: _sel }));
-}
-
-// ── shared month aggregator (single source of truth) ──
-// Recomputes a month's income/expenses from its txs array by delegating to the
-// existing aggregateOneMonth() that the CSV path already uses.
-function rebuildMonthAggregates(monthKey){
-  const bucket = _months[monthKey];
-  if(!bucket) return;
-  _months[monthKey] = aggregateOneMonth(bucket.txs || []);
 }
 
 // ── A: add a manual transaction ──
@@ -70,10 +62,9 @@ function addManualTransaction(txData){
 
   const isIncome = amount > 0;
   const tx = {
-    // Stable id so the row renderer can locate this tx in _months[mk].txs even
-    // after a reload, when loadData() parses _months and _allTxs into separate
-    // object instances (reference equality no longer holds across the two).
-    id:     'm' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+    // Stable id: every row operation (recategorize, delete) addresses the tx by
+    // this, never by array index. Shared id generator with the CSV/demo paths.
+    id:     newTxId(),
     date:   _formatDateForCfg(y, mo, d),
     ts:     pd.key,
     month:  pd.month,        // "Mon YYYY"
@@ -86,22 +77,20 @@ function addManualTransaction(txData){
     note:   note
   };
 
-  // ---- snapshot for rollback ----
-  const snap = { months: JSON.parse(JSON.stringify(_months)), txs: _allTxs.slice(), sel: _sel };
+  // ---- snapshot for rollback (shallow: add only appends one new row) ----
+  const snapTxs = _allTxs.slice(), snapSel = _sel;
 
-  // ---- mutate _months + keep _allTxs in lockstep ----
+  // ---- append to the source-of-truth list, re-derive the month view ----
   const mk = pd.month;
-  if(!_months[mk]) _months[mk] = { income: 0, expenses: {}, txs: [] };
-  _months[mk].txs.push(tx);
-  rebuildMonthAggregates(mk);
-  _allTxs = sortKeys(_months).flatMap(k => (_months[k].txs || [])); // rebuild in chrono order
+  _allTxs.push(tx);
+  rebuildMonths();
   _sel = mk; // focus the month the entry landed in
 
   // ---- persist with rollback on quota ----
   try{
     _persistData();
   }catch(e){
-    _months = snap.months; _allTxs = snap.txs; _sel = snap.sel;
+    _allTxs = snapTxs; _sel = snapSel; rebuildMonths();
     try{ renderAll(); }catch(_){}
     showToast(_isQuotaErr(e) ? 'Storage full. Clear older months in Settings.' : 'Could not save transaction.', 'error');
     throw e;
@@ -111,12 +100,9 @@ function addManualTransaction(txData){
 }
 
 // ── B: delete a manual transaction ──
-async function deleteManualTransaction(monthKey, txIndex){
-  const bucket = _months[monthKey];
-  if(!bucket || !Array.isArray(bucket.txs) || !bucket.txs[txIndex]){
-    showToast('Transaction not found.', 'error'); return;
-  }
-  const tx = bucket.txs[txIndex];
+async function deleteManualTransaction(id){
+  const tx = _txById(id);
+  if(!tx){ showToast('Transaction not found.', 'error'); return; }
   if(tx.source !== 'manual'){
     showToast('CSV transactions cannot be deleted. Re-import without this entry.', 'error');
     return;
@@ -124,27 +110,20 @@ async function deleteManualTransaction(monthKey, txIndex){
   // Capacitor-aware confirm (native dialog in the app shell, window.confirm on web).
   if(!await gbDialog.confirm('Delete this transaction? This cannot be undone.')) return;
 
-  // The native confirm is async (non-blocking) in the app shell — _months may
-  // have been rebuilt/reordered while it was open. Re-resolve the row by
-  // identity rather than trusting the render-time index.
-  const liveBucket = _months[monthKey];
-  const liveIdx = liveBucket ? (liveBucket.txs || []).findIndex(t => t === tx || (tx.id && t.id === tx.id)) : -1;
-  if(!liveBucket || liveIdx < 0){ showToast('Transaction not found.', 'error'); return; }
+  // The native confirm is async (non-blocking) in the app shell — re-resolve by
+  // id afterwards in case the list changed while the dialog was open.
+  const live = _txById(id);
+  if(!live){ showToast('Transaction not found.', 'error'); return; }
 
-  const snap = { months: JSON.parse(JSON.stringify(_months)), txs: _allTxs.slice(), sel: _sel };
-  liveBucket.txs.splice(liveIdx, 1);
-  if(liveBucket.txs.length === 0){
-    delete _months[monthKey];                                   // month now empty -> drop it
-    if(_sel === monthKey) _sel = sortKeys(_months).slice(-1)[0] || null;
-  }else{
-    rebuildMonthAggregates(monthKey);                           // recompute from remaining txs
-  }
-  _allTxs = sortKeys(_months).flatMap(k => (_months[k].txs || []));
+  const snapTxs = _allTxs.slice(), snapSel = _sel;   // shallow: delete only drops a row
+  _allTxs = _allTxs.filter(t => t !== live);
+  rebuildMonths();
+  if(_sel && !_months[_sel]) _sel = sortKeys(_months).slice(-1)[0] || null;
 
   try{
     _persistData();
   }catch(e){
-    _months = snap.months; _allTxs = snap.txs; _sel = snap.sel;
+    _allTxs = snapTxs; _sel = snapSel; rebuildMonths();
     try{ renderAll(); }catch(_){}
     showToast(_isQuotaErr(e) ? 'Storage full. Clear older months in Settings.' : 'Could not update storage.', 'error');
     return;
@@ -245,14 +224,14 @@ function populateCategorySelect(){
 }
 
 // ── Per-transaction recategorization (fix a miscategorized row in place) ──
-// renderTxs() passes the row's index into the live _allTxs array; we mutate that
-// entry, re-aggregate the months from _allTxs, persist and re-render. A pinned
-// row (catLocked) is protected from later rule-based recategorization.
-let _recatIndex = null;
-function openRecatModal(allTxIndex){
-  const tx = _allTxs[allTxIndex];
+// renderTxs() passes the row's stable tx.id; we mutate that entry, re-derive the
+// months, persist and re-render. A pinned row (catLocked) is protected from
+// later rule-based recategorization.
+let _recatId = null;
+function openRecatModal(id){
+  const tx = _txById(id);
   if(!tx){ showToast('Transaction not found.', 'error'); return; }
-  _recatIndex = allTxIndex;
+  _recatId = id;
   const vend = (typeof cleanVendor === 'function' ? cleanVendor(tx.desc) : tx.desc) || tx.desc;
   const v = document.getElementById('recat-vendor'); if(v) v.textContent = vend;
   const cur = document.getElementById('recat-current');
@@ -269,12 +248,12 @@ function openRecatModal(allTxIndex){
   openModal('modal-recat');
 }
 function chooseTxCategory(newCat){
-  if(_recatIndex == null) return;
-  const idx = _recatIndex; _recatIndex = null;
+  if(_recatId == null) return;
+  const id = _recatId; _recatId = null;
   const ruleEl = document.getElementById('recat-make-rule');
   const makeRule = !!(ruleEl && ruleEl.checked);
-  const tx = _allTxs[idx];
-  setTxCategory(idx, newCat);
+  const tx = _txById(id);
+  setTxCategory(id, newCat);
   if(makeRule && tx) addVendorRule(tx, newCat);
   closeModal('modal-recat');
 }
@@ -308,8 +287,8 @@ function addVendorRule(tx, cat){
   if(typeof recategorizeAll === 'function') recategorizeAll();   // apply to existing history too
   showToast('Rule saved — future “' + vk + '” transactions → ' + cat, 'success');
 }
-function setTxCategory(allTxIndex, newCat){
-  const tx = _allTxs[allTxIndex];
+function setTxCategory(id, newCat){
+  const tx = _txById(id);
   if(!tx || !newCat || tx.cat === newCat) return;
   const old = { cat: tx.cat, isIncome: tx.isIncome, catLocked: tx.catLocked, amount: tx.amount };
   tx.cat = newCat;
@@ -320,13 +299,13 @@ function setTxCategory(allTxIndex, newCat){
   // corrupts sumExpenses and every dependent metric.
   if(tx.isIncome) tx.amount = -Math.abs(tx.amount);
   tx.isIncome = false;
-  _months = aggregate(_allTxs);
+  rebuildMonths();
   try{
     _persistData();
   }catch(e){
     tx.cat = old.cat; tx.isIncome = old.isIncome; tx.amount = old.amount;
     if(old.catLocked === undefined) delete tx.catLocked; else tx.catLocked = old.catLocked;
-    _months = aggregate(_allTxs);
+    rebuildMonths();
     try{ renderAll(); }catch(_){}
     showToast(_isQuotaErr(e) ? 'Storage full. Clear older months in Settings.' : 'Could not save change.', 'error');
     return;

@@ -5,7 +5,7 @@
 // features have something to surface). Demo rows are tagged source:'demo' so
 // they can be removed without touching any real imported data.
 //
-// Globals used: _months, _allTxs, _sel, MN, sortKeys, aggregateOneMonth,
+// Globals used: _months, _allTxs, _sel, MN, sortKeys, rebuildMonths, newTxId,
 // saveData, renderAll, showScreen, _navBtn, showHeaderButtons, gbDialog,
 // showToast.
 
@@ -22,7 +22,7 @@ const gbDemo = (() => {
   function _monthTxs(y, m, idx, isLatest){
     const mk = _key(y, m);
     const T = (d, desc, amount, cat, isIncome) =>
-      ({ date: _dateStr(y, m, d), ts: _ts(y, m, d), month: mk, desc, amount, cat, isIncome: !!isIncome, source: 'demo' });
+      ({ id: newTxId(), date: _dateStr(y, m, d), ts: _ts(y, m, d), month: mk, desc, amount, cat, isIncome: !!isIncome, source: 'demo' });
     const txs = [
       T(1,  'PAYROLL DIRECT DEPOSIT', 2600, '_income', true),
       T(15, 'PAYROLL DIRECT DEPOSIT', 2600, '_income', true),
@@ -44,15 +44,6 @@ const gbDemo = (() => {
     return txs;
   }
 
-  // Rebuild _months from the current _allTxs (re-uses the shared aggregator).
-  function _rebuildMonths(){
-    const grouped = {};
-    for(const tx of (_allTxs || [])) (grouped[tx.month] = grouped[tx.month] || []).push(tx);
-    const out = {};
-    for(const k of Object.keys(grouped)) out[k] = aggregateOneMonth(grouped[k]);
-    return out;
-  }
-
   async function load(){
     try{
       // Confirm before adding sample rows if the user already has real data.
@@ -68,7 +59,7 @@ const gbDemo = (() => {
       }
 
       _allTxs = (_allTxs || []).concat(demoTxs);
-      _months = _rebuildMonths();
+      rebuildMonths();
       _sel = sortKeys(_months).slice(-1)[0] || null;
       try{ localStorage.setItem(FLAG, '1'); localStorage.setItem('gb_setup_done', '1'); }catch(_){}
       saveData();
@@ -83,7 +74,7 @@ const gbDemo = (() => {
     try{
       if(!(await gbDialog.confirm('Remove sample data? Any data you imported yourself stays.'))) return;
       _allTxs = (_allTxs || []).filter(t => t.source !== 'demo');
-      _months = _rebuildMonths();
+      rebuildMonths();
       _sel = sortKeys(_months).slice(-1)[0] || null;
       try{ localStorage.removeItem(FLAG); }catch(_){}
       saveData();

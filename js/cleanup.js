@@ -6,23 +6,15 @@
 // All destructive actions are gated behind gbDialog.confirm and re-aggregate +
 // persist. Pure local — no network.
 //
-// Globals used: _months, _allTxs, _sel, sortKeys, sumExpenses, aggregateOneMonth,
-// cleanVendor, fmt, esc, saveData, renderAll, getLog, saveLog, updateLogBadge,
-// gbDialog, showToast.
+// Globals used: _months, _allTxs, _sel, sortKeys, sumExpenses, rebuildMonths,
+// _txById, cleanVendor, fmt, esc, saveData, renderAll, getLog, saveLog,
+// updateLogBadge, gbDialog, showToast.
 
 const gbCleanup = (() => {
   const _money = n => '$' + Math.round(Math.abs(Number(n) || 0)).toLocaleString('en-US');
   function _tsToDate(ts){ const y=Math.floor(ts/10000), m=Math.floor((ts%10000)/100), d=ts%100; return new Date(y, m-1, d); }
   function _vendorOf(tx){ return (typeof cleanVendor==='function' ? cleanVendor(tx.desc) : tx.desc) || tx.desc || 'Unknown'; }
 
-  // Rebuild _months from the current _allTxs (shared aggregator).
-  function _rebuild(){
-    const grouped = {};
-    for(const tx of (_allTxs || [])) (grouped[tx.month] = grouped[tx.month] || []).push(tx);
-    const out = {};
-    for(const k of Object.keys(grouped)) out[k] = aggregateOneMonth(grouped[k]);
-    return out;
-  }
   function _persistRender(){ saveData(); if(typeof renderAll==='function') renderAll(); render(); }
 
   // ── per-month stats ──
@@ -37,21 +29,21 @@ const gbCleanup = (() => {
   // ── all-history exact-duplicate scan (same vendor + amount within 3 days) ──
   function scanDuplicates(){
     const groups = new Map();
-    (_allTxs || []).forEach((tx, i) => {
+    (_allTxs || []).forEach(tx => {
       if(!(tx.amount < 0)) return; // expenses only
       const k = _vendorOf(tx).toUpperCase() + '|' + Math.abs(tx.amount).toFixed(2);
       if(!groups.has(k)) groups.set(k, []);
-      groups.get(k).push({ tx, i });
+      groups.get(k).push(tx);
     });
     const dups = [];
     for(const [, list] of groups){
       if(list.length < 2) continue;
-      list.sort((a, b) => (a.tx.ts||0) - (b.tx.ts||0));
+      list.sort((a, b) => (a.ts||0) - (b.ts||0));
       for(let j = 1; j < list.length; j++){
-        const a = list[j-1].tx, b = list[j].tx;
+        const a = list[j-1], b = list[j];
         if(!a.ts || !b.ts) continue;
         if(Math.abs((_tsToDate(b.ts) - _tsToDate(a.ts)) / 86400000) <= 3){
-          dups.push({ dupIndex: list[j].i, vendor: _vendorOf(b), amount: b.amount, dateA: a.date, dateB: b.date });
+          dups.push({ id: b.id, vendor: _vendorOf(b), amount: b.amount, dateA: a.date, dateB: b.date });
         }
       }
     }
@@ -62,22 +54,22 @@ const gbCleanup = (() => {
   async function deleteMonth(mk){
     const m = _months[mk]; if(!m) return;
     if(!(await gbDialog.confirm(`Delete all ${(m.txs||[]).length} transactions for ${mk}? This can't be undone.`))) return;
-    delete _months[mk];
     _allTxs = (_allTxs || []).filter(t => t.month !== mk);
+    rebuildMonths();
     if(_sel === mk) _sel = sortKeys(_months).slice(-1)[0] || null;
     _persistRender();
     showToast(`${mk} deleted.`, 'success');
   }
 
-  async function removeDuplicateAt(idx){
-    const tx = _allTxs[idx]; if(!tx) return;
+  async function removeDuplicate(id){
+    const tx = _txById(id); if(!tx) return;
     if(!(await gbDialog.confirm(`Remove this duplicate — ${_vendorOf(tx)} ${_money(tx.amount)}?`))) return;
-    // confirm() is async (non-blocking) in the app shell — re-resolve by identity
-    // so a concurrent action can't make us splice the wrong row at a stale index.
-    const live = _allTxs.indexOf(tx);
-    if(live < 0){ showToast('Transaction not found.', 'error'); return; }
-    _allTxs.splice(live, 1);
-    _months = _rebuild();
+    // confirm() is async (non-blocking) in the app shell — re-resolve by id so a
+    // concurrent action can't make us remove the wrong row.
+    const live = _txById(id);
+    if(!live){ showToast('Transaction not found.', 'error'); return; }
+    _allTxs = (_allTxs || []).filter(t => t !== live);
+    rebuildMonths();
     _persistRender();
     showToast('Duplicate removed.', 'success');
   }
@@ -90,7 +82,7 @@ const gbCleanup = (() => {
     if(!affected){ showToast('That import predates undo tracking and can\'t be undone here — use Delete month instead.', 'error'); return; }
     if(!(await gbDialog.confirm(`Undo import "${last.filename}"? This removes ${affected} transaction${affected===1?'':'s'}.`))) return;
     _allTxs = (_allTxs || []).filter(t => t.imp !== last.id);
-    _months = _rebuild();
+    rebuildMonths();
     _sel = sortKeys(_months).slice(-1)[0] || null;
     log.shift(); saveLog(log);
     if(typeof updateLogBadge === 'function') updateLogBadge();
@@ -140,7 +132,7 @@ const gbCleanup = (() => {
             <div style="font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(d.vendor)} ${_money(d.amount)}</div>
             <div style="font-size:11px;color:var(--muted);">${esc(d.dateA)} &amp; ${esc(d.dateB)}</div>
           </div>
-          <button type="button" aria-label="Remove duplicate" onclick="gbCleanup.removeDuplicateAt(${d.dupIndex})" style="flex-shrink:0;border:1px solid rgba(255,165,2,0.35);background:rgba(255,165,2,0.08);color:var(--amber);border-radius:10px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-display);">Remove</button>
+          <button type="button" aria-label="Remove duplicate" onclick="gbCleanup.removeDuplicate('${esc(d.id)}')" style="flex-shrink:0;border:1px solid rgba(255,165,2,0.35);background:rgba(255,165,2,0.08);color:var(--amber);border-radius:10px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-display);">Remove</button>
         </div>`).join('')}</div>`
       : `<div style="color:var(--muted);font-size:13px;padding:8px 2px;">No duplicate charges detected.</div>`}`;
 
@@ -149,5 +141,5 @@ const gbCleanup = (() => {
 
   function openCleanup(){ render(); openModal('modal-cleanup'); }
 
-  return { monthSummary, scanDuplicates, deleteMonth, removeDuplicateAt, undoLastImport, render, openCleanup };
+  return { monthSummary, scanDuplicates, deleteMonth, removeDuplicate, undoLastImport, render, openCleanup };
 })();
