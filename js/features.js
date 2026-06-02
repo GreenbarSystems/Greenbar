@@ -134,9 +134,9 @@ let _flashDone = false;
 const FLASH = {
   PHASE: {
     P1_IN:     150,   // "Hey there." fades in
-    P1_OUT:    2200,  // "Hey there." fades out
-    P2_IN:     2450,  // "Welcome to Greenbar" crossfades in
-    CTA_IN:    3700,  // "Get Started" button fades in
+    P1_OUT:    1500,  // "Hey there." fades out (trimmed to reduce time-to-CTA)
+    P2_IN:     1700,  // "Welcome to Greenbar" crossfades in
+    CTA_IN:    2300,  // "Get Started" button fades in (~1.4s sooner than before)
   },
   FADE: {
     P1_IN_S:   '0.4s',  // Phase-1 fade-in duration
@@ -160,6 +160,7 @@ function runFlashIntro(){
       <div id="flash-intro" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;height:calc(100dvh - 120px);text-align:center;padding:80px 32px 40px;position:relative;">
         <div id="flash-phase-1" style="opacity:0;transition:opacity 0.5s ease;position:absolute;">
           <div style="font-family:var(--font-display);font-size:38px;font-weight:900;letter-spacing:-1px;color:var(--text);">Hey there.</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:12px;">Tap to continue</div>
         </div>
         <div id="flash-phase-2" style="opacity:0;transition:opacity 1.4s ease;width:100%;max-width:340px;padding:0 24px;">
           <div style="font-family:var(--font-display);font-size:36px;font-weight:900;letter-spacing:-1px;margin-bottom:10px;">Welcome to <span class="gb-shimmer">Greenbar</span></div>

@@ -657,8 +657,8 @@ function renderSummary(){
         <div style="font-family:var(--font-display);font-size:16px;font-weight:900;margin-bottom:6px;">Welcome to Greenbar</div>
         <div style="font-size:13px;color:var(--soft);line-height:1.6;margin-bottom:14px;">Import a Bank Transaction file to see your spending broken down by category. Everything stays on your device.</div>
         <button type="button" class="btn-primary" onclick="startFirstImport()">Import your first Bank Transaction file now</button>
-        <div id="first-import-help" style="margin-top:12px;font-size:12px;color:var(--soft);line-height:1.5;">Don't have a file yet? <span onclick="goToBankExport()" style="color:var(--green);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:2px;">See how to export from your bank &rarr;</span></div>
-        <div style="margin-top:10px;font-size:12px;line-height:1.5;">Just exploring? <span onclick="gbDemo.load()" style="color:var(--green);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:2px;">Load sample data &rarr;</span></div>
+        <div id="first-import-help" style="margin-top:12px;font-size:12px;color:var(--soft);line-height:1.5;">Don't have a file yet? <button type="button" onclick="goToBankExport()" class="link-btn">See how to export from your bank &rarr;</button></div>
+        <div style="margin-top:10px;font-size:12px;line-height:1.5;">Just exploring? <button type="button" onclick="gbDemo.load()" class="link-btn">Load sample data &rarr;</button></div>
       </div>`;
 
   document.getElementById('summary-content').innerHTML=`
