@@ -850,6 +850,7 @@ function renderBudget(){
         + `</div>`
       ).join('')
     }</div>` : ''}
+    ${typeof gbForecast !== 'undefined' ? gbForecast.sectionHTML() : ''}
     ${typeof gbTrends !== 'undefined' ? gbTrends.varianceSectionHTML(mk) : ''}
     ${typeof gbTrends !== 'undefined' ? gbTrends.recurringCardHTML() : ''}`;
   srAnnounce(`Budget for ${mk}, ${rows.length} ${rows.length===1?'category':'categories'}`);

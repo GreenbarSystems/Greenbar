@@ -107,6 +107,7 @@ const gbTrends = (() => {
         cadence: cad.label,
         lastDate: lastTs ? _dateLabel(lastTs) : '',
         nextExpected: lastTs ? _dateLabel(_addDays(lastTs, cad.days)) : '',
+        nextExpectedTs: lastTs ? _addDays(lastTs, cad.days) : 0,
         monthlyEquivalent: _round2(med * (30.44 / cad.days)),
         confidence: (monthsSeen / totalMonths >= 0.8 && cv <= 0.15) ? 'high' : 'medium'
       });
