@@ -101,7 +101,10 @@ function sendAIMessage(){
   // Brief pause so the reply doesn't feel jarringly instant
   setTimeout(()=>{
     if(loadingDiv) loadingDiv.remove();
-    appendAIMsg(answerHelpQuery(msg), 'ai-msg-bot');
+    // Try the on-device insights engine first (questions about the user's own
+    // data — fully local, no network); fall back to app-usage keyword help.
+    const dataReply = (typeof gbInsights !== 'undefined') ? gbInsights.answer(msg) : null;
+    appendAIMsg(dataReply || answerHelpQuery(msg), 'ai-msg-bot');
     _aiTyping = false;
     if(sendBtn) sendBtn.style.opacity = '1';
   }, 300);

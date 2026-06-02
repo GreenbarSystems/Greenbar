@@ -692,6 +692,7 @@ function renderSummary(){
       <div style="font-size:12px;color:var(--muted);line-height:1.5;margin:0 2px 16px;">${esc(gradeExplain)}</div>
       <h2 class="sec-hdr">Top Spending${(m&&spend.length)?` <span class="sec-total">${fmt(expTotal)}</span>`:''}</h2>
       ${topSpendBody}
+      ${typeof gbInsights !== 'undefined' ? gbInsights.cardHTML() : ''}
       <h2 class="sec-hdr">Achievements</h2>
       ${achievements}
       ${importPrompt}
