@@ -13,7 +13,17 @@ const gbGoals = (() => {
   const MAX = 12;
   const _money = n => '$' + Math.round(Math.abs(Number(n) || 0)).toLocaleString('en-US');
 
-  function _load(){ try{ const a = JSON.parse(localStorage.getItem(K)); return Array.isArray(a) ? a : []; }catch(e){ return []; } }
+  // Drop any goal whose id isn't a plain alphanumeric token. Self-generated ids
+  // always are, but gb_goals rides in backup/restore (an untrusted file), and
+  // g.id is interpolated into inline onclick handlers + element ids — so a
+  // crafted id like "');…//" would be an injection vector. Validating on load
+  // closes it at the trust boundary.
+  function _load(){
+    try{
+      const a = JSON.parse(localStorage.getItem(K));
+      return Array.isArray(a) ? a.filter(g => g && typeof g.id === 'string' && /^[A-Za-z0-9]+$/.test(g.id)) : [];
+    }catch(e){ return []; }
+  }
   function _save(list){
     try{ localStorage.setItem(K, JSON.stringify(list)); return true; }
     catch(e){

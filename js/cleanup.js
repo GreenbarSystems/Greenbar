@@ -72,7 +72,11 @@ const gbCleanup = (() => {
   async function removeDuplicateAt(idx){
     const tx = _allTxs[idx]; if(!tx) return;
     if(!(await gbDialog.confirm(`Remove this duplicate — ${_vendorOf(tx)} ${_money(tx.amount)}?`))) return;
-    _allTxs.splice(idx, 1);
+    // confirm() is async (non-blocking) in the app shell — re-resolve by identity
+    // so a concurrent action can't make us splice the wrong row at a stale index.
+    const live = _allTxs.indexOf(tx);
+    if(live < 0){ showToast('Transaction not found.', 'error'); return; }
+    _allTxs.splice(live, 1);
     _months = _rebuild();
     _persistRender();
     showToast('Duplicate removed.', 'success');

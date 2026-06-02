@@ -124,9 +124,16 @@ async function deleteManualTransaction(monthKey, txIndex){
   // Capacitor-aware confirm (native dialog in the app shell, window.confirm on web).
   if(!await gbDialog.confirm('Delete this transaction? This cannot be undone.')) return;
 
+  // The native confirm is async (non-blocking) in the app shell — _months may
+  // have been rebuilt/reordered while it was open. Re-resolve the row by
+  // identity rather than trusting the render-time index.
+  const liveBucket = _months[monthKey];
+  const liveIdx = liveBucket ? (liveBucket.txs || []).findIndex(t => t === tx || (tx.id && t.id === tx.id)) : -1;
+  if(!liveBucket || liveIdx < 0){ showToast('Transaction not found.', 'error'); return; }
+
   const snap = { months: JSON.parse(JSON.stringify(_months)), txs: _allTxs.slice(), sel: _sel };
-  bucket.txs.splice(txIndex, 1);
-  if(bucket.txs.length === 0){
+  liveBucket.txs.splice(liveIdx, 1);
+  if(liveBucket.txs.length === 0){
     delete _months[monthKey];                                   // month now empty -> drop it
     if(_sel === monthKey) _sel = sortKeys(_months).slice(-1)[0] || null;
   }else{
@@ -304,15 +311,20 @@ function addVendorRule(tx, cat){
 function setTxCategory(allTxIndex, newCat){
   const tx = _allTxs[allTxIndex];
   if(!tx || !newCat || tx.cat === newCat) return;
-  const old = { cat: tx.cat, isIncome: tx.isIncome, catLocked: tx.catLocked };
+  const old = { cat: tx.cat, isIncome: tx.isIncome, catLocked: tx.catLocked, amount: tx.amount };
   tx.cat = newCat;
   tx.catLocked = true;   // pin: future rule-based recategorization won't override
-  tx.isIncome = false;   // assigning a spend category de-classifies any false income
+  // Assigning a spend category de-classifies any false income. A spend must be a
+  // NEGATIVE amount — without flipping the sign, aggregate() does
+  // expenses[cat] -= (+amount), producing a negative category total that
+  // corrupts sumExpenses and every dependent metric.
+  if(tx.isIncome) tx.amount = -Math.abs(tx.amount);
+  tx.isIncome = false;
   _months = aggregate(_allTxs);
   try{
     _persistData();
   }catch(e){
-    tx.cat = old.cat; tx.isIncome = old.isIncome;
+    tx.cat = old.cat; tx.isIncome = old.isIncome; tx.amount = old.amount;
     if(old.catLocked === undefined) delete tx.catLocked; else tx.catLocked = old.catLocked;
     _months = aggregate(_allTxs);
     try{ renderAll(); }catch(_){}

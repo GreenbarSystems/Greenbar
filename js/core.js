@@ -774,7 +774,9 @@ function resolveConflict(action){
   const conflictModal = document.getElementById('modal-conflict');
   if(conflictModal){ conflictModal.classList.remove('open'); conflictModal.removeAttribute('open'); }
 
-  if(action === 'cancel' || action === 'skip'){
+  // Guard the null case too: a stray/double call (e.g. button after Esc already
+  // resolved) must not throw on the destructure below and strand _importBusy.
+  if(action === 'cancel' || action === 'skip' || !_pendingConflict){
     _pendingConflict = null;
     processNextFile();
     return;
