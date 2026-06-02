@@ -668,6 +668,7 @@ function renderSummary(){
         <div class="net-amt surplus">${fmt(totalBudget)}</div>
         <div class="net-mo">Your monthly plan</div>
       </div>
+      ${typeof gbSuggest !== 'undefined' ? gbSuggest.cardHTML() : ''}
       <div class="stat-row" style="grid-template-columns:1fr 1fr;margin-bottom:8px;">
         ${(()=>{
           // Savings rate: income minus spend, expressed as a % of income.
