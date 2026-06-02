@@ -9,15 +9,17 @@
 // load the new worker installs the fresh shell, activate() deletes old caches,
 // and clients.claim() takes control.
 
-const CACHE_VERSION = 'greenbar-shell-v27';
+const CACHE_VERSION = 'greenbar-shell-v28';
 
 // Scope-relative ('./') so this works for both root deploys and sub-path
 // deploys (e.g. GitHub project Pages at /Greenbar/).
 const ASSETS = [
   './',
   './index.html',
+  './manifest.json',
   './styles/main.css',
   './js/state.js',
+  './js/import-friction.js',
   './js/theme.js',
   './js/core.js',
   './js/render.js',
@@ -84,10 +86,34 @@ async function handleNavigate(request) {
   }
 }
 
+// Web Share Target: the OS POSTs the shared file(s) to the manifest's
+// share_target action ('share-target'). Stash them in the 'gb-share' cache and
+// redirect to ?shared=N; the app (import-friction.js) reconstructs the files and
+// runs them through the normal import. Stays on-device — nothing is uploaded.
+async function handleShareTarget(request){
+  try{
+    const form = await request.formData();
+    const files = form.getAll('statements').filter((f) => f && typeof f.name === 'string');
+    const cache = await caches.open('gb-share');
+    await cache.put('gb-shared-meta', new Response(JSON.stringify(files.map((f) => f.name))));
+    await Promise.all(files.map((f, i) =>
+      cache.put('gb-shared-' + i, new Response(f, { headers: { 'Content-Type': f.type || 'application/octet-stream' } }))));
+    return Response.redirect('./?shared=' + files.length, 303);
+  }catch(_){
+    return Response.redirect('./?shared=0', 303);
+  }
+}
+
 self.addEventListener('fetch', (event) => {
   const request = event.request;
-  if (request.method !== 'GET') return; // never touch non-GET
   const url = new URL(request.url);
+  // Share Target POST (declared in manifest.json) — intercept before the
+  // GET-only guard below.
+  if (request.method === 'POST' && url.origin === self.location.origin && url.pathname.endsWith('/share-target')) {
+    event.respondWith(handleShareTarget(request));
+    return;
+  }
+  if (request.method !== 'GET') return; // never touch other non-GET
   if (url.origin !== self.location.origin) return; // ignore cross-origin (there are none)
 
   if (request.mode === 'navigate') {
