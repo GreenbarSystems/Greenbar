@@ -993,6 +993,19 @@ if('serviceWorker' in navigator){
   </div>
 </dialog>
 
+<!-- ════ INSIGHTS MODAL (on-device, private) ════ -->
+<dialog class="modal-overlay" id="modal-insights" aria-modal="true" aria-labelledby="insights-title" onclick="closeOut(event,'modal-insights')">
+  <div class="sheet">
+    <div class="sheet-close-row">
+      <button type="button" aria-label="Close" onclick="closeModal('modal-insights')" class="sheet-close">✕</button>
+    </div>
+    <div class="sheet-handle" style="margin-top:0;"></div>
+    <h2 class="sheet-title" id="insights-title" style="margin-bottom:2px;">Your Insights</h2>
+    <div class="sheet-sub" id="insights-sub">Private · computed on your device, nothing sent.</div>
+    <div id="insights-body" style="margin-top:6px;"></div>
+  </div>
+</dialog>
+
 
 <!-- Greenbar JS modules — classic scripts in dependency order -->
 <script src="js/state.js"></script>
@@ -1002,6 +1015,7 @@ if('serviceWorker' in navigator){
 <script src="js/anomaly.js"></script>
 <script src="js/recurring.js"></script>
 <script src="js/suggest-budget.js"></script>
+<script src="js/insights.js"></script>
 <script src="js/features.js"></script>
 <script src="js/security.js"></script>
 <script src="js/backup.js"></script>
