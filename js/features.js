@@ -300,10 +300,10 @@ function startSetupFromFlash(){
   //
   // The wizard is still available — and still recommended for users who
   // prefer to define their budget targets up front — via
-  // Settings -> Budget Setup Wizard ("Open ->"). A future phase will add
-  // a "Want a budget? We can suggest one from what you actually spent"
-  // card on Summary after first import, replacing the wizard for most
-  // new users.
+  // Settings -> Budget Setup Wizard ("Open ->"). For users who skip it, the
+  // suggested-budget-from-actuals card (gbSuggest, suggest-budget.js) now
+  // appears on Summary after the first import and offers a one-tap budget
+  // built from real spend.
   //
   // gb_setup_done is marked so subsequent launches route via the
   // _continueBoot "setup done but no data" branch (empty Summary) rather

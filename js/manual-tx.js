@@ -111,7 +111,7 @@ function addManualTransaction(txData){
 }
 
 // ── B: delete a manual transaction ──
-function deleteManualTransaction(monthKey, txIndex){
+async function deleteManualTransaction(monthKey, txIndex){
   const bucket = _months[monthKey];
   if(!bucket || !Array.isArray(bucket.txs) || !bucket.txs[txIndex]){
     showToast('Transaction not found.', 'error'); return;
@@ -121,9 +121,8 @@ function deleteManualTransaction(monthKey, txIndex){
     showToast('CSV transactions cannot be deleted. Re-import without this entry.', 'error');
     return;
   }
-  // MVP: native confirm(). TODO: upgrade to gbDialog.confirm() / a custom
-  // openModal-based dialog for consistent styling + focus handling.
-  if(!confirm('Delete this transaction? This cannot be undone.')) return;
+  // Capacitor-aware confirm (native dialog in the app shell, window.confirm on web).
+  if(!await gbDialog.confirm('Delete this transaction? This cannot be undone.')) return;
 
   const snap = { months: JSON.parse(JSON.stringify(_months)), txs: _allTxs.slice(), sel: _sel };
   bucket.txs.splice(txIndex, 1);
