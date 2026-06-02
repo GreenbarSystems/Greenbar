@@ -1,0 +1,4 @@
+# Vendored, minified third-party libraries: treat as binary so Git never
+# applies line-ending conversion (LF<->CRLF) and never shows noisy textual
+# diffs on these machine-generated files.
+js/vendor/* binary
