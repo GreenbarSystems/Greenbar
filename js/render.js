@@ -649,8 +649,9 @@ function renderSummary(){
   // UX Tier 3 Phase 1 — copy updated for the import-first flow. Users
   // arrive here straight from the flash intro (no wizard), so we no
   // longer promise "your budget is ready" (it isn't until they either
-  // run the wizard from Settings or, in Phase 3, accept a suggested
-  // budget). Welcome copy is honest about the next step.
+  // run the wizard from Settings or accept the suggested-budget card that
+  // appears on Summary after the first import). Welcome copy is honest
+  // about the next step.
   const importPrompt=hasData ? '' : `
       <div class="g-card" style="padding:18px;margin:14px 0 0;text-align:center;">
         <div style="font-family:var(--font-display);font-size:16px;font-weight:900;margin-bottom:6px;">Welcome to Greenbar</div>

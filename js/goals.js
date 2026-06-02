@@ -59,9 +59,9 @@ const gbGoals = (() => {
     render(); if(typeof renderAll === 'function') renderAll();
   }
 
-  function remove(id){
-    // MVP: native confirm(). TODO: upgrade to gbDialog.confirm() for parity.
-    if(!confirm('Delete this goal? This cannot be undone.')) return;
+  async function remove(id){
+    // Capacitor-aware confirm (native dialog in the app shell, window.confirm on web).
+    if(!await gbDialog.confirm('Delete this goal? This cannot be undone.')) return;
     const list = _load().filter(x => x.id !== id);
     if(!_save(list)) return;
     render(); if(typeof renderAll === 'function') renderAll();
