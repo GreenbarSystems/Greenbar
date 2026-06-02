@@ -75,14 +75,18 @@ const MN='Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec'.split(',');
 //
 // Shapes (contract for every consumer in render.js / core.js):
 //   _months : { [monthKey]: { income: number,
-//                              expenses: { [category]: amount } } }
-//             where monthKey is 'YYYY-MM' (e.g. '2026-05').
-//   _allTxs : Array<{ date:string, desc:string, amount:number,
-//                     cat:string, month:string, ts?:number }>
+//                              expenses: { [category]: amount },
+//                              txs: Array<Tx> } }
+//             where monthKey is 'Mon YYYY' (e.g. 'May 2026').
+//   _allTxs : Array<Tx>, where Tx = { date:string, desc:string,
+//                     amount:number, cat:string, month:string, ts?:number,
+//                     isIncome?:boolean, source?:string, vendor?:string,
+//                     id?:string, imp?:string, catLocked?:boolean, note?:string }
 //             amount is signed: negative = expense, positive = income.
-//             ts is a millisecond epoch stamped at import; older saves
-//             may lack it (renderTxs falls back to parseDateParts).
-//   _sel    : month key 'YYYY-MM' | sentinel '__all' | null (no data yet).
+//             ts is a YYYYMMDD integer (e.g. 20260514), NOT an epoch — it is
+//             pd.key from parseDateParts(); older saves may lack it
+//             (renderTxs falls back to parseDateParts on tx.date).
+//   _sel    : month key 'Mon YYYY' | sentinel '__all' | null (no data yet).
 let _months={},_allTxs=[],_sel=null;
 
 // App-data localStorage keys. NOT a complete localStorage manifest — the
