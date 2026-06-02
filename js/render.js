@@ -673,6 +673,7 @@ function renderSummary(){
         <div class="net-amt surplus">${fmt(totalBudget)}</div>
         <div class="net-mo">Your monthly plan</div>
       </div>
+      ${typeof gbGoals !== 'undefined' ? gbGoals.cardHTML() : ''}
       ${typeof gbSuggest !== 'undefined' ? gbSuggest.cardHTML() : ''}
       <div class="stat-row" style="grid-template-columns:1fr 1fr;margin-bottom:8px;">
         ${(()=>{
@@ -700,7 +701,6 @@ function renderSummary(){
       ${typeof gbInsights !== 'undefined' ? gbInsights.cardHTML() : ''}
       <h2 class="sec-hdr">Achievements</h2>
       ${achievements}
-      ${typeof gbGoals !== 'undefined' ? gbGoals.cardHTML() : ''}
       ${importPrompt}
     </div>`;
   srAnnounce(hasData ? `Summary for ${sel}` : 'Summary, no transactions yet');
