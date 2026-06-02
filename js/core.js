@@ -322,7 +322,7 @@ function processCSV(rows,headers){
     // income-keyword / remap / normalization precedence.
     const origCat=(row[colCat]||'').trim();
     const {cat,isIncome}=categorizeTx(raw, origCat);
-    txs.push({date:row[colDate]||'',ts:pd.key,month,desc:raw,origCat,amount,cat,isIncome});
+    txs.push({id:newTxId(),date:row[colDate]||'',ts:pd.key,month,desc:raw,origCat,amount,cat,isIncome});
   }
   return { txs, mapping:{ date:colDate, desc:colDesc, amt:colAmt, cat:colCat, fmt }, counts:{ total:rows.length, imported:txs.length, skipped, undated } };
 }
@@ -342,7 +342,7 @@ function recategorizeAll(){
     const { cat, isIncome } = categorizeTx(tx.desc, base);
     if(tx.cat !== cat || tx.isIncome !== isIncome){ tx.cat = cat; tx.isIncome = isIncome; changed++; }
   }
-  if(changed){ _months = aggregate(_allTxs); saveData(); renderAll(); }
+  if(changed){ rebuildMonths(); saveData(); renderAll(); }
   return changed;
 }
 // Shared post-rule-change hook: re-apply rules across history and tell the user
@@ -379,6 +379,27 @@ function sumExpenses(m){ return m && m.expenses ? Object.values(m.expenses).redu
 // date started with one (vanishingly unlikely in practice, but free to fix).
 function txKey(tx){ return tx.date+''+tx.desc+''+tx.amount; }
 
+// ──────── Canonical data invariant ────────
+// _allTxs (the flat, signed-amount transaction list) is the single source of
+// truth. _months is a DERIVED view: every month bucket's income / expenses /
+// txs is computed from _allTxs. rebuildMonths() re-derives _months and restores
+// _allTxs to canonical (chronological) order — EVERY transaction mutation must
+// end by calling it, so the two structures can never drift.
+//
+// Row operations address a transaction by its stable tx.id (assigned at
+// creation, backfilled on load), never by array index — an index goes stale the
+// moment the list is re-sorted or a row is removed, which is the class of bug
+// the per-handler "re-resolve after await" guards used to paper over.
+let _txIdSeq = 0;
+function newTxId(){ return 't' + Date.now().toString(36) + (_txIdSeq++).toString(36) + Math.random().toString(36).slice(2, 5); }
+function _txById(id){ return id ? ((_allTxs || []).find(t => t && t.id === id) || null) : null; }
+function rebuildMonths(){
+  _months = aggregate(_allTxs);
+  // Re-derive _allTxs from the freshly-built buckets so it lands in canonical
+  // chronological (sortKeys) order and shares object identity with _months.txs.
+  _allTxs = sortKeys(_months).flatMap(mk => _months[mk].txs || []);
+}
+
 // ──────── Storage: transaction data + upload log + backup/restore ────────
 function saveData(){
   try{
@@ -400,8 +421,18 @@ function loadData(){
     const s=localStorage.getItem('gb_data');
     if(!s) return false;
     const d=JSON.parse(s);
-    _months=d.months||{}; _allTxs=d.txs||[];
+    _allTxs = Array.isArray(d.txs) ? d.txs : [];
+    // Backfill stable ids on any row saved before universal ids existed, so all
+    // row operations can address transactions by tx.id.
+    let backfilled = false;
+    for(const tx of _allTxs){ if(tx && !tx.id){ tx.id = newTxId(); backfilled = true; } }
+    // _months is derived, never trusted from storage: rebuild it from _allTxs so
+    // the two can't drift and so _months.txs share object identity with _allTxs
+    // (loadData would otherwise parse them into separate instances). This also
+    // re-applies the canonical chronological ordering.
+    rebuildMonths();
     const ks=sortKeys(_months); _sel=(d.sel&&_months[d.sel])?d.sel:(ks[ks.length-1]||null);
+    if(backfilled) saveData();   // persist the new ids once
     return ks.length>0;
   }catch(e){ return false; }
 }
