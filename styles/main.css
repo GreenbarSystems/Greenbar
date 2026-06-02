@@ -63,14 +63,17 @@
   color-scheme: light;
   --bg: #f6f8fc;
   --text: #0f1729;
-  --muted: rgba(15,23,41,0.58);
+  --muted: rgba(15,23,41,0.64);
   --soft: rgba(15,23,41,0.72);
   --glass: rgba(15,23,41,0.045);
   --glass-hover: rgba(15,23,41,0.075);
   --border: rgba(15,23,41,0.12);
   --border-bright: rgba(15,23,41,0.20);
   --g1: #e9eef8; --g2: #eaf0f9;
-  --green: #0a8f5e; --green2: #0a7d52; --teal: #0a8d83;
+  /* Accents deepened for legible text on a light background (WCAG AA). Light
+     mode only — dark-mode accents are unchanged. */
+  --green: #0a7d50; --green2: #0a6e47; --teal: #0a7d74;
+  --red: #d62f3f; --amber: #8f6200; --blue: #1f64d6; --purple: #6b3ff0;
   --o02: rgba(15,23,41,0.03); --o03: rgba(15,23,41,0.04);
   --o04: rgba(15,23,41,0.05); --o05: rgba(15,23,41,0.05);
   --o06: rgba(15,23,41,0.06); --o07: rgba(15,23,41,0.07);
