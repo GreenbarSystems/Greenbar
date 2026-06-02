@@ -12,7 +12,7 @@
 //                  openModal, closeModal, closeOut
 
 const gbInsights = (() => {
-  const _money = n => '$' + Math.round(Math.abs(Number(n) || 0)).toLocaleString('en-US');
+  const _money = n => gbMoneyAbs(n, 0);   // locale/currency-aware (core.js)
   const _monthName = k => String(k || '').split(' ')[0] || k;
 
   // Single structured pass over the data; both generate() and answer() use it.

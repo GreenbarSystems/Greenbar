@@ -7,7 +7,7 @@
 // gbTrends.detectRecurring (recurring.js) for the fixed-charge baseline.
 
 const gbForecast = (() => {
-  const _money  = n => '$' + Math.round(Math.abs(Number(n) || 0)).toLocaleString('en-US');
+  const _money  = n => gbMoneyAbs(n, 0);   // locale/currency-aware (core.js)
   const _signed = n => (n >= 0 ? '+' : '−') + _money(n);
   const _round  = n => Math.round(Number(n) || 0);
   const _monthName = k => String(k || '').split(' ')[0] || k;

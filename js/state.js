@@ -14,6 +14,10 @@
 // wizard or has a corrupted CFG; the wizard's computeBudgetFromState in
 // features.js produces a richer overriding set in the normal flow.
 const DEFAULTS = {
+  // Market/locale. Drives currency formatting + the default date order. One
+  // currency per profile (a user banks in one country). Auto-detected from the
+  // browser on first run (loadCFG) and changeable in Settings → Column Mapping.
+  region:'US',
   cols:{ date:'',desc:'',amt:'',cat:'',fmt:'MM/DD/YY' },
   incomeKw:['PAYROLL','DIRECT DEPOSIT','SALARY','TAX REFUND','CASHOUT','MOBILE DEPOSIT','ZELLE FROM','VENMO CASHOUT'],
   skipKw:[],
@@ -65,6 +69,18 @@ const DEFAULTS = {
 
 // Reassigned wholesale by loadCFG() in core.js — declared with `let` for that.
 let CFG = JSON.parse(JSON.stringify(DEFAULTS));
+
+// Supported markets. Greenbar is single-currency-per-profile; CFG.region selects
+// one of these, which drives money formatting (locale + currency) and the default
+// date order. UK/AU/CA share the US number convention (. decimal, , thousands),
+// so only the currency symbol and date order differ. dateFmt values must be ones
+// parseDateParts() understands (MM/DD/YYYY → its default branch).
+const REGIONS = {
+  US: { label:'United States',  locale:'en-US', currency:'USD', dateFmt:'MM/DD/YYYY' },
+  GB: { label:'United Kingdom', locale:'en-GB', currency:'GBP', dateFmt:'DD/MM/YYYY' },
+  AU: { label:'Australia',      locale:'en-AU', currency:'AUD', dateFmt:'DD/MM/YYYY' },
+  CA: { label:'Canada',         locale:'en-CA', currency:'CAD', dateFmt:'YYYY-MM-DD' },
+};
 
 // Month-name abbreviations. ZERO-INDEXED: MN[0] === 'Jan'. Use MN[monthNum-1]
 // when bridging from a 1-based human month number.

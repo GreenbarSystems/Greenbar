@@ -88,7 +88,38 @@ function loadCFG(){
   ['date','desc','amt','cat','fmt'].forEach(k=>{
     if(typeof CFG.cols[k] !== 'string') CFG.cols[k] = (DEFAULTS.cols && DEFAULTS.cols[k]) || '';
   });
+  // Market/region: must be a known market, else fall back to US.
+  if(!REGIONS[CFG.region]) CFG.region = 'US';
+  // First-run auto-detection: a brand-new user (no saved config) starts in the
+  // market matching their browser locale, so non-US users land in their own
+  // currency + date order. A returning user's saved choice is never overridden.
+  if(!localStorage.getItem('gb_cfg2')){
+    const det = _detectRegion();
+    if(det && REGIONS[det]){ CFG.region = det; CFG.cols.fmt = REGIONS[det].dateFmt; }
+  }
   syncUI(); renderBudgetInputs();
+}
+// Best-effort market guess from the browser locale's region subtag (en-GB ->
+// GB, en-AU -> AU, en-CA -> CA). Returns null when unknown so the US default stands.
+function _detectRegion(){
+  let lang = '';
+  try{ lang = (navigator.language || (navigator.languages && navigator.languages[0]) || '').toLowerCase(); }catch(e){}
+  const sub = lang.split('-')[1];
+  if(sub === 'gb' || sub === 'uk') return 'GB';
+  if(sub === 'au') return 'AU';
+  if(sub === 'ca') return 'CA';
+  if(sub === 'us') return 'US';
+  return null;
+}
+// Change market: updates currency + the default date order, persists, and
+// re-renders. Wired to the Region selector in the Column Mapping modal.
+function setRegion(code){
+  if(!REGIONS[code]) return;
+  CFG.region = code;
+  CFG.cols.fmt = REGIONS[code].dateFmt;   // adopt the region's date order as the default
+  saveCFG();
+  syncUI();
+  if(typeof renderAll === 'function' && _allTxs.length) renderAll();
 }
 // ════ STORAGE-QUOTA HELPERS ════
 // Browsers throw different things when localStorage is full. This catches them all.
@@ -125,6 +156,7 @@ function syncUI(){
   document.getElementById('col-amt').value=CFG.cols.amt||'';
   document.getElementById('col-cat').value=CFG.cols.cat||'';
   document.getElementById('col-fmt').value=CFG.cols.fmt||'MM/DD/YY';
+  const _rsel=document.getElementById('region-select'); if(_rsel) _rsel.value=CFG.region||'US';
   document.getElementById('income-kw').value=CFG.incomeKw.join('\n');
   document.getElementById('skip-kw').value=CFG.skipKw.join('\n');
   document.getElementById('inc-desc').textContent=`${CFG.incomeKw.length} keywords`;
@@ -161,7 +193,33 @@ function cleanVendor(desc){
 function _navBtn(i){ return document.querySelectorAll('.nav-btn')[i||0]; }
 // ════ FORMAT ════
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
-function fmt(n){ if(n===undefined||n===null||!isFinite(n))return'—'; const a=Math.abs(n); return(n<0?'(':'')+'$'+a.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})+(n<0?')':''); }
+
+// ── Locale / currency (single source of truth for money formatting) ──
+// CFG.region selects the market; everything money-related routes through these
+// so adding a market is a data change in REGIONS, not per-module string edits.
+function gbRegion(){ return REGIONS[CFG && CFG.region] || REGIONS.US; }
+// Currency symbol for the active region (e.g. "$", "£"), derived from Intl so it
+// stays correct per locale (e.g. en-CA renders CAD as "$").
+let _gbSymCache = {};
+function gbCurrencySymbol(){
+  const r = gbRegion(); const key = r.locale + '|' + r.currency;
+  if(_gbSymCache[key]) return _gbSymCache[key];
+  let sym = '$';
+  try{
+    const parts = new Intl.NumberFormat(r.locale, { style:'currency', currency:r.currency }).formatToParts(0);
+    const c = parts.find(p => p.type === 'currency'); if(c) sym = c.value;
+  }catch(e){}
+  return (_gbSymCache[key] = sym);
+}
+// Format the ABSOLUTE value as a locale-grouped currency string, e.g. "£1,234"
+// or "$1,234.56". Callers that need a sign add it themselves (matches the old
+// _money/_money2 contract); fmt() below handles signed display.
+function gbMoneyAbs(n, frac){
+  const r = gbRegion(); frac = frac || 0;
+  return gbCurrencySymbol() + Math.abs(Number(n) || 0).toLocaleString(r.locale, { minimumFractionDigits:frac, maximumFractionDigits:frac });
+}
+// Signed money for dashboards: negative shown in accounting parens, e.g. "($1,234)".
+function fmt(n){ if(n===undefined||n===null||!isFinite(n))return'—'; const a=Math.abs(n); return(n<0?'(':'')+gbCurrencySymbol()+a.toLocaleString(gbRegion().locale,{minimumFractionDigits:0,maximumFractionDigits:0})+(n<0?')':''); }
 
 // ──────── CSV parsing pipeline ────────
 function decodeBytes(buf){
@@ -552,7 +610,7 @@ function addToLog({ id, filename, txCount, monthCount, months }){
   // `id` links the log entry to the transactions tagged with tx.imp at import
   // time, so the clean-up center can undo exactly this batch. Falls back to a
   // timestamp for any caller that doesn't supply one.
-  log.unshift({ id: id || Date.now(), filename, txCount, monthCount, months, date: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}) });
+  log.unshift({ id: id || Date.now(), filename, txCount, monthCount, months, date: new Date().toLocaleDateString(gbRegion().locale,{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}) });
   // Hard-cap retention: a single pop() leaves the log oversize if it ever
   // started larger than the cap (e.g. after a backup restore from a future
   // version that allowed more entries).

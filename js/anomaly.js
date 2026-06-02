@@ -27,8 +27,8 @@ function median(arr){
 }
 
 /* ── small internal helpers ── */
-function _money(n){ return '$' + Math.round(Math.abs(Number(n)||0)).toLocaleString('en-US'); }
-function _money2(n){ return '$' + Math.abs(Number(n)||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); } // keeps cents (duplicates)
+function _money(n){ return gbMoneyAbs(n, 0); }                 // locale/currency-aware (core.js)
+function _money2(n){ return gbMoneyAbs(n, 2); }                // keeps cents
 function _round2(n){ return Math.round((Number(n)||0) * 100) / 100; }
 function _monthName(key){ return String(key||'').split(' ')[0] || key; }
 function _tsToDate(ts){ const y=Math.floor(ts/10000), m=Math.floor((ts%10000)/100), d=ts%100; return new Date(y, m-1, d); }

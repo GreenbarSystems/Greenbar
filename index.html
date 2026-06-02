@@ -941,6 +941,14 @@ if('serviceWorker' in navigator){
       <button type="button" aria-label="Close" onclick="closeModal('modal-cols')" class="sheet-close">✕</button>
     </div>
     <div class="sheet-sub">Enter exact column headers from your Bank Transactions. Leave blank to auto-detect.</div>
+    <div class="sheet-label">Region &amp; currency</div>
+    <select class="sheet-input" id="region-select" aria-label="Region and currency" style="appearance:none" onchange="setRegion(this.value)">
+      <option value="US">United States &mdash; $ USD</option>
+      <option value="GB">United Kingdom &mdash; &pound; GBP</option>
+      <option value="AU">Australia &mdash; $ AUD</option>
+      <option value="CA">Canada &mdash; $ CAD</option>
+    </select>
+    <div style="font-size:11px;color:var(--muted);margin:-4px 0 4px;line-height:1.5;">Sets your currency and default date format. Auto-detected from your device.</div>
     <div class="sheet-label">Date Column</div><input class="sheet-input" id="col-date" aria-label="Date column header" placeholder="e.g. Date, Transaction Date" autocomplete="off">
     <div class="sheet-label">Description Column</div><input class="sheet-input" id="col-desc-inp" aria-label="Description column header" placeholder="e.g. Description, Merchant" autocomplete="off">
     <div class="sheet-label">Amount Column</div><input class="sheet-input" id="col-amt" aria-label="Amount column header" placeholder="e.g. Amount" autocomplete="off">

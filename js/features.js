@@ -599,7 +599,7 @@ function updateIncomeNote(){
     const guideCap   = Math.round(income * guidePct / 100);
     breakEl.innerHTML = housing > 0
       ? 'Housing is <b>' + pctHousing + '%</b> of your income. ' + (pctHousing <= guidePct ? `Under the ${guidePct}% guideline.` : `Above the ${guidePct}% guideline.`)
-      : `${guidePct}% rule guideline: keep housing under <b>$` + guideCap.toLocaleString() + '/mo</b>.';
+      : `${guidePct}% rule guideline: keep housing under <b>` + gbMoneyAbs(guideCap, 0) + '/mo</b>.';
   } else if(noteEl){
     noteEl.style.display = 'none';
   }
@@ -643,7 +643,7 @@ function updateReviewBudget(input){
   let total = 0;
   document.querySelectorAll('#setup-review-list input[data-cat]').forEach(i=>{ total += parseFloat(i.value)||0; });
   const totalEl = document.getElementById('review-total');
-  if(totalEl) totalEl.textContent = '$' + total.toLocaleString() + '/mo';
+  if(totalEl) totalEl.textContent = gbMoneyAbs(total, 0) + '/mo';
 }
 
 function computeBudgetFromState(){
