@@ -96,4 +96,4 @@ let _months={},_allTxs=[],_sel=null;
 // anomaly.js. They live here so clearAllData() (which iterates GB_KEYS)
 // wipes them too — otherwise a stale anomaly badge/report survives a data
 // wipe and reappears on the next Summary load.
-const GB_KEYS=['gb_data','gb_cfg2','gb_log','gb_setup_done','gb_wt_done','gb_tour_done','gb_anomalies','gb_anomaly_ready'];
+const GB_KEYS=['gb_data','gb_cfg2','gb_log','gb_setup_done','gb_wt_done','gb_tour_done','gb_anomalies','gb_anomaly_ready','gb_goals'];

@@ -695,6 +695,7 @@ function renderSummary(){
       ${typeof gbInsights !== 'undefined' ? gbInsights.cardHTML() : ''}
       <h2 class="sec-hdr">Achievements</h2>
       ${achievements}
+      ${typeof gbGoals !== 'undefined' ? gbGoals.cardHTML() : ''}
       ${importPrompt}
     </div>`;
   srAnnounce(hasData ? `Summary for ${sel}` : 'Summary, no transactions yet');
