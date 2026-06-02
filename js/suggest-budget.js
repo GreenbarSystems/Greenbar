@@ -70,7 +70,7 @@ const gbSuggest = (() => {
         <div style="font-family:var(--font-display);font-size:15px;font-weight:900;margin-bottom:4px;">Build your budget in one tap</div>
         <div style="font-size:12.5px;color:var(--soft);line-height:1.6;margin-bottom:12px;">Based on the ${months} month${months===1?'':'s'} you've imported, Greenbar can set <strong>${n} category targets</strong> totalling <strong>${fmt(total)}/mo</strong> from what you actually spent. Fine-tune any of them in Settings.</div>
         <button type="button" class="btn-primary" onclick="gbSuggest.apply()">Use suggested budget</button>
-        <div style="text-align:center;margin-top:10px;"><span onclick="gbSuggest.dismiss()" style="font-size:12px;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:2px;">No thanks</span></div>
+        <div style="text-align:center;margin-top:10px;"><button type="button" onclick="gbSuggest.dismiss()" class="link-btn" style="color:var(--muted);">No thanks</button></div>
       </div>`;
   }
 

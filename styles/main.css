@@ -39,6 +39,11 @@
    only matches when the user is navigating with the keyboard, so mouse clicks
    don't get the ring. */
 :focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+/* Inline text actions rendered as real <button>s (keyboard-focusable, announced
+   as buttons, get the :focus-visible ring) while looking like underlined links. */
+.link-btn { background: none; border: none; padding: 0; font: inherit; color: var(--green);
+  font-weight: 700; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.link-btn:focus-visible { border-radius: 3px; }
 html, body { height: 100%; overflow: hidden; font-family: var(--font-body); background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased;
   /* Tabular (monospaced) numerals across the app so every digit renders at
      the same width. Column-aligns Top Spending amounts, Budget vs Actual
