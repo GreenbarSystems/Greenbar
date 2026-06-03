@@ -718,6 +718,7 @@ function renderSummary(){
         <button class="stat-tile" type="button" ${hs?`onclick="openHealthBreakdown()" aria-label="Health score ${hs.grade}, ${hs.score} out of 100 — see what's driving it"`:'disabled aria-label="Health score not available yet"'}><div class="st-lbl">Health Score</div><div class="st-val" style="color:${gradeColor};">${grade}</div>${hs?`<div class="st-tap-hint">Tap for details &rsaquo;</div>`:''}</button>
       </div>
       <div style="font-size:12px;color:var(--muted);line-height:1.5;margin:0 2px 16px;">${esc(gradeExplain)}</div>
+      ${typeof gbAccounts !== 'undefined' ? gbAccounts.cardHTML(sel) : ''}
       <h2 class="sec-hdr">Top Spending${(m&&spend.length)?` <button type="button" class="sec-total ex-num" onclick="gbConfidence.openExplain('expenses','${esc(sel)}')" aria-label="Explain total spending ${esc(fmt(expTotal))}">${fmt(expTotal)} <span class="ex-i" aria-hidden="true">&#9432;</span></button>`:''}</h2>
       ${topSpendBody}
       ${typeof gbInsights !== 'undefined' ? gbInsights.cardHTML() : ''}
@@ -792,6 +793,7 @@ function renderSummaryAll(){
         <div class="stat-tile"><div class="st-lbl">Total Exp</div><div class="st-val c-red">${fmt(totalExp)}</div></div>
         <div class="stat-tile"><div class="st-lbl">Months</div><div class="st-val c-teal">${n}</div></div>
       </div>
+      ${typeof gbAccounts !== 'undefined' ? gbAccounts.cardHTML(null) : ''}
       <h2 class="sec-hdr">Avg Monthly Spend <span class="sec-total">${fmt(totalExp/n)}/mo</span></h2>
       <div class="cat-list">
         ${cats.slice(0,8).map(([cat,avg],i)=>`

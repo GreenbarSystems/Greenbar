@@ -98,5 +98,49 @@ const gbAccounts = (() => {
 
   function openManager(){ renderManager(); if(typeof openModal === 'function') openModal('modal-accounts'); }
 
-  return { list, rename, remove, renderManager, openManager };
+  // ──────── Per-account summary (dashboard breakdown) ────────
+  // For a month (or all data when monthKey is null/'__all'): income, spend and
+  // net per account. net = Σ amount; spend = income − net (matches the dashboard's
+  // income/expense semantics, so refunds reduce spend rather than inflate income).
+  function summary(monthKey){
+    const all = (typeof _allTxs !== 'undefined' ? _allTxs : []);
+    const scope = (monthKey && monthKey !== '__all') ? all.filter(t => t.month === monthKey) : all;
+    const by = {};
+    scope.forEach(t => {
+      const a = (t.acct && String(t.acct)) || UNASSIGNED;
+      const o = by[a] || (by[a] = { name: a, income: 0, net: 0, count: 0 });
+      o.net += t.amount;
+      if(t.isIncome) o.income += t.amount;
+      o.count++;
+    });
+    return Object.values(by).map(o => ({ ...o, spend: o.income - o.net })).sort((a, b) => b.spend - a.spend);
+  }
+
+  // Dashboard card — only shown when ≥2 accounts have activity in scope (no
+  // clutter for single-account users). Amounts use privacy-blurred classes.
+  function cardHTML(monthKey){
+    const rows = summary(monthKey);
+    if(rows.length < 2) return '';
+    const money = (typeof gbMoneyAbs === 'function') ? (n => gbMoneyAbs(n, 0)) : (n => '$' + Math.round(Math.abs(n)));
+    return `<h2 class="sec-hdr">Accounts</h2>
+      <div class="acct-sum-card">
+        ${rows.map(a => `
+          <button type="button" class="acct-sum-row" data-acct="${esc(a.name)}" onclick="gbAccounts.viewTxs(this.dataset.acct)" aria-label="View ${esc(a.name)} transactions">
+            <span class="asr-main">
+              <span class="asr-name">${esc(a.name)}</span>
+              <span class="asr-sub">in <span class="cat-amt">${money(a.income)}</span> &middot; out <span class="cat-amt">${money(a.spend)}</span> &middot; ${a.count} txn${a.count === 1 ? '' : 's'}</span>
+            </span>
+            <span class="asr-net"><span class="tx-amt ${a.net >= 0 ? 'pos' : 'neg'}">${a.net >= 0 ? '+' : '−'}${money(a.net)}</span></span>
+            <span class="asr-chev" aria-hidden="true">&rsaquo;</span>
+          </button>`).join('')}
+      </div>`;
+  }
+
+  // Open the Transactions screen filtered to one account.
+  function viewTxs(name){
+    if(typeof showScreen === 'function') showScreen('txs', (typeof _navBtn === 'function' ? _navBtn(2) : null));
+    if(typeof setTxAccount === 'function') setTxAccount(name);
+  }
+
+  return { list, rename, remove, renderManager, openManager, summary, cardHTML, viewTxs };
 })();

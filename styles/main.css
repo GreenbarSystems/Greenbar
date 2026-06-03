@@ -659,6 +659,19 @@ button.settings-row:hover { background: var(--o02); }
 .receipt-row .rr-v.flag { color: var(--amber); }
 .receipt-row .rr-v.ok { color: var(--green); }
 
+/* Dashboard per-account summary card. */
+.acct-sum-card { background: var(--glass); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 14px; }
+.acct-sum-row { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; background: none; border: none; border-bottom: 1px solid var(--o05); padding: 12px 14px; cursor: pointer; color: var(--text); font-family: inherit; }
+.acct-sum-row:last-child { border-bottom: none; }
+.acct-sum-row:hover { background: var(--o03); }
+.asr-main { flex: 1; min-width: 0; display: block; }
+.asr-name { display: block; font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.asr-sub { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
+.asr-sub .cat-amt { font-size: 11px; font-family: var(--font-body); font-weight: 600; color: var(--soft); }
+.asr-net { flex-shrink: 0; }
+.asr-net .tx-amt { font-size: 14px; }
+.asr-chev { flex-shrink: 0; color: var(--muted); font-size: 18px; }
+
 /* Settings → Accounts manager rows. */
 .acct-row { display: flex; align-items: center; gap: 8px; padding: 9px 0; border-bottom: 1px solid var(--o05); }
 .acct-row:last-child { border-bottom: none; }
