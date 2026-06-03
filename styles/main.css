@@ -220,7 +220,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
   background: var(--grad-primary);
   color: #050a14; font-family: var(--font-display); font-size: 16px; font-weight: 800;
   letter-spacing: 0.3px; display: flex; align-items: center; justify-content: center; gap: 8px;
-  box-shadow: 0 6px 28px rgba(0,214,143,0.35);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.18);
   transition: transform 0.15s, box-shadow 0.15s;
 }
 .btn-primary:active { transform: scale(0.97); }
@@ -249,7 +249,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
   background: var(--grad-primary); color: #050a14;
   font-family: var(--font-display); font-size: 16px; font-weight: 900;
   letter-spacing: 0.2px; cursor: pointer;
-  box-shadow: 0 6px 28px rgba(0,214,143,0.35);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.18);
 }
 .btn-flash-cta:active { transform: scale(0.97); }
 .rules-card { padding: 18px; margin-bottom: 12px; }
@@ -283,24 +283,18 @@ button.pill { font: inherit; line-height: 1.2; -webkit-appearance: none; appeara
   background: linear-gradient(145deg, rgba(13,31,60,0.9), rgba(5,26,48,0.9));
   border: 1px solid var(--border); border-radius: 28px;
 }
-.net-card::before {
-  content: ''; position: absolute; top: -60px; left: 50%; transform: translateX(-50%);
-  width: 260px; height: 200px;
-  background: radial-gradient(ellipse, rgba(0,214,143,0.12) 0%, transparent 65%);
-}
-.net-card .pulse {
-  position: absolute; top: -1px; left: 50%; transform: translateX(-50%);
-  width: 80px; height: 2px; border-radius: 0 0 8px 8px;
-  background: linear-gradient(90deg, transparent, var(--green), transparent);
-}
+/* Calmed (Phase 5): the radial halo and the pulsing accent bar were the loudest
+   decoration on the money views — removed for a quieter, accountant-like look.
+   The headline card keeps its shape, border and gradient. */
+.net-card::before { content: none; }
+.net-card .pulse { display: none; }
 .net-lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; margin-bottom: 10px; }
 .net-amt { font-family: var(--font-display); font-size: 52px; font-weight: 900; line-height: 1; margin-bottom: 8px; letter-spacing: -2px; }
 .net-mo { font-size: 13px; color: var(--muted); }
-/* Subtle accent glow only — the old 30px/0.4 halo bloomed into noticeable glare
-   around the 52px budget number. A tighter, fainter shadow keeps a hint of depth
-   without the halo. */
-.surplus { color: var(--green); text-shadow: 0 0 14px rgba(0,214,143,0.18); }
-.deficit { color: var(--red); text-shadow: 0 0 14px rgba(255,71,87,0.15); }
+/* Calmed (Phase 5): the headline number relies on color alone now — the glow
+   text-shadow is gone. Green still means surplus, red still means deficit. */
+.surplus { color: var(--green); }
+.deficit { color: var(--red); }
 
 /* ── Stat row ── */
 .stat-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
