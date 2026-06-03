@@ -781,6 +781,11 @@ if('serviceWorker' in navigator){
         <summary><span>Import History</span><span class="sg-chev" aria-hidden="true">&rsaquo;</span></summary>
         <div class="sg-body">
           <div class="settings-section">
+            <button type="button" class="settings-row" onclick="gbConfidence.open()" aria-labelledby="icc-label" aria-describedby="icc-desc">
+              <span class="s-body"><span class="s-label" id="icc-label">Import Confidence Center</span><span class="s-desc" id="icc-desc">Trust metadata, the review queue, and per-import history</span></span>
+              <span id="icc-badge" style="display:none;background:rgba(255,165,2,0.15);color:var(--amber);border:1px solid rgba(255,165,2,0.3);font-size:11px;font-weight:800;border-radius:9px;padding:2px 8px;font-family:var(--font-display);"></span>
+              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
+            </button>
             <button type="button" class="settings-row" onclick="openModal('modal-log')" aria-labelledby="log-label" aria-describedby="log-desc">
               <span class="s-body"><span class="s-label" id="log-label">Upload Log</span><span class="s-desc" id="log-desc">History of every file you've imported</span></span>
               <span id="log-badge" style="display:none;background:var(--green);color:#050a14;font-size:11px;font-weight:800;border-radius:9px;padding:2px 7px;font-family:var(--font-display);"></span>
@@ -886,6 +891,13 @@ if('serviceWorker' in navigator){
       </div>
     </div>
 
+    <!-- IMPORT CONFIDENCE CENTER -->
+    <div class="screen" id="screen-confidence">
+      <button type="button" class="conf-back" onclick="showScreen('summary',_navBtn(0))" aria-label="Back to Summary">&lsaquo; Summary</button>
+      <h1 class="conf-h1">Import Confidence</h1>
+      <div class="conf-sub">Where your numbers come from &mdash; and what still needs a look.</div>
+      <div id="confidence-content"></div>
+    </div>
 
   </div>
 

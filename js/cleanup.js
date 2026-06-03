@@ -74,20 +74,30 @@ const gbCleanup = (() => {
     showToast('Duplicate removed.', 'success');
   }
 
-  async function undoLastImport(){
+  // Undo a specific import batch by its id (the id shared by every tx.imp in the
+  // batch and the matching gb_log entry). Returns true if the batch was removed.
+  // Used by both "undo last" here and the per-import undo in the Confidence
+  // Center. Older imports that predate tx.imp tagging have no removable rows.
+  async function undoImport(id){
     const log = getLog();
-    const last = log[0];
-    if(!last){ showToast('No imports to undo.', 'error'); return; }
-    const affected = (_allTxs || []).filter(t => t.imp === last.id).length;
-    if(!affected){ showToast('That import predates undo tracking and can\'t be undone here — use Delete month instead.', 'error'); return; }
-    if(!(await gbDialog.confirm(`Undo import "${last.filename}"? This removes ${affected} transaction${affected===1?'':'s'}.`))) return;
-    _allTxs = (_allTxs || []).filter(t => t.imp !== last.id);
+    const idx = log.findIndex(e => String(e.id) === String(id));
+    const entry = idx >= 0 ? log[idx] : null;
+    const affected = (_allTxs || []).filter(t => String(t.imp) === String(id)).length;
+    if(!affected){ showToast('That import predates undo tracking and can\'t be undone here — use Delete month instead.', 'error'); return false; }
+    if(!(await gbDialog.confirm(`Undo import "${entry ? entry.filename : ''}"? This removes ${affected} transaction${affected===1?'':'s'}.`))) return false;
+    _allTxs = (_allTxs || []).filter(t => String(t.imp) !== String(id));
     rebuildMonths();
     _sel = sortKeys(_months).slice(-1)[0] || null;
-    log.shift(); saveLog(log);
+    if(idx >= 0){ log.splice(idx, 1); saveLog(log); }
     if(typeof updateLogBadge === 'function') updateLogBadge();
     _persistRender();
-    showToast('Last import undone.', 'success');
+    showToast('Import undone.', 'success');
+    return true;
+  }
+  async function undoLastImport(){
+    const last = getLog()[0];
+    if(!last){ showToast('No imports to undo.', 'error'); return; }
+    return undoImport(last.id);
   }
 
   // ── render ──
@@ -141,5 +151,5 @@ const gbCleanup = (() => {
 
   function openCleanup(){ render(); openModal('modal-cleanup'); }
 
-  return { monthSummary, scanDuplicates, deleteMonth, removeDuplicate, undoLastImport, render, openCleanup };
+  return { monthSummary, scanDuplicates, deleteMonth, removeDuplicate, undoImport, undoLastImport, render, openCleanup };
 })();

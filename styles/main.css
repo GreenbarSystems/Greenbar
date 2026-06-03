@@ -540,6 +540,60 @@ button.settings-row:hover { background: var(--o02); }
    breathe rather than double-wrapping them in card chrome. */
 .sg-body--plain { background: none; border: none; border-radius: 0; padding: 4px 2px 0; overflow: visible; }
 
+/* ──────── Import Confidence: trust bar + Confidence Center ────────
+   Calm, accountant-style chrome — counts/dates, muted text, semantic accent
+   colors only (amber = needs attention, green = verified, red = low confidence). */
+.trust-bar { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: var(--glass); border: 1px solid var(--border); border-radius: 14px; padding: 11px 14px; margin-bottom: 12px; cursor: pointer; color: var(--text); font-family: inherit; transition: background 0.15s; }
+.trust-bar:hover { background: var(--o06); }
+.trust-bar:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+.tb-grow { flex: 1; min-width: 0; display: block; }
+.tb-l1 { display: block; font-size: 13px; font-weight: 700; }
+.tb-l2 { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tb-dot { color: var(--o30); }
+.tb-pill { flex-shrink: 0; font-size: 11px; font-weight: 800; font-family: var(--font-display); border-radius: 999px; padding: 4px 10px; white-space: nowrap; }
+.tb-pill.review { background: rgba(255,165,2,0.12); color: var(--amber); border: 1px solid rgba(255,165,2,0.3); }
+.tb-pill.ok { background: rgba(0,214,143,0.10); color: var(--green); border: 1px solid rgba(0,214,143,0.25); }
+.tb-chev { flex-shrink: 0; color: var(--muted); font-size: 18px; }
+
+.conf-back { background: none; border: none; color: var(--muted); font-size: 13px; font-weight: 700; cursor: pointer; padding: 4px 0; font-family: var(--font-display); }
+.conf-back:hover { color: var(--text); }
+.conf-h1 { font-family: var(--font-display); font-size: 24px; font-weight: 900; letter-spacing: -0.5px; margin: 6px 0 2px; }
+.conf-sub { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 16px; }
+.conf-h2 { font-family: var(--font-display); font-size: 13px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin: 20px 0 10px; }
+.conf-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.conf-stat { background: var(--glass); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; }
+.conf-stat-v { font-family: var(--font-display); font-size: 22px; font-weight: 900; }
+.conf-stat-l { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+.conf-lastimport { font-size: 12px; color: var(--soft); line-height: 1.5; margin-bottom: 4px; }
+.conf-section-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 20px 0 8px; }
+.conf-section-head .conf-h2 { margin: 0; }
+.conf-count { display: inline-block; font-size: 11px; font-weight: 800; border-radius: 999px; padding: 1px 8px; margin-left: 4px; }
+.conf-count.amber { background: rgba(255,165,2,0.15); color: var(--amber); }
+.conf-allbtn { flex-shrink: 0; font-size: 12px; font-weight: 700; font-family: var(--font-display); color: var(--green); background: rgba(0,214,143,0.08); border: 1px solid rgba(0,214,143,0.25); border-radius: 10px; padding: 6px 10px; cursor: pointer; }
+.conf-note { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 10px; }
+.conf-allclear { background: rgba(0,214,143,0.06); border: 1px solid rgba(0,214,143,0.2); border-radius: 14px; padding: 14px 16px; font-size: 13px; color: var(--green); }
+.conf-empty { text-align: center; color: var(--muted); font-size: 14px; padding: 40px 16px; line-height: 1.8; }
+.conf-card { background: var(--glass); border: 1px solid var(--border); border-radius: 16px; padding: 12px 14px; margin-bottom: 10px; }
+.conf-card-file { font-size: 13px; font-weight: 700; word-break: break-all; }
+.conf-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.conf-card-meta { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+.conf-card-drops { font-size: 11px; color: var(--amber); margin-top: 4px; }
+.conf-badge { flex-shrink: 0; font-size: 10.5px; font-weight: 800; font-family: var(--font-display); border-radius: 999px; padding: 2px 9px; white-space: nowrap; }
+.conf-badge.high { background: rgba(0,214,143,0.10); color: var(--green); border: 1px solid rgba(0,214,143,0.25); }
+.conf-badge.mixed { background: rgba(255,165,2,0.12); color: var(--amber); border: 1px solid rgba(255,165,2,0.3); }
+.conf-badge.low { background: rgba(255,71,87,0.10); color: var(--red); border: 1px solid rgba(255,71,87,0.3); }
+.conf-undo { margin-top: 10px; width: 100%; border: 1px solid var(--border); background: var(--o04); color: var(--text); border-radius: 10px; padding: 8px; font-size: 12px; font-weight: 700; font-family: var(--font-display); cursor: pointer; }
+.conf-undo:hover { background: var(--o06); }
+.conf-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--o05); }
+.conf-row-main { flex: 1; min-width: 0; }
+.conf-row-v { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.conf-row-s { font-size: 11px; color: var(--muted); }
+.conf-row .tx-amt { flex-shrink: 0; font-size: 13px; }
+.conf-row-acts { display: flex; gap: 6px; flex-shrink: 0; }
+.conf-ok, .conf-fix { border-radius: 9px; padding: 6px 10px; font-size: 12px; font-weight: 700; font-family: var(--font-display); cursor: pointer; }
+.conf-ok { border: 1px solid rgba(0,214,143,0.3); background: rgba(0,214,143,0.1); color: var(--green); }
+.conf-fix { border: 1px solid var(--border); background: var(--glass); color: var(--text); }
+
 /* sr-only: visually hidden, visible to assistive tech. Used for the global live-region announcer. */
 .sr-only {
   position: absolute !important; width: 1px !important; height: 1px !important;
