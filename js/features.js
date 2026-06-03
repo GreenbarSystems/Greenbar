@@ -439,9 +439,10 @@ function populateBankSelect(selectId, stepsId){
     + '<option value="Other / not listed">Other / not listed</option>';
   showBankExport('', stepsId);   // reset the steps panel
 }
-// Repopulate when the user opens the Guide screen (region may have changed).
+// Repopulate when the user opens Settings (the bank guide now lives in
+// Settings → Help; the region may have changed since last time).
 document.addEventListener('gb:screen', (e) => {
-  if(e.detail && e.detail.name === 'intro') populateBankSelect();
+  if(e.detail && e.detail.name === 'settings') populateBankSelect();
 });
 function showBankExport(key, stepsId){
   const el=document.getElementById(stepsId || 'bank-export-steps');
@@ -465,8 +466,13 @@ function startFirstImport(){
   document.getElementById('csv-input').click();
 }
 function goToBankExport(){
-  showScreen('intro', _navBtn(3));
-  setTimeout(()=>{ document.getElementById('bank-export-section')?.scrollIntoView({block:'start'}); }, 60);
+  // The bank-export guide now lives in Settings → Help. Open Settings, expand
+  // the Help group, and scroll to the bank picker.
+  showScreen('settings', _navBtn(3));
+  setTimeout(()=>{
+    document.getElementById('help-group')?.setAttribute('open','');
+    document.getElementById('bank-export-section')?.scrollIntoView({block:'start'});
+  }, 60);
 }
 
 

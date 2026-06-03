@@ -137,29 +137,155 @@ if('serviceWorker' in navigator){
     </div>
 
     <!-- INTRO / GUIDE -->
-    <div class="screen" id="screen-intro">
-      <div style="padding:0 0 4px;">
+<!-- SETUP WALKTHROUGH -->
+    <div class="screen" id="screen-setup" style="padding:0;overflow:hidden;">
+      <div style="display:flex;flex-direction:column;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
-        <!-- Hero -->
-        <div style="text-align:center;padding:28px 20px 22px;background:linear-gradient(155deg,rgba(0,214,143,0.07),rgba(41,121,255,0.05));border:1px solid rgba(0,214,143,0.15);border-radius:24px;margin-bottom:14px;position:relative;overflow:hidden;">
-          <div style="position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:200px;height:140px;background:radial-gradient(ellipse,rgba(0,214,143,0.10) 0%,transparent 70%);pointer-events:none;"></div>
-          <div style="font-family: var(--font-display);font-size:36px;font-weight:900;letter-spacing:-1.5px;margin-bottom:6px;"><span style="color:#00d68f;">Green</span>bar</div>
-          <div style="font-size:13px;color:var(--soft);line-height:1.6;margin-bottom:18px;">Personal finance tracking that stays on your device.<br>Import your Bank Transactions -- insights in seconds.</div>
-
+        <!-- STEP 1: Welcome (shown when opened from Settings, not from flash) -->
+        <div class="setup-step active" id="setup-step-1">
+          <div class="setup-progress"><div class="setup-pip active"></div><div class="setup-pip"></div><div class="setup-pip"></div><div class="setup-pip"></div><div class="setup-pip"></div><div class="setup-pip"></div></div>
+          <h1 class="setup-q">Let's build your budget.</h1>
+          <div class="setup-sub">5 quick questions and Greenbar will be personalized to your life. Takes about a minute.</div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:24px 0;">
+            <div style="font-size:14px;color:var(--soft);text-align:center;line-height:1.6;">Answer a few simple questions<br>and we'll set your budget targets for you.</div>
+          </div>
+          <div class="setup-nav" style="margin-top:0;">
+            <button type="button" class="setup-next" onclick="setupGo(2)" style="font-size:16px;">Let's go &rarr;</button>
+          </div>
+          <div class="setup-skip" onclick="skipSetup()">Skip -- use default values</div>
         </div>
 
-        <!-- Opt-in coachmark tour: routes to Summary then fires gbTour. -->
-        <div class="glass-card" style="margin-bottom:14px;">
-          <button type="button" class="settings-row" onclick="gbTour.reset(); showScreen('summary', _navBtn(0)); gbTour.startAfterScreen();" aria-labelledby="tour-guide-label" aria-describedby="tour-guide-desc">
-            <span class="s-body">
-              <span class="s-label" id="tour-guide-label">Tour the app</span>
-              <span class="s-desc" id="tour-guide-desc">Replay the on-screen guide on the Summary page</span>
-            </span>
-            <span class="s-arrow" aria-hidden="true">›</span>
-          </button>
+        <!-- STEP 2: Income (asked first so the 30% guideline can frame housing in step 3) -->
+        <div class="setup-step" id="setup-step-2">
+          <div class="setup-progress"><div class="setup-pip done"></div><div class="setup-pip active"></div><div class="setup-pip"></div><div class="setup-pip"></div><div class="setup-pip"></div><div class="setup-pip"></div></div>
+          <h1 class="setup-q">What's your monthly take-home income?</h1>
+          <div class="setup-sub">After taxes. This stays on your device and is only used to size your budget targets.</div>
+
+          <div class="setup-input-wrap">
+            <span class="prefix">$</span>
+            <input class="setup-input" id="s3-income" aria-label="Monthly take-home income in dollars" type="number" placeholder="Monthly amount" min="0" inputmode="decimal" oninput="_setupState.income=parseFloat(this.value)||0;updateIncomeNote()" autocomplete="off">
+          </div>
+
+          <div class="setup-income-note" id="s3-income-note" style="display:none;margin-top:16px;background:rgba(0,214,143,0.07);border:1px solid rgba(0,214,143,0.15);border-radius:14px;padding:14px 16px;">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Based on your income</div>
+            <div style="font-size:14px;font-weight:600;" id="s3-income-breakdown"></div>
+          </div>
+
+          <div class="setup-nav">
+            <button type="button" class="setup-back" aria-label="Back" onclick="setupGo(1)">&larr;</button>
+            <button type="button" class="setup-next" onclick="setupGoValidate(3,'s3-income','Please enter your approximate monthly income.')">Next &rarr;</button>
+          </div>
         </div>
 
-        <!-- Order of operations -->
+        <!-- STEP 3: Housing -->
+        <div class="setup-step" id="setup-step-3">
+          <div class="setup-progress"><div class="setup-pip done"></div><div class="setup-pip done"></div><div class="setup-pip active"></div><div class="setup-pip"></div><div class="setup-pip"></div><div class="setup-pip"></div></div>
+          <h1 class="setup-q">What's your monthly housing cost?</h1>
+          <div class="setup-sub">Include rent or your full mortgage payment.</div>
+
+          <div class="setup-input-wrap">
+            <span class="prefix">$</span>
+            <input class="setup-input" id="s2-housing" aria-label="Monthly housing cost in dollars" type="number" placeholder="Amount" min="0" inputmode="decimal" oninput="_setupState.housing=parseFloat(this.value)||0" autocomplete="off">
+          </div>
+
+          <div class="ht-row">
+            <button type="button" class="ht-btn" id="ht-own" onclick="toggleHousingType('own')">Own</button>
+            <button type="button" class="ht-btn" id="ht-rent" onclick="toggleHousingType('rent')">Rent</button>
+          </div>
+
+          <div class="setup-nav">
+            <button type="button" class="setup-back" aria-label="Back" onclick="setupGo(2)">&larr;</button>
+            <button type="button" class="setup-next" onclick="setupGoValidate(4,'s2-housing','Please enter your housing cost to continue.')">Next &rarr;</button>
+          </div>
+        </div>
+
+        <!-- STEP 4: Food -->
+        <div class="setup-step" id="setup-step-4">
+          <div class="setup-progress"><div class="setup-pip done"></div><div class="setup-pip done"></div><div class="setup-pip done"></div><div class="setup-pip active"></div><div class="setup-pip"></div><div class="setup-pip"></div></div>
+          <h1 class="setup-q">How do you handle food?</h1>
+          <div class="setup-sub">Pick the one that sounds most like you. You can fine-tune the numbers after.</div>
+
+          <div class="food-btn-grid">
+            <button type="button" class="food-btn" id="s4-cook" onclick="foodSelect(this);setFoodBudget(500,150)">Home Cook</button>
+            <button type="button" class="food-btn" id="s4-mixed" onclick="foodSelect(this);setFoodBudget(700,400)">Mix</button>
+            <button type="button" class="food-btn" id="s4-dine" onclick="foodSelect(this);setFoodBudget(400,800)">Eat Out</button>
+            <button type="button" class="food-btn" id="s4-custom" onclick="foodSelect(this)">Custom</button>
+          </div>
+          <div id="s4-custom-inputs" style="display:none;margin-top:14px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <div>
+                <div style="font-size:10px;color:var(--muted);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Groceries</div>
+                <div class="setup-input-wrap" style="margin:0;"><span class="prefix" style="font-size:13px;">$</span><input class="setup-input" id="s4-groc" aria-label="Groceries budget in dollars" type="number" placeholder="Amount" style="font-size:15px;padding:10px 10px 10px 22px;" min="0" inputmode="decimal" oninput="_setupState.groceries=parseFloat(this.value)||0" autocomplete="off"></div>
+              </div>
+              <div>
+                <div style="font-size:10px;color:var(--muted);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Dining Out</div>
+                <div class="setup-input-wrap" style="margin:0;"><span class="prefix" style="font-size:13px;">$</span><input class="setup-input" id="s4-dine-in" aria-label="Dining-out budget in dollars" type="number" placeholder="Amount" style="font-size:15px;padding:10px 10px 10px 22px;" min="0" inputmode="decimal" oninput="_setupState.dining=parseFloat(this.value)||0" autocomplete="off"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="setup-nav">
+            <button type="button" class="setup-back" aria-label="Back" onclick="setupGo(3)">&larr;</button>
+            <button type="button" class="setup-next" onclick="setupGo(5)">Next &rarr;</button>
+          </div>
+        </div>
+
+        <!-- STEP 5: Lifestyle -->
+        <div class="setup-step" id="setup-step-5">
+          <div class="setup-progress"><div class="setup-pip done"></div><div class="setup-pip done"></div><div class="setup-pip done"></div><div class="setup-pip done"></div><div class="setup-pip active"></div><div class="setup-pip"></div></div>
+          <h1 class="setup-q">What's part of your life?</h1>
+          <div class="setup-sub">Select everything that applies. Greenbar will add the right budget categories for you.</div>
+
+          <div class="lifestyle-btn-grid">
+            <button type="button" class="lifestyle-btn" id="s5-car" onclick="setupToggle(this,'s5')">Car</button>
+            <button type="button" class="lifestyle-btn" id="s5-pets" onclick="setupToggle(this,'s5')">Pets</button>
+            <button type="button" class="lifestyle-btn" id="s5-kids" onclick="setupToggle(this,'s5')">Kids</button>
+            <button type="button" class="lifestyle-btn" id="s5-gym" onclick="setupToggle(this,'s5')">Gym</button>
+            <button type="button" class="lifestyle-btn" id="s5-travel" onclick="setupToggle(this,'s5')">Travel</button>
+            <button type="button" class="lifestyle-btn" id="s5-invest" onclick="setupToggle(this,'s5')">Savings</button>
+            <button type="button" class="lifestyle-btn" id="s5-side" onclick="setupToggle(this,'s5')">Side Hustle</button>
+          </div>
+
+          <div class="setup-nav">
+            <button type="button" class="setup-back" aria-label="Back" onclick="setupGo(4)">&larr;</button>
+            <button type="button" class="setup-next" onclick="setupGo(6)">Next &rarr;</button>
+          </div>
+        </div>
+
+        <!-- STEP 6: Review -->
+        <div class="setup-step" id="setup-step-6">
+          <div class="setup-progress"><div class="setup-pip done"></div><div class="setup-pip done"></div><div class="setup-pip done"></div><div class="setup-pip done"></div><div class="setup-pip done"></div><div class="setup-pip active"></div></div>
+          <h1 class="setup-q">Here's your budget.</h1>
+          <div class="setup-sub">Review and tap any amount to adjust it. These are your personalized starting points.</div>
+
+          <div id="setup-review-list" style="flex:1;overflow-y:auto;margin-bottom:12px;"></div>
+
+          <div class="setup-nav" style="margin-top:0;">
+            <button type="button" class="setup-back" aria-label="Back" onclick="setupGo(5)">&larr;</button>
+            <button type="button" class="setup-next" style="background:var(--grad-primary);" onclick="finishSetup()">Save My Budget</button>
+          </div>
+          <div class="setup-skip" onclick="skipSetup()">Skip and use defaults</div>
+        </div>
+
+      </div>
+    </div>
+
+        <!-- SETTINGS -->
+    <div class="screen" id="screen-settings">
+
+      <!-- HELP (moved to top; absorbs the former Guide tab) -->
+      <details class="settings-group" id="help-group">
+        <summary><span>Help</span><span class="sg-chev" aria-hidden="true">&rsaquo;</span></summary>
+        <div class="sg-body sg-body--plain">
+
+          <div class="settings-section">
+            <button type="button" class="settings-row" onclick="gbTour.reset(); showScreen('summary', _navBtn(0)); gbTour.startAfterScreen();" aria-labelledby="tour-help-label" aria-describedby="tour-help-desc">
+              <span class="s-body"><span class="s-label" id="tour-help-label">Tour the app</span><span class="s-desc" id="tour-help-desc">Replay the on-screen guide on the Summary page</span></span>
+              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
+            </button>
+          </div>
+
+<!-- Order of operations -->
         <div class="guide-sec-hdr">How to get started</div>
         <div class="glass-card">
 
@@ -592,144 +718,10 @@ if('serviceWorker' in navigator){
       
 
 </div>
-    </div>
 
-          </div>
-<!-- SETUP WALKTHROUGH -->
-    <div class="screen" id="screen-setup" style="padding:0;overflow:hidden;">
-      <div style="display:flex;flex-direction:column;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;">
-
-        <!-- STEP 1: Welcome (shown when opened from Settings, not from flash) -->
-        <div class="setup-step active" id="setup-step-1">
-          <div class="setup-progress"><div class="setup-pip active"></div><div class="setup-pip"></div><div class="setup-pip"></div><div class="setup-pip"></div><div class="setup-pip"></div><div class="setup-pip"></div></div>
-          <h1 class="setup-q">Let's build your budget.</h1>
-          <div class="setup-sub">5 quick questions and Greenbar will be personalized to your life. Takes about a minute.</div>
-          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:24px 0;">
-            <div style="font-size:14px;color:var(--soft);text-align:center;line-height:1.6;">Answer a few simple questions<br>and we'll set your budget targets for you.</div>
-          </div>
-          <div class="setup-nav" style="margin-top:0;">
-            <button type="button" class="setup-next" onclick="setupGo(2)" style="font-size:16px;">Let's go &rarr;</button>
-          </div>
-          <div class="setup-skip" onclick="skipSetup()">Skip -- use default values</div>
         </div>
+      </details>
 
-        <!-- STEP 2: Income (asked first so the 30% guideline can frame housing in step 3) -->
-        <div class="setup-step" id="setup-step-2">
-          <div class="setup-progress"><div class="setup-pip done"></div><div class="setup-pip active"></div><div class="setup-pip"></div><div class="setup-pip"></div><div class="setup-pip"></div><div class="setup-pip"></div></div>
-          <h1 class="setup-q">What's your monthly take-home income?</h1>
-          <div class="setup-sub">After taxes. This stays on your device and is only used to size your budget targets.</div>
-
-          <div class="setup-input-wrap">
-            <span class="prefix">$</span>
-            <input class="setup-input" id="s3-income" aria-label="Monthly take-home income in dollars" type="number" placeholder="Monthly amount" min="0" inputmode="decimal" oninput="_setupState.income=parseFloat(this.value)||0;updateIncomeNote()" autocomplete="off">
-          </div>
-
-          <div class="setup-income-note" id="s3-income-note" style="display:none;margin-top:16px;background:rgba(0,214,143,0.07);border:1px solid rgba(0,214,143,0.15);border-radius:14px;padding:14px 16px;">
-            <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Based on your income</div>
-            <div style="font-size:14px;font-weight:600;" id="s3-income-breakdown"></div>
-          </div>
-
-          <div class="setup-nav">
-            <button type="button" class="setup-back" aria-label="Back" onclick="setupGo(1)">&larr;</button>
-            <button type="button" class="setup-next" onclick="setupGoValidate(3,'s3-income','Please enter your approximate monthly income.')">Next &rarr;</button>
-          </div>
-        </div>
-
-        <!-- STEP 3: Housing -->
-        <div class="setup-step" id="setup-step-3">
-          <div class="setup-progress"><div class="setup-pip done"></div><div class="setup-pip done"></div><div class="setup-pip active"></div><div class="setup-pip"></div><div class="setup-pip"></div><div class="setup-pip"></div></div>
-          <h1 class="setup-q">What's your monthly housing cost?</h1>
-          <div class="setup-sub">Include rent or your full mortgage payment.</div>
-
-          <div class="setup-input-wrap">
-            <span class="prefix">$</span>
-            <input class="setup-input" id="s2-housing" aria-label="Monthly housing cost in dollars" type="number" placeholder="Amount" min="0" inputmode="decimal" oninput="_setupState.housing=parseFloat(this.value)||0" autocomplete="off">
-          </div>
-
-          <div class="ht-row">
-            <button type="button" class="ht-btn" id="ht-own" onclick="toggleHousingType('own')">Own</button>
-            <button type="button" class="ht-btn" id="ht-rent" onclick="toggleHousingType('rent')">Rent</button>
-          </div>
-
-          <div class="setup-nav">
-            <button type="button" class="setup-back" aria-label="Back" onclick="setupGo(2)">&larr;</button>
-            <button type="button" class="setup-next" onclick="setupGoValidate(4,'s2-housing','Please enter your housing cost to continue.')">Next &rarr;</button>
-          </div>
-        </div>
-
-        <!-- STEP 4: Food -->
-        <div class="setup-step" id="setup-step-4">
-          <div class="setup-progress"><div class="setup-pip done"></div><div class="setup-pip done"></div><div class="setup-pip done"></div><div class="setup-pip active"></div><div class="setup-pip"></div><div class="setup-pip"></div></div>
-          <h1 class="setup-q">How do you handle food?</h1>
-          <div class="setup-sub">Pick the one that sounds most like you. You can fine-tune the numbers after.</div>
-
-          <div class="food-btn-grid">
-            <button type="button" class="food-btn" id="s4-cook" onclick="foodSelect(this);setFoodBudget(500,150)">Home Cook</button>
-            <button type="button" class="food-btn" id="s4-mixed" onclick="foodSelect(this);setFoodBudget(700,400)">Mix</button>
-            <button type="button" class="food-btn" id="s4-dine" onclick="foodSelect(this);setFoodBudget(400,800)">Eat Out</button>
-            <button type="button" class="food-btn" id="s4-custom" onclick="foodSelect(this)">Custom</button>
-          </div>
-          <div id="s4-custom-inputs" style="display:none;margin-top:14px;">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-              <div>
-                <div style="font-size:10px;color:var(--muted);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Groceries</div>
-                <div class="setup-input-wrap" style="margin:0;"><span class="prefix" style="font-size:13px;">$</span><input class="setup-input" id="s4-groc" aria-label="Groceries budget in dollars" type="number" placeholder="Amount" style="font-size:15px;padding:10px 10px 10px 22px;" min="0" inputmode="decimal" oninput="_setupState.groceries=parseFloat(this.value)||0" autocomplete="off"></div>
-              </div>
-              <div>
-                <div style="font-size:10px;color:var(--muted);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Dining Out</div>
-                <div class="setup-input-wrap" style="margin:0;"><span class="prefix" style="font-size:13px;">$</span><input class="setup-input" id="s4-dine-in" aria-label="Dining-out budget in dollars" type="number" placeholder="Amount" style="font-size:15px;padding:10px 10px 10px 22px;" min="0" inputmode="decimal" oninput="_setupState.dining=parseFloat(this.value)||0" autocomplete="off"></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="setup-nav">
-            <button type="button" class="setup-back" aria-label="Back" onclick="setupGo(3)">&larr;</button>
-            <button type="button" class="setup-next" onclick="setupGo(5)">Next &rarr;</button>
-          </div>
-        </div>
-
-        <!-- STEP 5: Lifestyle -->
-        <div class="setup-step" id="setup-step-5">
-          <div class="setup-progress"><div class="setup-pip done"></div><div class="setup-pip done"></div><div class="setup-pip done"></div><div class="setup-pip done"></div><div class="setup-pip active"></div><div class="setup-pip"></div></div>
-          <h1 class="setup-q">What's part of your life?</h1>
-          <div class="setup-sub">Select everything that applies. Greenbar will add the right budget categories for you.</div>
-
-          <div class="lifestyle-btn-grid">
-            <button type="button" class="lifestyle-btn" id="s5-car" onclick="setupToggle(this,'s5')">Car</button>
-            <button type="button" class="lifestyle-btn" id="s5-pets" onclick="setupToggle(this,'s5')">Pets</button>
-            <button type="button" class="lifestyle-btn" id="s5-kids" onclick="setupToggle(this,'s5')">Kids</button>
-            <button type="button" class="lifestyle-btn" id="s5-gym" onclick="setupToggle(this,'s5')">Gym</button>
-            <button type="button" class="lifestyle-btn" id="s5-travel" onclick="setupToggle(this,'s5')">Travel</button>
-            <button type="button" class="lifestyle-btn" id="s5-invest" onclick="setupToggle(this,'s5')">Savings</button>
-            <button type="button" class="lifestyle-btn" id="s5-side" onclick="setupToggle(this,'s5')">Side Hustle</button>
-          </div>
-
-          <div class="setup-nav">
-            <button type="button" class="setup-back" aria-label="Back" onclick="setupGo(4)">&larr;</button>
-            <button type="button" class="setup-next" onclick="setupGo(6)">Next &rarr;</button>
-          </div>
-        </div>
-
-        <!-- STEP 6: Review -->
-        <div class="setup-step" id="setup-step-6">
-          <div class="setup-progress"><div class="setup-pip done"></div><div class="setup-pip done"></div><div class="setup-pip done"></div><div class="setup-pip done"></div><div class="setup-pip done"></div><div class="setup-pip active"></div></div>
-          <h1 class="setup-q">Here's your budget.</h1>
-          <div class="setup-sub">Review and tap any amount to adjust it. These are your personalized starting points.</div>
-
-          <div id="setup-review-list" style="flex:1;overflow-y:auto;margin-bottom:12px;"></div>
-
-          <div class="setup-nav" style="margin-top:0;">
-            <button type="button" class="setup-back" aria-label="Back" onclick="setupGo(5)">&larr;</button>
-            <button type="button" class="setup-next" style="background:var(--grad-primary);" onclick="finishSetup()">Save My Budget</button>
-          </div>
-          <div class="setup-skip" onclick="skipSetup()">Skip and use defaults</div>
-        </div>
-
-      </div>
-    </div>
-
-        <!-- SETTINGS -->
-    <div class="screen" id="screen-settings">
       <!-- Budget Setup CTA -->
       <div style="background:linear-gradient(135deg,rgba(0,214,143,0.07),rgba(0,201,177,0.05));border:1px solid rgba(0,214,143,0.2);border-radius:18px;padding:16px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px;">
         <div style="flex:1;">
@@ -739,136 +731,161 @@ if('serviceWorker' in navigator){
         <button type="button" onclick="resetSetupState();showScreen('setup',document.querySelector('.nav-btn'));setupGo(1);document.getElementById('bottom-nav')?.classList.remove('visible');" style="padding:9px 16px;border:none;border-radius:12px;background:var(--grad-primary);color:#050a14;font-size:13px;font-weight:800;cursor:pointer;font-family:var(--font-display);flex-shrink:0;">Open &rarr;</button>
       </div>
 
-      <h2 class="sec-hdr" style="margin-top:0">Appearance</h2>
-      <div class="settings-section" style="padding:14px 16px;">
-        <div class="s-body" style="display:block;"><span class="s-label">Theme</span><span class="s-desc">Light, dark, or match your device</span></div>
-        <div id="theme-seg" role="group" aria-label="Theme" style="display:flex;gap:6px;margin-top:12px;">
-          <button type="button" class="choice-pill theme-opt" data-theme="light"  onclick="gbTheme.set('light')"  aria-pressed="false" style="flex:1;">Light</button>
-          <button type="button" class="choice-pill theme-opt" data-theme="dark"   onclick="gbTheme.set('dark')"   aria-pressed="false" style="flex:1;">Dark</button>
-          <button type="button" class="choice-pill theme-opt" data-theme="system" onclick="gbTheme.set('system')" aria-pressed="false" style="flex:1;">System</button>
-        </div>
-      </div>
-
-      <h2 class="sec-hdr">Bank Transactions Format</h2>
-      <div class="settings-section">
-        <button type="button" class="settings-row" onclick="openModal('modal-cols')" aria-labelledby="col-label" aria-describedby="col-desc">
-          <span class="s-body"><span class="s-label" id="col-label">Column Mapping</span><span class="s-desc" id="col-desc">Map Date, Description, Amount columns</span></span>
-          <span class="s-arrow" aria-hidden="true">›</span>
-        </button>
-        <button type="button" class="settings-row" onclick="openModal('modal-income')" aria-labelledby="inc-label" aria-describedby="inc-desc">
-          <span class="s-body"><span class="s-label" id="inc-label">Income Keywords</span><span class="s-desc" id="inc-desc">Words that identify deposits</span></span>
-          <span class="s-arrow" aria-hidden="true">›</span>
-        </button>
-        <button type="button" class="settings-row" onclick="openModal('modal-skip')" aria-labelledby="skip-label" aria-describedby="skip-desc">
-          <span class="s-body"><span class="s-label" id="skip-label">Skip Transactions</span><span class="s-desc" id="skip-desc">Exclude savings transfers etc.</span></span>
-          <span class="s-arrow" aria-hidden="true">›</span>
-        </button>
-      </div>
-
-      <h2 class="sec-hdr">Reclassification Rules</h2>
-      <div class="settings-section">
-        <button type="button" class="settings-row" onclick="openModal('modal-remaps')" aria-labelledby="remap-label" aria-describedby="remap-desc">
-          <span class="s-body"><span class="s-label" id="remap-label">Category Remaps</span><span class="s-desc" id="remap-desc">Merchant → category rules</span></span>
-          <span class="s-arrow" aria-hidden="true">›</span>
-        </button>
-      </div>
-
-      <h2 class="sec-hdr">Import History</h2>
-      <div class="settings-section">
-        <button type="button" class="settings-row" onclick="openModal('modal-log')" aria-labelledby="log-label" aria-describedby="log-desc">
-          <span class="s-body"><span class="s-label" id="log-label">Upload Log</span><span class="s-desc" id="log-desc">History of every file you've imported</span></span>
-          <span id="log-badge" style="display:none;background:var(--green);color:#050a14;font-size:11px;font-weight:800;border-radius:9px;padding:2px 7px;font-family:var(--font-display);"></span>
-          <span class="s-arrow" aria-hidden="true">›</span>
-        </button>
-        <button type="button" class="settings-row" onclick="gbCleanup.openCleanup()" aria-labelledby="cleanup-label" aria-describedby="cleanup-desc">
-          <span class="s-body"><span class="s-label" id="cleanup-label">Review &amp; clean up</span><span class="s-desc" id="cleanup-desc">Undo an import, delete a month, or remove duplicates</span></span>
-          <span class="s-arrow" aria-hidden="true">›</span>
-        </button>
-      </div>
-
-      <h2 class="sec-hdr">Security</h2>
-      <div class="settings-section">
-        <button type="button" class="settings-row" id="security-toggle-row" onclick="gbSecurityUI.toggleEnable()" aria-labelledby="sec-lock-label" aria-describedby="security-status-desc">
-          <span class="s-body"><span class="s-label" id="sec-lock-label">Lock Greenbar</span><span class="s-desc" id="security-status-desc">Off &middot; anyone with this device can open the app</span></span>
-          <span class="s-arrow" aria-hidden="true" id="security-toggle-state">Off</span>
-        </button>
-        <button type="button" class="settings-row" id="security-change-pin-row" onclick="gbSecurityUI.openChangePIN()" style="display:none;" aria-labelledby="sec-pin-label" aria-describedby="sec-pin-desc">
-          <span class="s-body"><span class="s-label" id="sec-pin-label">Change PIN</span><span class="s-desc" id="sec-pin-desc">Update your 6-digit PIN</span></span>
-          <span class="s-arrow" aria-hidden="true">›</span>
-        </button>
-        <div class="settings-row" id="security-autolock-row" style="display:none;cursor:default;">
-          <div class="s-body" style="width:100%;">
-            <div class="s-label">Auto-lock when app is in background</div>
-            <div class="choice-pills" id="autolock-bg-pills">
-              <button type="button" class="choice-pill" data-sec="0">Immediately</button>
-              <button type="button" class="choice-pill" data-sec="30">30 s</button>
-              <button type="button" class="choice-pill" data-sec="60">1 min</button>
-              <button type="button" class="choice-pill" data-sec="300">5 min</button>
+      <details class="settings-group">
+        <summary><span>Appearance</span><span class="sg-chev" aria-hidden="true">&rsaquo;</span></summary>
+        <div class="sg-body">
+          <div class="settings-section" style="padding:14px 16px;">
+            <div class="s-body" style="display:block;"><span class="s-label">Theme</span><span class="s-desc">Light, dark, or match your device</span></div>
+            <div id="theme-seg" role="group" aria-label="Theme" style="display:flex;gap:6px;margin-top:12px;">
+              <button type="button" class="choice-pill theme-opt" data-theme="light"  onclick="gbTheme.set('light')"  aria-pressed="false" style="flex:1;">Light</button>
+              <button type="button" class="choice-pill theme-opt" data-theme="dark"   onclick="gbTheme.set('dark')"   aria-pressed="false" style="flex:1;">Dark</button>
+              <button type="button" class="choice-pill theme-opt" data-theme="system" onclick="gbTheme.set('system')" aria-pressed="false" style="flex:1;">System</button>
             </div>
           </div>
         </div>
-        <div class="settings-row" id="security-idle-row" style="display:none;cursor:default;">
-          <div class="s-body" style="width:100%;">
-            <div class="s-label">Auto-lock after no activity</div>
-            <div class="choice-pills" id="autolock-idle-pills">
-              <button type="button" class="choice-pill" data-sec="60">1 min</button>
-              <button type="button" class="choice-pill" data-sec="300">5 min</button>
-              <button type="button" class="choice-pill" data-sec="900">15 min</button>
-              <button type="button" class="choice-pill" data-sec="0">Never</button>
-            </div>
+      </details>
+
+      <details class="settings-group">
+        <summary><span>Bank Transactions Format</span><span class="sg-chev" aria-hidden="true">&rsaquo;</span></summary>
+        <div class="sg-body">
+          <div class="settings-section">
+            <button type="button" class="settings-row" onclick="openModal('modal-cols')" aria-labelledby="col-label" aria-describedby="col-desc">
+              <span class="s-body"><span class="s-label" id="col-label">Column Mapping</span><span class="s-desc" id="col-desc">Map Date, Description, Amount columns</span></span>
+              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
+            </button>
+            <button type="button" class="settings-row" onclick="openModal('modal-income')" aria-labelledby="inc-label" aria-describedby="inc-desc">
+              <span class="s-body"><span class="s-label" id="inc-label">Income Keywords</span><span class="s-desc" id="inc-desc">Words that identify deposits</span></span>
+              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
+            </button>
+            <button type="button" class="settings-row" onclick="openModal('modal-skip')" aria-labelledby="skip-label" aria-describedby="skip-desc">
+              <span class="s-body"><span class="s-label" id="skip-label">Skip Transactions</span><span class="s-desc" id="skip-desc">Exclude savings transfers etc.</span></span>
+              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
+            </button>
           </div>
         </div>
-        <button type="button" class="settings-row" onclick="gbSecurityUI.togglePrivacyDefault()" aria-labelledby="sec-priv-label" aria-describedby="privacy-default-desc">
-          <span class="s-body"><span class="s-label" id="sec-priv-label">Hide amounts by default</span><span class="s-desc" id="privacy-default-desc">Off &middot; amounts show until you tap the eye icon</span></span>
-          <span class="s-arrow" aria-hidden="true" id="privacy-default-state">Off</span>
-        </button>
-      </div>
+      </details>
 
-      <h2 class="sec-hdr">Help</h2>
-      <div class="settings-section">
-        <button type="button" class="settings-row" onclick="gbTour.reset(); showScreen('summary', _navBtn(0)); gbTour.startAfterScreen();" aria-labelledby="tour-help-label" aria-describedby="tour-help-desc">
-          <span class="s-body"><span class="s-label" id="tour-help-label">Tour the app</span><span class="s-desc" id="tour-help-desc">Replay the on-screen guide on the Summary page</span></span>
-          <span class="s-arrow" aria-hidden="true">›</span>
-        </button>
-      </div>
+      <details class="settings-group">
+        <summary><span>Reclassification Rules</span><span class="sg-chev" aria-hidden="true">&rsaquo;</span></summary>
+        <div class="sg-body">
+          <div class="settings-section">
+            <button type="button" class="settings-row" onclick="openModal('modal-remaps')" aria-labelledby="remap-label" aria-describedby="remap-desc">
+              <span class="s-body"><span class="s-label" id="remap-label">Category Remaps</span><span class="s-desc" id="remap-desc">Merchant &rarr; category rules</span></span>
+              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
+            </button>
+          </div>
+        </div>
+      </details>
 
-      <h2 class="sec-hdr">Sample Data</h2>
-      <div class="settings-section">
-        <button type="button" class="settings-row" onclick="gbDemo.toggle()" aria-labelledby="demo-label" aria-describedby="demo-desc">
-          <span class="s-body"><span class="s-label" id="demo-label">Load or remove sample data</span><span class="s-desc" id="demo-desc" style="color:var(--muted);">Explore Greenbar with a built-in demo dataset — remove it anytime.</span></span>
-          <span class="s-arrow" aria-hidden="true">›</span>
-        </button>
-      </div>
+      <details class="settings-group">
+        <summary><span>Import History</span><span class="sg-chev" aria-hidden="true">&rsaquo;</span></summary>
+        <div class="sg-body">
+          <div class="settings-section">
+            <button type="button" class="settings-row" onclick="openModal('modal-log')" aria-labelledby="log-label" aria-describedby="log-desc">
+              <span class="s-body"><span class="s-label" id="log-label">Upload Log</span><span class="s-desc" id="log-desc">History of every file you've imported</span></span>
+              <span id="log-badge" style="display:none;background:var(--green);color:#050a14;font-size:11px;font-weight:800;border-radius:9px;padding:2px 7px;font-family:var(--font-display);"></span>
+              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
+            </button>
+            <button type="button" class="settings-row" onclick="gbCleanup.openCleanup()" aria-labelledby="cleanup-label" aria-describedby="cleanup-desc">
+              <span class="s-body"><span class="s-label" id="cleanup-label">Review &amp; clean up</span><span class="s-desc" id="cleanup-desc">Undo an import, delete a month, or remove duplicates</span></span>
+              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
+            </button>
+          </div>
+        </div>
+      </details>
 
-      <h2 class="sec-hdr">Data Backup</h2>
-      <div class="settings-section">
-        <button type="button" class="settings-row" onclick="exportData()" aria-labelledby="export-label" aria-describedby="storage-desc">
-          <span class="s-body"><span class="s-label" id="export-label">Export a Backup</span><span class="s-desc" id="storage-desc">Save all your data to a file</span></span>
-          <span class="s-arrow" aria-hidden="true">›</span>
-        </button>
-        <button type="button" class="settings-row" onclick="document.getElementById('restore-input').click()" aria-labelledby="restore-label" aria-describedby="restore-desc">
-          <span class="s-body"><span class="s-label" id="restore-label">Restore from Backup</span><span class="s-desc" id="restore-desc">Replace current data with a backup file</span></span>
-          <span class="s-arrow" aria-hidden="true">›</span>
-        </button>
-        <button type="button" class="settings-row" onclick="exportEncrypted()" aria-labelledby="enc-export-label" aria-describedby="enc-export-desc">
-          <span class="s-body"><span class="s-label" id="enc-export-label">Export Encrypted Backup</span><span class="s-desc" id="enc-export-desc" style="color:var(--muted);">Saves an encrypted .greenbar file only you can open.</span></span>
-          <span class="s-arrow" aria-hidden="true">›</span>
-        </button>
-        <button type="button" class="settings-row" onclick="restoreEncrypted()" aria-labelledby="enc-restore-label" aria-describedby="enc-restore-desc">
-          <span class="s-body"><span class="s-label" id="enc-restore-label">Restore from Backup</span><span class="s-desc" id="enc-restore-desc" style="color:var(--muted);">Restores data from a .greenbar file using your passphrase.</span></span>
-          <span class="s-arrow" aria-hidden="true">›</span>
-        </button>
-      </div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.5;margin:-4px 2px 14px;">Greenbar stores everything in this browser only. Export a backup before clearing browser data or switching devices.</div>
+      <details class="settings-group">
+        <summary><span>Security</span><span class="sg-chev" aria-hidden="true">&rsaquo;</span></summary>
+        <div class="sg-body">
+          <div class="settings-section">
+            <button type="button" class="settings-row" id="security-toggle-row" onclick="gbSecurityUI.toggleEnable()" aria-labelledby="sec-lock-label" aria-describedby="security-status-desc">
+              <span class="s-body"><span class="s-label" id="sec-lock-label">Lock Greenbar</span><span class="s-desc" id="security-status-desc">Off &middot; anyone with this device can open the app</span></span>
+              <span class="s-arrow" aria-hidden="true" id="security-toggle-state">Off</span>
+            </button>
+            <button type="button" class="settings-row" id="security-change-pin-row" onclick="gbSecurityUI.openChangePIN()" style="display:none;" aria-labelledby="sec-pin-label" aria-describedby="sec-pin-desc">
+              <span class="s-body"><span class="s-label" id="sec-pin-label">Change PIN</span><span class="s-desc" id="sec-pin-desc">Update your 6-digit PIN</span></span>
+              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
+            </button>
+            <div class="settings-row" id="security-autolock-row" style="display:none;cursor:default;">
+              <div class="s-body" style="width:100%;">
+                <div class="s-label">Auto-lock when app is in background</div>
+                <div class="choice-pills" id="autolock-bg-pills">
+                  <button type="button" class="choice-pill" data-sec="0">Immediately</button>
+                  <button type="button" class="choice-pill" data-sec="30">30 s</button>
+                  <button type="button" class="choice-pill" data-sec="60">1 min</button>
+                  <button type="button" class="choice-pill" data-sec="300">5 min</button>
+                </div>
+              </div>
+            </div>
+            <div class="settings-row" id="security-idle-row" style="display:none;cursor:default;">
+              <div class="s-body" style="width:100%;">
+                <div class="s-label">Auto-lock after no activity</div>
+                <div class="choice-pills" id="autolock-idle-pills">
+                  <button type="button" class="choice-pill" data-sec="60">1 min</button>
+                  <button type="button" class="choice-pill" data-sec="300">5 min</button>
+                  <button type="button" class="choice-pill" data-sec="900">15 min</button>
+                  <button type="button" class="choice-pill" data-sec="0">Never</button>
+                </div>
+              </div>
+            </div>
+            <button type="button" class="settings-row" onclick="gbSecurityUI.togglePrivacyDefault()" aria-labelledby="sec-priv-label" aria-describedby="privacy-default-desc">
+              <span class="s-body"><span class="s-label" id="sec-priv-label">Hide amounts by default</span><span class="s-desc" id="privacy-default-desc">Off &middot; amounts show until you tap the eye icon</span></span>
+              <span class="s-arrow" aria-hidden="true" id="privacy-default-state">Off</span>
+            </button>
+          </div>
+        </div>
+      </details>
 
-      <h2 class="sec-hdr">Monthly Budget Targets</h2>
-      <div class="settings-section" id="budget-inputs"></div>
+      <details class="settings-group">
+        <summary><span>Sample Data</span><span class="sg-chev" aria-hidden="true">&rsaquo;</span></summary>
+        <div class="sg-body">
+          <div class="settings-section">
+            <button type="button" class="settings-row" onclick="gbDemo.toggle()" aria-labelledby="demo-label" aria-describedby="demo-desc">
+              <span class="s-body"><span class="s-label" id="demo-label">Load or remove sample data</span><span class="s-desc" id="demo-desc" style="color:var(--muted);">Explore Greenbar with a built-in demo dataset &mdash; remove it anytime.</span></span>
+              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
+            </button>
+          </div>
+        </div>
+      </details>
+
+      <details class="settings-group">
+        <summary><span>Data Backup</span><span class="sg-chev" aria-hidden="true">&rsaquo;</span></summary>
+        <div class="sg-body">
+          <div class="settings-section">
+            <button type="button" class="settings-row" onclick="exportData()" aria-labelledby="export-label" aria-describedby="storage-desc">
+              <span class="s-body"><span class="s-label" id="export-label">Export a Backup</span><span class="s-desc" id="storage-desc">Save all your data to a file</span></span>
+              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
+            </button>
+            <button type="button" class="settings-row" onclick="document.getElementById('restore-input').click()" aria-labelledby="restore-label" aria-describedby="restore-desc">
+              <span class="s-body"><span class="s-label" id="restore-label">Restore from Backup</span><span class="s-desc" id="restore-desc">Replace current data with a backup file</span></span>
+              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
+            </button>
+            <button type="button" class="settings-row" onclick="exportEncrypted()" aria-labelledby="enc-export-label" aria-describedby="enc-export-desc">
+              <span class="s-body"><span class="s-label" id="enc-export-label">Export Encrypted Backup</span><span class="s-desc" id="enc-export-desc" style="color:var(--muted);">Saves an encrypted .greenbar file only you can open.</span></span>
+              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
+            </button>
+            <button type="button" class="settings-row" onclick="restoreEncrypted()" aria-labelledby="enc-restore-label" aria-describedby="enc-restore-desc">
+              <span class="s-body"><span class="s-label" id="enc-restore-label">Restore from Backup</span><span class="s-desc" id="enc-restore-desc" style="color:var(--muted);">Restores data from a .greenbar file using your passphrase.</span></span>
+              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
+            </button>
+          </div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.5;margin:8px 2px 12px;">Greenbar stores everything in this browser only. Export a backup before clearing browser data or switching devices.</div>
+        </div>
+      </details>
+
+      <details class="settings-group">
+        <summary><span>Monthly Budget Targets</span><span class="sg-chev" aria-hidden="true">&rsaquo;</span></summary>
+        <div class="sg-body">
+          <div class="settings-section" id="budget-inputs"></div>
+        </div>
+      </details>
 
       <div style="padding:4px 0 0">
         <button type="button" class="btn-primary" onclick="saveSettings();showScreen('summary',_navBtn(0))">Save & Apply</button>
         <button type="button" class="btn-secondary" onclick="resetSettings()">Reset to Defaults</button>
       </div>
     </div>
+
 
   </div>
 
@@ -895,15 +912,6 @@ if('serviceWorker' in navigator){
         <line x1="4" y1="17" x2="14" y2="17"/>
       </svg>
       <span class="nav-label">Transactions</span>
-    </button>
-    <button type="button" class="nav-btn" onclick="showScreen('intro',this)" aria-label="Guide">
-      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M4 4.5C4 3.67 4.67 3 5.5 3H19a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H5.5C4.67 20 4 19.33 4 18.5z"/>
-        <line x1="8" y1="8"  x2="16" y2="8"/>
-        <line x1="8" y1="12" x2="16" y2="12"/>
-        <line x1="8" y1="16" x2="12" y2="16"/>
-      </svg>
-      <span class="nav-label">Guide</span>
     </button>
     <button type="button" class="nav-btn" onclick="showScreen('settings',this)" aria-label="Settings">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

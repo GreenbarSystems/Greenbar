@@ -989,7 +989,7 @@ function showScreen(name,btn){
   el.classList.add('active');
   if(btn){ btn.classList.add('active'); btn.setAttribute('aria-current','true'); }
   // Tell screen-reader users which screen they're on now
-  srAnnounce(({summary:'Summary screen',budget:'Budget screen',txs:'Transactions screen',intro:'Guide screen',settings:'Settings screen'}[name])||'Screen changed');
+  srAnnounce(({summary:'Summary screen',budget:'Budget screen',txs:'Transactions screen',settings:'Settings screen'}[name])||'Screen changed');
   if(name==='budget') renderBudget();
   if(name==='txs') renderTxs();
   if(name==='settings'){ syncUI(); renderBudgetInputs(); updateStorageDesc(); }
