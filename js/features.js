@@ -140,7 +140,8 @@ function runFlashIntro(){
       <div id="flash-intro" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;height:calc(100dvh - 120px);text-align:center;padding:80px 32px 40px;position:relative;">
         <div id="flash-phase-2" style="opacity:0;transition:opacity 0.6s ease;width:100%;max-width:340px;padding:0 24px;">
           <div style="font-family:var(--font-display);font-size:36px;font-weight:900;letter-spacing:-1px;margin-bottom:10px;">Welcome to <span class="gb-shimmer">Greenbar</span></div>
-          <div style="font-size:16px;color:var(--soft);letter-spacing:0.02em;margin-bottom:40px;">Your money, clearly.</div>
+          <div style="font-size:16px;color:var(--soft);letter-spacing:0.02em;margin-bottom:8px;">Your money, clearly.</div>
+          <div style="font-size:13px;color:var(--muted);letter-spacing:0.02em;margin-bottom:40px;">A little more manual. A lot more private.</div>
           <div id="flash-cta" style="opacity:0;transition:opacity 0.5s ease;">
             <button type="button" class="btn-flash-cta" onclick="gbLoadWizard.open()">Load your data &rarr;</button>
             <div style="margin-top:16px;"><button type="button" onclick="gbDemo.load()" style="background:none;border:none;color:var(--soft);font-size:14px;font-weight:700;font-family:var(--font-display);cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:6px;">Explore with sample data &rarr;</button></div>
