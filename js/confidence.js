@@ -48,8 +48,73 @@ const gbConfidence = (() => {
     };
   }
 
-  // Every row flagged low-confidence that the user hasn't yet verified.
-  function reviewQueue(){ return _txs().filter(t => t.needsReview && !t.reviewed); }
+  // ──────── Expanded review queue ────────
+  // Beyond low-confidence parse rows, surface anything worth a human glance:
+  // duplicates, suspicious +/- signs, transfers, large outliers, uncategorized
+  // rows, and merchants new to your history. Each transaction yields at most one
+  // item (highest-priority kind). A row leaves the queue when the user marks it
+  // reviewed (tx.reviewed) or fixes the underlying issue (e.g. categorizes it).
+  const _REVIEW_LABELS = {
+    lowconf:       { title: 'Low-confidence parse',       note: 'Read from a layout with no clear table — double-check these.' },
+    duplicate:     { title: 'Possible duplicate payments', note: 'Same merchant and amount within a few days.' },
+    sign:          { title: 'Check the + / − sign',        note: 'The amount sign looks unusual for this kind of row.' },
+    transfer:      { title: 'Possible transfers',          note: 'Looks like money moved between accounts, not spending.' },
+    outlier:       { title: 'Large outliers',              note: 'Much bigger than usual for the category.' },
+    uncategorized: { title: 'Uncategorized',               note: 'No category yet — assign one so it counts correctly.' },
+    newmerchant:   { title: 'New merchants',               note: 'First time this merchant has appeared in your data.' },
+  };
+  const _REVIEW_ORDER = ['lowconf','duplicate','sign','transfer','outlier','uncategorized','newmerchant'];
+  const _TRANSFER_RE = /\b(transfer|xfer|to savings|from savings|to checking|credit card payment|online transfer|internal transfer|account transfer|wire|ach\s+(?:transfer|debit|credit)|zelle|venmo|cash ?app|e-?transfer|interac)\b/i;
+  let _reviewCache = null, _reviewCacheVer = -1;
+  function _median(arr){ if(!arr.length) return 0; const s = arr.slice().sort((a,b)=>a-b), n = s.length, m = n>>1; return n%2 ? s[m] : (s[m-1]+s[m])/2; }
+  function _computeReviewItems(){
+    const txs = _txs();
+    const items = []; const seen = new Set();
+    const add = (t, kind) => { if(seen.has(t.id)) return; seen.add(t.id); items.push({ id: t.id, tx: t, kind }); };
+    // Possible duplicates — reuse the clean-up scanner (vendor + amount within 3 days).
+    const dupIds = new Set();
+    try { if(typeof gbCleanup !== 'undefined' && gbCleanup.scanDuplicates) gbCleanup.scanDuplicates().forEach(d => dupIds.add(String(d.id))); } catch(_){}
+    // Per-category expense magnitudes (outliers) + vendor groups (new merchants).
+    const catAmts = {}, byVendor = {};
+    const latestId = (() => { const l = _log(); return l[0] ? String(l[0].id) : null; })();
+    let hasHistoryOutsideLatest = false;
+    for(const t of txs){
+      if(!t.isIncome && t.amount < 0){ (catAmts[t.cat] = catAmts[t.cat] || []).push(Math.abs(t.amount)); }
+      (byVendor[_vendor(t).toUpperCase()] = byVendor[_vendor(t).toUpperCase()] || []).push(t);
+      if(latestId && String(t.imp) !== latestId) hasHistoryOutsideLatest = true;
+    }
+    const catMed = {}; for(const c in catAmts) catMed[c] = _median(catAmts[c]);
+    for(const t of txs){
+      if(t.reviewed || seen.has(t.id)) continue;
+      if(t.needsReview){ add(t, 'lowconf'); continue; }
+      if(dupIds.has(String(t.id))){ add(t, 'duplicate'); continue; }
+      // Suspicious sign: income shown as negative, or a sizable positive in a spend category.
+      if((t.isIncome && t.amount < 0) || (!t.isIncome && t.amount > 0 && Math.abs(t.amount) >= 100)){ add(t, 'sign'); continue; }
+      if(_TRANSFER_RE.test(t.desc || '')){ add(t, 'transfer'); continue; }
+      if(!t.isIncome && t.amount < 0){
+        const arr = catAmts[t.cat];
+        if(arr && arr.length >= 4){ const med = catMed[t.cat]; if(med > 0 && Math.abs(t.amount) >= Math.max(250, med * 4)){ add(t, 'outlier'); continue; } }
+      }
+      if(!t.isIncome && t.cat === 'Uncategorized'){ add(t, 'uncategorized'); continue; }
+      // New merchant: a vendor that only exists in the latest import, once there
+      // is prior history to be "new" relative to (silent on the very first import).
+      if(latestId && hasHistoryOutsideLatest){
+        const grp = byVendor[_vendor(t).toUpperCase()];
+        if(grp && grp[0].id === t.id && grp.every(x => String(x.imp) === latestId)){ add(t, 'newmerchant'); continue; }
+      }
+    }
+    return items;
+  }
+  // Memoized against _dataVersion (bumped by saveData/rebuildMonths) so the trust
+  // bar can call it on every render without re-scanning until the data changes.
+  function reviewItems(){
+    const ver = (typeof _dataVersion !== 'undefined') ? _dataVersion : -1;
+    if(_reviewCache && _reviewCacheVer === ver) return _reviewCache;
+    _reviewCache = _computeReviewItems(); _reviewCacheVer = ver;
+    return _reviewCache;
+  }
+  // The flat set of transactions needing review (drives every count + "mark all").
+  function reviewQueue(){ return reviewItems().map(i => i.tx); }
 
   // Headline trust metadata for the trust bar + Confidence Center header.
   function trustSummary(){
@@ -127,7 +192,7 @@ const gbConfidence = (() => {
     if(!n) return '';
     return `<button type="button" class="review-banner" onclick="gbConfidence.open()" aria-label="Review ${n} low-confidence transaction${n===1?'':'s'}">
       <span class="rb-icon" aria-hidden="true">&#9888;</span>
-      <span class="rb-text"><strong>${n} transaction${n===1?'':'s'} need${n===1?'s':''} review</strong><span class="rb-sub">Parsed with low confidence — tap to verify them.</span></span>
+      <span class="rb-text"><strong>${n} transaction${n===1?'':'s'} need${n===1?'s':''} review</strong><span class="rb-sub">A few rows could use a quick check — tap to review.</span></span>
       <span class="rb-cta" aria-hidden="true">Review &rsaquo;</span>
     </button>`;
   }
@@ -151,7 +216,10 @@ const gbConfidence = (() => {
     const ordered = (typeof sortKeys === 'function') ? sortKeys(mkObj) : months;
     const range = ordered.length ? (ordered[0] === ordered[ordered.length-1] ? ordered[0] : ordered[0] + ' – ' + ordered[ordered.length-1]) : '—';
     const fileLabel = (s.files && s.files.length === 1) ? s.files[0] : ((s.files ? s.files.length : 0) + ' files');
-    const clean = !s.lowConf;
+    // Prefer the broader review count (low-confidence + duplicates + signs + …)
+    // for this batch; fall back to the parse-only low-confidence count.
+    const flagged = (s.reviewCount != null) ? s.reviewCount : (s.lowConf || 0);
+    const clean = !flagged;
     const check = document.getElementById('receipt-check');
     if(check){ check.className = 'receipt-check' + (clean ? '' : ' flag'); check.innerHTML = clean ? '&#10003;' : '&#9888;'; }
     const title = document.getElementById('receipt-title');
@@ -169,13 +237,13 @@ const gbConfidence = (() => {
         + row((s.files && s.files.length > 1) ? 'Files' : 'File', esc(fileLabel))
         + row(months.length > 1 ? 'Months' : 'Month', esc(range))
         + (drops.length ? row('Dropped', esc(drops.join(' · ')), 'flag') : '')
-        + row('Status', clean ? '&#10003; All clear' : (s.lowConf + ' flagged for review'), clean ? 'ok' : 'flag')
+        + row('Status', clean ? '&#10003; All clear' : (flagged + ' to review'), clean ? 'ok' : 'flag')
         + `</div>`;
     }
     const actions = document.getElementById('receipt-actions');
     if(actions){
-      actions.innerHTML = s.lowConf
-        ? `<button type="button" class="btn-primary" style="margin:0 0 10px;" onclick="gbConfidence.dismissReceipt(); gbConfidence.open();">Review ${s.lowConf} flagged &rarr;</button>`
+      actions.innerHTML = flagged
+        ? `<button type="button" class="btn-primary" style="margin:0 0 10px;" onclick="gbConfidence.dismissReceipt(); gbConfidence.open();">Review ${flagged} &rarr;</button>`
           + `<button type="button" class="btn-secondary" style="margin:0;" onclick="gbConfidence.dismissReceipt()">Go to dashboard</button>`
         : `<button type="button" class="btn-primary" style="margin:0;" onclick="gbConfidence.dismissReceipt()">View dashboard</button>`;
     }
@@ -204,6 +272,27 @@ const gbConfidence = (() => {
   function _statTile(label, value){
     return `<div class="conf-stat"><div class="conf-stat-v">${value}</div><div class="conf-stat-l">${esc(label)}</div></div>`;
   }
+  // One review-queue row. "Looks right" marks it reviewed; the secondary action
+  // is "Remove" for a duplicate, otherwise "Fix" (the per-tx category editor).
+  function _reviewRowHTML(it){
+    const t = it.tx;
+    const lbl = (typeof parseDateParts === 'function' ? (parseDateParts(t.date, _fmt()) || {}).label : '') || t.date || '';
+    const cat = t.isIncome ? 'Income' : t.cat;
+    const second = it.kind === 'duplicate'
+      ? `<button type="button" class="conf-fix" onclick="gbConfidence.removeDup('${esc(t.id)}')">Remove</button>`
+      : `<button type="button" class="conf-fix" onclick="gbConfidence.resolveRow('${esc(t.id)}',true)">Fix</button>`;
+    return `<div class="conf-row">
+      <div class="conf-row-main">
+        <div class="conf-row-v">${esc(_vendor(t))}</div>
+        <div class="conf-row-s">${esc(lbl)} &middot; ${esc(cat)}</div>
+      </div>
+      <div class="tx-amt ${t.amount<0?'neg':'pos'}">${t.amount<0?'−':'+'}${_money(t.amount)}</div>
+      <div class="conf-row-acts">
+        <button type="button" class="conf-ok" onclick="gbConfidence.resolveRow('${esc(t.id)}',false)" aria-label="Looks right">&#10003;</button>
+        ${second}
+      </div>
+    </div>`;
+  }
 
   function renderCenter(){
     const host = document.getElementById('confidence-content');
@@ -225,43 +314,32 @@ const gbConfidence = (() => {
       </div>
       ${s.lastImport?`<div class="conf-lastimport">Last import: <strong>${esc(s.lastImport.filename)}</strong> &middot; ${esc(s.lastImport.date)}</div>`:''}`;
 
-    // 2) Review queue (grouped by import)
-    const queue = reviewQueue();
+    // 2) Review queue — grouped by category.
     const log = (typeof getLog === 'function') ? getLog() : [];
-    const nameOf = (impId) => { const e = log.find(x => String(x.id) === String(impId)); return e ? e.filename : 'Imported rows'; };
+    const items = reviewItems();
     let reviewHtml;
-    if(queue.length){
+    if(items.length){
       const groups = {};
-      queue.forEach(t => { const k = t.imp || '_'; (groups[k] = groups[k] || []).push(t); });
+      items.forEach(it => { (groups[it.kind] = groups[it.kind] || []).push(it); });
+      const groupsHtml = _REVIEW_ORDER.filter(k => groups[k]).map(k => {
+        const lab = _REVIEW_LABELS[k];
+        return `<div class="conf-card">
+          <div class="conf-card-top"><div class="conf-card-file">${esc(lab.title)} <span class="conf-count amber">${groups[k].length}</span></div></div>
+          <div class="conf-note" style="margin:5px 0 2px;">${esc(lab.note)}</div>
+          ${groups[k].map(_reviewRowHTML).join('')}
+        </div>`;
+      }).join('');
       reviewHtml = `
         <div class="conf-section-head">
-          <h2 class="conf-h2">Needs review <span class="conf-count amber">${queue.length}</span></h2>
+          <h2 class="conf-h2">Needs review <span class="conf-count amber">${items.length}</span></h2>
           <button type="button" class="conf-allbtn" onclick="gbConfidence.reviewAll()">Mark all reviewed</button>
         </div>
-        <div class="conf-note">These rows were parsed with low confidence (e.g. a PDF with no clear table header). Confirm each looks right, or fix its category.</div>
-        ${Object.keys(groups).map(k => `
-          <div class="conf-card">
-            <div class="conf-card-file">${esc(nameOf(k))}</div>
-            ${groups[k].map(t => {
-              const lbl = (typeof parseDateParts==='function' ? (parseDateParts(t.date, _fmt())||{}).label : '') || t.date || '';
-              const cat = t.isIncome ? 'Income' : t.cat;
-              return `<div class="conf-row">
-                <div class="conf-row-main">
-                  <div class="conf-row-v">${esc(_vendor(t))}</div>
-                  <div class="conf-row-s">${esc(lbl)} &middot; ${esc(cat)}</div>
-                </div>
-                <div class="tx-amt ${t.amount<0?'neg':'pos'}">${t.amount<0?'−':'+'}${_money(t.amount)}</div>
-                <div class="conf-row-acts">
-                  <button type="button" class="conf-ok" onclick="gbConfidence.resolveRow('${esc(t.id)}',false)" aria-label="Looks right">&#10003;</button>
-                  <button type="button" class="conf-fix" onclick="gbConfidence.resolveRow('${esc(t.id)}',true)">Fix</button>
-                </div>
-              </div>`;
-            }).join('')}
-          </div>`).join('')}`;
+        <div class="conf-note">Rows worth a second look. Confirm each, fix a category, or remove a duplicate.</div>
+        ${groupsHtml}`;
     } else {
       reviewHtml = `
         <h2 class="conf-h2">Needs review</h2>
-        <div class="conf-allclear">&#10003; All imported rows are verified. Nothing needs your attention.</div>`;
+        <div class="conf-allclear">&#10003; Everything looks good — nothing needs your attention.</div>`;
     }
 
     // 3) Import history (enhanced)
@@ -306,6 +384,14 @@ const gbConfidence = (() => {
     if(typeof gbCleanup !== 'undefined' && gbCleanup.undoImport){
       const ok = await gbCleanup.undoImport(id);
       if(ok) renderCenter();
+    }
+  }
+  // Remove a possible-duplicate row from the queue (delegates to the clean-up
+  // module's confirm + delete), then refresh the Center.
+  async function removeDup(id){
+    if(typeof gbCleanup !== 'undefined' && gbCleanup.removeDuplicate){
+      await gbCleanup.removeDuplicate(id);
+      renderCenter();
     }
   }
 
@@ -411,7 +497,7 @@ const gbConfidence = (() => {
     });
   }
 
-  return { dateRange, reviewQueue, trustSummary, importConfidence, markReviewed, markAllReviewed,
-           renderTrustBar, renderReviewBanner, renderCenter, open, resolveRow, reviewAll, undo, updateBadge,
+  return { dateRange, reviewQueue, reviewItems, trustSummary, importConfidence, markReviewed, markAllReviewed,
+           renderTrustBar, renderReviewBanner, renderCenter, open, resolveRow, reviewAll, undo, removeDup, updateBadge,
            explain, renderExplain, openExplain, showReceipt, dismissReceipt };
 })();

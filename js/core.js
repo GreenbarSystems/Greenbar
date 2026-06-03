@@ -741,6 +741,14 @@ function processNextFile(){
     const _anomMonths = (_lastImportedMonths && _lastImportedMonths.size) ? [..._lastImportedMonths] : null;
     const _runAnom = () => { if(typeof runAnomalyDetection === 'function' && _anomMonths) runAnomalyDetection(_anomMonths); };
     if(_lastImportReceipt && typeof gbConfidence !== 'undefined' && gbConfidence.showReceipt){
+      // Count this batch's review items (low-confidence + duplicates + signs +
+      // transfers + outliers + uncategorized + new merchants) so the receipt's
+      // status reflects everything worth a look, not just the parse confidence.
+      const _batchIds = new Set((_lastImportReceipt.importIds || []).map(String));
+      try {
+        _lastImportReceipt.reviewCount = gbConfidence.reviewItems()
+          .filter(it => _batchIds.has(String(it.tx.imp))).length;
+      } catch(_){ _lastImportReceipt.reviewCount = _lastImportReceipt.lowConf; }
       gbConfidence.showReceipt(_lastImportReceipt, _runAnom);
     } else {
       _runAnom();
@@ -1025,8 +1033,9 @@ function applyImport(file, newTxs, newMonths, newKeys, mode, result){
   // Accumulate the committed-import summary for the post-import receipt shown
   // once the whole batch drains (replaces the old per-commit "Imported N" toast,
   // which the receipt now supersedes).
-  if(!_lastImportReceipt) _lastImportReceipt = { files: [], txCount: 0, skipped: 0, undated: 0, lowConf: 0, months: new Set() };
+  if(!_lastImportReceipt) _lastImportReceipt = { files: [], importIds: [], txCount: 0, skipped: 0, undated: 0, lowConf: 0, months: new Set() };
   _lastImportReceipt.files.push(file.name);
+  _lastImportReceipt.importIds.push(importId);
   _lastImportReceipt.txCount += newTxs.length;
   _lastImportReceipt.skipped += (_counts.skipped || 0);
   _lastImportReceipt.undated += (_counts.undated || 0);
