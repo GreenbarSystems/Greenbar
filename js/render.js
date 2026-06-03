@@ -685,6 +685,7 @@ function renderSummary(){
         <div class="net-lbl">Monthly Budget</div>
         <div class="net-amt surplus">${fmt(totalBudget)}</div>
         <div class="net-mo">Your monthly plan</div>
+        <button type="button" class="ex-link" onclick="gbConfidence.openExplain('budget','${esc(sel)}')" aria-label="Explain the monthly budget total">How is this calculated? &#9432;</button>
       </div>
       ${typeof gbGoals !== 'undefined' ? gbGoals.cardHTML() : ''}
       ${typeof gbSuggest !== 'undefined' ? gbSuggest.cardHTML() : ''}
@@ -709,7 +710,7 @@ function renderSummary(){
         <button class="stat-tile" type="button" ${hs?`onclick="openHealthBreakdown()" aria-label="Health score ${hs.grade}, ${hs.score} out of 100 — see what's driving it"`:'disabled aria-label="Health score not available yet"'}><div class="st-lbl">Health Score</div><div class="st-val" style="color:${gradeColor};">${grade}</div>${hs?`<div class="st-tap-hint">Tap for details &rsaquo;</div>`:''}</button>
       </div>
       <div style="font-size:12px;color:var(--muted);line-height:1.5;margin:0 2px 16px;">${esc(gradeExplain)}</div>
-      <h2 class="sec-hdr">Top Spending${(m&&spend.length)?` <span class="sec-total">${fmt(expTotal)}</span>`:''}</h2>
+      <h2 class="sec-hdr">Top Spending${(m&&spend.length)?` <button type="button" class="sec-total ex-num" onclick="gbConfidence.openExplain('expenses','${esc(sel)}')" aria-label="Explain total spending ${esc(fmt(expTotal))}">${fmt(expTotal)} <span class="ex-i" aria-hidden="true">&#9432;</span></button>`:''}</h2>
       ${topSpendBody}
       ${typeof gbInsights !== 'undefined' ? gbInsights.cardHTML() : ''}
       <h2 class="sec-hdr">Achievements</h2>
@@ -841,12 +842,13 @@ function renderBudget(){
   document.getElementById('budget-content').innerHTML=`
     ${typeof gbSuggest !== 'undefined' ? gbSuggest.cardHTML() : ''}
     <h2 class="sec-hdr" style="margin-top:0">Budget vs Actual <span class="sec-total">${esc(mk)}</span></h2>
-    <!-- Variance hero: the headline number for this screen, sized accordingly. -->
-    <div style="background:${varTint};border:1px solid ${varBdr};border-radius:20px;padding:18px 18px 16px;margin-bottom:14px;">
+    <!-- Variance hero: the headline number for this screen, sized accordingly.
+         Tappable -> "Explain this number" (budget vs actual, per category). -->
+    <button type="button" onclick="gbConfidence.openExplain('variance','${esc(mk)}')" aria-label="Explain budget variance" style="display:block;width:100%;text-align:left;background:${varTint};border:1px solid ${varBdr};border-radius:20px;padding:18px 18px 16px;margin-bottom:14px;cursor:pointer;font-family:inherit;color:inherit;">
       <div style="font-family:var(--font-display);font-size:11px;font-weight:800;color:${varColor};text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">${budTotal>0?'This month':'No budget set'}</div>
       <div style="font-family:var(--font-display);font-size:32px;font-weight:900;letter-spacing:-1px;color:${varColor};line-height:1;">${varPrefix}${fmt(Math.abs(totalVar))}</div>
-      <div style="font-size:13px;color:var(--soft);margin-top:6px;">${esc(varLabel)} &middot; ${fmt(expTotal)} spent of ${fmt(budTotal)} budgeted</div>
-    </div>
+      <div style="font-size:13px;color:var(--soft);margin-top:6px;">${esc(varLabel)} &middot; ${fmt(expTotal)} spent of ${fmt(budTotal)} budgeted <span class="ex-i" aria-hidden="true" style="color:var(--muted);">&#9432;</span></div>
+    </button>
     <div style="font-size:12px;color:var(--muted);margin:-4px 2px 14px;line-height:1.5;">Targets come from your Setup &mdash; update them in Settings anytime.</div>
     <div class="bva-card">
       <div class="bva-head"><span>Category</span><span>Budget</span><span>Actual</span><span>Δ</span></div>

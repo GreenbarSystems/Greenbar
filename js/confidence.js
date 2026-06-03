@@ -259,6 +259,99 @@ const gbConfidence = (() => {
     }
   }
 
+  // ──────── "Explain this number" drilldowns ────────
+  // Every headline total is auditable: explain(kind, mk) decomposes a number into
+  // its parts and the exact transactions behind it; renderExplain paints the
+  // shared #modal-explain. Amounts use the privacy-blurred classes (cat-amt /
+  // tx-amt / bva-num) so "hide amounts" mode applies here too.
+  function _monthOf(mk){
+    if(mk && mk !== '__all' && typeof _months !== 'undefined' && _months[mk]) return { m: _months[mk], label: mk };
+    const all = (typeof aggregateOneMonth === 'function') ? aggregateOneMonth(_txs()) : { income: 0, expenses: {}, txs: _txs() };
+    return { m: all, label: 'all months' };
+  }
+  function explain(kind, mk){
+    const { m, label } = _monthOf(mk);
+    const monthTxs = (m && m.txs) ? m.txs : [];
+    const exp = (typeof sumExpenses === 'function') ? sumExpenses(m) : Object.values(m.expenses || {}).reduce((s, v) => s + v, 0);
+    if(kind === 'income'){
+      const inc = monthTxs.filter(t => t.isIncome);
+      const byV = {}; inc.forEach(t => { const v = _vendor(t); byV[v] = (byV[v] || 0) + t.amount; });
+      return { kind, title: 'Income — ' + label, total: (m.income || 0), totalSign: '+',
+        formula: 'Income is every deposit tagged by your income keywords this month.',
+        lines: Object.entries(byV).sort((a, b) => b[1] - a[1]).map(([v, a]) => ({ label: v, amount: a })), txs: inc };
+    }
+    if(kind === 'net'){
+      const net = (m.income || 0) - exp;
+      return { kind, title: 'Net — ' + label, total: net, totalSign: net >= 0 ? '+' : '−',
+        formula: 'Net is your income minus total spending this month.',
+        lines: [{ label: 'Income', amount: (m.income || 0) }, { label: 'Spending', amount: exp }], txs: monthTxs };
+    }
+    if(kind === 'budget'){
+      const b = (typeof CFG !== 'undefined' && CFG.budget) || {};
+      const ents = Object.entries(b).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]);
+      return { kind, title: 'Monthly budget', total: ents.reduce((s, [, v]) => s + v, 0), totalSign: '',
+        formula: 'Your monthly plan is the sum of the per-category targets you set in Settings → Monthly Budget Targets.',
+        lines: ents.map(([cat, v]) => ({ label: cat, amount: v })), txs: [], noTxs: true };
+    }
+    if(kind === 'variance'){
+      const b = (typeof CFG !== 'undefined' && CFG.budget) || {};
+      const budTotal = Object.values(b).reduce((s, v) => s + (v > 0 ? v : 0), 0);
+      const cats = new Set([...Object.keys(b), ...Object.keys(m.expenses || {})]);
+      const lines = [...cats].map(cat => ({ label: cat, target: b[cat] || 0, actual: (m.expenses && m.expenses[cat]) || 0 }))
+        .filter(l => l.target > 0 || l.actual > 0).map(l => ({ ...l, delta: l.target - l.actual })).sort((a, b) => b.actual - a.actual);
+      return { kind, title: 'Budget vs actual — ' + label, total: budTotal - exp, totalSign: (budTotal - exp) >= 0 ? '+' : '−',
+        formula: 'Variance is your total budget minus what you actually spent. Positive means under budget.',
+        lines, txs: [], variance: true, noTxs: true };
+    }
+    // default: expenses
+    const cats = Object.entries(m.expenses || {}).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]);
+    return { kind: 'expenses', title: 'Spending — ' + label, total: exp, totalSign: '−',
+      formula: 'Total spending is the sum of every spending category this month. Tap a category to see the merchants behind it.',
+      lines: cats.map(([cat, v]) => ({ label: cat, amount: v, cat })), txs: monthTxs.filter(t => !t.isIncome && t.amount < 0) };
+  }
+  // Distinct source files behind a set of rows (via tx.imp → gb_log).
+  function _sourceImports(txs){
+    if(!txs || !txs.length) return '';
+    const log = (typeof getLog === 'function') ? getLog() : [];
+    const ids = new Set(); txs.forEach(t => { if(t.imp) ids.add(String(t.imp)); });
+    const names = [...ids].map(id => { const e = log.find(x => String(x.id) === id); return e ? e.filename : null; }).filter(Boolean);
+    const uniq = [...new Set(names)];
+    if(!uniq.length) return '';
+    return uniq.length <= 2 ? uniq.join(', ') : (uniq.slice(0, 2).join(', ') + ' +' + (uniq.length - 2) + ' more');
+  }
+  function renderExplain(kind, mk){
+    const d = explain(kind, mk); if(!d) return;
+    const t = document.getElementById('explain-title'); if(t) t.textContent = d.title;
+    let linesHtml = '';
+    if(d.variance){
+      linesHtml = d.lines.map(l => { const over = l.delta < 0; return `<div class="ex-row">
+        <div class="ex-row-l">${esc(l.label)}</div>
+        <div class="ex-vnum"><span class="bva-num">${_money(l.actual)}</span> <span class="ex-of">/ ${_money(l.target)}</span></div>
+        <div class="bva-num ${over?'v-over':'v-under'}" style="text-align:right;min-width:60px;">${over?'−':'+'}${_money(Math.abs(l.delta))}</div></div>`; }).join('');
+    } else {
+      linesHtml = d.lines.map(l => { const c = l.cat ? ` onclick="closeModal('modal-explain');showVendorDrill('${esc(l.cat)}')" role="button" tabindex="0" style="cursor:pointer;"` : '';
+        return `<div class="ex-row"${c}><div class="ex-row-l">${esc(l.label)}</div><div class="ex-row-a"><span class="cat-amt">${_money(l.amount)}</span>${l.cat?'<span class="ex-chev">&rsaquo;</span>':''}</div></div>`; }).join('');
+    }
+    const totLabel = d.kind === 'variance' ? 'Variance' : (d.kind === 'budget' ? 'Total plan' : (d.kind === 'net' ? 'Net' : 'Total'));
+    const totalHtml = `<div class="ex-total"><span>${totLabel}</span><span class="cat-amt ex-total-v">${d.totalSign}${_money(Math.abs(d.total))}</span></div>`;
+    let txsHtml = '';
+    if(!d.noTxs && d.txs && d.txs.length){
+      const f = _fmt();
+      const sorted = d.txs.slice().sort((a, b) => (b.ts || 0) - (a.ts || 0));
+      const cap = 80, shown = sorted.slice(0, cap);
+      txsHtml = `<div class="ex-h">Transactions <span class="ex-count">${d.txs.length}</span></div>` +
+        shown.map(tx => { const lbl = (typeof parseDateParts === 'function' ? (parseDateParts(tx.date, f) || {}).label : '') || tx.date || '';
+          return `<div class="ex-tx"><div class="ex-tx-main"><div class="ex-tx-v">${esc(_vendor(tx))}${tx.needsReview?' <span class="ex-flag">unverified</span>':''}</div><div class="ex-tx-s">${esc(lbl)} &middot; ${esc(tx.isIncome?'Income':tx.cat)}</div></div><div class="tx-amt ${tx.amount<0?'neg':'pos'}">${tx.amount<0?'−':'+'}${_money(tx.amount)}</div></div>`; }).join('') +
+        (d.txs.length > cap ? `<div class="ex-more">Showing ${cap} of ${d.txs.length}. Open the Transactions tab for the full list.</div>` : '');
+    }
+    const src = _sourceImports(d.txs);
+    const fnHtml = src ? `<div class="ex-foot">Source: ${esc(src)}</div>` : '';
+    const body = document.getElementById('explain-body');
+    if(body) body.innerHTML = `<div class="ex-formula">${esc(d.formula)}</div>${linesHtml?`<div class="ex-lines">${linesHtml}</div>`:''}${totalHtml}${txsHtml}${fnHtml}`;
+    if(typeof openModal === 'function') openModal('modal-explain');
+  }
+  function openExplain(kind, mk){ renderExplain(kind, mk); }
+
   // Re-render when the user navigates to the Center (the trust-bar tap dispatches
   // gb:screen via showScreen). Refresh the Settings badge on every screen change.
   if(typeof document !== 'undefined'){
@@ -269,5 +362,6 @@ const gbConfidence = (() => {
   }
 
   return { dateRange, reviewQueue, trustSummary, importConfidence, markReviewed, markAllReviewed,
-           renderTrustBar, renderReviewBanner, renderCenter, open, resolveRow, reviewAll, undo, updateBadge };
+           renderTrustBar, renderReviewBanner, renderCenter, open, resolveRow, reviewAll, undo, updateBadge,
+           explain, renderExplain, openExplain };
 })();

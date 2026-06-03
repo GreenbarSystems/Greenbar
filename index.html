@@ -1129,6 +1129,18 @@ if('serviceWorker' in navigator){
   </div>
 </dialog>
 
+<dialog class="modal-overlay" id="modal-explain" aria-modal="true" aria-labelledby="explain-title" onclick="closeOut(event,'modal-explain')">
+  <div class="sheet">
+    <div class="sheet-close-row">
+      <button type="button" aria-label="Close" onclick="closeModal('modal-explain')" class="sheet-close">&#x2715;</button>
+    </div>
+    <div class="sheet-handle" style="margin-top:0;"></div>
+    <h2 class="sheet-title" id="explain-title" style="margin-bottom:2px;">Explain this number</h2>
+    <div class="sheet-sub">Exactly what makes up this total &mdash; auditable down to the transaction.</div>
+    <div id="explain-body" style="margin-top:8px;"></div>
+  </div>
+</dialog>
+
 <dialog class="modal-overlay" id="modal-log" aria-modal="true" aria-labelledby="log-title" onclick="closeOut(event,'modal-log')">
   <div class="sheet">
     <div class="sheet-close-row">
