@@ -104,7 +104,7 @@ async function deleteManualTransaction(id){
   const tx = _txById(id);
   if(!tx){ showToast('Transaction not found.', 'error'); return; }
   if(tx.source !== 'manual'){
-    showToast('CSV transactions cannot be deleted. Re-import without this entry.', 'error');
+    showToast('Imported transactions can\'t be deleted here. Re-import the file without this entry.', 'error');
     return;
   }
   // Capacitor-aware confirm (native dialog in the app shell, window.confirm on web).

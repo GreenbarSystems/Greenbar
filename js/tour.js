@@ -44,7 +44,7 @@ const gbTour = (() => {
       sel: '#hdr-import-btn',
       side: 'bottom',
       title: 'Start here',
-      copy: 'Tap Import any time to bring in a new CSV of transactions from your bank.'
+      copy: 'Tap Import any time to bring in new bank transactions — a CSV or PDF from your bank.'
     },
     {
       sel: '.pills-row .pill',
