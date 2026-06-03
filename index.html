@@ -273,6 +273,15 @@ if('serviceWorker' in navigator){
         <!-- SETTINGS -->
     <div class="screen" id="screen-settings">
 
+      <!-- Budget Setup CTA -->
+      <div style="background:linear-gradient(135deg,rgba(0,214,143,0.07),rgba(0,201,177,0.05));border:1px solid rgba(0,214,143,0.2);border-radius:18px;padding:16px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px;">
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:700;margin-bottom:3px;">Budget Setup Wizard</div>
+          <div class="row-desc-t">Answer a few questions to personalize your budget targets</div>
+        </div>
+        <button type="button" onclick="resetSetupState();showScreen('setup',document.querySelector('.nav-btn'));setupGo(1);document.getElementById('bottom-nav')?.classList.remove('visible');" style="padding:9px 16px;border:none;border-radius:12px;background:var(--grad-primary);color:#050a14;font-size:13px;font-weight:800;cursor:pointer;font-family:var(--font-display);flex-shrink:0;">Open &rarr;</button>
+      </div>
+
       <!-- HELP (moved to top; absorbs the former Guide tab) -->
       <details class="settings-group" id="help-group">
         <summary><span>Help</span><span class="sg-chev" aria-hidden="true">&rsaquo;</span></summary>
@@ -721,15 +730,6 @@ if('serviceWorker' in navigator){
 
         </div>
       </details>
-
-      <!-- Budget Setup CTA -->
-      <div style="background:linear-gradient(135deg,rgba(0,214,143,0.07),rgba(0,201,177,0.05));border:1px solid rgba(0,214,143,0.2);border-radius:18px;padding:16px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px;">
-        <div style="flex:1;">
-          <div style="font-size:14px;font-weight:700;margin-bottom:3px;">Budget Setup Wizard</div>
-          <div class="row-desc-t">Answer a few questions to personalize your budget targets</div>
-        </div>
-        <button type="button" onclick="resetSetupState();showScreen('setup',document.querySelector('.nav-btn'));setupGo(1);document.getElementById('bottom-nav')?.classList.remove('visible');" style="padding:9px 16px;border:none;border-radius:12px;background:var(--grad-primary);color:#050a14;font-size:13px;font-weight:800;cursor:pointer;font-family:var(--font-display);flex-shrink:0;">Open &rarr;</button>
-      </div>
 
       <details class="settings-group">
         <summary><span>Appearance</span><span class="sg-chev" aria-hidden="true">&rsaquo;</span></summary>
