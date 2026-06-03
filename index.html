@@ -109,23 +109,15 @@ if('serviceWorker' in navigator){
     <!-- SUMMARY -->
     <div class="screen active" id="screen-summary">
       <div id="summary-content" role="region" aria-label="Summary">
-        <!-- Flash intro sequence -->
+        <!-- Welcome intro (no opening "Hey there." beat — straight to the welcome) -->
         <div id="flash-intro" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;height:calc(100dvh - 120px);text-align:center;padding:80px 32px 40px;position:relative;">
-
-          <!-- Phase 1: Hey there. Fades in, then slowly fades out -->
-          <div id="flash-phase-1" style="opacity:0;transition:opacity 0.5s ease;position:absolute;">
-            <div style="font-family:var(--font-display);font-size:38px;font-weight:900;letter-spacing:-1px;color:var(--text);">Hey there.</div>
-            <div style="font-size:13px;color:var(--muted);margin-top:12px;">Tap to continue</div>
-          </div>
-
-          <!-- Phase 2: Welcome to Greenbar -- stays visible, CTA appears beneath it -->
-          <div id="flash-phase-2" style="opacity:0;transition:opacity 1.4s ease;width:100%;max-width:340px;padding:0 24px;">
+          <div id="flash-phase-2" style="opacity:0;transition:opacity 0.6s ease;width:100%;max-width:340px;padding:0 24px;">
             <div style="font-family:var(--font-display);font-size:36px;font-weight:900;letter-spacing:-1px;margin-bottom:10px;">Welcome to <span class="gb-shimmer">Greenbar</span></div>
             <div style="font-size:16px;color:var(--soft);letter-spacing:0.02em;margin-bottom:40px;">Your money, clearly.</div>
 
-            <!-- CTA -- fades in separately within phase 2 -->
-            <div id="flash-cta" style="opacity:0;transition:opacity 1.2s ease;">
-              <button type="button" class="btn-flash-cta" onclick="startSetupFromFlash()">Get Started &rarr;</button>
+            <!-- CTA -- fades in shortly after the welcome -->
+            <div id="flash-cta" style="opacity:0;transition:opacity 0.5s ease;">
+              <button type="button" class="btn-flash-cta" onclick="gbLoadWizard.open()">Load your data &rarr;</button>
               <div style="margin-top:16px;"><button type="button" onclick="gbDemo.load()" style="background:none;border:none;color:var(--soft);font-size:14px;font-weight:700;font-family:var(--font-display);cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:6px;">Explore with sample data &rarr;</button></div>
             </div>
           </div>
@@ -1027,6 +1019,35 @@ if('serviceWorker' in navigator){
     <h2 class="sheet-title" id="insights-title" style="margin-bottom:2px;">Your Insights</h2>
     <div class="sheet-sub" id="insights-sub">Private · computed on your device, nothing sent.</div>
     <div id="insights-body" style="margin-top:6px;"></div>
+  </div>
+</dialog>
+
+<!-- DATA-LOAD WIZARD (flash CTA "Load your data") -->
+<dialog class="modal-overlay" id="modal-load-wizard" aria-modal="true" aria-labelledby="dlw-title" onclick="closeOut(event,'modal-load-wizard')">
+  <div class="sheet">
+    <div class="sheet-close-row">
+      <button type="button" aria-label="Close" onclick="closeModal('modal-load-wizard')" class="sheet-close">&#x2715;</button>
+    </div>
+    <div class="sheet-handle" style="margin-top:0;"></div>
+    <h2 class="sheet-title" id="dlw-title" style="margin-bottom:2px;">Load your data</h2>
+
+    <!-- Step 1: pick bank + export steps -->
+    <div id="dlw-step-1">
+      <div class="sheet-sub">Pick your bank to see how to download your transactions (CSV or PDF). Everything is read on your device — nothing is uploaded.</div>
+      <select id="dlw-bank-select" class="bank-select" aria-label="Your bank" onchange="showBankExport(this.value,'dlw-steps')" style="margin-bottom:6px;">
+        <option value="" disabled selected>Select your bank…</option>
+      </select>
+      <div id="dlw-steps" style="margin-bottom:6px;"></div>
+      <button type="button" class="btn-primary" style="width:100%;margin-top:8px;" onclick="gbLoadWizard.go(2)">I have my file &mdash; continue &rarr;</button>
+      <div style="text-align:center;margin-top:10px;"><button type="button" class="link-btn" onclick="gbLoadWizard.sample()">Just exploring? Load sample data &rarr;</button></div>
+    </div>
+
+    <!-- Step 2: import the file -->
+    <div id="dlw-step-2" style="display:none;">
+      <div class="sheet-sub">Select the CSV or PDF you downloaded. Greenbar reads it on your device and shows a preview before saving anything.</div>
+      <button type="button" class="btn-primary" style="width:100%;" onclick="gbLoadWizard.pickFile()">Choose file to import</button>
+      <div style="text-align:center;margin-top:10px;"><button type="button" class="link-btn" onclick="gbLoadWizard.go(1)">&larr; Back</button></div>
+    </div>
   </div>
 </dialog>
 

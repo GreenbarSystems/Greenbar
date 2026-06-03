@@ -124,173 +124,55 @@ function showHeaderButtons(){
   showAIButton();
 }
 
-// ──────── Flash intro: "Hey there." -> "Welcome to Greenbar" -> Get Started ────────
-// Track all flash timers so we can cancel on tap.
+// ──────── Flash intro: straight to "Welcome to Greenbar" + "Load your data" ────────
+// _flashTimers/_flashDone are also read by core.js (showScreen) and clearAllData.
 let _flashTimers = [];
 let _flashDone = false;
 
 // All timing for the intro animation lives here. Phase delays are absolute
 // ms from runFlashIntro entry; durations are CSS transition lengths.
-const FLASH = {
-  PHASE: {
-    P1_IN:     150,   // "Hey there." fades in
-    P1_OUT:    1500,  // "Hey there." fades out (trimmed to reduce time-to-CTA)
-    P2_IN:     1700,  // "Welcome to Greenbar" crossfades in
-    CTA_IN:    2300,  // "Get Started" button fades in (~1.4s sooner than before)
-  },
-  FADE: {
-    P1_IN_S:   '0.4s',  // Phase-1 fade-in duration
-    P1_OUT_S:  '0.5s',  // Phase-1 fade-out duration
-    P2_IN_S:   '0.7s',  // Phase-2 fade-in duration
-    CTA_IN_S:  '0.5s',  // CTA fade-in duration
-  },
-  SKIP: {
-    P1_OUT_S:  '0.25s', // tap-to-skip: phase-1 dismissal
-    P2_IN_S:   '0.4s',  // tap-to-skip: phase-2 reveal
-    CTA_IN_S:  '0.4s',  // tap-to-skip: CTA reveal
-    CTA_DELAY: 350,     // ms to wait before CTA reveal on skip
-  },
-};
-
 function runFlashIntro(){
-  // Restore flash HTML if it was replaced by renderSummary (e.g. after data clear)
+  // The opening "Hey there." beat was removed — land straight on the welcome.
+  // Restore the markup if renderSummary replaced it (e.g. after a data clear).
   const sc = document.getElementById('summary-content');
   if(sc && !document.getElementById('flash-intro')){
     sc.innerHTML = `
       <div id="flash-intro" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;height:calc(100dvh - 120px);text-align:center;padding:80px 32px 40px;position:relative;">
-        <div id="flash-phase-1" style="opacity:0;transition:opacity 0.5s ease;position:absolute;">
-          <div style="font-family:var(--font-display);font-size:38px;font-weight:900;letter-spacing:-1px;color:var(--text);">Hey there.</div>
-          <div style="font-size:13px;color:var(--muted);margin-top:12px;">Tap to continue</div>
-        </div>
-        <div id="flash-phase-2" style="opacity:0;transition:opacity 1.4s ease;width:100%;max-width:340px;padding:0 24px;">
+        <div id="flash-phase-2" style="opacity:0;transition:opacity 0.6s ease;width:100%;max-width:340px;padding:0 24px;">
           <div style="font-family:var(--font-display);font-size:36px;font-weight:900;letter-spacing:-1px;margin-bottom:10px;">Welcome to <span class="gb-shimmer">Greenbar</span></div>
           <div style="font-size:16px;color:var(--soft);letter-spacing:0.02em;margin-bottom:40px;">Your money, clearly.</div>
-          <div id="flash-cta" style="opacity:0;transition:opacity 1.2s ease;">
-            <button type="button" class="btn-flash-cta" onclick="startSetupFromFlash()">Get Started &rarr;</button>
+          <div id="flash-cta" style="opacity:0;transition:opacity 0.5s ease;">
+            <button type="button" class="btn-flash-cta" onclick="gbLoadWizard.open()">Load your data &rarr;</button>
             <div style="margin-top:16px;"><button type="button" onclick="gbDemo.load()" style="background:none;border:none;color:var(--soft);font-size:14px;font-weight:700;font-family:var(--font-display);cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:6px;">Explore with sample data &rarr;</button></div>
           </div>
         </div>
       </div>`;
   }
-  const p1  = document.getElementById('flash-phase-1');
   const p2  = document.getElementById('flash-phase-2');
   const cta = document.getElementById('flash-cta');
-  const intro = document.getElementById('flash-intro');
-  if(!p1) return;
-  // Cancel any pending timers from a prior runFlashIntro before scheduling
-  // new ones — this function is called from multiple boot paths (core.js,
-  // boot.js) and a stale phase-3 timer could otherwise flip _flashDone=true
-  // mid-way through the second run.
-  _flashTimers.forEach(id => clearTimeout(id));
-  _flashTimers = [];
-  _flashDone = false;
-
-  // Respect prefers-reduced-motion: skip the animated intro and land on CTA immediately
-  const reduceMotion = (typeof matchMedia==='function') && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(reduceMotion){
-    p1.style.transition = 'none'; p1.style.opacity = '0';
-    p2.style.transition = 'none'; p2.style.opacity = '1';
-    if(cta){ cta.style.transition = 'none'; cta.style.opacity = '1'; }
-    _flashDone = true;
-    return;
-  }
-
-  // Reset all phases to invisible so each run starts clean
-  p1.style.transition = 'none'; p1.style.opacity = '0';
-  p2.style.transition = 'none'; p2.style.opacity = '0';
-  if(cta){ cta.style.transition = 'none'; cta.style.opacity = '0'; }
-  // Force reflow so the reset takes effect before transitions are re-enabled
-  p1.offsetWidth;
-
-  // Flash always shows "Get Started" -- that's the welcome screen's job
-
-  // Tap anywhere = skip to CTA. { once:true } auto-removes after first tap.
-  if(intro){
-    intro.removeEventListener('click', flashSkipToCTA); // clear any stale listener
-    intro.addEventListener('click', flashSkipToCTA, { once: true });
-  }
-
-
-  function schedule(fn, ms){
-    const id = setTimeout(()=>{ if(!_flashDone) fn(); }, ms);
-    _flashTimers.push(id);
-    return id;
-  }
-
-  // Phase 1: "Hey there." fades in
-  schedule(()=>{
-    if(!p1) return;
-    p1.style.transition = `opacity ${FLASH.FADE.P1_IN_S} ease`;
-    p1.style.opacity = '1';
-  }, FLASH.PHASE.P1_IN);
-
-  // Phase 1 fades out
-  schedule(()=>{
-    if(!p1) return;
-    p1.style.transition = `opacity ${FLASH.FADE.P1_OUT_S} ease`;
-    p1.style.opacity = '0';
-  }, FLASH.PHASE.P1_OUT);
-
-  // Phase 2: fades in as phase 1 is fading out -- crossfade, no blank gap
-  schedule(()=>{
-    if(!p2) return;
-    const shimmer = p2.querySelector('.gb-shimmer');
-    if(shimmer){
-      // Restart so the shimmer plays in sync with phase 2 appearing.
-      shimmer.style.animation = 'none';
-      shimmer.offsetWidth;
-      shimmer.style.animation = '';
-    }
-    p2.style.transition = `opacity ${FLASH.FADE.P2_IN_S} ease`;
-    p2.style.opacity = '1';
-  }, FLASH.PHASE.P2_IN);
-
-  // CTA fades in
-  schedule(()=>{
-    // Always flip _flashDone even if the CTA element vanished — the user
-    // can no longer skip, but state stays consistent for the next entry.
-    _flashDone = true;
-    if(!cta) return;
-    cta.style.transition = `opacity ${FLASH.FADE.CTA_IN_S} ease`;
-    cta.style.opacity = '1';
-  }, FLASH.PHASE.CTA_IN);
-}
-
-function flashSkipToCTA(e){
-  // Already done -- don't interfere with button taps on visible CTA
-  if(_flashDone) return;
-  if(e) e.stopPropagation();
-  // Cancel all pending timers
+  if(!p2) return;
+  // No phased sequence to skip anymore; clear any stale timers and mark done.
   _flashTimers.forEach(id => clearTimeout(id));
   _flashTimers = [];
   _flashDone = true;
 
-  const p1  = document.getElementById('flash-phase-1');
-  const p2  = document.getElementById('flash-phase-2');
-  const cta = document.getElementById('flash-cta');
-  // Force phase 1 off immediately
-  if(p1){
-    p1.style.transition = `opacity ${FLASH.SKIP.P1_OUT_S} ease`;
-    p1.style.opacity = '0';
+  // Restart the wordmark shimmer so it plays on entry.
+  const shimmer = p2.querySelector('.gb-shimmer');
+  if(shimmer){ shimmer.style.animation = 'none'; shimmer.offsetWidth; shimmer.style.animation = ''; }
+
+  const reduceMotion = (typeof matchMedia==='function') && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduceMotion){
+    p2.style.transition = 'none'; p2.style.opacity = '1';
+    if(cta){ cta.style.transition = 'none'; cta.style.opacity = '1'; }
+    return;
   }
-  // Bring in phase 2 + CTA quickly
-  if(p2){
-    // Restart shimmer so it plays fresh on tap-to-skip
-    const shimmer = p2.querySelector('.gb-shimmer');
-    if(shimmer){
-      shimmer.style.animation = 'none';
-      shimmer.offsetWidth;
-      shimmer.style.animation = '';
-    }
-    p2.style.transition = `opacity ${FLASH.SKIP.P2_IN_S} ease`;
-    p2.style.opacity = '1';
-  }
-  if(cta){
-    setTimeout(()=>{
-      cta.style.transition = `opacity ${FLASH.SKIP.CTA_IN_S} ease`;
-      cta.style.opacity = '1';
-    }, FLASH.SKIP.CTA_DELAY);
-  }
+
+  // Gentle fade-in of the welcome, then the CTA a beat later.
+  p2.style.transition = 'none'; p2.style.opacity = '0';
+  if(cta){ cta.style.transition = 'none'; cta.style.opacity = '0'; }
+  p2.offsetWidth; // reflow so the reset sticks before transitions re-enable
+  _flashTimers.push(setTimeout(()=>{ p2.style.transition = 'opacity 0.6s ease'; p2.style.opacity = '1'; }, 80));
+  _flashTimers.push(setTimeout(()=>{ if(cta){ cta.style.transition = 'opacity 0.5s ease'; cta.style.opacity = '1'; } }, 380));
 }
 
 function startSetupFromFlash(){
@@ -321,6 +203,41 @@ function startSetupFromFlash(){
   showScreen('summary', _navBtn(0));
   renderAll();
 }
+
+// ──────── Data-load wizard (flash CTA target) ────────
+// A short guided flow for getting transactions in: step 1 pick your bank and see
+// how to download a CSV/PDF; step 2 import the file (or load sample data). Reuses
+// the region-aware bank guide (BANK_EXPORTS / populateBankSelect / showBankExport)
+// and the existing handleFiles import pipeline — no new infrastructure.
+const gbLoadWizard = (() => {
+  function open(){
+    // Move past the flash like the old Get Started did, so closing the wizard
+    // lands on the proper empty Summary (with its own import options) and reveals
+    // the nav — and the flash won't reappear on next launch.
+    if(typeof startSetupFromFlash === 'function') startSetupFromFlash();
+    go(1);
+    if(typeof populateBankSelect === 'function') populateBankSelect('dlw-bank-select', 'dlw-steps');
+    openModal('modal-load-wizard');
+  }
+  function go(step){
+    const s1 = document.getElementById('dlw-step-1'), s2 = document.getElementById('dlw-step-2');
+    if(s1) s1.style.display = step === 2 ? 'none' : '';
+    if(s2) s2.style.display = step === 2 ? '' : 'none';
+    const t = document.getElementById('dlw-title');
+    if(t) t.textContent = step === 2 ? 'Import your file' : 'Load your data';
+  }
+  function pickFile(){
+    // Hand off to the normal import pipeline (preview -> confirm -> save).
+    closeModal('modal-load-wizard');
+    const i = document.getElementById('csv-input');
+    if(i) i.click();
+  }
+  function sample(){
+    closeModal('modal-load-wizard');
+    if(typeof gbDemo !== 'undefined') gbDemo.load();
+  }
+  return { open, go, pickFile, sample };
+})();
 
 
 // ──────── Bank export instructions (per-bank steps) ────────
@@ -511,22 +428,23 @@ const BANK_EXPORTS = {
 };
 // Fill the bank picker with the banks for the active region (+ "Other"). Called
 // when the Guide screen opens and after the region changes.
-function populateBankSelect(){
-  const sel = document.getElementById('bank-export-select');
+function populateBankSelect(selectId, stepsId){
+  selectId = selectId || 'bank-export-select'; stepsId = stepsId || 'bank-export-steps';
+  const sel = document.getElementById(selectId);
   if(!sel) return;
   const region = (typeof CFG !== 'undefined' && CFG.region) || 'US';
   const names = Object.keys(BANK_EXPORTS).filter(k => BANK_EXPORTS[k].region === region);
   sel.innerHTML = '<option value="" disabled selected>Select your bank…</option>'
     + names.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('')
     + '<option value="Other / not listed">Other / not listed</option>';
-  showBankExport('');   // reset the steps panel
+  showBankExport('', stepsId);   // reset the steps panel
 }
 // Repopulate when the user opens the Guide screen (region may have changed).
 document.addEventListener('gb:screen', (e) => {
   if(e.detail && e.detail.name === 'intro') populateBankSelect();
 });
-function showBankExport(key){
-  const el=document.getElementById('bank-export-steps');
+function showBankExport(key, stepsId){
+  const el=document.getElementById(stepsId || 'bank-export-steps');
   if(!el) return;
   if(!key){ el.innerHTML='<div style="font-size:12px;color:var(--muted);padding:2px;">Pick your bank above for step-by-step export instructions.</div>'; return; }
   const b=BANK_EXPORTS[key];
