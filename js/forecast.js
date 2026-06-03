@@ -7,11 +7,11 @@
 // gbTrends.detectRecurring (recurring.js) for the fixed-charge baseline.
 
 const gbForecast = (() => {
-  const _money  = n => gbMoneyAbs(n, 0);   // locale/currency-aware (core.js)
+  const _money  = n => gbMoney(n);   // -> core.js
   const _signed = n => (n >= 0 ? '+' : '−') + _money(n);
   const _round  = n => Math.round(Number(n) || 0);
   const _monthName = k => String(k || '').split(' ')[0] || k;
-  function _tsToDate(ts){ const y=Math.floor(ts/10000), m=Math.floor((ts%10000)/100), d=ts%100; return new Date(y, m-1, d); }
+  const _tsToDate = ts => gbTsToDate(ts);   // -> core.js
   function _median(a){ if(!a.length) return 0; const s=a.slice().sort((x,y)=>x-y), n=s.length, mid=n>>1; return n%2 ? s[mid] : (s[mid-1]+s[mid])/2; }
 
   // "Mon YYYY" + offset months -> "Mon YYYY".

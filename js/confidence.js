@@ -95,8 +95,8 @@ const gbConfidence = (() => {
   }
 
   // ──────── Views & actions (Phase 2) ────────
-  const _money  = (n) => (typeof gbMoneyAbs === 'function') ? gbMoneyAbs(n, 0) : ('$' + Math.abs(n).toFixed(0));
-  const _vendor = (tx) => (typeof cleanVendor === 'function' ? cleanVendor(tx.desc) : tx.desc) || tx.desc || 'Transaction';
+  const _money  = (n) => gbMoney(n);    // -> core.js
+  const _vendor = (tx) => gbVendor(tx); // -> core.js
   const _rangeLabel = (dr) => !dr ? '—' : (dr.firstMonth === dr.lastMonth ? dr.firstMonth : (dr.firstMonth + ' – ' + dr.lastMonth));
 
   // Compact, accountant-style strip pinned to the top of Summary. Shows no

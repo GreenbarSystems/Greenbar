@@ -11,9 +11,9 @@
 // updateLogBadge, gbDialog, showToast.
 
 const gbCleanup = (() => {
-  const _money = n => gbMoneyAbs(n, 0);   // locale/currency-aware (core.js)
-  function _tsToDate(ts){ const y=Math.floor(ts/10000), m=Math.floor((ts%10000)/100), d=ts%100; return new Date(y, m-1, d); }
-  function _vendorOf(tx){ return (typeof cleanVendor==='function' ? cleanVendor(tx.desc) : tx.desc) || tx.desc || 'Unknown'; }
+  const _money = n => gbMoney(n);          // -> core.js
+  const _tsToDate = ts => gbTsToDate(ts);  // -> core.js
+  const _vendorOf = tx => gbVendor(tx);    // -> core.js
 
   function _persistRender(){ saveData(); if(typeof renderAll==='function') renderAll(); render(); }
 

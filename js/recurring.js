@@ -23,7 +23,7 @@ const gbTrends = (() => {
   function _round2(n){ return Math.round((Number(n)||0)*100)/100; }
 
   /* ── ts (YYYYMMDD) helpers ── */
-  function _tsToDate(ts){ const y=Math.floor(ts/10000), m=Math.floor((ts%10000)/100), d=ts%100; return new Date(y, m-1, d); }
+  function _tsToDate(ts){ return gbTsToDate(ts); }   // -> core.js
   function _dateLabel(ts){ const y=Math.floor(ts/10000), m=Math.floor((ts%10000)/100), d=ts%100; return (MN[m-1]||'') + ' ' + d + ', ' + y; }
   function _addDays(ts, days){
     const dt=_tsToDate(ts); dt.setDate(dt.getDate()+Math.round(days));
@@ -42,7 +42,7 @@ const gbTrends = (() => {
 
   // Prefer an explicit curated vendor (manual txs) before deriving from desc,
   // matching anomaly.js so the same merchant groups/labels identically.
-  function _vendorOf(tx){ return (tx.vendor && String(tx.vendor).trim()) || (typeof cleanVendor==='function' ? cleanVendor(tx.desc) : tx.desc) || tx.desc || 'Unknown'; }
+  function _vendorOf(tx){ return gbVendor(tx); }   // -> core.js
 
   /* ════ A. Recurring-charge detection ════
    * Groups expenses by cleaned vendor name and keeps the groups that look like

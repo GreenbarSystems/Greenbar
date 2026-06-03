@@ -11,7 +11,7 @@
 const gbGoals = (() => {
   const K = 'gb_goals';
   const MAX = 12;
-  const _money = n => gbMoneyAbs(n, 0);   // locale/currency-aware (core.js)
+  const _money = n => gbMoney(n);   // -> core.js
 
   // Drop any goal whose id isn't a plain alphanumeric token. Self-generated ids
   // always are, but gb_goals rides in backup/restore (an untrusted file), and

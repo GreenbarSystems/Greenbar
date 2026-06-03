@@ -27,13 +27,13 @@ function median(arr){
 }
 
 /* ── small internal helpers ── */
-function _money(n){ return gbMoneyAbs(n, 0); }                 // locale/currency-aware (core.js)
+function _money(n){ return gbMoney(n); }                      // -> core.js
 function _money2(n){ return gbMoneyAbs(n, 2); }                // keeps cents
 function _round2(n){ return Math.round((Number(n)||0) * 100) / 100; }
 function _monthName(key){ return String(key||'').split(' ')[0] || key; }
-function _tsToDate(ts){ const y=Math.floor(ts/10000), m=Math.floor((ts%10000)/100), d=ts%100; return new Date(y, m-1, d); }
+function _tsToDate(ts){ return gbTsToDate(ts); }               // -> core.js
 function _dateLabel(ts){ const dt=_tsToDate(ts); return (MN[dt.getMonth()]||'') + ' ' + dt.getDate(); }
-function _vendorOf(tx){ return (tx.vendor && String(tx.vendor).trim()) || (typeof cleanVendor==='function' ? cleanVendor(tx.desc) : tx.desc) || tx.desc || 'Unknown'; }
+function _vendorOf(tx){ return gbVendor(tx); }                 // -> core.js
 function _vendorKey(tx){ return _vendorOf(tx).toUpperCase(); }
 function _capZ(z){ return z === null ? null : Math.min(5, Math.round(z*10)/10); }
 

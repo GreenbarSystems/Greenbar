@@ -222,6 +222,15 @@ function gbMoneyAbs(n, frac){
 // Signed money for dashboards: negative shown in accounting parens, e.g. "($1,234)".
 function fmt(n){ if(n===undefined||n===null||!isFinite(n))return'—'; const a=Math.abs(n); return(n<0?'(':'')+gbCurrencySymbol()+a.toLocaleString(gbRegion().locale,{minimumFractionDigits:0,maximumFractionDigits:0})+(n<0?')':''); }
 
+// ── Shared helpers (consolidated from per-module copies; QA dedup) ──
+// One source of truth so the IIFE feature modules delegate instead of each
+// redefining the same logic. core.js loads before every consumer, so these are
+// always defined by call time.
+function gbMoney(n){ return gbMoneyAbs(n, 0); }              // unsigned, 0-dp money
+function gbTsToDate(ts){ const y=Math.floor(ts/10000), m=Math.floor((ts%10000)/100), d=ts%100; return new Date(y, m-1, d); }  // YYYYMMDD int -> Date
+// Display vendor: a curated tx.vendor wins, else the cleaned description.
+function gbVendor(tx){ return (tx && tx.vendor && String(tx.vendor).trim()) || (typeof cleanVendor==='function' ? cleanVendor(tx && tx.desc) : (tx && tx.desc)) || (tx && tx.desc) || 'Unknown'; }
+
 // ──────── CSV parsing pipeline ────────
 function decodeBytes(buf){
   const bytes = new Uint8Array(buf);
