@@ -9,6 +9,10 @@ const PAL=['#00d68f','#2979ff','#00c9b1','#ffa502','#ff4757','#7c4dff','#ff6b81'
 // Transactions screen: active account/source filter ('' = all accounts). Ephemeral.
 let _txAcct = '';
 function setTxAccount(a){ _txAcct = a || ''; const inp = document.querySelector('#txs-content .search-wrap input'); renderTxs(inp ? inp.value : ''); }
+// Budget screen: active account filter ('' = all accounts). Filters actuals only;
+// budget targets stay household-wide. Ephemeral.
+let _budgetAcct = '';
+function setBudgetAccount(a){ _budgetAcct = a || ''; renderBudget(); }
 
 // ════ RENDER ════
 function renderAll(){
@@ -830,15 +834,26 @@ function renderBudget(){
     srAnnounce('Budget, no transactions yet');
     return;
   }
-  const expTotal = sumExpenses(m);
+  // Account filter — actuals only; budget targets stay household-wide.
+  const accounts = [...new Set((_allTxs||[]).map(t => t.acct).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  if(_budgetAcct && accounts.indexOf(_budgetAcct) === -1) _budgetAcct = '';
+  const acct = _budgetAcct;
+  let expMap;
+  if(acct){
+    expMap = {};
+    (m.txs||[]).forEach(t => { if(!t.isIncome && (t.acct||'') === acct) expMap[t.cat] = (expMap[t.cat] || 0) - t.amount; });
+  } else {
+    expMap = m.expenses;
+  }
+  const expTotal = Object.values(expMap).reduce((s, v) => s + v, 0);
   const budTotal = Object.values(CFG.budget).reduce((s, v) => s + v, 0);
   // Budgeted categories — drop rows with neither budget nor actual; biggest spend first.
   const rows = Object.entries(CFG.budget)
-    .map(([cat, bud]) => ({ cat, bud, actual: m.expenses[cat] || 0 }))
+    .map(([cat, bud]) => ({ cat, bud, actual: expMap[cat] || 0 }))
     .filter(r => r.bud > 0 || r.actual > 0)
     .sort((a, b) => b.actual - a.actual);
   // Top 5 unbudgeted spends (categories that have actual but no target).
-  const unb = Object.entries(m.expenses)
+  const unb = Object.entries(expMap)
     .filter(([cat]) => !CFG.budget[cat])
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5);
@@ -848,17 +863,30 @@ function renderBudget(){
   const varBdr   = totalVar >= 0 ? 'rgba(0,214,143,0.25)' : 'rgba(255,71,87,0.25)';
   const varLabel = totalVar >= 0 ? 'under budget' : 'over budget';
   const varPrefix= totalVar >= 0 ? '+' : '−';
+  const acctChips = accounts.length >= 2 ? `<div class="pills-row" role="group" aria-label="Filter by account" style="margin-bottom:6px;">
+      <button type="button" class="pill ${acct===''?'active':''}" data-acct="" onclick="setBudgetAccount(this.dataset.acct)"${acct===''?' aria-current="true"':''}>All accounts</button>
+      ${accounts.map(a=>`<button type="button" class="pill ${acct===a?'active':''}" data-acct="${esc(a)}" onclick="setBudgetAccount(this.dataset.acct)"${acct===a?' aria-current="true"':''}>${esc(a)}</button>`).join('')}
+    </div>` : '';
+  // Hero: variance vs the full plan for all-accounts; for a single account, show
+  // that account's spend against the household budget (no misleading "under").
+  const heroHtml = acct
+    ? `<div style="background:var(--glass);border:1px solid var(--border);border-radius:20px;padding:18px 18px 16px;margin-bottom:14px;">
+         <div style="font-family:var(--font-display);font-size:11px;font-weight:800;color:var(--soft);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">${esc(acct)} &middot; ${esc(mk)}</div>
+         <div style="font-family:var(--font-display);font-size:32px;font-weight:900;letter-spacing:-1px;line-height:1;">${fmt(expTotal)}</div>
+         <div style="font-size:13px;color:var(--soft);margin-top:6px;">spent &middot; of ${fmt(budTotal)} household budget</div>
+       </div>
+       <div style="font-size:12px;color:var(--muted);margin:-4px 2px 14px;line-height:1.5;">Targets are your full-household plan; actuals shown are <strong class="c-soft">${esc(acct)}</strong> only.</div>`
+    : `<button type="button" onclick="gbConfidence.openExplain('variance','${esc(mk)}')" aria-label="Explain budget variance" style="display:block;width:100%;text-align:left;background:${varTint};border:1px solid ${varBdr};border-radius:20px;padding:18px 18px 16px;margin-bottom:14px;cursor:pointer;font-family:inherit;color:inherit;">
+        <div style="font-family:var(--font-display);font-size:11px;font-weight:800;color:${varColor};text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">${budTotal>0?'This month':'No budget set'}</div>
+        <div style="font-family:var(--font-display);font-size:32px;font-weight:900;letter-spacing:-1px;color:${varColor};line-height:1;">${varPrefix}${fmt(Math.abs(totalVar))}</div>
+        <div style="font-size:13px;color:var(--soft);margin-top:6px;">${esc(varLabel)} &middot; ${fmt(expTotal)} spent of ${fmt(budTotal)} budgeted <span class="ex-i" aria-hidden="true" style="color:var(--muted);">&#9432;</span></div>
+      </button>
+      <div style="font-size:12px;color:var(--muted);margin:-4px 2px 14px;line-height:1.5;">Targets come from your Setup &mdash; update them in Settings anytime.</div>`;
   document.getElementById('budget-content').innerHTML=`
     ${typeof gbSuggest !== 'undefined' ? gbSuggest.cardHTML() : ''}
+    ${acctChips}
     <h2 class="sec-hdr" style="margin-top:0">Budget vs Actual <span class="sec-total">${esc(mk)}</span></h2>
-    <!-- Variance hero: the headline number for this screen, sized accordingly.
-         Tappable -> "Explain this number" (budget vs actual, per category). -->
-    <button type="button" onclick="gbConfidence.openExplain('variance','${esc(mk)}')" aria-label="Explain budget variance" style="display:block;width:100%;text-align:left;background:${varTint};border:1px solid ${varBdr};border-radius:20px;padding:18px 18px 16px;margin-bottom:14px;cursor:pointer;font-family:inherit;color:inherit;">
-      <div style="font-family:var(--font-display);font-size:11px;font-weight:800;color:${varColor};text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">${budTotal>0?'This month':'No budget set'}</div>
-      <div style="font-family:var(--font-display);font-size:32px;font-weight:900;letter-spacing:-1px;color:${varColor};line-height:1;">${varPrefix}${fmt(Math.abs(totalVar))}</div>
-      <div style="font-size:13px;color:var(--soft);margin-top:6px;">${esc(varLabel)} &middot; ${fmt(expTotal)} spent of ${fmt(budTotal)} budgeted <span class="ex-i" aria-hidden="true" style="color:var(--muted);">&#9432;</span></div>
-    </button>
-    <div style="font-size:12px;color:var(--muted);margin:-4px 2px 14px;line-height:1.5;">Targets come from your Setup &mdash; update them in Settings anytime.</div>
+    ${heroHtml}
     <div class="bva-card">
       <div class="bva-head"><span>Category</span><span>Budget</span><span>Actual</span><span>Δ</span></div>
       ${rows.map(r => {
@@ -883,9 +911,9 @@ function renderBudget(){
         + `</div>`
       ).join('')
     }</div>` : ''}
-    ${typeof gbForecast !== 'undefined' ? gbForecast.sectionHTML() : ''}
-    ${typeof gbTrends !== 'undefined' ? gbTrends.varianceSectionHTML(mk) : ''}
-    ${typeof gbTrends !== 'undefined' ? gbTrends.recurringCardHTML() : ''}`;
+    ${(!acct && typeof gbForecast !== 'undefined') ? gbForecast.sectionHTML() : ''}
+    ${(!acct && typeof gbTrends !== 'undefined') ? gbTrends.varianceSectionHTML(mk) : ''}
+    ${(!acct && typeof gbTrends !== 'undefined') ? gbTrends.recurringCardHTML() : ''}`;
   srAnnounce(`Budget for ${mk}, ${rows.length} ${rows.length===1?'category':'categories'}`);
 }
 
