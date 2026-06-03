@@ -31,7 +31,8 @@ const gbCleanup = (() => {
     const groups = new Map();
     (_allTxs || []).forEach(tx => {
       if(!(tx.amount < 0)) return; // expenses only
-      const k = _vendorOf(tx).toUpperCase() + '|' + Math.abs(tx.amount).toFixed(2);
+      // Account-aware: the same amount on two different accounts is not a dup.
+      const k = (tx.acct||'') + '|' + _vendorOf(tx).toUpperCase() + '|' + Math.abs(tx.amount).toFixed(2);
       if(!groups.has(k)) groups.set(k, []);
       groups.get(k).push(tx);
     });

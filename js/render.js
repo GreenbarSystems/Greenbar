@@ -6,6 +6,10 @@
 // PAL[i % PAL.length] so resizing the array doesn't desync the call sites.
 const PAL=['#00d68f','#2979ff','#00c9b1','#ffa502','#ff4757','#7c4dff','#ff6b81','#1de9b6','#ff9f43','#5352ed','#26de81','#4bcffa','#fd9644','#a55eea','#45aaf2'];
 
+// Transactions screen: active account/source filter ('' = all accounts). Ephemeral.
+let _txAcct = '';
+function setTxAccount(a){ _txAcct = a || ''; const inp = document.querySelector('#txs-content .search-wrap input'); renderTxs(inp ? inp.value : ''); }
+
 // ════ RENDER ════
 function renderAll(){
   renderSummary();
@@ -891,10 +895,15 @@ function renderTxs(filter=''){
   const matchesFilter = needle
     ? tx => (tx.desc||'').toLowerCase().includes(needle) || (tx.cat||'').toLowerCase().includes(needle)
     : () => true;
+  // Account/source filter — only shown when ≥2 accounts exist. Reset a stale
+  // selection (e.g. after the account's import was undone).
+  const accounts = [...new Set((_allTxs||[]).map(t => t.acct).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  if(_txAcct && accounts.indexOf(_txAcct) === -1) _txAcct = '';
+  const matchesAcct = _txAcct ? (tx => (tx.acct||'') === _txAcct) : (() => true);
   // Resolve each tx to a sortable key + readable label. Prefer the ts stored at
   // import; fall back to parsing the raw date for data saved by older versions.
   const rows = (_allTxs || [])
-    .filter(tx => (!mk || tx.month === mk) && matchesFilter(tx))
+    .filter(tx => (!mk || tx.month === mk) && matchesAcct(tx) && matchesFilter(tx))
     .map(tx => {
       const pd = parseDateParts(tx.date, dateFmt);
       const key   = (typeof tx.ts === 'number' && tx.ts) || (pd && pd.key) || 0;
@@ -902,20 +911,30 @@ function renderTxs(filter=''){
       return { tx, key, label };
     })
     .sort((a, b) => b.key - a.key);
+  // Account/source filter chips (only with ≥2 accounts). data-acct (not an inline
+  // string arg) so account names with quotes can't break the handler.
+  const acctChips = accounts.length >= 2
+    ? `<div class="pills-row" role="group" aria-label="Filter by account" style="margin-bottom:6px;">
+         <button type="button" class="pill ${_txAcct===''?'active':''}" data-acct="" onclick="setTxAccount(this.dataset.acct)"${_txAcct===''?' aria-current="true"':''}>All accounts</button>
+         ${accounts.map(a=>`<button type="button" class="pill ${_txAcct===a?'active':''}" data-acct="${esc(a)}" onclick="setTxAccount(this.dataset.acct)"${_txAcct===a?' aria-current="true"':''}>${esc(a)}</button>`).join('')}
+       </div>`
+    : '';
   if(!rows.length){
     const html = filter
       ? `<div class="empty"><p>No matches for &ldquo;${esc(filter)}&rdquo;.</p><button type="button" class="empty-link" onclick="renderTxs('')">Clear search</button></div>`
+      : _txAcct
+      ? `<div class="empty"><p>No transactions for &ldquo;${esc(_txAcct)}&rdquo;${mk?(' in '+esc(mk)):''}.</p><button type="button" class="empty-link" onclick="setTxAccount('')">Show all accounts</button></div>`
       : `<div class="tx-empty">
            <div class="tx-empty-icon" aria-hidden="true">✎</div>
            <div class="tx-empty-title">No transactions yet</div>
            <div class="tx-empty-sub">Import bank transactions, or tap <span class="fab-ref">+</span> to add a cash transaction.</div>
          </div>`;
-    document.getElementById('txs-content').innerHTML = html;
+    document.getElementById('txs-content').innerHTML = acctChips + html;
     srAnnounce(filter?`No transactions match "${filter}"`:'No transactions');
     return;
   }
   const byDate={};for(const r of rows){(byDate[r.label]=byDate[r.label]||[]).push(r);}
-  document.getElementById('txs-content').innerHTML=`
+  document.getElementById('txs-content').innerHTML=acctChips + `
     <div class="search-wrap${filter?' has-value':''}">
       <input type="text" aria-label="Search transactions" placeholder="Search…" value="${esc(filter)}"
         oninput="this.parentElement.classList.toggle('has-value', !!this.value); clearTimeout(this._t); this._t=setTimeout(()=>renderTxs(this.value),120)"

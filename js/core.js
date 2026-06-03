@@ -84,6 +84,7 @@ function loadCFG(){
   if(!Array.isArray(CFG.incomeKw)) CFG.incomeKw = (DEFAULTS.incomeKw||[]).slice();
   if(!Array.isArray(CFG.skipKw))   CFG.skipKw   = (DEFAULTS.skipKw||[]).slice();
   if(!Array.isArray(CFG.remaps))   CFG.remaps   = (DEFAULTS.remaps||[]).slice();
+  if(!Array.isArray(CFG.accounts)) CFG.accounts = [];
   // String fields inside CFG.cols
   ['date','desc','amt','cat','fmt'].forEach(k=>{
     if(typeof CFG.cols[k] !== 'string') CFG.cols[k] = (DEFAULTS.cols && DEFAULTS.cols[k]) || '';
@@ -445,7 +446,7 @@ function sumExpenses(m){ return m && m.expenses ? Object.values(m.expenses).redu
 // text per spec, so descriptions can't collide. Prior `|` separator could
 // theoretically collide if a description ended with a pipe and the next row's
 // date started with one (vanishingly unlikely in practice, but free to fix).
-function txKey(tx){ return tx.date+''+tx.desc+''+tx.amount; }
+function txKey(tx){ return (tx.acct||'')+""+tx.date+""+tx.desc+""+tx.amount; }
 
 // ──────── Canonical data invariant ────────
 // _allTxs (the flat, signed-amount transaction list) is the single source of
@@ -615,7 +616,7 @@ function saveLog(log){
 }
 // Object-destructured params: `monthCount` (number) and `months` (string) used
 // to be adjacent positional args -- easy to swap by accident. Now self-documenting.
-function addToLog({ id, filename, txCount, monthCount, months, skipped, undated, confidence, lowConfCount, dateRange }){
+function addToLog({ id, filename, txCount, monthCount, months, skipped, undated, confidence, lowConfCount, dateRange, account }){
   const log=getLog();
   // `id` links the log entry to the transactions tagged with tx.imp at import
   // time, so the clean-up center can undo exactly this batch. Falls back to a
@@ -628,7 +629,7 @@ function addToLog({ id, filename, txCount, monthCount, months, skipped, undated,
   log.unshift({ id: id || Date.now(), filename, txCount, monthCount, months,
     skipped: skipped || 0, undated: undated || 0,
     confidence: confidence || 'high', lowConfCount: lowConfCount || 0,
-    dateRange: dateRange || null,
+    dateRange: dateRange || null, account: account || '',
     date: new Date().toLocaleDateString(gbRegion().locale,{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}) });
   // Hard-cap retention: a single pop() leaves the log oversize if it ever
   // started larger than the cap (e.g. after a backup restore from a future
@@ -707,6 +708,7 @@ let _pendingPreview = null;   // { file, result } awaiting user confirm in the i
 let _importBusy = false;      // true between handleFiles start and final processNextFile drain
 let _lastImportedMonths = null; // accumulates month keys across a batch for anomaly detection
 let _lastImportReceipt = null;  // accumulates the committed-import summary shown as a receipt after a batch
+let _pendingAccountHint = null; // default account/source for the next import preview (e.g. the bank picked in the wizard)
 
 function handleFiles(files){
   if(!files || !files.length) return;
@@ -863,7 +865,19 @@ function showImportPreview(filename, result){
   }
   const _cbtn = document.getElementById('import-confirm-btn');
   if(_cbtn) _cbtn.textContent = (lvl === 'high') ? 'Import' : 'Import & review';
-  document.getElementById('import-preview-body').innerHTML = confHtml + `
+  // Account / source — every import belongs to one (foundation for multi-account
+  // accuracy). Free-type or pick a known account; defaults to the wizard's bank
+  // hint, else the most-recently-used account.
+  const _accts = Array.isArray(CFG.accounts) ? CFG.accounts : [];
+  const _acctDefault = _pendingAccountHint || _accts[0] || '';
+  const acctHtml = `
+    <div style="margin-bottom:12px;">
+      <label for="import-account-input" style="display:block;font-family:var(--font-display);font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px;">Account / source</label>
+      <input id="import-account-input" list="import-account-list" value="${esc(_acctDefault)}" placeholder="e.g. Chase Checking" autocomplete="off" style="width:100%;box-sizing:border-box;background:var(--glass);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:14px;font-family:var(--font-body);padding:10px 12px;">
+      <datalist id="import-account-list">${_accts.map(a => `<option value="${esc(a)}"></option>`).join('')}</datalist>
+      <div style="font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5;">These transactions are tagged to this account, so multiple accounts stay separate.</div>
+    </div>`;
+  document.getElementById('import-preview-body').innerHTML = confHtml + acctHtml + `
     <div style="background:var(--glass);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:12px;">
       <div style="font-family:var(--font-display);font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px;">Columns detected</div>
       ${mapRow('Date', m.date||'—', !!m.date)}
@@ -889,7 +903,12 @@ function showImportPreview(filename, result){
 }
 
 function confirmImportPreview(){
+  // Read the account before the modal teardown; default to "Unassigned" so every
+  // import still belongs to a source.
+  const _acctEl = document.getElementById('import-account-input');
+  const account = ((_acctEl && _acctEl.value) || '').trim() || 'Unassigned';
   closeModal('modal-import-preview');
+  _pendingAccountHint = null;
   const pend = _pendingPreview; _pendingPreview = null;
   if(!pend){ processNextFile(); return; }
   const { file, result } = pend;
@@ -898,10 +917,10 @@ function confirmImportPreview(){
   const newKeys = sortKeys(newMonths);
   const conflictingMonths = newKeys.filter(mk => _months[mk] && _months[mk].txs.length > 0);
   if(conflictingMonths.length > 0){
-    _pendingConflict = { file, newTxs, newMonths, newKeys, conflictingMonths, result };
+    _pendingConflict = { file, newTxs, newMonths, newKeys, conflictingMonths, result, account };
     showConflictModal(file.name, conflictingMonths, newKeys);
   } else {
-    applyImport(file, newTxs, newMonths, newKeys, 'merge', result);
+    applyImport(file, newTxs, newMonths, newKeys, 'merge', result, account);
     processNextFile();
   }
 }
@@ -909,6 +928,7 @@ function confirmImportPreview(){
 function cancelImportPreview(){
   closeModal('modal-import-preview');
   _pendingPreview = null;
+  _pendingAccountHint = null;
   processNextFile();   // skip this file, continue the queue
 }
 
@@ -952,7 +972,7 @@ function resolveConflict(action){
     return;
   }
 
-  const { file, newTxs, newMonths, newKeys, result } = _pendingConflict;
+  const { file, newTxs, newMonths, newKeys, result, account } = _pendingConflict;
   _pendingConflict = null;
 
   if(action === 'replace'){
@@ -962,16 +982,22 @@ function resolveConflict(action){
   }
 
   // Apply import (merge or clean replace)
-  applyImport(file, newTxs, newMonths, newKeys, action, result);
+  applyImport(file, newTxs, newMonths, newKeys, action, result, account);
   processNextFile();
 }
 
-function applyImport(file, newTxs, newMonths, newKeys, mode, result){
+function applyImport(file, newTxs, newMonths, newKeys, mode, result, account){
   // Tag every row in this batch with a shared import id so the clean-up center
   // can undo exactly these transactions later. newMonths[mk].txs are the same
   // objects as newTxs, so tagging here covers both the replace and merge paths.
   const importId = 'imp_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
-  for(const tx of newTxs){ tx.imp = importId; }
+  // Account/source: tag every row, and remember the account (most-recent first)
+  // so it's offered as a default and a datalist option next time.
+  const acct = ((account || '').trim()) || 'Unassigned';
+  for(const tx of newTxs){ tx.imp = importId; tx.acct = acct; }
+  if(!Array.isArray(CFG.accounts)) CFG.accounts = [];
+  CFG.accounts = [acct, ...CFG.accounts.filter(a => a !== acct)];
+  if(typeof saveCFG === 'function') saveCFG();
   // Merge month aggregates
   for(const mk of newKeys){
     if(mode === 'replace' || !_months[mk]){
@@ -1029,13 +1055,15 @@ function applyImport(file, newTxs, newMonths, newKeys, mode, result){
     confidence:   _confidence,
     lowConfCount: _lowConf,
     dateRange:    _dateRange,
+    account:      acct,
   });
   // Accumulate the committed-import summary for the post-import receipt shown
   // once the whole batch drains (replaces the old per-commit "Imported N" toast,
   // which the receipt now supersedes).
-  if(!_lastImportReceipt) _lastImportReceipt = { files: [], importIds: [], txCount: 0, skipped: 0, undated: 0, lowConf: 0, months: new Set() };
+  if(!_lastImportReceipt) _lastImportReceipt = { files: [], importIds: [], accounts: new Set(), txCount: 0, skipped: 0, undated: 0, lowConf: 0, months: new Set() };
   _lastImportReceipt.files.push(file.name);
   _lastImportReceipt.importIds.push(importId);
+  _lastImportReceipt.accounts.add(acct);
   _lastImportReceipt.txCount += newTxs.length;
   _lastImportReceipt.skipped += (_counts.skipped || 0);
   _lastImportReceipt.undated += (_counts.undated || 0);

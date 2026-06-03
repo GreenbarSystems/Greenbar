@@ -216,6 +216,8 @@ const gbConfidence = (() => {
     const ordered = (typeof sortKeys === 'function') ? sortKeys(mkObj) : months;
     const range = ordered.length ? (ordered[0] === ordered[ordered.length-1] ? ordered[0] : ordered[0] + ' – ' + ordered[ordered.length-1]) : '—';
     const fileLabel = (s.files && s.files.length === 1) ? s.files[0] : ((s.files ? s.files.length : 0) + ' files');
+    const accts = [...(s.accounts || [])];
+    const acctLabel = accts.length === 1 ? accts[0] : (accts.length + ' accounts');
     // Prefer the broader review count (low-confidence + duplicates + signs + …)
     // for this batch; fall back to the parse-only low-confidence count.
     const flagged = (s.reviewCount != null) ? s.reviewCount : (s.lowConf || 0);
@@ -235,6 +237,7 @@ const gbConfidence = (() => {
         + `<div class="receipt-big-sub">added to your data</div>`
         + `<div class="receipt-rows">`
         + row((s.files && s.files.length > 1) ? 'Files' : 'File', esc(fileLabel))
+        + (accts.length ? row(accts.length > 1 ? 'Accounts' : 'Account', esc(acctLabel)) : '')
         + row(months.length > 1 ? 'Months' : 'Month', esc(range))
         + (drops.length ? row('Dropped', esc(drops.join(' · ')), 'flag') : '')
         + row('Status', clean ? '&#10003; All clear' : (flagged + ' to review'), clean ? 'ok' : 'flag')
@@ -357,7 +360,7 @@ const gbConfidence = (() => {
             <div class="conf-card-file">${esc(e.filename)}</div>
             ${_confBadge(e.confidence || 'high')}
           </div>
-          <div class="conf-card-meta">${esc(String(e.txCount))} txn${e.txCount===1?'':'s'} &middot; ${esc(range)} &middot; ${esc(e.date)}</div>
+          <div class="conf-card-meta">${e.account?`<strong style="color:var(--soft);">${esc(e.account)}</strong> &middot; `:''}${esc(String(e.txCount))} txn${e.txCount===1?'':'s'} &middot; ${esc(range)} &middot; ${esc(e.date)}</div>
           ${drops.length?`<div class="conf-card-drops">${esc(drops.join(' · '))}</div>`:''}
           ${undoable?`<button type="button" class="conf-undo" onclick="gbConfidence.undo('${esc(String(e.id))}')">Undo this import</button>`:''}
         </div>`;

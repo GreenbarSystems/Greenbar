@@ -24,6 +24,10 @@ const DEFAULTS = {
   // mis-tagging expenses as income. Users can edit this list in Settings.
   incomeKw:['PAYROLL','DIRECT DEPOSIT','SALARY','WAGES','PENSION','DIVIDEND','TAX REFUND','CASHOUT','MOBILE DEPOSIT','ZELLE FROM','VENMO CASHOUT'],
   skipKw:[],
+  // Known account/source names (e.g. "Chase Checking"), most-recent first. Every
+  // import is tagged to one (tx.acct) so multiple accounts stay separate — the
+  // foundation for multi-account accuracy. Stored in CFG (gb_cfg2).
+  accounts:[],
   // Curated default merchant rules -- distinctive keyword substrings, matched
   // case-insensitively against the description (first match wins).
   remaps:[
@@ -100,8 +104,11 @@ const MN='Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec'.split(',');
 //   _allTxs : Array<Tx>, where Tx = { date:string, desc:string,
 //                     amount:number, cat:string, month:string, ts?:number,
 //                     isIncome?:boolean, source?:string, vendor?:string,
-//                     id?:string, imp?:string, catLocked?:boolean, note?:string,
+//                     id?:string, imp?:string, acct?:string, catLocked?:boolean,
+//                     note?:string,
 //                     conf?:'high'|'low', needsReview?:boolean, reviewed?:boolean }
+//             acct is the account/source this row was imported under (e.g.
+//             "Chase Checking"); absent on legacy/manual rows = unassigned.
 //             amount is signed: negative = expense, positive = income.
 //             conf / needsReview / reviewed are the Import Confidence layer:
 //             ABSENT means high-confidence + nothing to review (the common

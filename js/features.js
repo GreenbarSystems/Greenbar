@@ -228,6 +228,11 @@ const gbLoadWizard = (() => {
     if(t) t.textContent = step === 2 ? 'Import bank transactions' : 'Load your data';
   }
   function pickFile(){
+    // Pre-fill the import preview's account field with the bank the user picked
+    // (a sensible default for the account/source tag).
+    const sel = document.getElementById('dlw-bank-select');
+    const bank = sel && sel.value && sel.value !== 'Other / not listed' ? sel.value : '';
+    if(bank && typeof _pendingAccountHint !== 'undefined') _pendingAccountHint = bank;
     // Hand off to the normal import pipeline (preview -> confirm -> save).
     closeModal('modal-load-wizard');
     const i = document.getElementById('csv-input');
