@@ -288,6 +288,20 @@ button.pill { font: inherit; line-height: 1.2; -webkit-appearance: none; appeara
 .surplus { color: var(--green); }
 .deficit { color: var(--red); }
 
+/* Month-performance hero: net headline + income / expenses / savings-rate
+   mini-stats + review status (replaces the old budget-first card). */
+.net-card.perf-hero { text-align: left; padding: 16px 18px; }
+.perf-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+.perf-hero .net-amt { font-size: 42px; margin-bottom: 12px; }
+.perf-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.perf-stat { display: flex; flex-direction: column; gap: 2px; text-align: left; background: var(--o03); border: 1px solid var(--border); border-radius: 12px; padding: 9px 10px; cursor: pointer; font-family: inherit; color: var(--text); }
+.perf-stat[aria-disabled="true"] { cursor: default; }
+.perf-stat:not([aria-disabled]):hover { background: var(--o05); }
+.perf-stat .st-lbl { font-size: 10px; }
+.perf-stat .st-val { font-size: 15px; }
+/* Standalone clickable pill (review badge in the hero). */
+button.tb-pill { -webkit-appearance: none; appearance: none; cursor: pointer; }
+
 /* ── Stat row ── */
 .stat-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
 .stat-tile {

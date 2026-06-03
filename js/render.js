@@ -680,32 +680,37 @@ function renderSummary(){
       ${typeof gbConfidence !== 'undefined' ? gbConfidence.renderReviewBanner() : ''}
       ${typeof gbConfidence !== 'undefined' ? gbConfidence.renderTrustBar() : ''}
       ${pills}
-      <div class="net-card" style="margin-bottom:12px;">
-        <div class="net-lbl">Monthly Budget</div>
-        <div class="net-amt surplus">${fmt(totalBudget)}</div>
-        <div class="net-mo">Your monthly plan</div>
-        <button type="button" class="ex-link" onclick="gbConfidence.openExplain('budget','${esc(sel)}')" aria-label="Explain the monthly budget total">How is this calculated? &#9432;</button>
-      </div>
+      ${(()=>{
+        // Month-performance hero: net is the headline, with income / expenses /
+        // savings-rate as auditable mini-stats and the import review status.
+        const income = m ? m.income : 0;
+        const net = income - expTotal;
+        const netPos = net >= 0;
+        const reviewN = (typeof gbConfidence !== 'undefined') ? gbConfidence.reviewQueue().length : 0;
+        const reviewBadge = reviewN
+          ? `<button type="button" class="tb-pill review" onclick="gbConfidence.open()" aria-label="${reviewN} transaction${reviewN===1?'':'s'} to review">${reviewN} to review</button>`
+          : `<span class="tb-pill ok">&#10003; Verified</span>`;
+        const savings = income > 0
+          ? (()=>{ const pct = Math.round(net / income * 100);
+              return `<button type="button" class="perf-stat" onclick="openHealthBreakdown()" aria-label="Savings rate ${netPos?'+':'−'}${Math.abs(pct)} percent — see what's driving it"><span class="st-lbl">Savings rate</span><span class="st-val" style="color:${netPos?'var(--green)':'var(--red)'};">${netPos?'+':'−'}${Math.abs(pct)}%</span></button>`; })()
+          : `<div class="perf-stat" aria-disabled="true"><span class="st-lbl">Savings rate</span><span class="st-val c-muted">—</span></div>`;
+        return `<div class="net-card perf-hero" style="margin-bottom:12px;">
+          <div class="perf-top">
+            <span class="net-lbl" style="margin-bottom:0;">${esc(sel)} &middot; Net</span>
+            ${reviewBadge}
+          </div>
+          <div class="net-amt ${netPos?'surplus':'deficit'}">${netPos?'+':'−'}${fmt(Math.abs(net))}</div>
+          <div class="perf-stats">
+            <button type="button" class="perf-stat" onclick="gbConfidence.openExplain('income','${esc(sel)}')" aria-label="Income, tap to explain"><span class="st-lbl">Income</span><span class="st-val" style="color:var(--green);">+${fmt(income)}</span></button>
+            <button type="button" class="perf-stat" onclick="gbConfidence.openExplain('expenses','${esc(sel)}')" aria-label="Expenses, tap to explain"><span class="st-lbl">Expenses</span><span class="st-val">−${fmt(expTotal)}</span></button>
+            ${savings}
+          </div>
+        </div>`;
+      })()}
       ${typeof gbGoals !== 'undefined' ? gbGoals.cardHTML() : ''}
       ${typeof gbSuggest !== 'undefined' ? gbSuggest.cardHTML() : ''}
       <div class="stat-row" style="grid-template-columns:1fr 1fr;margin-bottom:8px;">
-        ${(()=>{
-          // Savings rate: income minus spend, expressed as a % of income.
-          // Tapping opens the Health Score Breakdown -- savings rate is the
-          // top-weighted component there, so the modal gives the full context.
-          if(m && m.income > 0){
-            const rate = (m.income - expTotal) / m.income;
-            const pct  = Math.round(rate * 100);
-            const saved= m.income - expTotal;
-            const positive = rate >= 0;
-            const valColor = positive ? 'var(--green)' : '#ff4757';
-            const subText  = positive ? `${fmt(saved)} saved` : `${fmt(Math.abs(saved))} over`;
-            const sign     = positive ? '+' : '−';
-            const ariaSign = positive ? 'saved' : 'over income';
-            return `<button class="stat-tile" type="button" onclick="openHealthBreakdown()" aria-label="Savings rate ${sign}${Math.abs(pct)} percent ${ariaSign} this month — see what's driving it"><div class="st-lbl">Savings Rate</div><div class="st-val" style="color:${valColor};">${sign}${Math.abs(pct)}%</div><div class="st-tap-hint" style="margin-top:3px;color:var(--soft);">${subText} &rsaquo;</div></button>`;
-          }
-          return `<button class="stat-tile" type="button" disabled aria-label="Savings rate not available yet — add a month with income"><div class="st-lbl">Savings Rate</div><div class="st-val c-muted">—</div></button>`;
-        })()}
+        <button class="stat-tile" type="button" onclick="showScreen('budget', document.querySelectorAll('.nav-btn')[1])" aria-label="Monthly budget ${esc(fmt(totalBudget))} — open the Budget tab"><div class="st-lbl">Monthly Budget</div><div class="st-val">${fmt(totalBudget)}</div><div class="st-tap-hint">Plan vs actual &rsaquo;</div></button>
         <button class="stat-tile" type="button" ${hs?`onclick="openHealthBreakdown()" aria-label="Health score ${hs.grade}, ${hs.score} out of 100 — see what's driving it"`:'disabled aria-label="Health score not available yet"'}><div class="st-lbl">Health Score</div><div class="st-val" style="color:${gradeColor};">${grade}</div>${hs?`<div class="st-tap-hint">Tap for details &rsaquo;</div>`:''}</button>
       </div>
       <div style="font-size:12px;color:var(--muted);line-height:1.5;margin:0 2px 16px;">${esc(gradeExplain)}</div>
