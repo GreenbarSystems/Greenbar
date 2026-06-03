@@ -137,6 +137,56 @@ const gbConfidence = (() => {
     renderCenter();
   }
 
+  // ──────── Post-import receipt ────────
+  // A committed-import summary shown OVER the dashboard after every import (even
+  // clean ones): how many landed, from which file(s), the period, what was
+  // dropped, and the verification status. onDismiss runs when the receipt closes
+  // (used to defer anomaly detection so its report never fights the receipt).
+  let _receiptOnDismiss = null;
+  function showReceipt(s, onDismiss){
+    if(!s) return;
+    _receiptOnDismiss = (typeof onDismiss === 'function') ? onDismiss : null;
+    const months = [...(s.months || [])];
+    const mkObj = {}; months.forEach(k => { mkObj[k] = true; });
+    const ordered = (typeof sortKeys === 'function') ? sortKeys(mkObj) : months;
+    const range = ordered.length ? (ordered[0] === ordered[ordered.length-1] ? ordered[0] : ordered[0] + ' – ' + ordered[ordered.length-1]) : '—';
+    const fileLabel = (s.files && s.files.length === 1) ? s.files[0] : ((s.files ? s.files.length : 0) + ' files');
+    const clean = !s.lowConf;
+    const check = document.getElementById('receipt-check');
+    if(check){ check.className = 'receipt-check' + (clean ? '' : ' flag'); check.innerHTML = clean ? '&#10003;' : '&#9888;'; }
+    const title = document.getElementById('receipt-title');
+    if(title) title.textContent = clean ? 'Import complete' : 'Imported — review needed';
+    const drops = [];
+    if(s.skipped) drops.push(s.skipped + ' skipped');
+    if(s.undated) drops.push(s.undated + ' undated date' + (s.undated === 1 ? '' : 's'));
+    const row = (l, v, cls) => `<div class="receipt-row"><span class="rr-l">${esc(l)}</span><span class="rr-v ${cls||''}">${v}</span></div>`;
+    const body = document.getElementById('receipt-body');
+    if(body){
+      body.innerHTML =
+        `<div class="receipt-big">${s.txCount} transaction${s.txCount === 1 ? '' : 's'}</div>`
+        + `<div class="receipt-big-sub">added to your data</div>`
+        + `<div class="receipt-rows">`
+        + row((s.files && s.files.length > 1) ? 'Files' : 'File', esc(fileLabel))
+        + row(months.length > 1 ? 'Months' : 'Month', esc(range))
+        + (drops.length ? row('Dropped', esc(drops.join(' · ')), 'flag') : '')
+        + row('Status', clean ? '&#10003; All clear' : (s.lowConf + ' flagged for review'), clean ? 'ok' : 'flag')
+        + `</div>`;
+    }
+    const actions = document.getElementById('receipt-actions');
+    if(actions){
+      actions.innerHTML = s.lowConf
+        ? `<button type="button" class="btn-primary" style="margin:0 0 10px;" onclick="gbConfidence.dismissReceipt(); gbConfidence.open();">Review ${s.lowConf} flagged &rarr;</button>`
+          + `<button type="button" class="btn-secondary" style="margin:0;" onclick="gbConfidence.dismissReceipt()">Go to dashboard</button>`
+        : `<button type="button" class="btn-primary" style="margin:0;" onclick="gbConfidence.dismissReceipt()">View dashboard</button>`;
+    }
+    if(typeof openModal === 'function') openModal('modal-import-receipt');
+  }
+  function dismissReceipt(){
+    if(typeof closeModal === 'function') closeModal('modal-import-receipt');
+    const cb = _receiptOnDismiss; _receiptOnDismiss = null;
+    if(typeof cb === 'function'){ try{ cb(); }catch(_){} }
+  }
+
   // Keep the Settings → Import Confidence Center badge in sync with the queue.
   function updateBadge(){
     const b = document.getElementById('icc-badge');
@@ -363,5 +413,5 @@ const gbConfidence = (() => {
 
   return { dateRange, reviewQueue, trustSummary, importConfidence, markReviewed, markAllReviewed,
            renderTrustBar, renderReviewBanner, renderCenter, open, resolveRow, reviewAll, undo, updateBadge,
-           explain, renderExplain, openExplain };
+           explain, renderExplain, openExplain, showReceipt, dismissReceipt };
 })();

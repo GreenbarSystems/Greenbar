@@ -706,6 +706,7 @@ let _pendingConflict = null;  // { file, newTxs, newMonths, newKeys, conflicting
 let _pendingPreview = null;   // { file, result } awaiting user confirm in the import-preview modal
 let _importBusy = false;      // true between handleFiles start and final processNextFile drain
 let _lastImportedMonths = null; // accumulates month keys across a batch for anomaly detection
+let _lastImportReceipt = null;  // accumulates the committed-import summary shown as a receipt after a batch
 
 function handleFiles(files){
   if(!files || !files.length) return;
@@ -728,26 +729,24 @@ function processNextFile(){
     _importBusy = false;
     saveData();
     renderAll();
-    // Low-confidence rows trigger an EXPLICIT review: if this batch flagged any
-    // rows, land directly in the Import Confidence Center's review queue rather
-    // than the dashboard — the strongest "please verify these" signal short of
-    // blocking the import. Otherwise pick the usual landing screen.
-    const _needsReview = (typeof gbConfidence !== 'undefined' && gbConfidence.reviewQueue().length > 0);
-    if(_needsReview){
-      gbConfidence.open();
+    // Land on the dashboard first (Budget when still on defaults, so the "build a
+    // budget from your spending" card is front-and-centre; otherwise Summary)…
+    const _toBudget = (typeof gbSuggest !== 'undefined' && gbSuggest.shouldShow && gbSuggest.shouldShow());
+    showScreen(_toBudget ? 'budget' : 'summary', _navBtn(_toBudget ? 1 : 0));
+    // …then show a committed-import receipt OVER it — a summary of exactly what
+    // landed, even for a clean import. Low-confidence batches get a prominent
+    // "Review N flagged" CTA in the receipt (explicit review without yanking the
+    // user away first). Anomaly detection is deferred to the receipt's dismissal
+    // so its report modal never competes with the receipt for the screen.
+    const _anomMonths = (_lastImportedMonths && _lastImportedMonths.size) ? [..._lastImportedMonths] : null;
+    const _runAnom = () => { if(typeof runAnomalyDetection === 'function' && _anomMonths) runAnomalyDetection(_anomMonths); };
+    if(_lastImportReceipt && typeof gbConfidence !== 'undefined' && gbConfidence.showReceipt){
+      gbConfidence.showReceipt(_lastImportReceipt, _runAnom);
     } else {
-      // If the user is still on the default budget, land on the Budget screen where
-      // the "build my budget from your spending" card is pinned at the top — the
-      // highest-value next step right after a first import. Otherwise, Summary.
-      const _toBudget = (typeof gbSuggest !== 'undefined' && gbSuggest.shouldShow && gbSuggest.shouldShow());
-      showScreen(_toBudget ? 'budget' : 'summary', _navBtn(_toBudget ? 1 : 0));
-    }
-    // Anomaly detection runs after the render is queued. runAnomalyDetection()
-    // yields via setTimeout(0), so it never delays the import UI.
-    if(typeof runAnomalyDetection === 'function' && _lastImportedMonths && _lastImportedMonths.size){
-      runAnomalyDetection([..._lastImportedMonths]);
+      _runAnom();
     }
     _lastImportedMonths = null;
+    _lastImportReceipt = null;
     return;
   }
   const file = _pendingFiles.shift();
@@ -1023,12 +1022,16 @@ function applyImport(file, newTxs, newMonths, newKeys, mode, result){
     lowConfCount: _lowConf,
     dateRange:    _dateRange,
   });
-  // Summary toast fires here (on actual apply) rather than at parse time, so it
-  // reflects a committed import — not one the user might still cancel/skip.
-  if(typeof showToast === 'function'){
-    const span = newKeys.length === 1 ? newKeys[0] : newKeys[0] + '–' + newKeys[newKeys.length-1];
-    showToast('Imported ' + newTxs.length + ' transaction' + (newTxs.length===1?'':'s') + ' (' + span + ')');
-  }
+  // Accumulate the committed-import summary for the post-import receipt shown
+  // once the whole batch drains (replaces the old per-commit "Imported N" toast,
+  // which the receipt now supersedes).
+  if(!_lastImportReceipt) _lastImportReceipt = { files: [], txCount: 0, skipped: 0, undated: 0, lowConf: 0, months: new Set() };
+  _lastImportReceipt.files.push(file.name);
+  _lastImportReceipt.txCount += newTxs.length;
+  _lastImportReceipt.skipped += (_counts.skipped || 0);
+  _lastImportReceipt.undated += (_counts.undated || 0);
+  _lastImportReceipt.lowConf += _lowConf;
+  newKeys.forEach(k => _lastImportReceipt.months.add(k));
 }
 
 

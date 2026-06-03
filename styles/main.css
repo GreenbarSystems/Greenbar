@@ -646,6 +646,19 @@ button.settings-row:hover { background: var(--o02); }
 .ex-more { font-size: 11.5px; color: var(--muted); padding: 8px 0 2px; }
 .ex-foot { font-size: 11.5px; color: var(--muted); margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--o05); word-break: break-word; }
 
+/* Post-import receipt — a committed-import summary shown over the dashboard. */
+.receipt-check { width: 48px; height: 48px; border-radius: 50%; margin: 4px auto 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; background: rgba(0,214,143,0.12); color: var(--green); }
+.receipt-check.flag { background: rgba(255,165,2,0.12); color: var(--amber); }
+.receipt-big { text-align: center; font-family: var(--font-display); font-size: 28px; font-weight: 900; letter-spacing: -1px; }
+.receipt-big-sub { text-align: center; font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+.receipt-rows { background: var(--glass); border: 1px solid var(--border); border-radius: 14px; padding: 2px 14px; }
+.receipt-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--o05); font-size: 13px; }
+.receipt-row:last-child { border-bottom: none; }
+.receipt-row .rr-l { color: var(--muted); flex-shrink: 0; }
+.receipt-row .rr-v { font-weight: 600; text-align: right; word-break: break-word; }
+.receipt-row .rr-v.flag { color: var(--amber); }
+.receipt-row .rr-v.ok { color: var(--green); }
+
 /* sr-only: visually hidden, visible to assistive tech. Used for the global live-region announcer. */
 .sr-only {
   position: absolute !important; width: 1px !important; height: 1px !important;

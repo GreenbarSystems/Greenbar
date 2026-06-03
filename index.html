@@ -1129,6 +1129,16 @@ if('serviceWorker' in navigator){
   </div>
 </dialog>
 
+<dialog class="modal-overlay" id="modal-import-receipt" aria-modal="true" aria-labelledby="receipt-title" onclick="if(event.target===this)gbConfidence.dismissReceipt()">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div id="receipt-check" class="receipt-check" aria-hidden="true">&#10003;</div>
+    <h2 class="sheet-title" id="receipt-title" style="text-align:center;margin-bottom:2px;">Import complete</h2>
+    <div id="receipt-body" style="margin-top:10px;"></div>
+    <div id="receipt-actions" style="margin-top:16px;"></div>
+  </div>
+</dialog>
+
 <dialog class="modal-overlay" id="modal-explain" aria-modal="true" aria-labelledby="explain-title" onclick="closeOut(event,'modal-explain')">
   <div class="sheet">
     <div class="sheet-close-row">
