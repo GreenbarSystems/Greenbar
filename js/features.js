@@ -41,7 +41,7 @@ function appendAIMsg(text, cls){
 // Fully offline: no network call, no API key. Answers app-usage questions only.
 const HELP_TOPICS = [
   { kw:['import','csv','upload','add a file','load','statement','get started','how do i start'],
-    a:'Tap the green Import button at the top and choose your Bank Transactions. Greenbar reads them instantly on your device — nothing is uploaded. Each new import merges with your existing data, so you can add a file every month.' },
+    a:'Tap the green Import button at the top and choose your bank transactions. Greenbar reads them instantly on your device — nothing is uploaded. Each new import merges with your existing data, so you can add a file every month.' },
   { kw:['column','mapping','header','date column','amount column','recognize',"can't read"],
     a:'If Greenbar can\'t read your bank\'s file, open Settings → Column Mapping and type the exact header names for Date, Description and Amount. Leave a field blank to auto-detect it.' },
   { kw:['category','categories','remap','reclassify','wrong category','miscategor'],
@@ -67,7 +67,7 @@ const HELP_TOPICS = [
   { kw:['delete','clear','erase','reset','wipe','remove all'],
     a:'To erase everything, open the Guide screen → Privacy & Data → Clear All Data. This permanently removes all transactions, settings and history from this device.' },
   { kw:['log','upload log','imported files','import history'],
-    a:'The Upload Log records all the Bank Transactions you\'ve imported — filename, date, transaction count and months covered. It stores metadata only, never the raw file.' },
+    a:'The Upload Log records all the bank transactions you\'ve imported — filename, date, transaction count and months covered. It stores metadata only, never the raw file.' },
   { kw:['offline','internet','connection','work offline','no wifi'],
     a:'Greenbar works fully offline. There are no external calls — importing, categorizing and saving all happen on your device.' },
 ];
@@ -81,7 +81,7 @@ function answerHelpQuery(q){
     if(score > bestScore){ bestScore = score; best = t; }
   }
   if(best && bestScore > 0) return best.a;
-  return 'I can help with questions about using Greenbar — importing Bank Transactions, categories, budgets, the health score, privacy and more. Try "how do I import a file?" or "how is my health score calculated?" I can\'t help with finance or math questions.';
+  return 'I can help with questions about using Greenbar — importing bank transactions, categories, budgets, the health score, privacy and more. Try "how do I import a file?" or "how is my health score calculated?" I can\'t help with finance or math questions.';
 }
 
 function sendAIMessage(){
@@ -224,7 +224,7 @@ const gbLoadWizard = (() => {
     if(s1) s1.style.display = step === 2 ? 'none' : '';
     if(s2) s2.style.display = step === 2 ? '' : 'none';
     const t = document.getElementById('dlw-title');
-    if(t) t.textContent = step === 2 ? 'Import your file' : 'Load your data';
+    if(t) t.textContent = step === 2 ? 'Import bank transactions' : 'Load your data';
   }
   function pickFile(){
     // Hand off to the normal import pipeline (preview -> confirm -> save).
@@ -766,7 +766,7 @@ function finishSetup(){
   showHeaderButtons();
 
   // Show a brief toast instead of blocking alert
-  showToast('Budget saved! Import your Bank Transactions to start tracking.');
+  showToast('Budget saved! Import your bank transactions to start tracking.');
 }
 
 function skipSetup(){

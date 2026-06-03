@@ -609,7 +609,7 @@ function renderSummary(){
   const grade=hs ? hs.grade : '—';
   const gradeColor=hs ? hs.gradeColor : 'var(--muted)';
   const gradeExplain=hs ? (GRADE_EXPLAIN[hs.grade]||hs.label)
-    : (hasData ? 'Add a month with income to get a grade.' : 'Import transactions to get your grade.');
+    : (hasData ? 'Add a month with income to get a grade.' : 'Import bank transactions to get your grade.');
 
   // Top 3 spend categories
   const spend=m ? Object.entries(m.expenses).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,3) : [];
@@ -632,7 +632,7 @@ function renderSummary(){
             <div class="cat-pct">${expTotal>0?(amt/expTotal*100).toFixed(1):'0.0'}%</div>
           </div>
         </div>`).join('')}</div>`
-    : `<div class="g-card" style="padding:22px 18px;text-align:center;color:var(--muted);font-size:13px;">No spending yet — import your Bank Transactions to see your top categories.</div>`;
+    : `<div class="g-card" style="padding:22px 18px;text-align:center;color:var(--muted);font-size:13px;">No spending yet — import your bank transactions to see your top categories.</div>`;
 
   let achievements=hasData ? renderStreaks() : '';
   if(!achievements){
@@ -660,8 +660,8 @@ function renderSummary(){
       <div class="gb-welcome">
         <div class="g-card empty-import-hero" style="padding:30px 22px 26px;text-align:center;margin-top:8px;background:linear-gradient(160deg,rgba(0,214,143,0.12),rgba(41,121,255,0.05));border:1px solid rgba(0,214,143,0.3);">
           <div style="font-family:var(--font-display);font-size:23px;font-weight:900;letter-spacing:-0.5px;margin-bottom:8px;">See where your money goes</div>
-          <div style="font-size:13.5px;color:var(--soft);line-height:1.6;margin:0 auto 22px;max-width:300px;">Import a bank statement — CSV or PDF. It's read right here on your device; nothing is ever uploaded.</div>
-          <button type="button" onclick="startFirstImport()" aria-label="Import your transactions" style="width:100%;max-width:340px;padding:17px 24px;border:none;border-radius:16px;background:var(--grad-primary);color:#050a14;font-family:var(--font-display);font-size:16px;font-weight:900;letter-spacing:0.3px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.18);">Import transactions</button>
+          <div style="font-size:13.5px;color:var(--soft);line-height:1.6;margin:0 auto 22px;max-width:300px;">Import your bank transactions from a CSV or PDF. They're read right here on your device; nothing is ever uploaded.</div>
+          <button type="button" onclick="startFirstImport()" aria-label="Import bank transactions" style="width:100%;max-width:340px;padding:17px 24px;border:none;border-radius:16px;background:var(--grad-primary);color:#050a14;font-family:var(--font-display);font-size:16px;font-weight:900;letter-spacing:0.3px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.18);">Import bank transactions</button>
           <div style="margin-top:16px;font-size:12.5px;color:var(--soft);line-height:1.8;">
             No file yet? <button type="button" onclick="goToBankExport()" class="link-btn">Export from your bank &rarr;</button><br>
             Just exploring? <button type="button" onclick="gbDemo.load()" class="link-btn">Load sample data &rarr;</button>
@@ -818,8 +818,8 @@ function renderBudget(){
   if(!m){
     document.getElementById('budget-content').innerHTML =
       '<div class="empty">' +
-        '<p>Your budget is ready. Import your Bank Transactions to compare actual spending.</p>' +
-        '<button type="button" class="empty-action" onclick="document.getElementById(\'csv-input\').click()">Import a CSV file</button>' +
+        '<p>Your budget is ready. Import your bank transactions to compare actual spending.</p>' +
+        '<button type="button" class="empty-action" onclick="document.getElementById(\'csv-input\').click()">Import bank transactions</button>' +
       '</div>';
     srAnnounce('Budget, no transactions yet');
     return;
@@ -908,7 +908,7 @@ function renderTxs(filter=''){
       : `<div class="tx-empty">
            <div class="tx-empty-icon" aria-hidden="true">✎</div>
            <div class="tx-empty-title">No transactions yet</div>
-           <div class="tx-empty-sub">Import a CSV or tap <span class="fab-ref">+</span> to add a cash transaction.</div>
+           <div class="tx-empty-sub">Import bank transactions, or tap <span class="fab-ref">+</span> to add a cash transaction.</div>
          </div>`;
     document.getElementById('txs-content').innerHTML = html;
     srAnnounce(filter?`No transactions match "${filter}"`:'No transactions');

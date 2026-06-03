@@ -14,7 +14,7 @@
 </script>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="application-name" content="Greenbar">
-<meta name="description" content="Greenbar — private, on-device budgeting for US, UK, Australian & Canadian bank statements. Import a CSV or PDF; your data never leaves your phone.">
+<meta name="description" content="Greenbar — private, on-device budgeting for US, UK, Australian & Canadian bank statements. Import bank transactions (CSV or PDF); your data never leaves your phone.">
 <!-- Static manifest (was an injected Blob): a real file is required for the
      Web Share Target + File Handling import routes, whose action URLs the
      service worker intercepts. -->
@@ -128,12 +128,12 @@ if('serviceWorker' in navigator){
 
     <!-- BUDGET -->
     <div class="screen" id="screen-budget">
-      <div id="budget-content" role="region" aria-label="Budget"><div class="empty"><p>Your budget is ready. Import your Bank Transactions to compare actual spending.</p><button type="button" class="empty-action" onclick="document.getElementById('csv-input').click()">Import a CSV file</button></div></div>
+      <div id="budget-content" role="region" aria-label="Budget"><div class="empty"><p>Your budget is ready. Import your bank transactions to compare actual spending.</p><button type="button" class="empty-action" onclick="document.getElementById('csv-input').click()">Import bank transactions</button></div></div>
     </div>
 
     <!-- TRANSACTIONS -->
     <div class="screen" id="screen-txs">
-      <div id="txs-content" role="region" aria-label="Transactions"><div class="empty"><p>No transactions yet. Import a file and they'll show up here, searchable and grouped by date.</p><button type="button" class="empty-action" onclick="document.getElementById('csv-input').click()">Import a CSV file</button></div></div>
+      <div id="txs-content" role="region" aria-label="Transactions"><div class="empty"><p>No transactions yet. Import your bank transactions and they'll show up here, searchable and grouped by date.</p><button type="button" class="empty-action" onclick="document.getElementById('csv-input').click()">Import bank transactions</button></div></div>
     </div>
 
     <!-- INTRO / GUIDE -->
@@ -309,8 +309,8 @@ if('serviceWorker' in navigator){
           <div style="display:flex;gap:14px;padding:16px;border-bottom:1px solid var(--o05);">
             <div class="step-badge">2</div>
             <div>
-              <div class="row-label">Download your Bank Transactions</div>
-              <div class="row-desc">Log into your bank's website, go to Transaction History or Account Activity, and export your Bank Transactions. Usually found under Download, Export, or Statements.</div>
+              <div class="row-label">Download your bank transactions</div>
+              <div class="row-desc">Log into your bank's website, go to Transaction History or Account Activity, and export your bank transactions. Usually found under Download, Export, or Statements.</div>
             </div>
           </div>
 
@@ -318,7 +318,7 @@ if('serviceWorker' in navigator){
             <div class="step-badge">3</div>
             <div>
               <div class="row-label">Tap Import and select your file</div>
-              <div class="row-desc">Tap the green Import button at the top. Select your Bank Transactions from Downloads. Greenbar handles everything instantly -- nothing is uploaded anywhere.</div>
+              <div class="row-desc">Tap the green Import button at the top. Select your bank transactions from Downloads. Greenbar handles everything instantly -- nothing is uploaded anywhere.</div>
             </div>
           </div>
 
@@ -403,7 +403,7 @@ if('serviceWorker' in navigator){
           <div style="display:flex;gap:14px;padding:16px;align-items:flex-start;">
             <div>
               <div class="row-label">Upload Log</div>
-              <div class="row-desc">Open the Upload Log to see a history of all the Bank Transactions you've imported -- filename, date, transaction count, and months covered.</div>
+              <div class="row-desc">Open the Upload Log to see a history of all the bank transactions you've imported -- filename, date, transaction count, and months covered.</div>
             </div>
           </div>
         </div>
@@ -474,7 +474,7 @@ if('serviceWorker' in navigator){
             <div style="display:flex;flex-direction:column;gap:0;">
               <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--o05);">
                 <div class="step-badge-sm">1</div>
-                <div><div class="row-label-s">Read the file</div><div class="caption-xs">Greenbar reads your Bank Transactions and works out which column is which &mdash; date, description, amount. If your bank uses unusual column names, you can set them in Settings.</div></div>
+                <div><div class="row-label-s">Read the file</div><div class="caption-xs">Greenbar reads your bank transactions and works out which column is which &mdash; date, description, amount. If your bank uses unusual column names, you can set them in Settings.</div></div>
               </div>
               <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--o05);">
                 <div class="step-badge-sm">2</div>
@@ -587,9 +587,9 @@ if('serviceWorker' in navigator){
 
           <!-- CSV tips -->
           <div class="glass-card-padded">
-            <div style="font-family:var(--font-display);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:#ffa502;margin-bottom:10px;">Bank Transactions tips</div>
+            <div style="font-family:var(--font-display);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:#ffa502;margin-bottom:10px;">Bank transactions tips</div>
             <div class="uth-intro">
-              Greenbar works with Bank Transactions exported from any bank. It automatically looks for columns named things like &ldquo;Date,&rdquo; &ldquo;Description,&rdquo; &ldquo;Amount,&rdquo; and &ldquo;Category.&rdquo; If your bank uses different names, you can set them in Settings.
+              Greenbar works with bank transactions exported from any bank. It automatically looks for columns named things like &ldquo;Date,&rdquo; &ldquo;Description,&rdquo; &ldquo;Amount,&rdquo; and &ldquo;Category.&rdquo; If your bank uses different names, you can set them in Settings.
             </div>
             <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">
               <div class="bullet-row">
@@ -659,7 +659,7 @@ if('serviceWorker' in navigator){
                 <div style="font-size:11px;font-weight:600;color:var(--soft);">Your Bank</div>
               </div>
               <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;">
-                <div style="font-size:11px;color:var(--green);font-weight:700;">Bank Transactions</div>
+                <div style="font-size:11px;color:var(--green);font-weight:700;">Bank transactions</div>
                 <div style="width:48px;height:2px;background:linear-gradient(90deg,rgba(0,214,143,0.3),#00d68f);border-radius:1px;"></div>
                 <div style="font-size:9px;color:var(--muted);">you download</div>
               </div>
@@ -943,7 +943,7 @@ if('serviceWorker' in navigator){
       <h2 class="sheet-title" id="cols-title" style="margin-bottom:0">Column Mapping</h2>
       <button type="button" aria-label="Close" onclick="closeModal('modal-cols')" class="sheet-close">✕</button>
     </div>
-    <div class="sheet-sub">Enter exact column headers from your Bank Transactions. Leave blank to auto-detect.</div>
+    <div class="sheet-sub">Enter exact column headers from your bank transactions. Leave blank to auto-detect.</div>
     <div class="sheet-label">Region &amp; currency</div>
     <select class="sheet-input" id="region-select" aria-label="Region and currency" style="appearance:none" onchange="setRegion(this.value)">
       <option value="US">United States &mdash; $ USD</option>
@@ -1065,7 +1065,7 @@ if('serviceWorker' in navigator){
     <!-- Step 2: import the file -->
     <div id="dlw-step-2" style="display:none;">
       <div class="sheet-sub">Select the CSV or PDF you downloaded. Greenbar reads it on your device and shows a preview before saving anything.</div>
-      <button type="button" class="btn-primary" style="width:100%;" onclick="gbLoadWizard.pickFile()">Choose file to import</button>
+      <button type="button" class="btn-primary" style="width:100%;" onclick="gbLoadWizard.pickFile()">Import bank transactions</button>
       <div style="text-align:center;margin-top:10px;"><button type="button" class="link-btn" onclick="gbLoadWizard.go(1)">&larr; Back</button></div>
     </div>
   </div>
@@ -1151,9 +1151,9 @@ if('serviceWorker' in navigator){
       <h2 class="sheet-title" id="log-title" style="margin-bottom:0;">Upload Log</h2>
       <button type="button" onclick="clearLog()" style="background:rgba(255,71,87,0.12);border:1px solid rgba(255,71,87,0.2);border-radius:10px;padding:6px 12px;color:var(--red);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-display);">Clear All</button>
     </div>
-    <div class="sheet-sub">All the Bank Transactions you import are recorded here.</div>
+    <div class="sheet-sub">All the bank transactions you import are recorded here.</div>
     <div id="log-list"></div>
-    <div id="log-empty" style="text-align:center;padding:40px 0;color:var(--muted);font-size:14px;display:none;">No uploads yet.<br>Import your Bank Transactions to start logging.</div>
+    <div id="log-empty" style="text-align:center;padding:40px 0;color:var(--muted);font-size:14px;display:none;">No uploads yet.<br>Import your bank transactions to start logging.</div>
   </div>
 </dialog>
 

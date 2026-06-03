@@ -161,7 +161,7 @@ const gbConfidence = (() => {
     updateBadge();
     const s = trustSummary();
     if(!s.txCount){
-      host.innerHTML = `<div class="conf-empty">No data imported yet.<br><button type="button" class="link-btn" onclick="startFirstImport && startFirstImport()">Import a statement &rarr;</button></div>`;
+      host.innerHTML = `<div class="conf-empty">No data imported yet.<br><button type="button" class="link-btn" onclick="startFirstImport && startFirstImport()">Import bank transactions &rarr;</button></div>`;
       return;
     }
 

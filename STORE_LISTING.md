@@ -28,7 +28,7 @@ Console and keep it updated here in git.
 **Subtitle** (≤30): `On-device budget tracker`
 
 **Promotional text** (≤170):
-`For US, UK, Australia & Canada. Import a CSV or PDF bank statement and see your spending — 100% on your device. No account, no cloud, no sign-up.`
+`For US, UK, Australia & Canada. Import bank transactions from a CSV or PDF and see your spending — 100% on your device. No account, no cloud, no sign-up.`
 
 **Description** (≤4000):
 ```
@@ -45,7 +45,7 @@ PRIVATE BY DESIGN
 • Optional PIN / biometric lock and a privacy mode that blurs amounts.
 
 IMPORT IN SECONDS
-• Import transactions from a CSV or PDF bank statement.
+• Import bank transactions from a CSV or PDF bank statement.
 • Built-in export guides for major banks in the US, UK, Australia and Canada.
 • Greenbar auto-detects columns and categorizes transactions for you.
 • A preview shows exactly what was understood before anything is saved.

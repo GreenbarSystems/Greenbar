@@ -362,8 +362,8 @@ function categorizeTx(rawDesc, origCat){
 // errors still alert and return an empty result.
 function processCSV(rows,headers){
   const empty = { txs:[], mapping:null, counts:{ total:0, imported:0, skipped:0, undated:0 } };
-  if(!headers||headers.length<2){ gbDialog.alert('These Bank Transactions have no headers. Check the file format and try again.'); return empty; }
-  if(!rows||rows.length===0){ gbDialog.alert('This Bank Transactions file appears to be empty.'); return empty; }
+  if(!headers||headers.length<2){ gbDialog.alert('This file has no column headers. Check the file format and try again.'); return empty; }
+  if(!rows||rows.length===0){ gbDialog.alert('This file appears to be empty.'); return empty; }
   const colDate=CFG.cols.date||autoCol(headers,['date','posted','transaction date']);
   const colDesc=CFG.cols.desc||autoCol(headers,['description','merchant','memo','payee']);
   const colAmt=CFG.cols.amt||autoCol(headers,['amount','transaction amount']);
@@ -801,7 +801,7 @@ function processNextFile(){
       processNextFile();
     }
   };
-  rd.onerror=()=>{ gbDialog.alert('Could not read "'+file.name+'". Please make sure it is a valid Bank Transactions file.'); processNextFile(); };
+  rd.onerror=()=>{ gbDialog.alert('Could not read "'+file.name+'". Please make sure it is a valid CSV or PDF file.'); processNextFile(); };
   rd.readAsArrayBuffer(file);
 }
 
