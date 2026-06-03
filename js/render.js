@@ -677,6 +677,7 @@ function renderSummary(){
 
   document.getElementById('summary-content').innerHTML=`
     <div class="gb-welcome">
+      ${typeof gbConfidence !== 'undefined' ? gbConfidence.renderReviewBanner() : ''}
       ${typeof gbConfidence !== 'undefined' ? gbConfidence.renderTrustBar() : ''}
       ${pills}
       <div class="net-card" style="margin-bottom:12px;">

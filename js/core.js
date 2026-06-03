@@ -719,11 +719,20 @@ function processNextFile(){
     _importBusy = false;
     saveData();
     renderAll();
-    // If the user is still on the default budget, land on the Budget screen where
-    // the "build my budget from your spending" card is pinned at the top — the
-    // highest-value next step right after a first import. Otherwise, Summary.
-    const _toBudget = (typeof gbSuggest !== 'undefined' && gbSuggest.shouldShow && gbSuggest.shouldShow());
-    showScreen(_toBudget ? 'budget' : 'summary', _navBtn(_toBudget ? 1 : 0));
+    // Low-confidence rows trigger an EXPLICIT review: if this batch flagged any
+    // rows, land directly in the Import Confidence Center's review queue rather
+    // than the dashboard — the strongest "please verify these" signal short of
+    // blocking the import. Otherwise pick the usual landing screen.
+    const _needsReview = (typeof gbConfidence !== 'undefined' && gbConfidence.reviewQueue().length > 0);
+    if(_needsReview){
+      gbConfidence.open();
+    } else {
+      // If the user is still on the default budget, land on the Budget screen where
+      // the "build my budget from your spending" card is pinned at the top — the
+      // highest-value next step right after a first import. Otherwise, Summary.
+      const _toBudget = (typeof gbSuggest !== 'undefined' && gbSuggest.shouldShow && gbSuggest.shouldShow());
+      showScreen(_toBudget ? 'budget' : 'summary', _navBtn(_toBudget ? 1 : 0));
+    }
     // Anomaly detection runs after the render is queued. runAnomalyDetection()
     // yields via setTimeout(0), so it never delays the import UI.
     if(typeof runAnomalyDetection === 'function' && _lastImportedMonths && _lastImportedMonths.size){
@@ -815,12 +824,30 @@ function showImportPreview(filename, result){
 
   const sub = document.getElementById('import-preview-sub');
   if(sub) sub.textContent = filename;
-  // Low-confidence parses (e.g. a PDF with no clear table header) surface a
-  // warning so the user scrutinizes the sample before committing.
-  const warnHtml = result.warn
-    ? `<div style="background:rgba(255,165,2,0.08);border:1px solid rgba(255,165,2,0.3);border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--amber);line-height:1.5;">⚠ ${esc(result.warn)}</div>`
-    : '';
-  document.getElementById('import-preview-body').innerHTML = warnHtml + `
+  // Confidence header — make a low-confidence parse impossible to miss. A clean
+  // (high-confidence) parse gets a calm green chip; a low/mixed parse gets a
+  // prominent colored panel listing the specific reasons and stating plainly
+  // that the rows will import flagged for review.
+  const verdict = (typeof gbConfidence !== 'undefined')
+    ? gbConfidence.importConfidence(result)
+    : { level: (result.confidence || 'high'), reasons: (result.reasons || []) };
+  const lvl = verdict.level;
+  let confHtml;
+  if(lvl === 'high'){
+    confHtml = `<div class="imp-conf high">&#10003; Looks clean — columns were detected with high confidence.</div>`;
+  } else {
+    const reasons = (verdict.reasons && verdict.reasons.length)
+      ? verdict.reasons
+      : (result.warn ? [result.warn] : ['Greenbar inferred the columns from the page layout.']);
+    confHtml = `<div class="imp-conf ${lvl === 'low' ? 'low' : 'mixed'}">
+      <div class="imp-conf-title">&#9888; Low confidence — please review</div>
+      <ul class="imp-conf-reasons">${reasons.map(r => `<li>${esc(r)}</li>`).join('')}</ul>
+      <div class="imp-conf-note">These rows will import <strong>flagged for review</strong> so you can verify each one in the Import Confidence Center.</div>
+    </div>`;
+  }
+  const _cbtn = document.getElementById('import-confirm-btn');
+  if(_cbtn) _cbtn.textContent = (lvl === 'high') ? 'Import' : 'Import & review';
+  document.getElementById('import-preview-body').innerHTML = confHtml + `
     <div style="background:var(--glass);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:12px;">
       <div style="font-family:var(--font-display);font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px;">Columns detected</div>
       ${mapRow('Date', m.date||'—', !!m.date)}

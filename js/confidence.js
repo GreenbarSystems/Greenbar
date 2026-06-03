@@ -120,6 +120,18 @@ const gbConfidence = (() => {
     </button>`;
   }
 
+  // Persistent, prominent nag shown above the trust bar on Summary whenever the
+  // review queue is non-empty — it stays until every flagged row is cleared.
+  function renderReviewBanner(){
+    const n = reviewQueue().length;
+    if(!n) return '';
+    return `<button type="button" class="review-banner" onclick="gbConfidence.open()" aria-label="Review ${n} low-confidence transaction${n===1?'':'s'}">
+      <span class="rb-icon" aria-hidden="true">&#9888;</span>
+      <span class="rb-text"><strong>${n} transaction${n===1?'':'s'} need${n===1?'s':''} review</strong><span class="rb-sub">Parsed with low confidence — tap to verify them.</span></span>
+      <span class="rb-cta" aria-hidden="true">Review &rsaquo;</span>
+    </button>`;
+  }
+
   function open(){
     if(typeof showScreen === 'function') showScreen('confidence');
     renderCenter();
@@ -257,5 +269,5 @@ const gbConfidence = (() => {
   }
 
   return { dateRange, reviewQueue, trustSummary, importConfidence, markReviewed, markAllReviewed,
-           renderTrustBar, renderCenter, open, resolveRow, reviewAll, undo, updateBadge };
+           renderTrustBar, renderReviewBanner, renderCenter, open, resolveRow, reviewAll, undo, updateBadge };
 })();
