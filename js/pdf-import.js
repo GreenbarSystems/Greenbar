@@ -212,23 +212,36 @@ const gbPdf = (() => {
   // ── raw rows -> the shared { txs, mapping, counts } result (reuses CSV path) ──
   function _rowsToResult(rows, undated, confidence){
     const txs = []; let skipped = 0, und = undated;
+    const low = confidence === 'low';
     for(const r of rows){
       const U = r.desc.toUpperCase();
       if(CFG.skipKw.some(kw => U.includes(kw))){ skipped++; continue; }
       const pd = parseDateParts(r.dateStr, _fmtNow());
       if(!pd){ und++; continue; }
       const { cat, isIncome } = categorizeTx(r.desc, '');
-      txs.push({ id: newTxId(), date: r.dateStr, ts: pd.key, month: pd.month,
-                 desc: r.desc, origCat: '', amount: r.amount, cat, isIncome, source: 'pdf' });
+      const tx = { id: newTxId(), date: r.dateStr, ts: pd.key, month: pd.month,
+                 desc: r.desc, origCat: '', amount: r.amount, cat, isIncome, source: 'pdf' };
+      // Low-confidence (line-based, no header) rows still import — but each is
+      // flagged so the Import Confidence Center can nag the user to verify it.
+      // Nothing is silently dropped or silently trusted.
+      if(low){ tx.conf = 'low'; tx.needsReview = true; }
+      txs.push(tx);
     }
     if(!txs.length) return null;
     const res = {
       txs,
       mapping: { date: 'auto (PDF layout)', amt: 'auto (PDF layout)', desc: 'auto (PDF layout)', cat: '', fmt: _fmtNow() },
-      counts: { total: txs.length + skipped + und, imported: txs.length, skipped, undated: und }
+      counts: { total: txs.length + skipped + und, imported: txs.length, skipped, undated: und },
+      // Explicit parse confidence + human-readable reasons consumed by the
+      // import preview and the Import Confidence Center (gbConfidence).
+      confidence: low ? 'low' : 'high',
+      reasons: []
     };
-    if(confidence === 'low')
+    if(low){
       res.warn = 'No clear table header was found — Greenbar inferred the columns from the page layout. Please review the sample below carefully.';
+      res.reasons.push('No clear table header was found — columns were inferred from the page layout.');
+      if(und) res.reasons.push(und + ' row' + (und === 1 ? '' : 's') + ' had unreadable dates and were dropped.');
+    }
     return res;
   }
 

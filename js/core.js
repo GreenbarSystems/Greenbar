@@ -606,12 +606,21 @@ function saveLog(log){
 }
 // Object-destructured params: `monthCount` (number) and `months` (string) used
 // to be adjacent positional args -- easy to swap by accident. Now self-documenting.
-function addToLog({ id, filename, txCount, monthCount, months }){
+function addToLog({ id, filename, txCount, monthCount, months, skipped, undated, confidence, lowConfCount, dateRange }){
   const log=getLog();
   // `id` links the log entry to the transactions tagged with tx.imp at import
   // time, so the clean-up center can undo exactly this batch. Falls back to a
   // timestamp for any caller that doesn't supply one.
-  log.unshift({ id: id || Date.now(), filename, txCount, monthCount, months, date: new Date().toLocaleDateString(gbRegion().locale,{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}) });
+  //
+  // Trust metadata (skipped / undated / confidence / lowConfCount / dateRange)
+  // powers the Import Confidence Center. All optional — entries written by
+  // older builds (or callers that don't supply them) read back as a clean,
+  // high-confidence import with nothing skipped.
+  log.unshift({ id: id || Date.now(), filename, txCount, monthCount, months,
+    skipped: skipped || 0, undated: undated || 0,
+    confidence: confidence || 'high', lowConfCount: lowConfCount || 0,
+    dateRange: dateRange || null,
+    date: new Date().toLocaleDateString(gbRegion().locale,{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}) });
   // Hard-cap retention: a single pop() leaves the log oversize if it ever
   // started larger than the cap (e.g. after a backup restore from a future
   // version that allowed more entries).
@@ -846,10 +855,10 @@ function confirmImportPreview(){
   const newKeys = sortKeys(newMonths);
   const conflictingMonths = newKeys.filter(mk => _months[mk] && _months[mk].txs.length > 0);
   if(conflictingMonths.length > 0){
-    _pendingConflict = { file, newTxs, newMonths, newKeys, conflictingMonths };
+    _pendingConflict = { file, newTxs, newMonths, newKeys, conflictingMonths, result };
     showConflictModal(file.name, conflictingMonths, newKeys);
   } else {
-    applyImport(file, newTxs, newMonths, newKeys, 'merge');
+    applyImport(file, newTxs, newMonths, newKeys, 'merge', result);
     processNextFile();
   }
 }
@@ -900,7 +909,7 @@ function resolveConflict(action){
     return;
   }
 
-  const { file, newTxs, newMonths, newKeys } = _pendingConflict;
+  const { file, newTxs, newMonths, newKeys, result } = _pendingConflict;
   _pendingConflict = null;
 
   if(action === 'replace'){
@@ -910,11 +919,11 @@ function resolveConflict(action){
   }
 
   // Apply import (merge or clean replace)
-  applyImport(file, newTxs, newMonths, newKeys, action);
+  applyImport(file, newTxs, newMonths, newKeys, action, result);
   processNextFile();
 }
 
-function applyImport(file, newTxs, newMonths, newKeys, mode){
+function applyImport(file, newTxs, newMonths, newKeys, mode, result){
   // Tag every row in this batch with a shared import id so the clean-up center
   // can undo exactly these transactions later. newMonths[mk].txs are the same
   // objects as newTxs, so tagging here covers both the replace and merge paths.
@@ -953,12 +962,30 @@ function applyImport(file, newTxs, newMonths, newKeys, mode){
   // anomaly detection over all of them once the whole import drains.
   if(!_lastImportedMonths) _lastImportedMonths = new Set();
   newKeys.forEach(k => _lastImportedMonths.add(k));
+  // Derive the trust metadata for this batch. lowConfCount / dateRange come
+  // from the rows themselves; skipped / undated / parse confidence come from
+  // the parse result (the dropped rows aren't in newTxs, so they can only be
+  // read from result.counts). `result` is optional — absent on legacy paths.
+  const _counts = (result && result.counts) || {};
+  const _lowConf = newTxs.reduce((n, t) => n + (t.needsReview ? 1 : 0), 0);
+  const _confidence = (result && result.confidence)
+    || (_lowConf ? (_lowConf < newTxs.length ? 'mixed' : 'low') : 'high');
+  let _lo = Infinity, _hi = -Infinity;
+  for(const t of newTxs){ if(t.ts < _lo) _lo = t.ts; if(t.ts > _hi) _hi = t.ts; }
+  const _dateRange = newTxs.length
+    ? { firstTs: _lo, lastTs: _hi, firstMonth: newKeys[0], lastMonth: newKeys[newKeys.length - 1] }
+    : null;
   addToLog({
-    id:         importId,
-    filename:   file.name,
-    txCount:    newTxs.length,
-    monthCount: newKeys.length,
-    months:     newKeys.join(', '),
+    id:           importId,
+    filename:     file.name,
+    txCount:      newTxs.length,
+    monthCount:   newKeys.length,
+    months:       newKeys.join(', '),
+    skipped:      _counts.skipped || 0,
+    undated:      _counts.undated || 0,
+    confidence:   _confidence,
+    lowConfCount: _lowConf,
+    dateRange:    _dateRange,
   });
   // Summary toast fires here (on actual apply) rather than at parse time, so it
   // reflects a committed import — not one the user might still cancel/skip.

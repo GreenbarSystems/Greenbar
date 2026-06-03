@@ -100,8 +100,14 @@ const MN='Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec'.split(',');
 //   _allTxs : Array<Tx>, where Tx = { date:string, desc:string,
 //                     amount:number, cat:string, month:string, ts?:number,
 //                     isIncome?:boolean, source?:string, vendor?:string,
-//                     id?:string, imp?:string, catLocked?:boolean, note?:string }
+//                     id?:string, imp?:string, catLocked?:boolean, note?:string,
+//                     conf?:'high'|'low', needsReview?:boolean, reviewed?:boolean }
 //             amount is signed: negative = expense, positive = income.
+//             conf / needsReview / reviewed are the Import Confidence layer:
+//             ABSENT means high-confidence + nothing to review (the common
+//             case — keeps saved data lean). A low-confidence parse (e.g. a
+//             PDF with no clear table header) sets conf:'low' + needsReview:true
+//             on each row; the review queue clears a row by setting reviewed:true.
 //             ts is a YYYYMMDD integer (e.g. 20260514), NOT an epoch — it is
 //             pd.key from parseDateParts(); older saves may lack it
 //             (renderTxs falls back to parseDateParts on tx.date).
