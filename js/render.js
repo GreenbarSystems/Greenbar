@@ -681,7 +681,6 @@ function renderSummary(){
       ${typeof gbConfidence !== 'undefined' ? gbConfidence.renderTrustBar() : ''}
       ${pills}
       <div class="net-card" style="margin-bottom:12px;">
-        <div class="pulse"></div>
         <div class="net-lbl">Monthly Budget</div>
         <div class="net-amt surplus">${fmt(totalBudget)}</div>
         <div class="net-mo">Your monthly plan</div>
@@ -775,7 +774,6 @@ function renderSummaryAll(){
 
       <div class="pills-row" role="group" aria-label="Select month" style="margin-bottom:12px;">${pills}</div>
       <div class="net-card" style="margin-bottom:12px;">
-        <div class="pulse"></div>
         <div class="net-lbl">Total Net -- ${n} Months</div>
         <div class="net-amt ${totalInc>=totalExp?'surplus':'deficit'}">${totalInc>=totalExp?'+':''}${fmt(totalInc-totalExp)}</div>
         <div class="net-mo">Avg ${fmt((totalInc-totalExp)/n)}/mo</div>
