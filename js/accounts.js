@@ -86,17 +86,41 @@ const gbAccounts = (() => {
       host.innerHTML = `<div style="color:var(--muted);font-size:13px;padding:10px 2px;">No accounts yet — import bank transactions to create one.</div>`;
       return;
     }
-    host.innerHTML = items.map(a => `
+    const money = (typeof gbMoneyAbs === 'function') ? (n => gbMoneyAbs(n, 0)) : (n => '$' + Math.round(Math.abs(n)));
+    host.innerHTML = items.map(a => {
+      const bal = balance(a.name);
+      const balText = bal ? ` &middot; bal ${bal.balance < 0 ? '−' : ''}${money(bal.balance)}` : '';
+      return `
       <div class="acct-row">
         <input class="acct-name" value="${esc(a.name)}" data-orig="${esc(a.name)}" aria-label="Account name" autocomplete="off"
           onkeydown="if(event.key==='Enter'){event.preventDefault();gbAccounts.rename(this.dataset.orig,this.value);}">
-        <span class="acct-count">${a.txCount} txn${a.txCount === 1 ? '' : 's'}</span>
+        <span class="acct-count">${a.txCount} txn${a.txCount === 1 ? '' : 's'}${balText}</span>
         <button type="button" class="acct-save" onclick="const i=this.parentElement.querySelector('.acct-name');gbAccounts.rename(i.dataset.orig,i.value)">Save</button>
         <button type="button" class="acct-del" aria-label="Delete ${esc(a.name)}" onclick="const i=this.parentElement.querySelector('.acct-name');gbAccounts.remove(i.dataset.orig)">&#x2715;</button>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   }
 
   function openManager(){ renderManager(); if(typeof openModal === 'function') openModal('modal-accounts'); }
+
+  // Current running balance for an account, if a statement closing balance was
+  // ever recorded: the most recent closing balance + every transaction dated
+  // strictly after it. Returns null when no closing balance is on file.
+  function balance(name){
+    const log = (typeof getLog === 'function') ? getLog() : [];
+    let anchor = null;
+    log.forEach(e => {
+      if(e.account === name && e.closingBalance != null && typeof e.balanceAsOf === 'number'){
+        if(!anchor || e.balanceAsOf > anchor.balanceAsOf) anchor = e;
+      }
+    });
+    if(!anchor) return null;
+    let bal = anchor.closingBalance;
+    (typeof _allTxs !== 'undefined' ? _allTxs : []).forEach(t => {
+      if(((t.acct && String(t.acct)) || UNASSIGNED) === name && (t.ts || 0) > anchor.balanceAsOf) bal += t.amount;
+    });
+    return { balance: bal, asOf: anchor.balanceAsOf };
+  }
 
   // ──────── Per-account summary (dashboard breakdown) ────────
   // For a month (or all data when monthKey is null/'__all'): income, spend and
@@ -124,15 +148,20 @@ const gbAccounts = (() => {
     const money = (typeof gbMoneyAbs === 'function') ? (n => gbMoneyAbs(n, 0)) : (n => '$' + Math.round(Math.abs(n)));
     return `<h2 class="sec-hdr">Accounts</h2>
       <div class="acct-sum-card">
-        ${rows.map(a => `
-          <button type="button" class="acct-sum-row" data-acct="${esc(a.name)}" onclick="gbAccounts.viewTxs(this.dataset.acct)" aria-label="View ${esc(a.name)} transactions">
+        ${rows.map(a => {
+          const bal = balance(a.name);
+          const sub = bal
+            ? `Balance <span class="cat-amt">${bal.balance < 0 ? '−' : ''}${money(bal.balance)}</span> &middot; ${a.count} txn${a.count === 1 ? '' : 's'}`
+            : `in <span class="cat-amt">${money(a.income)}</span> &middot; out <span class="cat-amt">${money(a.spend)}</span> &middot; ${a.count} txn${a.count === 1 ? '' : 's'}`;
+          return `<button type="button" class="acct-sum-row" data-acct="${esc(a.name)}" onclick="gbAccounts.viewTxs(this.dataset.acct)" aria-label="View ${esc(a.name)} transactions">
             <span class="asr-main">
               <span class="asr-name">${esc(a.name)}</span>
-              <span class="asr-sub">in <span class="cat-amt">${money(a.income)}</span> &middot; out <span class="cat-amt">${money(a.spend)}</span> &middot; ${a.count} txn${a.count === 1 ? '' : 's'}</span>
+              <span class="asr-sub">${sub}</span>
             </span>
             <span class="asr-net"><span class="tx-amt ${a.net >= 0 ? 'pos' : 'neg'}">${a.net >= 0 ? '+' : '−'}${money(a.net)}</span></span>
             <span class="asr-chev" aria-hidden="true">&rsaquo;</span>
-          </button>`).join('')}
+          </button>`;
+        }).join('')}
       </div>`;
   }
 
@@ -142,5 +171,5 @@ const gbAccounts = (() => {
     if(typeof setTxAccount === 'function') setTxAccount(name);
   }
 
-  return { list, rename, remove, renderManager, openManager, summary, cardHTML, viewTxs };
+  return { list, rename, remove, renderManager, openManager, summary, cardHTML, viewTxs, balance };
 })();
