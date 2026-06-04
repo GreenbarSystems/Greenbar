@@ -827,10 +827,12 @@ function showImportPreview(filename, result){
   const c = result.counts || {};
   const dropped = (c.undated||0) + (c.skipped||0);
 
-  const mapRow = (label, val, ok) => `<div style="display:flex;justify-content:space-between;gap:10px;padding:5px 0;font-size:12.5px;">
-      <span style="color:var(--muted);">${esc(label)}</span>
-      <span style="font-weight:600;color:${ok?'var(--text)':'var(--amber)'};text-align:right;word-break:break-word;">${esc(val)}</span>
-    </div>`;
+  // Friendly "we detected X" chip (no "column mapping"/"auto-detect" jargon).
+  // state: 'ok' (green check) | 'warn' (amber, required field missing) | 'optional'.
+  const detChip = (label, state, src) => {
+    const ic = state === 'ok' ? '&#10003;' : (state === 'warn' ? '&#9888;' : '&middot;');
+    return `<div class="det-chip ${state}"><span class="det-ic" aria-hidden="true">${ic}</span><span class="det-l">${esc(label)}</span><span class="det-src">${esc(src)}</span></div>`;
+  };
 
   const sampleRows = result.txs.slice(0,5).map(t => {
     const lbl = (parseDateParts(t.date, m.fmt)||{}).label || t.date || '';
@@ -856,7 +858,7 @@ function showImportPreview(filename, result){
   const lvl = verdict.level;
   let confHtml;
   if(lvl === 'high'){
-    confHtml = `<div class="imp-conf high">&#10003; Looks clean — columns were detected with high confidence.</div>`;
+    confHtml = `<div class="imp-conf high">&#10003; Looks clean — we read your file with high confidence.</div>`;
   } else {
     const reasons = (verdict.reasons && verdict.reasons.length)
       ? verdict.reasons
@@ -886,12 +888,15 @@ function showImportPreview(filename, result){
     </div>`;
   document.getElementById('import-preview-body').innerHTML = confHtml + acctHtml + `
     <div style="background:var(--glass);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:12px;">
-      <div style="font-family:var(--font-display);font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px;">Columns detected</div>
-      ${mapRow('Date', m.date||'—', !!m.date)}
-      ${mapRow('Amount', m.amt||'—', !!m.amt)}
-      ${mapRow('Description', m.desc||'(none — left blank)', !!m.desc)}
-      ${mapRow('Category', m.cat||'(none — auto-categorized)', true)}
-      ${mapRow('Date format', m.fmt||'MM/DD/YY', true)}
+      <div style="font-size:13px;font-weight:700;margin-bottom:9px;">We read your file — does this look right?</div>
+      <div class="det-chips">
+        ${detChip('Date', m.date?'ok':'warn', m.date||'not found')}
+        ${detChip('Description', m.desc?'ok':'optional', m.desc||'optional')}
+        ${detChip('Amount', m.amt?'ok':'warn', m.amt||'not found')}
+      </div>
+      ${(!m.date||!m.amt)
+        ? `<div style="font-size:11.5px;color:var(--amber);margin-top:9px;line-height:1.5;">We couldn't find a ${!m.date&&!m.amt?'Date and Amount column':(!m.date?'Date column':'Amount column')}. Set your bank's column names in Settings &rarr; Bank Transactions Format.</div>`
+        : `<div style="font-size:11px;color:var(--muted);margin-top:9px;line-height:1.5;">Dates read as ${esc(m.fmt||'MM/DD/YY')} &middot; categories assigned automatically.</div>`}
     </div>
     <div style="display:flex;gap:8px;margin-bottom:${dropped?'8px':'12px'};">
       <div style="flex:1;background:rgba(0,214,143,0.08);border:1px solid rgba(0,214,143,0.2);border-radius:12px;padding:10px;text-align:center;">
@@ -903,8 +908,10 @@ function showImportPreview(filename, result){
         <div style="font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">Skipped</div>
       </div>
     </div>
-    ${dropped ? `<div style="font-size:11.5px;color:var(--soft);margin:0 2px 12px;line-height:1.5;">${c.undated?c.undated+' row'+(c.undated===1?'':'s')+' with unreadable dates':''}${c.undated&&c.skipped?'; ':''}${c.skipped?c.skipped+' matched skip rules':''}. If the date count looks wrong, fix the date format in Settings → Column Mapping.</div>` : ''}
-    <div style="font-family:var(--font-display);font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:2px;">Sample</div>
+    ${dropped ? `<div style="font-size:11.5px;color:var(--soft);margin:0 2px 12px;line-height:1.5;">${c.undated?c.undated+' row'+(c.undated===1?'':'s')+' with unreadable dates':''}${c.undated&&c.skipped?'; ':''}${c.skipped?c.skipped+' matched skip rules':''}. If the date count looks wrong, adjust the date format in Settings → Bank Transactions Format.</div>` : ''}
+    <div style="display:flex;align-items:center;gap:10px;padding:0 0 5px;border-bottom:1px solid var(--o05);font-family:var(--font-display);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);">
+      <div style="flex:1;">Description &middot; Date</div><div>Amount</div>
+    </div>
     ${sampleRows || '<div style="font-size:12px;color:var(--muted);padding:6px 0;">No rows to preview.</div>'}`;
   openModal('modal-import-preview');
 }

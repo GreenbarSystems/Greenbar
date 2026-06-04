@@ -211,6 +211,29 @@ function startSetupFromFlash(){
 // the region-aware bank guide (BANK_EXPORTS / populateBankSelect / showBankExport)
 // and the existing handleFiles import pipeline — no new infrastructure.
 const gbLoadWizard = (() => {
+  // Monogram + brand-ish colour per bank — our "logos" without loading any
+  // external assets (privacy rule). Unlisted banks fall back to initials.
+  const BANK_BRAND = {
+    'Chase':{a:'CH',c:'#117ACA'}, 'Bank of America':{a:'BA',c:'#E31837'}, 'Wells Fargo':{a:'WF',c:'#D71E28'},
+    'Citi':{a:'Ci',c:'#056DAE'}, 'Capital One':{a:'C1',c:'#004977'}, 'U.S. Bank':{a:'US',c:'#0C2074'},
+    'PNC':{a:'PNC',c:'#F58025'}, 'Truist':{a:'Tr',c:'#3B1D5E'}, 'TD Bank':{a:'TD',c:'#54B848'},
+    'American Express':{a:'AX',c:'#2671B9'},
+    'Barclays (UK)':{a:'Ba',c:'#00AEEF'}, 'HSBC UK':{a:'HS',c:'#DB0011'}, 'Lloyds Bank':{a:'Ll',c:'#024731'},
+    'NatWest':{a:'NW',c:'#42145F'}, 'Santander UK':{a:'Sa',c:'#EC0000'}, 'Monzo':{a:'Mo',c:'#14233C',f:'#FF3464'},
+    'Starling Bank':{a:'St',c:'#6935FF'}, 'Nationwide':{a:'Nw',c:'#1B0088'},
+    'Commonwealth Bank (CBA)':{a:'CBA',c:'#FFCC00',f:'#1f1300'}, 'Westpac':{a:'We',c:'#DA1710'},
+    'ANZ (Australia)':{a:'ANZ',c:'#007DBA'}, 'NAB':{a:'NAB',c:'#C8102E'}, 'ING (Australia)':{a:'ING',c:'#FF6200',f:'#1f1300'},
+    'RBC Royal Bank':{a:'RBC',c:'#005DAA'}, 'TD Canada Trust':{a:'TD',c:'#54B848'}, 'Scotiabank':{a:'Sc',c:'#EC111A'},
+    'BMO':{a:'BMO',c:'#0079C1'}, 'CIBC':{a:'CB',c:'#B5121B'},
+  };
+  let _bank = '';
+  function _tile(name){
+    if(name.indexOf('Other') === 0) return { label:'Other / not listed', abbr:'+', bg:'var(--o10)', fg:'var(--soft)' };
+    const label = name.replace(/\s*\(.*?\)\s*$/, '').replace(/\s+UK$/, '').trim();
+    const b = BANK_BRAND[name];
+    if(b) return { label, abbr:b.a, bg:b.c, fg:b.f || '#fff' };
+    return { label, abbr:(label.replace(/[^A-Za-z]/g,'').slice(0,2).toUpperCase() || '?'), bg:'var(--green2)', fg:'#fff' };
+  }
   function open(){
     // The guided wizard is for FIRST-TIME users only. A returning user (anyone
     // who has already imported) skips straight to the file picker — exactly what
@@ -222,27 +245,54 @@ const gbLoadWizard = (() => {
       else { const i = document.getElementById('csv-input'); if(i) i.click(); }
       return;
     }
-    // Move past the flash like the old Get Started did, so closing the wizard
-    // lands on the proper empty Summary (with its own import options) and reveals
-    // the nav — and the flash won't reappear on next launch.
+    // Move past the flash so closing the wizard lands on the proper empty Summary
+    // and the flash won't reappear on next launch.
     if(typeof startSetupFromFlash === 'function') startSetupFromFlash();
+    renderBanks();
     go(1);
-    if(typeof populateBankSelect === 'function') populateBankSelect('dlw-bank-select', 'dlw-steps');
     openModal('modal-load-wizard');
+  }
+  // Step 1 — "Which bank?" logo grid for the active region (+ "Other").
+  function renderBanks(){
+    const grid = document.getElementById('dlw-bank-grid');
+    if(!grid) return;
+    const region = (typeof CFG !== 'undefined' && CFG.region) || 'US';
+    const names = Object.keys(BANK_EXPORTS).filter(k => BANK_EXPORTS[k].region === region);
+    names.push('Other / not listed');
+    grid.innerHTML = names.map(n => { const t = _tile(n);
+      return `<button type="button" class="bank-tile" data-bank="${esc(n)}" onclick="gbLoadWizard.selectBank(this.dataset.bank)" aria-label="${esc(t.label)}">
+        <span class="bank-logo" style="background:${t.bg};color:${t.fg};">${esc(t.abbr)}</span>
+        <span class="bank-tile-name">${esc(t.label)}</span>
+      </button>`;
+    }).join('');
+  }
+  function selectBank(name){
+    _bank = name;
+    // Default the import account to the chosen bank.
+    if(name && name !== 'Other / not listed' && typeof _pendingAccountHint !== 'undefined') _pendingAccountHint = _tile(name).label;
+    renderSteps(name);
+    go(2);
+  }
+  // Step 2 — illustrated export steps for the chosen bank (bottom sheet).
+  function renderSteps(name){
+    const b = BANK_EXPORTS[name];
+    const el = document.getElementById('dlw-steps');
+    const head = document.getElementById('dlw-bank-head');
+    const t = _tile(name);
+    if(head) head.innerHTML = `<span class="bank-logo sm" style="background:${t.bg};color:${t.fg};">${esc(t.abbr)}</span><span class="dlw-bank-name">How to export from ${esc(t.label)}</span>`;
+    if(!el || !b) return;
+    el.innerHTML = b.steps.map((s, i) => `<div class="dlw-step"><span class="dlw-step-badge">${i+1}</span><span class="dlw-step-text">${esc(s)}</span></div>`).join('')
+      + (b.note ? `<div class="dlw-note">${esc(b.note)}</div>` : '')
+      + `<div class="dlw-hint">Labels vary by bank — if something looks different, search your bank's help for &ldquo;download transactions.&rdquo;</div>`;
   }
   function go(step){
     const s1 = document.getElementById('dlw-step-1'), s2 = document.getElementById('dlw-step-2');
     if(s1) s1.style.display = step === 2 ? 'none' : '';
     if(s2) s2.style.display = step === 2 ? '' : 'none';
     const t = document.getElementById('dlw-title');
-    if(t) t.textContent = step === 2 ? 'Import bank transactions' : 'Load your data';
+    if(t) t.textContent = step === 2 ? 'Import bank transactions' : 'Which bank?';
   }
   function pickFile(){
-    // Pre-fill the import preview's account field with the bank the user picked
-    // (a sensible default for the account/source tag).
-    const sel = document.getElementById('dlw-bank-select');
-    const bank = sel && sel.value && sel.value !== 'Other / not listed' ? sel.value : '';
-    if(bank && typeof _pendingAccountHint !== 'undefined') _pendingAccountHint = bank;
     // Mark this as a wizard-initiated import so the receipt can tell the user that
     // future imports go through the Import button (no wizard next time).
     if(typeof _fromWizard !== 'undefined') _fromWizard = true;
@@ -255,7 +305,7 @@ const gbLoadWizard = (() => {
     closeModal('modal-load-wizard');
     if(typeof gbDemo !== 'undefined') gbDemo.load();
   }
-  return { open, go, pickFile, sample };
+  return { open, go, pickFile, sample, renderBanks, selectBank };
 })();
 
 

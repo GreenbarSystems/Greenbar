@@ -1064,22 +1064,20 @@ if('serviceWorker' in navigator){
     <div class="sheet-handle" style="margin-top:0;"></div>
     <h2 class="sheet-title" id="dlw-title" style="margin-bottom:2px;">Load your data</h2>
 
-    <!-- Step 1: pick bank + export steps -->
+    <!-- Step 1: which bank? (logo grid) -->
     <div id="dlw-step-1">
-      <div class="sheet-sub">Pick your bank to see how to download your transactions (CSV or PDF). Everything is read on your device — nothing is uploaded.</div>
-      <select id="dlw-bank-select" class="bank-select" aria-label="Your bank" onchange="showBankExport(this.value,'dlw-steps')" style="margin-bottom:6px;">
-        <option value="" disabled selected>Select your bank…</option>
-      </select>
-      <div id="dlw-steps" style="margin-bottom:6px;"></div>
-      <button type="button" class="btn-primary" style="width:100%;margin-top:8px;" onclick="gbLoadWizard.go(2)">I have my file &mdash; continue &rarr;</button>
-      <div style="text-align:center;margin-top:10px;"><button type="button" class="link-btn" onclick="gbLoadWizard.sample()">Just exploring? Load sample data &rarr;</button></div>
+      <div class="sheet-sub">Which bank are these transactions from? We'll show you how to export them. Everything is read on your device — nothing is uploaded.</div>
+      <div id="dlw-bank-grid" class="bank-grid"></div>
+      <div style="text-align:center;margin-top:14px;"><button type="button" class="link-btn" onclick="gbLoadWizard.sample()">Just exploring? Load sample data &rarr;</button></div>
     </div>
 
-    <!-- Step 2: import the file -->
+    <!-- Step 2: illustrated export steps for the chosen bank, then import -->
     <div id="dlw-step-2" style="display:none;">
-      <div class="sheet-sub">Select the CSV or PDF you downloaded. Greenbar reads it on your device and shows a preview before saving anything.</div>
-      <button type="button" class="btn-primary" style="width:100%;" onclick="gbLoadWizard.pickFile()">Import bank transactions</button>
-      <div style="text-align:center;margin-top:10px;"><button type="button" class="link-btn" onclick="gbLoadWizard.go(1)">&larr; Back</button></div>
+      <div id="dlw-bank-head" class="dlw-bank-head"></div>
+      <div class="sheet-sub">Do these in your bank's site or app, then bring the file back here. Greenbar shows a preview before saving anything.</div>
+      <div id="dlw-steps" class="dlw-steps"></div>
+      <button type="button" class="btn-primary" style="width:100%;" onclick="gbLoadWizard.pickFile()">I've got my file &mdash; import</button>
+      <div style="text-align:center;margin-top:10px;"><button type="button" class="link-btn" onclick="gbLoadWizard.go(1)">&larr; Pick a different bank</button></div>
     </div>
   </div>
 </dialog>

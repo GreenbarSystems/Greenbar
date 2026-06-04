@@ -606,6 +606,20 @@ button.settings-row:hover { background: var(--o02); }
 .imp-conf-note { color: var(--soft); font-size: 12px; }
 .imp-conf-note strong { color: var(--text); }
 
+/* "We detected Date / Description / Amount" chips on the import preview. */
+.det-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.det-chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 11px; border-radius: 11px; font-size: 12.5px; font-weight: 600; border: 1px solid var(--border); background: var(--o03); }
+.det-chip.ok { background: rgba(0,214,143,0.08); border-color: rgba(0,214,143,0.25); }
+.det-chip.warn { background: rgba(255,165,2,0.10); border-color: rgba(255,165,2,0.35); }
+.det-chip .det-ic { font-weight: 900; }
+.det-chip.ok .det-ic { color: var(--green); }
+.det-chip.warn .det-ic { color: var(--amber); }
+.det-chip.optional .det-ic { color: var(--muted); }
+.det-chip .det-l { color: var(--text); }
+.det-chip .det-src { color: var(--muted); font-weight: 500; font-size: 11px; max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* sr-only stays below */
+
 /* Persistent post-import review nag on Summary (above the trust bar). */
 .review-banner { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: rgba(255,165,2,0.10); border: 1px solid rgba(255,165,2,0.4); border-radius: 14px; padding: 12px 14px; margin-bottom: 12px; cursor: pointer; color: var(--text); font-family: inherit; transition: background 0.15s; }
 .review-banner:hover { background: rgba(255,165,2,0.16); }
@@ -682,6 +696,24 @@ button.settings-row:hover { background: var(--o02); }
 .acct-count { flex-shrink: 0; font-size: 11px; color: var(--muted); white-space: nowrap; }
 .acct-save { flex-shrink: 0; border: 1px solid rgba(0,214,143,0.3); background: rgba(0,214,143,0.1); color: var(--green); border-radius: 9px; padding: 7px 11px; font-size: 12px; font-weight: 700; font-family: var(--font-display); cursor: pointer; }
 .acct-del { flex-shrink: 0; width: 32px; height: 32px; border-radius: 9px; border: 1px solid rgba(255,71,87,0.3); background: rgba(255,71,87,0.08); color: var(--red); font-size: 13px; cursor: pointer; }
+
+/* Data-load wizard — "Which bank?" logo grid + illustrated export steps. */
+.bank-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 4px 0 2px; }
+.bank-tile { display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 12px 6px; background: var(--glass); border: 1px solid var(--border); border-radius: 14px; cursor: pointer; color: var(--text); font-family: inherit; transition: background 0.15s, border-color 0.15s; }
+.bank-tile:hover { background: var(--o06); border-color: var(--border-bright); }
+.bank-tile:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+.bank-logo { width: 40px; height: 40px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 14px; font-weight: 900; letter-spacing: -0.3px; flex-shrink: 0; }
+.bank-logo.sm { width: 30px; height: 30px; font-size: 12px; border-radius: 9px; }
+.bank-tile-name { font-size: 11px; font-weight: 600; text-align: center; line-height: 1.25; color: var(--soft); }
+.dlw-bank-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.dlw-bank-name { font-family: var(--font-display); font-size: 15px; font-weight: 800; }
+.dlw-steps { margin: 6px 0 14px; }
+.dlw-step { display: flex; gap: 12px; align-items: flex-start; padding: 9px 0; border-bottom: 1px solid var(--o05); }
+.dlw-step:last-of-type { border-bottom: none; }
+.dlw-step-badge { flex-shrink: 0; width: 26px; height: 26px; border-radius: 8px; background: var(--grad-primary); color: #050a14; font-family: var(--font-display); font-size: 13px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+.dlw-step-text { font-size: 13px; color: var(--soft); line-height: 1.55; padding-top: 2px; }
+.dlw-note { font-size: 11.5px; color: var(--amber); background: rgba(255,165,2,0.07); border: 1px solid rgba(255,165,2,0.2); border-radius: 10px; padding: 8px 11px; margin-top: 8px; line-height: 1.5; }
+.dlw-hint { font-size: 11px; color: var(--muted); line-height: 1.5; margin-top: 8px; }
 
 /* sr-only: visually hidden, visible to assistive tech. Used for the global live-region announcer. */
 .sr-only {
