@@ -22,13 +22,13 @@ function renderAll(){
   if(document.getElementById('screen-txs')?.classList.contains('active')) renderTxs();
 }
 
-// Brief one-line explanation shown under the health-score grade.
+// Brief one-line explanation shown under the money-clarity grade.
 const GRADE_EXPLAIN = {
-  A:'Excellent — strong savings with spending on plan.',
-  B:'Great — a solid month with minor overspending.',
-  C:'Good — on track, with room to tighten up.',
-  D:'Fair — spending is outpacing your budget.',
-  F:'Needs work — expenses ran past your income.'
+  A:'Excellent — your money choices are clearly working.',
+  B:'Great — sound decisions, with a little room to tighten.',
+  C:'Good — on track, with clearer choices to make.',
+  D:'Fair — your spending is outpacing your plan.',
+  F:'Needs work — spending ran past your income this month.'
 };
 
 // ──────── Health score: compute + breakdown modal ────────
@@ -71,7 +71,11 @@ const BADGES = {
   NEXT_UP_LIMIT:   3,                           // locked badges shown in UI
 };
 
-// ── Feature 1: Financial Health Score ──
+// ── Feature 1: Money clarity score ──
+// A monthly read on how sound and clear the user's money decisions were:
+// money kept (savings outcome) + spending on plan (control) + a complete
+// picture (enough data to decide). Scoring is unchanged — this is the decision
+// framing of what was the "financial health" score.
 // Returns { score, grade, gradeColor, label, details } or null if the month
 // has no income (grade is undefined without an income baseline).
 //
@@ -204,15 +208,15 @@ function renderHealthBreakdown(hs, monthKey){
     }).join('');
     budgetRowsHtml = `<div style="margin-top:8px;">${rows}</div>`;
   } else {
-    budgetRowsHtml = `<div style="font-size:12px;color:var(--muted);margin-top:6px;">No budget set for any category. Setting budgets unlocks the full ${HEALTH.POINTS.BUDGET} points here.</div>`;
+    budgetRowsHtml = `<div style="font-size:12px;color:var(--muted);margin-top:6px;">No plan set for any category. Setting target amounts unlocks the full ${HEALTH.POINTS.BUDGET} points here.</div>`;
   }
 
   // What's driving the grade -- pick the weakest component for a "next step" hint
   const P = HEALTH.POINTS;
   const components = [
-    { key:'savings',  pts:hs.details.savePts, max:P.SAVINGS,   label:'Savings rate' },
-    { key:'budget',   pts:hs.details.budPts,  max:P.BUDGET,    label:'Budget adherence' },
-    { key:'tracking', pts:hs.details.divPts,  max:P.DIVERSITY, label:'Tracking diversity' },
+    { key:'savings',  pts:hs.details.savePts, max:P.SAVINGS,   label:'Money kept' },
+    { key:'budget',   pts:hs.details.budPts,  max:P.BUDGET,    label:'Spending on plan' },
+    { key:'tracking', pts:hs.details.divPts,  max:P.DIVERSITY, label:'Complete picture' },
   ];
   // Weakest = lowest pts/max ratio
   const weakest = components.slice().sort((a,b)=> (a.pts/a.max) - (b.pts/b.max))[0];
@@ -225,8 +229,8 @@ function renderHealthBreakdown(hs, monthKey){
             : savePct < targetPct ? `You saved ${savePct}% — close to the ${targetPct}% target that maxes this out.`
             :                       `You saved ${savePct}% of income — this component is already maxed out.`,
     budget:   budgetCats.length === 0
-              ? 'You have no budgets set. Add a few in the Budget tab — even rough numbers count.'
-              : 'Spending in budgeted categories was further over target than ideal. Tighten the categories above marked "Over" or "Way over".',
+              ? 'You haven\'t set a plan yet. Add target amounts in the Budget tab — even rough numbers help.'
+              : 'Some spending choices ran further over plan than ideal. Tightening the categories above marked "Over" or "Way over" is your biggest lever.',
     tracking: `${realSpend} categories had real spend this month. Maxes out at ${HEALTH.DIVERSITY.TARGET_CATS}+.`,
   }[weakest.key];
 
@@ -258,14 +262,14 @@ function renderHealthBreakdown(hs, monthKey){
       </div>
     </div>
 
-    ${card('Savings rate', hs.details.savePts, P.SAVINGS, savingsBarPct, hs.gradeColor,
-      `Income ${fmt(income)} &minus; spend ${fmt(expTotal)} = <strong>${savePct >= 0 ? `${savePct}% saved` : `${Math.abs(savePct)}% over income`}</strong>. Full ${P.SAVINGS} points at ${targetPct}%+ saved; partial credit below that; 0 if you spent more than you earned.`)}
+    ${card('Money kept', hs.details.savePts, P.SAVINGS, savingsBarPct, hs.gradeColor,
+      `What your choices left over: income ${fmt(income)} &minus; spend ${fmt(expTotal)} = <strong>${savePct >= 0 ? `${savePct}% kept` : `${Math.abs(savePct)}% over income`}</strong>. Full ${P.SAVINGS} points at ${targetPct}%+ kept; partial credit below that; 0 if you spent more than you earned.`)}
 
-    ${card('Budget adherence', hs.details.budPts, P.BUDGET, budgetBarPct, '#2979ff',
-      `${budgetCats.length ? `How close each budgeted category was to its target. Up to ${Math.round((HEALTH.BUDGET.ON_TRACK_RATIO - 1) * 100)}% over still counts as on-track.` : `Neutral ${HEALTH.BUDGET.NEUTRAL_PTS}/${P.BUDGET} awarded because no budgets are set yet.`}${budgetRowsHtml}`)}
+    ${card('Spending on plan', hs.details.budPts, P.BUDGET, budgetBarPct, '#2979ff',
+      `${budgetCats.length ? `How close each spending choice stayed to your plan. Up to ${Math.round((HEALTH.BUDGET.ON_TRACK_RATIO - 1) * 100)}% over still counts as on plan.` : `Neutral ${HEALTH.BUDGET.NEUTRAL_PTS}/${P.BUDGET} awarded because no plan is set yet.`}${budgetRowsHtml}`)}
 
-    ${card('Tracking diversity', hs.details.divPts, P.DIVERSITY, trackingBarPct, '#7c4dff',
-      `<strong>${realSpend}</strong> categories had real spend this month (over $${HEALTH.DIVERSITY.MIN_SPEND}). Reaches the full ${P.DIVERSITY} points at ${HEALTH.DIVERSITY.TARGET_CATS}+ categories — rewards balanced tracking rather than lumping everything into one bucket.`)}
+    ${card('Complete picture', hs.details.divPts, P.DIVERSITY, trackingBarPct, '#7c4dff',
+      `<strong>${realSpend}</strong> categories had real spend this month (over $${HEALTH.DIVERSITY.MIN_SPEND}) — enough detail to decide with confidence. Reaches the full ${P.DIVERSITY} points at ${HEALTH.DIVERSITY.TARGET_CATS}+ categories.`)}
 
     <div style="background:rgba(var(--green-rgb),0.07);border:1px solid rgba(var(--green-rgb),0.25);border-radius:14px;padding:12px 14px;margin-top:6px;">
       <div style="font-family:var(--font-display);font-size:12px;font-weight:800;color:var(--green);letter-spacing:0.04em;text-transform:uppercase;margin-bottom:4px;">Biggest lever</div>
@@ -751,10 +755,10 @@ function renderSummary(){
 
       <div class="health-hero">
         <div class="hh-top">
-          <span class="hh-month">${esc(sel)} &middot; Financial health</span>
+          <span class="hh-month">${esc(sel)} &middot; Money clarity</span>
           ${reviewBadge}
         </div>
-        <button type="button" class="hh-tap" ${hs?`onclick="openHealthBreakdown()" aria-label="Financial health grade ${hs.grade}, ${hs.score} out of 100 — see what's driving it"`:'aria-disabled="true" aria-label="No grade yet — add income for this month"'}>
+        <button type="button" class="hh-tap" ${hs?`onclick="openHealthBreakdown()" aria-label="Money clarity grade ${hs.grade}, ${hs.score} out of 100 — see what's driving it"`:'aria-disabled="true" aria-label="No grade yet — add income for this month"'}>
           <span class="hh-grade" style="color:${gradeColor};">${grade}</span>
           <span class="hh-meta">
             <span class="hh-score">${hs?`${hs.score} / 100`:'No score yet'}</span>

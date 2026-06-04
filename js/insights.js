@@ -128,7 +128,7 @@ const gbInsights = (() => {
     // latest health
     if(a.health)
       items.push({ icon:'🩺', tone: a.health.score>=80?'good':a.health.score>=60?'info':'warn',
-        title:`${_monthName(a.latest)} health: grade ${a.health.grade} (${a.health.score}/100)`,
+        title:`${_monthName(a.latest)} money clarity: grade ${a.health.grade} (${a.health.score}/100)`,
         body: (typeof GRADE_EXPLAIN !== 'undefined' && GRADE_EXPLAIN[a.health.grade]) || a.health.label });
 
     // positive streak
