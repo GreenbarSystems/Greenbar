@@ -779,7 +779,14 @@ function renderSummary(){
       ${typeof gbAccounts !== 'undefined' ? gbAccounts.cardHTML(sel) : ''}
 
       <h2 class="sec-hdr">Plan</h2>
-      ${typeof gbPlan !== 'undefined' ? gbPlan.renderBanner() : ''}
+      ${(()=>{
+        // Avoid two competing green CTAs: while the Monthly checkup is still
+        // pending (its prominent "Start" banner is up), suppress the "Make a
+        // plan" banner. Once the checkup is done for the month (its banner
+        // becomes a calm glass state), the plan banner may show.
+        const checkupPending = (typeof gbCheckup !== 'undefined') && gbCheckup.shouldShow() && !gbCheckup.doneThisMonth();
+        return (typeof gbPlan !== 'undefined' && !checkupPending) ? gbPlan.renderBanner() : '';
+      })()}
       <div class="plan-grid" style="grid-template-columns:repeat(2,1fr);">
         <button class="plan-tile" type="button" onclick="showScreen('budget', document.querySelectorAll('.nav-btn')[1])" aria-label="Budget ${esc(fmt(totalBudget))} — open the Budget tab">
           <span class="pt-l">Budget</span>
@@ -1028,7 +1035,7 @@ function renderTxs(filter=''){
       : `<div class="tx-empty">
            <div class="tx-empty-icon" aria-hidden="true">✎</div>
            <div class="tx-empty-title">No transactions yet</div>
-           <div class="tx-empty-sub">Import bank transactions, or tap <span class="fab-ref">+</span> to add a cash transaction.</div>
+           <div class="tx-empty-sub">Import bank transactions, or tap <span class="fab-ref">+</span> (bottom right) to add a cash transaction.</div>
          </div>`;
     document.getElementById('txs-content').innerHTML = acctChips + html;
     srAnnounce(filter?`No transactions match "${filter}"`:'No transactions');

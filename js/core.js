@@ -178,7 +178,7 @@ function renderRemaps(){ document.getElementById('remap-list').innerHTML=(CFG.re
 function addRemap(){ const d=document.createElement('div'); d.className='remap-row'; d.innerHTML=`<input class="rk" aria-label="Remap keyword"placeholder="Keyword" autocomplete="off"><input class="rc" aria-label="Target category"placeholder="Category" autocomplete="off"><button type="button" class="del-btn" aria-label="Remove rule"onclick="this.parentElement.remove()">×</button>`; document.getElementById('remap-list').appendChild(d); }
 function renderBudgetInputs(){ document.getElementById('budget-inputs').innerHTML=Object.entries(CFG.budget).map(([c,v])=>`<div class="budget-row"><span class="budget-label">${esc(c)}</span><input class="budget-input" type="number" data-cat="${esc(c)}" aria-label="${esc(c)} budget in dollars" value="${v}" min="0" step="10" autocomplete="off"></div>`).join('')+`<div class="budget-row"><input class="budget-input" id="new-cat" aria-label="New category name" placeholder="New category…" style="width:auto;flex:1;margin-right:8px;text-align:left" autocomplete="off"><input class="budget-input" id="new-val" type="number" aria-label="New category budget in dollars" placeholder="$0" style="width:72px" autocomplete="off"><button type="button" onclick="addBudgetCat()" aria-label="Add budget category" style="margin-left:8px;padding:7px 12px;background:rgba(0,214,143,0.1);border:1px solid rgba(0,214,143,0.3);border-radius:10px;color:var(--green);font-weight:700;cursor:pointer;font-size:14px">+</button></div>`; }
 function addBudgetCat(){ const n=document.getElementById('new-cat').value.trim(); const v=parseFloat(document.getElementById('new-val').value)||0; if(!n) return; CFG.budget[n]=v; renderBudgetInputs(); }
-function saveSettings(){ document.querySelectorAll('.budget-input[data-cat]').forEach(i=>{ if(i.dataset.cat){ const bv=parseFloat(i.value); CFG.budget[i.dataset.cat]=(isNaN(bv)||bv<0)?0:Math.round(bv*100)/100; i.value=CFG.budget[i.dataset.cat]; } }); saveCFG(); if(_allTxs.length) renderAll(); }
+function saveSettings(){ document.querySelectorAll('.budget-input[data-cat]').forEach(i=>{ if(i.dataset.cat){ const bv=parseFloat(i.value); CFG.budget[i.dataset.cat]=(isNaN(bv)||bv<0)?0:Math.round(bv*100)/100; i.value=CFG.budget[i.dataset.cat]; } }); saveCFG(); if(_allTxs.length) renderAll(); if(typeof showToast==='function') showToast('Budget saved.', 'success'); }
 
 // ──────── Util helpers (esc, fmt, _navBtn, cleanVendor) ────────
 function cleanVendor(desc){
@@ -724,7 +724,17 @@ function handleFiles(files){
   }
   _pendingFiles = incoming;
   _importBusy = true;
+  _setImportBusyUI(true);
   processNextFile();
+}
+
+// Reflect import progress on the header Import button so the app never feels
+// frozen while a CSV/PDF parses (parsing blocks with no other visible cue).
+function _setImportBusyUI(busy){
+  const btn = document.getElementById('hdr-import-btn');
+  if(!btn) return;
+  btn.disabled = busy;
+  btn.textContent = busy ? 'Importing…' : 'Import';
 }
 
 function processNextFile(){
@@ -732,6 +742,7 @@ function processNextFile(){
     // All files done -- final render. Clear the busy flag so the next
     // user-initiated import starts a fresh batch.
     _importBusy = false;
+    _setImportBusyUI(false);
     saveData();
     renderAll();
     // Land on the dashboard first (Budget when still on defaults, so the "build a

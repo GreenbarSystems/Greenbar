@@ -50,6 +50,12 @@
   /* App background gradient + translucent chrome (header/nav), themeable. */
   --mesh-base: linear-gradient(160deg, #0d1f3c 0%, #050a14 50%, #061522 100%);
   --chrome: rgba(5,10,20,0.85);
+  /* Elevated surfaces: bottom-sheets, tour/lock overlays (--surface) and the
+     headline hero cards (--hero-grad). Dark values equal the original literals
+     exactly, so dark mode is unchanged; the light theme re-points them so these
+     surfaces stay legible (was a dark-on-dark bug in light mode). */
+  --surface: #0c1628;
+  --hero-grad: linear-gradient(145deg, rgba(13,31,60,0.9), rgba(5,26,48,0.9));
   color-scheme: dark;
 }
 /* ── Light theme (opt-in via data-theme="light" on <html>; set by gbTheme,
@@ -77,6 +83,8 @@
   --o30: rgba(15,23,41,0.26);
   --mesh-base: linear-gradient(160deg, #eef3fb 0%, #f6f8fc 50%, #e9eef8 100%);
   --chrome: rgba(246,248,252,0.85);
+  --surface: #ffffff;
+  --hero-grad: linear-gradient(145deg, #ffffff, #eef3fb);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 /* Accessibility: visible focus ring for keyboard navigation. :focus-visible
@@ -275,7 +283,7 @@ button.pill { font: inherit; line-height: 1.2; -webkit-appearance: none; appeara
 .net-card {
   position: relative; overflow: hidden; text-align: center;
   padding: 32px 24px 28px; margin-bottom: 14px;
-  background: linear-gradient(145deg, rgba(13,31,60,0.9), rgba(5,26,48,0.9));
+  background: var(--hero-grad);
   border: 1px solid var(--border); border-radius: 28px;
 }
 /* The headline card relies on its shape, border and gradient — the old radial
@@ -300,7 +308,7 @@ button.tb-pill { -webkit-appearance: none; appearance: none; cursor: pointer; }
 
 /* ── Health-score hero (Summary headline) ── */
 .health-hero {
-  background: linear-gradient(145deg, rgba(13,31,60,0.9), rgba(5,26,48,0.9));
+  background: var(--hero-grad);
   border: 1px solid var(--border); border-radius: 28px;
   padding: 20px 20px 22px; margin-bottom: 12px;
 }
@@ -850,7 +858,7 @@ dialog { padding: 0; border: none; margin: 0; width: auto; height: auto; max-wid
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
 .sheet {
-  background: #0c1628; border: 1px solid var(--border); border-radius: 28px 28px 0 0;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 28px 28px 0 0;
   padding: 20px 20px 40px; width: 100%; max-width: 430px; max-height: 88vh; overflow-y: auto;
   animation: sheetUp 0.35s cubic-bezier(0.34,1.2,0.64,1) both;
   /* Used by the swipe-to-dismiss handler to translate the sheet during a drag. */
@@ -953,7 +961,7 @@ dialog { padding: 0; border: none; margin: 0; width: auto; height: auto; max-wid
 .setup-back { padding:14px 20px; border:1px solid var(--border); background:var(--glass); color:var(--soft); font-family:var(--font-display); font-size:14px; font-weight:700; border-radius:14px; cursor:pointer; }
 .setup-next { flex:1; padding:14px; border:none; background:var(--grad-primary); color:#050a14; font-family:var(--font-display); font-size:15px; font-weight:900; border-radius:14px; cursor:pointer; transition:opacity 0.15s; }
 .setup-next:disabled { opacity:0.4; }
-.setup-skip { text-align:center; font-size:12px; color:var(--muted); margin-top:12px; cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
+.setup-skip { display:block; width:100%; background:none; border:none; font-family:inherit; text-align:center; font-size:12px; color:var(--muted); margin-top:12px; cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
 .budget-cat-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
 .budget-cat-tile {
   background:var(--glass); border:1px solid var(--border);
@@ -1167,7 +1175,8 @@ body.privacy-mode.revealed .sec-total {
 /* Auto-lock + idle-timeout pill rows in Settings. */
 .choice-pills { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
 .choice-pill {
-  flex: 0 0 auto; padding: 7px 14px; border-radius: 16px; border: 1px solid var(--border);
+  flex: 0 0 auto; min-height: 44px; padding: 7px 14px; border-radius: 16px; border: 1px solid var(--border);
+  display: inline-flex; align-items: center; justify-content: center;
   background: var(--glass); color: var(--muted); cursor: pointer;
   font-family: var(--font-display); font-size: 12px; font-weight: 700;
 }
@@ -1184,7 +1193,7 @@ body.privacy-mode.revealed .sec-total {
 /* Coachmark card. Positioned by JS each step. */
 #tour-card {
   position: absolute; width: 280px; max-width: calc(100vw - 24px);
-  background: #0c1628; border: 1px solid var(--border); border-radius: 16px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
   padding: 14px 16px 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);
   font-family: var(--font-body); color: var(--text);
   animation: tourPop 0.25s cubic-bezier(0.34,1.4,0.64,1) both;
@@ -1217,7 +1226,7 @@ body.privacy-mode.revealed .sec-total {
    set by JS to align with the centre of the target element. */
 #tour-arrow {
   position: absolute; width: 12px; height: 12px;
-  background: #0c1628; border: 1px solid var(--border);
+  background: var(--surface); border: 1px solid var(--border);
   border-right: none; border-bottom: none;
 }
 .tour-arrow-top    { top: -7px;     transform: rotate(45deg); }
