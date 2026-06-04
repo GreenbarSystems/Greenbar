@@ -770,6 +770,8 @@ function renderSummary(){
         <div class="perf-stat" aria-disabled="true"><span class="st-lbl">Net</span><span class="st-val" style="color:${netPos?'var(--green)':'var(--red)'};">${netPos?'+':'−'}${fmt(Math.abs(net))}</span></div>
       </div>
 
+      ${(typeof gbScenario !== 'undefined' && typeof analyticsUnlocked === 'function' && analyticsUnlocked()) ? gbScenario.bestMoveHTML() : ''}
+
       <h2 class="sec-hdr">Where your money went${(m&&spend.length)?` <button type="button" class="sec-total ex-num" onclick="gbConfidence.openExplain('expenses','${esc(sel)}')" aria-label="Explain total spending ${esc(fmt(expTotal))}">${fmt(expTotal)} <span class="ex-i" aria-hidden="true">&#9432;</span></button>`:''}</h2>
       ${topSpendBody}
 

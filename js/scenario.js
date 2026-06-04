@@ -75,7 +75,60 @@ const gbScenario = (() => {
   function reset(){ _cut = 0; _inc = 0; render(); }
 
   function open(){ _cut = 0; _inc = 0; render(); if(typeof openModal === 'function') openModal('modal-scenario'); }
+  // Open the analyzer pre-loaded with a suggested move so the consequence is
+  // visible immediately (used by the Summary "Best next move" card).
+  function openWith(cut, inc){ _cut = Math.max(0, _round(cut || 0)); _inc = _round(inc || 0); render(); if(typeof openModal === 'function') openModal('modal-scenario'); }
   function goGoals(){ if(typeof closeModal === 'function') closeModal('modal-scenario'); if(typeof gbGoals !== 'undefined' && gbGoals.openGoals) gbGoals.openGoals(); }
+
+  // ── "Best next move": the single highest-impact recommendation, synthesized
+  // from the same baseline + goals + top categories. Each move deep-links into
+  // the analyzer pre-loaded so the user sees the consequence immediately. ──
+  function bestMove(){
+    const f = _baseline();
+    if(!f || f.n < 2) return null;
+    const top = _quickCuts()[0] || null;
+    const goal = _topGoal();
+    const net = f.projectedNet;
+    const rate = f.expectedIncome > 0 ? Math.round(net / f.expectedIncome * 100) : null;
+
+    if(!f.hasIncome){
+      return { title: 'Tell Greenbar which deposits are income', detail: 'Then it can project your net and guide every money decision.', action: 'income' };
+    }
+    if(net < 0 && top){
+      const need = Math.min(f.expectedSpend, Math.ceil(Math.abs(net) / 25) * 25);
+      return { title: `You're spending ${_money(Math.abs(net))} more than you earn`, detail: `Trimming about ${_money(need)}/mo — starting with ${top.cat} — gets you back above water.`, cut: need };
+    }
+    if(goal && top && net > 0){
+      const baseEta = Math.ceil(goal.remaining / net);
+      const newEta  = Math.ceil(goal.remaining / (net + top.amt));
+      if(newEta < baseEta){
+        return { title: `Reach ${goal.name} ${baseEta - newEta} month${baseEta - newEta === 1 ? '' : 's'} sooner`, detail: `Trim ${top.cat} by ~${_money(top.amt)}/mo and you'd get there in ${newEta} months instead of ${baseEta}.`, cut: top.amt };
+      }
+    }
+    if(rate !== null && rate < 15 && net >= 0 && top){
+      const newRate = Math.round((net + top.amt) / f.expectedIncome * 100);
+      return { title: `Lift your savings rate from ${rate}% toward ${newRate}%`, detail: `Trim ${top.cat} by ~${_money(top.amt)}/mo and keep the difference.`, cut: top.amt };
+    }
+    if(net > 0 && !goal){
+      return { title: `You have ${_money(net)}/mo to put to work`, detail: 'Set a savings goal and Greenbar will show the fastest way to reach it.', action: 'goal' };
+    }
+    return { title: `You're on track${rate !== null ? ` — saving ${rate}% this month` : ''}`, detail: 'Test a change before you make it — see what happens to your net and goals.', cut: top ? top.amt : 0 };
+  }
+
+  function bestMoveHTML(){
+    const mv = bestMove();
+    if(!mv) return '';
+    const act = mv.action === 'income' ? `showScreen('settings', (typeof _navBtn==='function'?_navBtn(3):null))`
+              : mv.action === 'goal'   ? `gbGoals.openGoals()`
+              : `gbScenario.openWith(${mv.cut || 0},0)`;
+    const go = mv.action ? '&rsaquo;' : 'See &rsaquo;';
+    return `<h2 class="sec-hdr">Best next move</h2>
+      <button type="button" class="bestmove" onclick="${act}" aria-label="${esc(mv.title)} — ${esc(mv.detail)}">
+        <span class="bestmove-ic" aria-hidden="true">&#9889;</span>
+        <span class="bestmove-tx"><span class="bestmove-title">${esc(mv.title)}</span><span class="bestmove-detail">${esc(mv.detail)}</span></span>
+        <span class="bestmove-go" aria-hidden="true">${go}</span>
+      </button>`;
+  }
 
   // Launcher embedded in the forecast section.
   function entryHTML(){
@@ -162,5 +215,5 @@ const gbScenario = (() => {
       <div class="scn-foot" style="text-align:center;margin-top:10px;">A rough projection from your recent months — all computed on your device.</div>`;
   }
 
-  return { open, render, entryHTML, adjustSpend, adjustIncome, setCut, reset, goGoals };
+  return { open, openWith, render, entryHTML, bestMove, bestMoveHTML, adjustSpend, adjustIncome, setCut, reset, goGoals };
 })();
