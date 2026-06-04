@@ -1,7 +1,7 @@
 {
   "name": "Greenbar",
   "short_name": "Greenbar",
-  "description": "Private, on-device budgeting for US, UK, Australian & Canadian bank statements. Your data stays on your phone.",
+  "description": "Greenbar turns your bank statements into clear, confident money decisions — private and on-device. Your data stays on your phone.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

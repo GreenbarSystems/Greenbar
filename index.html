@@ -14,7 +14,7 @@
 </script>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="application-name" content="Greenbar">
-<meta name="description" content="Greenbar — private, on-device budgeting for US, UK, Australian & Canadian bank statements. Import bank transactions (CSV or PDF); your data never leaves your phone.">
+<meta name="description" content="Greenbar turns your bank statements into clear money decisions — see the tradeoffs, the consequences, and your next best move. Import CSV or PDF; 100% on-device, your data never leaves your phone.">
 <!-- Static manifest (was an injected Blob): a real file is required for the
      Web Share Target + File Handling import routes, whose action URLs the
      service worker intercepts. -->
@@ -30,7 +30,7 @@ if('serviceWorker' in navigator){
   });
 }
 </script>
-<title>Greenbar</title>
+<title>Greenbar — Money Decision Analyzer</title>
 
 <link rel="stylesheet" href="styles/main.css">
 </head>
@@ -114,6 +114,7 @@ if('serviceWorker' in navigator){
           <div id="flash-phase-2" style="opacity:0;transition:opacity 0.6s ease;width:100%;max-width:340px;padding:0 24px;">
             <div style="font-family:var(--font-display);font-size:36px;font-weight:900;letter-spacing:-1px;margin-bottom:10px;">Welcome to <span class="gb-shimmer">Greenbar</span></div>
             <div style="font-size:16px;color:var(--soft);letter-spacing:0.02em;margin-bottom:8px;">Your money, clearly.</div>
+            <div style="font-size:13px;color:var(--soft);letter-spacing:0.02em;margin-bottom:8px;">Make every money decision with confidence.</div>
             <div style="font-size:13px;color:var(--muted);letter-spacing:0.02em;margin-bottom:8px;">A little more manual. A lot more private.</div>
             <div style="font-size:12px;color:var(--soft);letter-spacing:0.02em;margin-bottom:40px;">100% on this device. No account, no cloud, no sign-up.</div>
 
@@ -130,7 +131,7 @@ if('serviceWorker' in navigator){
 
     <!-- BUDGET -->
     <div class="screen" id="screen-budget">
-      <div id="budget-content" role="region" aria-label="Budget"><div class="empty"><p>Your budget is ready. Import your bank transactions to compare actual spending.</p><button type="button" class="empty-action" onclick="document.getElementById('csv-input').click()">Import bank transactions</button></div></div>
+      <div id="budget-content" role="region" aria-label="Budget"><div class="empty"><p>Your targets are ready. Import a statement to see which choices keep you on track — and what to change if they don't.</p><button type="button" class="empty-action" onclick="document.getElementById('csv-input').click()">Import bank transactions</button></div></div>
     </div>
 
     <!-- TRANSACTIONS -->
@@ -146,10 +147,10 @@ if('serviceWorker' in navigator){
         <!-- STEP 1: Welcome (shown when opened from Settings, not from flash) -->
         <div class="setup-step active" id="setup-step-1">
           <div class="setup-progress"><div class="setup-pip active"></div><div class="setup-pip"></div><div class="setup-pip"></div><div class="setup-pip"></div><div class="setup-pip"></div><div class="setup-pip"></div></div>
-          <h1 class="setup-q">Let's build your budget.</h1>
-          <div class="setup-sub">5 quick questions and Greenbar will be personalized to your life. Takes about a minute.</div>
+          <h1 class="setup-q">Let's set your money baseline.</h1>
+          <div class="setup-sub">5 quick questions so Greenbar can guide your money decisions. Takes about a minute.</div>
           <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:24px 0;">
-            <div style="font-size:14px;color:var(--soft);text-align:center;line-height:1.6;">Answer a few simple questions<br>and we'll set your budget targets for you.</div>
+            <div style="font-size:14px;color:var(--soft);text-align:center;line-height:1.6;">Answer a few simple questions<br>and we'll set your starting targets for you.</div>
           </div>
           <div class="setup-nav" style="margin-top:0;">
             <button type="button" class="setup-next" onclick="setupGo(2)" style="font-size:16px;">Let's go &rarr;</button>
@@ -257,14 +258,14 @@ if('serviceWorker' in navigator){
         <!-- STEP 6: Review -->
         <div class="setup-step" id="setup-step-6">
           <div class="setup-progress"><div class="setup-pip done"></div><div class="setup-pip done"></div><div class="setup-pip done"></div><div class="setup-pip done"></div><div class="setup-pip done"></div><div class="setup-pip active"></div></div>
-          <h1 class="setup-q">Here's your budget.</h1>
+          <h1 class="setup-q">Here's your starting plan.</h1>
           <div class="setup-sub">Review and tap any amount to adjust it. These are your personalized starting points.</div>
 
           <div id="setup-review-list" style="flex:1;overflow-y:auto;margin-bottom:12px;"></div>
 
           <div class="setup-nav" style="margin-top:0;">
             <button type="button" class="setup-back" aria-label="Back" onclick="setupGo(5)">&larr;</button>
-            <button type="button" class="setup-next" style="background:var(--grad-primary);" onclick="finishSetup()">Save My Budget</button>
+            <button type="button" class="setup-next" style="background:var(--grad-primary);" onclick="finishSetup()">Save my plan</button>
           </div>
           <button type="button" class="setup-skip" onclick="skipSetup()">Skip and use defaults</button>
         </div>
@@ -278,8 +279,8 @@ if('serviceWorker' in navigator){
       <!-- Budget Setup CTA -->
       <div style="background:linear-gradient(135deg,rgba(var(--green-rgb),0.07),rgba(var(--teal-rgb),0.05));border:1px solid rgba(var(--green-rgb),0.2);border-radius:18px;padding:16px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px;">
         <div style="flex:1;">
-          <div style="font-size:14px;font-weight:700;margin-bottom:3px;">Budget Setup Wizard</div>
-          <div class="row-desc-t">Answer a few questions to personalize your budget targets</div>
+          <div style="font-size:14px;font-weight:700;margin-bottom:3px;">Set up your plan</div>
+          <div class="row-desc-t">Answer a few questions so Greenbar can guide your money decisions</div>
         </div>
         <button type="button" onclick="resetSetupState();showScreen('setup',document.querySelector('.nav-btn'));setupGo(1);document.getElementById('bottom-nav')?.classList.remove('visible');" style="padding:9px 16px;border:none;border-radius:12px;background:var(--grad-primary);color:#050a14;font-size:13px;font-weight:800;cursor:pointer;font-family:var(--font-display);flex-shrink:0;">Open &rarr;</button>
       </div>
@@ -1030,7 +1031,7 @@ if('serviceWorker' in navigator){
     </div>
     <div class="sheet-handle" style="margin-top:0;"></div>
     <h2 class="sheet-title" id="goals-title" style="margin-bottom:2px;">Savings Goals</h2>
-    <div class="sheet-sub">Track what you're saving toward — stored on your device.</div>
+    <div class="sheet-sub">Set a goal and see when you'll reach it — stored on your device.</div>
     <div id="goals-body" style="margin:6px 0 4px;"></div>
     <div style="border-top:1px solid var(--border);margin-top:10px;padding-top:14px;">
       <div class="sheet-label">New goal</div>

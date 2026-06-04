@@ -695,8 +695,8 @@ function renderSummary(){
     document.getElementById('summary-content').innerHTML = `
       <div class="gb-welcome">
         <div class="g-card empty-import-hero" style="padding:30px 22px 26px;text-align:center;margin-top:8px;background:linear-gradient(160deg,rgba(var(--green-rgb),0.12),rgba(var(--blue-rgb),0.05));border:1px solid rgba(var(--green-rgb),0.3);">
-          <div style="font-family:var(--font-display);font-size:23px;font-weight:900;letter-spacing:-0.5px;margin-bottom:8px;">See where your money goes</div>
-          <div style="font-size:14px;color:var(--soft);line-height:1.6;margin:0 auto 22px;max-width:300px;">Import your bank transactions from a CSV or PDF. They're read right here on your device; nothing is ever uploaded.</div>
+          <div style="font-family:var(--font-display);font-size:23px;font-weight:900;letter-spacing:-0.5px;margin-bottom:8px;">Know your next money move</div>
+          <div style="font-size:14px;color:var(--soft);line-height:1.6;margin:0 auto 22px;max-width:300px;">Import a statement (CSV or PDF) and Greenbar turns it into clear decisions — read on your device, nothing is ever uploaded.</div>
           <button type="button" onclick="startFirstImport()" aria-label="Import bank transactions" style="width:100%;max-width:340px;padding:17px 24px;border:none;border-radius:16px;background:var(--grad-primary);color:#050a14;font-family:var(--font-display);font-size:16px;font-weight:900;letter-spacing:0.3px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.18);">Import bank transactions</button>
           <div style="margin-top:16px;font-size:13px;color:var(--soft);line-height:1.8;">
             No file yet? <button type="button" onclick="goToBankExport()" class="link-btn">Export from your bank &rarr;</button><br>
@@ -903,7 +903,7 @@ function renderBudget(){
   if(!m){
     document.getElementById('budget-content').innerHTML =
       '<div class="empty">' +
-        '<p>Your budget is ready. Import your bank transactions to compare actual spending.</p>' +
+        '<p>Your targets are ready. Import a statement to see which choices keep you on track — and what to change if they don\'t.</p>' +
         '<button type="button" class="empty-action" onclick="document.getElementById(\'csv-input\').click()">Import bank transactions</button>' +
       '</div>';
     srAnnounce('Budget, no transactions yet');

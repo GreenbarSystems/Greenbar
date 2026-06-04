@@ -141,6 +141,7 @@ function runFlashIntro(){
         <div id="flash-phase-2" style="opacity:0;transition:opacity 0.6s ease;width:100%;max-width:340px;padding:0 24px;">
           <div style="font-family:var(--font-display);font-size:36px;font-weight:900;letter-spacing:-1px;margin-bottom:10px;">Welcome to <span class="gb-shimmer">Greenbar</span></div>
           <div style="font-size:16px;color:var(--soft);letter-spacing:0.02em;margin-bottom:8px;">Your money, clearly.</div>
+          <div style="font-size:13px;color:var(--soft);letter-spacing:0.02em;margin-bottom:8px;">Make every money decision with confidence.</div>
           <div style="font-size:13px;color:var(--muted);letter-spacing:0.02em;margin-bottom:8px;">A little more manual. A lot more private.</div>
           <div style="font-size:12px;color:var(--soft);letter-spacing:0.02em;margin-bottom:40px;">100% on this device. No account, no cloud, no sign-up.</div>
           <div id="flash-cta" style="opacity:0;transition:opacity 0.5s ease;">
@@ -836,7 +837,7 @@ function finishSetup(){
   showHeaderButtons();
 
   // Show a brief toast instead of blocking alert
-  showToast('Budget saved! Import your bank transactions to start tracking.');
+  showToast('Plan saved. Import a statement and Greenbar turns it into clear decisions.');
 }
 
 function skipSetup(){
