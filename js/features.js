@@ -212,6 +212,16 @@ function startSetupFromFlash(){
 // and the existing handleFiles import pipeline — no new infrastructure.
 const gbLoadWizard = (() => {
   function open(){
+    // The guided wizard is for FIRST-TIME users only. A returning user (anyone
+    // who has already imported) skips straight to the file picker — exactly what
+    // the Import button does — since they already know the ropes.
+    const hasImported = (typeof getLog === 'function' && getLog().length > 0) ||
+                        (typeof _allTxs !== 'undefined' && _allTxs.length > 0);
+    if(hasImported){
+      if(typeof startFirstImport === 'function') startFirstImport();
+      else { const i = document.getElementById('csv-input'); if(i) i.click(); }
+      return;
+    }
     // Move past the flash like the old Get Started did, so closing the wizard
     // lands on the proper empty Summary (with its own import options) and reveals
     // the nav — and the flash won't reappear on next launch.
@@ -233,6 +243,9 @@ const gbLoadWizard = (() => {
     const sel = document.getElementById('dlw-bank-select');
     const bank = sel && sel.value && sel.value !== 'Other / not listed' ? sel.value : '';
     if(bank && typeof _pendingAccountHint !== 'undefined') _pendingAccountHint = bank;
+    // Mark this as a wizard-initiated import so the receipt can tell the user that
+    // future imports go through the Import button (no wizard next time).
+    if(typeof _fromWizard !== 'undefined') _fromWizard = true;
     // Hand off to the normal import pipeline (preview -> confirm -> save).
     closeModal('modal-load-wizard');
     const i = document.getElementById('csv-input');

@@ -241,7 +241,9 @@ const gbConfidence = (() => {
         + row(months.length > 1 ? 'Months' : 'Month', esc(range))
         + (drops.length ? row('Dropped', esc(drops.join(' · ')), 'flag') : '')
         + row('Status', clean ? '&#10003; All clear' : (flagged + ' to review'), clean ? 'ok' : 'flag')
-        + `</div>`;
+        + `</div>`
+        // First-run wizard import: point the user to the Import button for next time.
+        + (s.fromWizard ? `<div class="receipt-tip">That's it! Next time, import anytime with the <strong>Import</strong> button at the top — no wizard needed.</div>` : '');
     }
     const actions = document.getElementById('receipt-actions');
     if(actions){

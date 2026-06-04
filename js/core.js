@@ -711,6 +711,7 @@ let _importBusy = false;      // true between handleFiles start and final proces
 let _lastImportedMonths = null; // accumulates month keys across a batch for anomaly detection
 let _lastImportReceipt = null;  // accumulates the committed-import summary shown as a receipt after a batch
 let _pendingAccountHint = null; // default account/source for the next import preview (e.g. the bank picked in the wizard)
+let _fromWizard = false;        // true when the in-progress import was started from the first-run wizard (drives the receipt's "use the Import button next time" note)
 
 function handleFiles(files){
   if(!files || !files.length) return;
@@ -759,6 +760,7 @@ function processNextFile(){
     }
     _lastImportedMonths = null;
     _lastImportReceipt = null;
+    _fromWizard = false;
     return;
   }
   const file = _pendingFiles.shift();
@@ -1072,7 +1074,8 @@ function applyImport(file, newTxs, newMonths, newKeys, mode, result, account, cl
   // Accumulate the committed-import summary for the post-import receipt shown
   // once the whole batch drains (replaces the old per-commit "Imported N" toast,
   // which the receipt now supersedes).
-  if(!_lastImportReceipt) _lastImportReceipt = { files: [], importIds: [], accounts: new Set(), txCount: 0, skipped: 0, undated: 0, lowConf: 0, months: new Set() };
+  if(!_lastImportReceipt) _lastImportReceipt = { files: [], importIds: [], accounts: new Set(), txCount: 0, skipped: 0, undated: 0, lowConf: 0, months: new Set(), fromWizard: false };
+  if(_fromWizard) _lastImportReceipt.fromWizard = true;
   _lastImportReceipt.files.push(file.name);
   _lastImportReceipt.importIds.push(importId);
   _lastImportReceipt.accounts.add(acct);
