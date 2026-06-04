@@ -129,7 +129,7 @@ const gbCleanup = (() => {
               <div style="font-size:13px;font-weight:700;">${esc(s.mk)}</div>
               <div style="font-size:11px;color:var(--muted);">${s.txCount} txs · net <span style="color:${s.net>=0?'var(--green)':'var(--red)'};">${s.net>=0?'+':'−'}${_money(s.net)}</span></div>
             </div>
-            <button type="button" aria-label="Delete ${esc(s.mk)}" onclick="gbCleanup.deleteMonth('${esc(s.mk)}')" style="flex-shrink:0;border:1px solid rgba(255,71,87,0.3);background:rgba(255,71,87,0.08);color:var(--red);border-radius:10px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-display);">Delete</button>
+            <button type="button" class="btn-destructive" aria-label="Delete ${esc(s.mk)}" onclick="gbCleanup.deleteMonth('${esc(s.mk)}')">Delete</button>
           </div>`).join('')}
       </div>` : `<div style="color:var(--muted);font-size:13px;padding:8px 2px;">No transactions yet.</div>`;
 
@@ -143,7 +143,7 @@ const gbCleanup = (() => {
             <div style="font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(d.vendor)} ${_money(d.amount)}</div>
             <div style="font-size:11px;color:var(--muted);">${esc(d.dateA)} &amp; ${esc(d.dateB)}</div>
           </div>
-          <button type="button" aria-label="Remove duplicate" onclick="gbCleanup.removeDuplicate('${esc(d.id)}')" style="flex-shrink:0;border:1px solid rgba(255,165,2,0.35);background:rgba(255,165,2,0.08);color:var(--amber);border-radius:10px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-display);">Remove</button>
+          <button type="button" class="btn-warn" aria-label="Remove duplicate" onclick="gbCleanup.removeDuplicate('${esc(d.id)}')">Remove</button>
         </div>`).join('')}</div>`
       : `<div style="color:var(--muted);font-size:13px;padding:8px 2px;">No duplicate charges detected.</div>`}`;
 

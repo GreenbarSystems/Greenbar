@@ -521,10 +521,10 @@ function showBankExport(key, stepsId){
   const b=BANK_EXPORTS[key];
   if(!b) return;
   el.innerHTML=b.steps.map((s,i)=>`<div style="display:flex;gap:10px;align-items:flex-start;padding:6px 0;">
-      <div style="width:20px;height:20px;border-radius:6px;background:rgba(0,214,143,0.12);color:var(--green);font-family:var(--font-display);font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i+1}</div>
+      <div style="width:20px;height:20px;border-radius:6px;background:rgba(var(--green-rgb),0.12);color:var(--green);font-family:var(--font-display);font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i+1}</div>
       <div style="font-size:12px;color:var(--soft);line-height:1.6;">${esc(s)}</div>
     </div>`).join('')
-    + (b.note?`<div style="font-size:11px;color:var(--amber);background:rgba(255,165,2,0.07);border:1px solid rgba(255,165,2,0.2);border-radius:10px;padding:8px 11px;margin-top:8px;line-height:1.5;">${esc(b.note)}</div>`:'')
+    + (b.note?`<div style="font-size:11px;color:var(--amber);background:rgba(var(--amber-rgb),0.07);border:1px solid rgba(var(--amber-rgb),0.2);border-radius:10px;padding:8px 11px;margin-top:8px;line-height:1.5;">${esc(b.note)}</div>`:'')
     + `<div style="font-size:11px;color:var(--muted);line-height:1.5;margin-top:8px;">Exact labels and steps can change — if something looks different, search your bank's help center for &ldquo;download transactions.&rdquo;</div>`;
 }
 
@@ -653,7 +653,7 @@ function setupGoValidate(step, inputId, msg){
   if(!val || val <= 0){
     if(el){
       el.focus();
-      el.style.borderColor = 'rgba(255,71,87,0.6)';
+      el.style.borderColor = 'rgba(var(--red-rgb),0.6)';
       setTimeout(() => { el.style.borderColor = ''; }, VALIDATE_FLASH_MS);
     }
     if(msg){
@@ -751,7 +751,7 @@ function buildSetupReview(){
             style="width:88px;padding:7px 8px 7px 22px;background:var(--glass);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;font-weight:700;font-family:var(--font-display);outline:none;text-align:right;"
             data-cat="${esc(cat)}"
             onchange="updateReviewBudget(this)"
-            onfocus="this.style.borderColor='rgba(0,214,143,0.5)'"
+            onfocus="this.style.borderColor='rgba(var(--green-rgb),0.5)'"
             onblur="this.style.borderColor=''" autocomplete="off">
         </div>
       </div>

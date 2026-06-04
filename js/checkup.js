@@ -149,7 +149,7 @@ const gbCheckup = (() => {
         <div class="plan-h">Review anything unusual</div>`
         + (ch.length
           ? `<div class="plan-p">We flagged ${ch.length} thing${ch.length===1?'':'s'} worth a look:</div>
-             <div class="check-card" style="margin-bottom:14px;">${ch.map(c=>`<div class="check-row" style="cursor:default;"><span class="check-ic" style="background:rgba(255,165,2,0.16);" aria-hidden="true">&#9888;</span><span class="check-tx"><span class="check-tx-l">${esc(c.l)}</span><span class="check-tx-s">${esc(c.s)}</span></span></div>`).join('')}</div>
+             <div class="check-card" style="margin-bottom:14px;">${ch.map(c=>`<div class="check-row" style="cursor:default;"><span class="check-ic" style="background:rgba(var(--amber-rgb),0.16);" aria-hidden="true">&#9888;</span><span class="check-tx"><span class="check-tx-l">${esc(c.l)}</span><span class="check-tx-s">${esc(c.s)}</span></span></div>`).join('')}</div>
              <button type="button" class="btn-primary" style="width:100%;" onclick="gbCheckup.go(3)">I've reviewed these &rarr;</button>
              <div style="text-align:center;margin-top:10px;"><button type="button" class="link-btn" onclick="gbCheckup.openReview()">Open the review queue &rsaquo;</button></div>`
           : `<div class="plan-p">&#10003; Nothing unusual this month — your import looks clean.</div>

@@ -239,7 +239,7 @@ function openRecatModal(id){
   const grid = document.getElementById('recat-grid');
   if(grid){
     grid.innerHTML = getAllCategories().map(cat =>
-      `<button type="button" data-cat="${esc(cat)}" onclick="chooseTxCategory(this.dataset.cat)" style="padding:9px 12px;border-radius:12px;border:1px solid ${cat===tx.cat?'rgba(0,214,143,0.5)':'var(--border)'};background:${cat===tx.cat?'rgba(0,214,143,0.12)':'var(--glass)'};color:var(--text);font-size:13px;font-weight:600;cursor:pointer;text-align:left;">${esc(cat)}</button>`
+      `<button type="button" data-cat="${esc(cat)}" onclick="chooseTxCategory(this.dataset.cat)" style="padding:9px 12px;border-radius:12px;border:1px solid ${cat===tx.cat?'rgba(var(--green-rgb),0.5)':'var(--border)'};background:${cat===tx.cat?'rgba(var(--green-rgb),0.12)':'var(--glass)'};color:var(--text);font-size:13px;font-weight:600;cursor:pointer;text-align:left;">${esc(cat)}</button>`
     ).join('');
   }
   // "Make a rule" defaults off; the label names the merchant the rule will match.

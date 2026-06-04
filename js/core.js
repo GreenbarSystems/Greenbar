@@ -176,7 +176,7 @@ function saveSkip(){ CFG.skipKw=document.getElementById('skip-kw').value.split('
 function saveRemaps(){ CFG.remaps=[]; document.querySelectorAll('.remap-row').forEach(r=>{ const k=r.querySelector('.rk').value.trim().toUpperCase(); const c=r.querySelector('.rc').value.trim(); if(k&&c) CFG.remaps.push({kw:k,cat:c}); }); document.getElementById('remap-desc').textContent=`${CFG.remaps.length} rules active`; saveCFG(); _recategorizeAfterRuleChange(); }
 function renderRemaps(){ document.getElementById('remap-list').innerHTML=(CFG.remaps||[]).map(r=>`<div class="remap-row"><input class="rk" aria-label="Remap keyword"placeholder="Keyword" value="${esc(r.kw||'')}" autocomplete="off"><input class="rc" aria-label="Target category"placeholder="Category" value="${esc(r.cat||'')}" autocomplete="off"><button type="button" class="del-btn" aria-label="Remove rule"onclick="this.parentElement.remove()">×</button></div>`).join(''); }
 function addRemap(){ const d=document.createElement('div'); d.className='remap-row'; d.innerHTML=`<input class="rk" aria-label="Remap keyword"placeholder="Keyword" autocomplete="off"><input class="rc" aria-label="Target category"placeholder="Category" autocomplete="off"><button type="button" class="del-btn" aria-label="Remove rule"onclick="this.parentElement.remove()">×</button>`; document.getElementById('remap-list').appendChild(d); }
-function renderBudgetInputs(){ document.getElementById('budget-inputs').innerHTML=Object.entries(CFG.budget).map(([c,v])=>`<div class="budget-row"><span class="budget-label">${esc(c)}</span><input class="budget-input" type="number" data-cat="${esc(c)}" aria-label="${esc(c)} budget in dollars" value="${v}" min="0" step="10" autocomplete="off"></div>`).join('')+`<div class="budget-row"><input class="budget-input" id="new-cat" aria-label="New category name" placeholder="New category…" style="width:auto;flex:1;margin-right:8px;text-align:left" autocomplete="off"><input class="budget-input" id="new-val" type="number" aria-label="New category budget in dollars" placeholder="$0" style="width:72px" autocomplete="off"><button type="button" onclick="addBudgetCat()" aria-label="Add budget category" style="margin-left:8px;padding:7px 12px;background:rgba(0,214,143,0.1);border:1px solid rgba(0,214,143,0.3);border-radius:10px;color:var(--green);font-weight:700;cursor:pointer;font-size:14px">+</button></div>`; }
+function renderBudgetInputs(){ document.getElementById('budget-inputs').innerHTML=Object.entries(CFG.budget).map(([c,v])=>`<div class="budget-row"><span class="budget-label">${esc(c)}</span><input class="budget-input" type="number" data-cat="${esc(c)}" aria-label="${esc(c)} budget in dollars" value="${v}" min="0" step="10" autocomplete="off"></div>`).join('')+`<div class="budget-row"><input class="budget-input" id="new-cat" aria-label="New category name" placeholder="New category…" style="width:auto;flex:1;margin-right:8px;text-align:left" autocomplete="off"><input class="budget-input" id="new-val" type="number" aria-label="New category budget in dollars" placeholder="$0" style="width:72px" autocomplete="off"><button type="button" onclick="addBudgetCat()" aria-label="Add budget category" style="margin-left:8px;padding:7px 12px;background:rgba(var(--green-rgb),0.1);border:1px solid rgba(var(--green-rgb),0.3);border-radius:10px;color:var(--green);font-weight:700;cursor:pointer;font-size:14px">+</button></div>`; }
 function addBudgetCat(){ const n=document.getElementById('new-cat').value.trim(); const v=parseFloat(document.getElementById('new-val').value)||0; if(!n) return; CFG.budget[n]=v; renderBudgetInputs(); }
 function saveSettings(){ document.querySelectorAll('.budget-input[data-cat]').forEach(i=>{ if(i.dataset.cat){ const bv=parseFloat(i.value); CFG.budget[i.dataset.cat]=(isNaN(bv)||bv<0)?0:Math.round(bv*100)/100; i.value=CFG.budget[i.dataset.cat]; } }); saveCFG(); if(_allTxs.length) renderAll(); if(typeof showToast==='function') showToast('Budget saved.', 'success'); }
 
@@ -696,8 +696,8 @@ function renderLog(){
         <div style="font-size:11px;color:var(--muted);flex-shrink:0;margin-top:2px;">${esc(entry.date)}</div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <span style="background:rgba(0,214,143,0.10);border:1px solid rgba(0,214,143,0.2);border-radius:8px;padding:3px 10px;font-size:11px;font-weight:600;color:var(--green)">${esc(String(entry.txCount))} transaction${entry.txCount===1?'':'s'}</span>
-        <span style="background:rgba(41,121,255,0.10);border:1px solid rgba(41,121,255,0.2);border-radius:8px;padding:3px 10px;font-size:11px;font-weight:600;color:#2979ff">${esc(String(entry.monthCount))} month${entry.monthCount===1?'':'s'}</span>
+        <span style="background:rgba(var(--green-rgb),0.10);border:1px solid rgba(var(--green-rgb),0.2);border-radius:8px;padding:3px 10px;font-size:11px;font-weight:600;color:var(--green)">${esc(String(entry.txCount))} transaction${entry.txCount===1?'':'s'}</span>
+        <span style="background:rgba(var(--blue-rgb),0.10);border:1px solid rgba(var(--blue-rgb),0.2);border-radius:8px;padding:3px 10px;font-size:11px;font-weight:600;color:#2979ff">${esc(String(entry.monthCount))} month${entry.monthCount===1?'':'s'}</span>
         <span style="background:var(--o05);border:1px solid var(--o08);border-radius:8px;padding:3px 10px;font-size:11px;color:var(--muted)">${esc(entry.months)}</span>
       </div>
     </div>`).join('');
@@ -910,11 +910,11 @@ function showImportPreview(filename, result){
         : `<div style="font-size:11px;color:var(--muted);margin-top:9px;line-height:1.5;">Dates read as ${esc(m.fmt||'MM/DD/YY')} &middot; categories assigned automatically.</div>`}
     </div>
     <div style="display:flex;gap:8px;margin-bottom:${dropped?'8px':'12px'};">
-      <div style="flex:1;background:rgba(0,214,143,0.08);border:1px solid rgba(0,214,143,0.2);border-radius:12px;padding:10px;text-align:center;">
+      <div style="flex:1;background:rgba(var(--green-rgb),0.08);border:1px solid rgba(var(--green-rgb),0.2);border-radius:12px;padding:10px;text-align:center;">
         <div style="font-family:var(--font-display);font-size:20px;font-weight:900;color:var(--green);">${c.imported||0}</div>
         <div style="font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">Ready to import</div>
       </div>
-      <div style="flex:1;background:${dropped?'rgba(255,165,2,0.08)':'var(--o04)'};border:1px solid ${dropped?'rgba(255,165,2,0.25)':'var(--border)'};border-radius:12px;padding:10px;text-align:center;">
+      <div style="flex:1;background:${dropped?'rgba(var(--amber-rgb),0.08)':'var(--o04)'};border:1px solid ${dropped?'rgba(var(--amber-rgb),0.25)':'var(--border)'};border-radius:12px;padding:10px;text-align:center;">
         <div style="font-family:var(--font-display);font-size:20px;font-weight:900;color:${dropped?'var(--amber)':'var(--muted)'};">${dropped}</div>
         <div style="font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">Skipped</div>
       </div>
@@ -1221,6 +1221,7 @@ document.addEventListener('keydown',function(e){
     e.preventDefault();
     if(open.id==='modal-conflict') resolveConflict('cancel');
     else if(open.id==='modal-import-preview') cancelImportPreview();
+    else if(open.id==='modal-import-receipt' && typeof gbConfidence !== 'undefined') gbConfidence.dismissReceipt();
     else closeModal(open.id);
     return;
   }
@@ -1303,8 +1304,8 @@ function showToast(msg, type){
 }
 // Per-type toast palette. Default/unknown types fall back to success.
 const _TOAST_COLORS = {
-  success: { bg:'rgba(0,214,143,0.95)', fg:'#050a14' },
-  error:   { bg:'rgba(255,71,87,0.97)', fg:'#fff'     },
+  success: { bg:'rgba(var(--green-rgb),0.95)', fg:'#050a14' },
+  error:   { bg:'rgba(var(--red-rgb),0.97)', fg:'#fff'     },
 };
 function _drainToast(){
   if(!_toastQueue.length){ _toastShowing = false; return; }

@@ -75,7 +75,7 @@ const gbSuggest = (() => {
     const { total, months } = c;
     const n = Object.keys(c.budget).length;
     return `
-      <div class="g-card" style="padding:20px 18px;margin:0 0 16px;background:linear-gradient(155deg,rgba(0,214,143,0.14),rgba(41,121,255,0.06));border:2px solid var(--green);border-radius:20px;">
+      <div class="g-card" style="padding:20px 18px;margin:0 0 16px;background:linear-gradient(155deg,rgba(var(--green-rgb),0.14),rgba(var(--blue-rgb),0.06));border:2px solid var(--green);border-radius:20px;">
         <div style="font-family:var(--font-display);font-size:17px;font-weight:900;letter-spacing:-0.3px;margin-bottom:6px;">Build your budget from your spending</div>
         <div style="font-size:12.5px;color:var(--soft);line-height:1.6;margin-bottom:14px;">From the ${months} month${months===1?'':'s'} you've imported, Greenbar can set <strong>${n} category targets</strong> totalling <strong>${fmt(total)}/mo</strong> based on what you actually spent — fine-tune any of them later.</div>
         <button type="button" class="btn-primary" style="width:100%;padding:15px;font-size:15px;font-weight:900;" onclick="gbSuggest.apply()">Build my budget from my actual spending</button>

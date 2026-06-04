@@ -204,7 +204,7 @@ const gbInsights = (() => {
     return `
       <h2 class="sec-hdr">Insights</h2>
       <button type="button" onclick="gbInsights.openInsights()" aria-label="View your insights"
-        style="width:100%;text-align:left;background:linear-gradient(155deg,rgba(124,77,255,0.10),rgba(0,214,143,0.06));border:1px solid rgba(124,77,255,0.25);border-radius:20px;padding:16px;margin-bottom:14px;cursor:pointer;">
+        style="width:100%;text-align:left;background:linear-gradient(155deg,rgba(var(--purple-rgb),0.10),rgba(var(--green-rgb),0.06));border:1px solid rgba(var(--purple-rgb),0.25);border-radius:20px;padding:16px;margin-bottom:14px;cursor:pointer;">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
           <span style="font-size:16px;" aria-hidden="true">✨</span>
           <span style="font-family:var(--font-display);font-size:13px;font-weight:800;">What stands out</span>

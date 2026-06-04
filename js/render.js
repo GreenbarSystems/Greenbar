@@ -267,7 +267,7 @@ function renderHealthBreakdown(hs, monthKey){
     ${card('Tracking diversity', hs.details.divPts, P.DIVERSITY, trackingBarPct, '#7c4dff',
       `<strong>${realSpend}</strong> categories had real spend this month (over $${HEALTH.DIVERSITY.MIN_SPEND}). Reaches the full ${P.DIVERSITY} points at ${HEALTH.DIVERSITY.TARGET_CATS}+ categories — rewards balanced tracking rather than lumping everything into one bucket.`)}
 
-    <div style="background:rgba(0,214,143,0.07);border:1px solid rgba(0,214,143,0.25);border-radius:14px;padding:12px 14px;margin-top:6px;">
+    <div style="background:rgba(var(--green-rgb),0.07);border:1px solid rgba(var(--green-rgb),0.25);border-radius:14px;padding:12px 14px;margin-top:6px;">
       <div style="font-family:var(--font-display);font-size:12px;font-weight:800;color:var(--green);letter-spacing:0.04em;text-transform:uppercase;margin-bottom:4px;">Biggest lever</div>
       <div style="font-size:13px;color:var(--soft);line-height:1.5;">${esc(nextStepCopy)}</div>
     </div>
@@ -503,7 +503,7 @@ function showCatInsights(cat){
           </div>`;
         }).join('')}
         ${budget>0?`<div style="margin-top:6px;padding-top:8px;border-top:1px solid var(--o07);display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);">
-          <div style="width:24px;height:2px;background:rgba(255,165,2,0.6);border-radius:1px;border:1px dashed rgba(255,165,2,0.5);"></div> Budget: ${fmt(budget)}/mo
+          <div style="width:24px;height:2px;background:rgba(var(--amber-rgb),0.6);border-radius:1px;border:1px dashed rgba(var(--amber-rgb),0.5);"></div> Budget: ${fmt(budget)}/mo
         </div>`:''}
       </div>
 
@@ -520,7 +520,7 @@ function showCatInsights(cat){
       </div>`:''}
 
       <!-- Smart observations -->
-      <div style="background:linear-gradient(145deg,rgba(0,214,143,0.06),rgba(0,201,177,0.04));border:1px solid rgba(0,214,143,0.15);border-radius:16px;padding:16px;margin-bottom:4px;">
+      <div style="background:linear-gradient(145deg,rgba(var(--green-rgb),0.06),rgba(var(--teal-rgb),0.04));border:1px solid rgba(var(--green-rgb),0.15);border-radius:16px;padding:16px;margin-bottom:4px;">
         <div style="font-size:11px;font-weight:800;color:#00d68f;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;font-family: var(--font-display);">Observations</div>
         ${[
           topVendor && parseInt(topVendorPct) > 30
@@ -543,7 +543,7 @@ function showCatInsights(cat){
             : trend < -100
             ? `Spending is <b>trending down</b> -- ${fmt(Math.abs(trend))} less than when tracking started. Good progress.`
             : null,
-        ].filter(Boolean).map(obs=>`<div style="font-size:13px;color:var(--soft);line-height:1.6;margin-bottom:8px;padding-left:12px;border-left:2px solid rgba(0,214,143,0.3);">${obs}</div>`).join('')}
+        ].filter(Boolean).map(obs=>`<div style="font-size:13px;color:var(--soft);line-height:1.6;margin-bottom:8px;padding-left:12px;border-left:2px solid rgba(var(--green-rgb),0.3);">${obs}</div>`).join('')}
       </div>
     `;
 }
@@ -694,7 +694,7 @@ function renderSummary(){
   if(!hasData){
     document.getElementById('summary-content').innerHTML = `
       <div class="gb-welcome">
-        <div class="g-card empty-import-hero" style="padding:30px 22px 26px;text-align:center;margin-top:8px;background:linear-gradient(160deg,rgba(0,214,143,0.12),rgba(41,121,255,0.05));border:1px solid rgba(0,214,143,0.3);">
+        <div class="g-card empty-import-hero" style="padding:30px 22px 26px;text-align:center;margin-top:8px;background:linear-gradient(160deg,rgba(var(--green-rgb),0.12),rgba(var(--blue-rgb),0.05));border:1px solid rgba(var(--green-rgb),0.3);">
           <div style="font-family:var(--font-display);font-size:23px;font-weight:900;letter-spacing:-0.5px;margin-bottom:8px;">See where your money goes</div>
           <div style="font-size:13.5px;color:var(--soft);line-height:1.6;margin:0 auto 22px;max-width:300px;">Import your bank transactions from a CSV or PDF. They're read right here on your device; nothing is ever uploaded.</div>
           <button type="button" onclick="startFirstImport()" aria-label="Import bank transactions" style="width:100%;max-width:340px;padding:17px 24px;border:none;border-radius:16px;background:var(--grad-primary);color:#050a14;font-family:var(--font-display);font-size:16px;font-weight:900;letter-spacing:0.3px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.18);">Import bank transactions</button>
@@ -728,9 +728,9 @@ function renderSummary(){
   // "What to check": review queue (always), plus unusual activity and possible
   // duplicates once the analyst surfaces are unlocked (see summaryCheckCounts).
   const checks = [];
-  if(reviewN) checks.push({ ic:'&#9998;', icbg:'rgba(41,121,255,0.12)', l:`${reviewN} transaction${reviewN===1?'':'s'} to review`, s:'Low-confidence or uncategorised', act:'gbConfidence.open()' });
-  if(anomN) checks.push({ ic:'&#9888;', icbg:'rgba(255,165,2,0.16)', l:`${anomN} unusual item${anomN===1?'':'s'} to review`, s:'From your last import', act:'openAnomalyReport()' });
-  if(dupN) checks.push({ ic:'&#10697;', icbg:'rgba(255,71,87,0.14)', l:`${dupN} possible duplicate${dupN===1?'':'s'}`, s:'Same charge close together', act:'gbCleanup.openCleanup()' });
+  if(reviewN) checks.push({ ic:'&#9998;', icbg:'rgba(var(--blue-rgb),0.12)', l:`${reviewN} transaction${reviewN===1?'':'s'} to review`, s:'Low-confidence or uncategorised', act:'gbConfidence.open()' });
+  if(anomN) checks.push({ ic:'&#9888;', icbg:'rgba(var(--amber-rgb),0.16)', l:`${anomN} unusual item${anomN===1?'':'s'} to review`, s:'From your last import', act:'openAnomalyReport()' });
+  if(dupN) checks.push({ ic:'&#10697;', icbg:'rgba(var(--red-rgb),0.14)', l:`${dupN} possible duplicate${dupN===1?'':'s'}`, s:'Same charge close together', act:'gbCleanup.openCleanup()' });
   const checkBody = checks.length
     ? `<div class="check-card">${checks.map(c=>`
         <button type="button" class="check-row" onclick="${c.act}">
@@ -888,8 +888,8 @@ function renderSummaryAll(){
             </div>
           </div>
           <div style="display:flex;gap:8px;">
-            <button type="button" onclick="showVendorDrill(this.dataset.cat)" data-cat="${esc(cat)}" style="flex:1;padding:7px 0;border-radius:10px;border:1px solid var(--o10);background:var(--o05);color:var(--soft);font-size:11px;font-weight:600;cursor:pointer;font-family: var(--font-display);">Transactions</button>
-            <button type="button" onclick="showCatInsights(this.dataset.cat)" data-cat="${esc(cat)}" style="flex:1;padding:7px 0;border-radius:10px;border:1px solid rgba(0,214,143,0.25);background:rgba(0,214,143,0.08);color:#00d68f;font-size:11px;font-weight:600;cursor:pointer;font-family: var(--font-display);">Insights</button>
+            <button type="button" class="btn-tertiary" onclick="showVendorDrill(this.dataset.cat)" data-cat="${esc(cat)}">Transactions</button>
+            <button type="button" class="btn-tertiary-accent" onclick="showCatInsights(this.dataset.cat)" data-cat="${esc(cat)}">Insights</button>
           </div>
         </div>`).join('')}
       </div>
@@ -937,8 +937,8 @@ function renderBudget(){
     .slice(0, 5);
   const totalVar=budTotal-expTotal;
   const varColor = totalVar >= 0 ? 'var(--green)' : '#ff4757';
-  const varTint  = totalVar >= 0 ? 'rgba(0,214,143,0.07)' : 'rgba(255,71,87,0.07)';
-  const varBdr   = totalVar >= 0 ? 'rgba(0,214,143,0.25)' : 'rgba(255,71,87,0.25)';
+  const varTint  = totalVar >= 0 ? 'rgba(var(--green-rgb),0.07)' : 'rgba(var(--red-rgb),0.07)';
+  const varBdr   = totalVar >= 0 ? 'rgba(var(--green-rgb),0.25)' : 'rgba(var(--red-rgb),0.25)';
   const varLabel = totalVar >= 0 ? 'under budget' : 'over budget';
   const varPrefix= totalVar >= 0 ? '+' : '−';
   const acctChips = accounts.length >= 2 ? `<div class="pills-row" role="group" aria-label="Filter by account" style="margin-bottom:6px;">

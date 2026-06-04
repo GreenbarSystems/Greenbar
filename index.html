@@ -88,7 +88,7 @@ if('serviceWorker' in navigator){
         style="width:32px;height:32px;border-radius:10px;border:none;cursor:pointer;
           background:var(--grad-primary);
           display:none;align-items:center;justify-content:center;flex-shrink:0;
-          box-shadow:0 2px 10px rgba(0,214,143,0.35);transition:transform 0.15s;"
+          box-shadow:0 2px 10px rgba(var(--green-rgb),0.35);transition:transform 0.15s;"
         title="Ask Greens" aria-label="Open help assistant"><span style="color:#050a14;font-weight:900;font-size:14px;line-height:1;">?</span></button>
       <button type="button" id="privacy-toggle-btn" onclick="gbPrivacy.toggle()" aria-label="Toggle hide amounts" title="Hide amounts">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -98,7 +98,7 @@ if('serviceWorker' in navigator){
       </button>
     </div>
     <div class="hdr-right">
-      <button type="button" id="hdr-import-btn" class="fab" onclick="document.getElementById('csv-input').click()" style="opacity:0;pointer-events:none;width:auto;padding:0 16px;font-size:13px;font-weight:800;font-family:var(--font-display);letter-spacing:0.3px;color:#050a14;background:var(--grad-primary);box-shadow:0 4px 16px rgba(0,214,143,0.4);opacity:0;pointer-events:none;transition:opacity 0.6s ease;">Import</button>
+      <button type="button" id="hdr-import-btn" class="fab" onclick="document.getElementById('csv-input').click()" style="opacity:0;pointer-events:none;width:auto;padding:0 16px;font-size:13px;font-weight:800;font-family:var(--font-display);letter-spacing:0.3px;color:#050a14;background:var(--grad-primary);box-shadow:0 4px 16px rgba(var(--green-rgb),0.4);opacity:0;pointer-events:none;transition:opacity 0.6s ease;">Import</button>
       <input type="file" id="csv-input" aria-label="Import bank transactions CSV or PDF file" accept=".csv,.tsv,.txt,.pdf,application/pdf" multiple onchange="handleFiles(this.files)" autocomplete="off">
       <input type="file" id="restore-input" aria-label="Restore a Greenbar backup JSON file" accept=".json,application/json" style="display:none" onchange="restoreData(this.files[0]); this.value='';" autocomplete="off">
     </div>
@@ -168,7 +168,7 @@ if('serviceWorker' in navigator){
             <input class="setup-input" id="s3-income" aria-label="Monthly take-home income in dollars" type="number" placeholder="Monthly amount" min="0" inputmode="decimal" oninput="_setupState.income=parseFloat(this.value)||0;updateIncomeNote()" autocomplete="off">
           </div>
 
-          <div class="setup-income-note" id="s3-income-note" style="display:none;margin-top:16px;background:rgba(0,214,143,0.07);border:1px solid rgba(0,214,143,0.15);border-radius:14px;padding:14px 16px;">
+          <div class="setup-income-note" id="s3-income-note" style="display:none;margin-top:16px;background:rgba(var(--green-rgb),0.07);border:1px solid rgba(var(--green-rgb),0.15);border-radius:14px;padding:14px 16px;">
             <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Based on your income</div>
             <div style="font-size:14px;font-weight:600;" id="s3-income-breakdown"></div>
           </div>
@@ -276,7 +276,7 @@ if('serviceWorker' in navigator){
     <div class="screen" id="screen-settings">
 
       <!-- Budget Setup CTA -->
-      <div style="background:linear-gradient(135deg,rgba(0,214,143,0.07),rgba(0,201,177,0.05));border:1px solid rgba(0,214,143,0.2);border-radius:18px;padding:16px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px;">
+      <div style="background:linear-gradient(135deg,rgba(var(--green-rgb),0.07),rgba(var(--teal-rgb),0.05));border:1px solid rgba(var(--green-rgb),0.2);border-radius:18px;padding:16px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px;">
         <div style="flex:1;">
           <div style="font-size:14px;font-weight:700;margin-bottom:3px;">Budget Setup Wizard</div>
           <div class="row-desc-t">Answer a few questions to personalize your budget targets</div>
@@ -428,7 +428,7 @@ if('serviceWorker' in navigator){
         </div>
 
         <!-- Privacy note -->
-        <div style="background:rgba(0,214,143,0.06);border:1px solid rgba(0,214,143,0.15);border-radius:16px;padding:16px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start;">
+        <div style="background:rgba(var(--green-rgb),0.06);border:1px solid rgba(var(--green-rgb),0.15);border-radius:16px;padding:16px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start;">
           <div style="font-size:12px;color:var(--soft);line-height:1.6;"><strong class="c-text">Private by design.</strong> Your transactions, budgets and settings stay in Greenbar's storage on your device. There's no account and no server &mdash; so there's nowhere to send them.</div>
         </div>
 
@@ -534,21 +534,21 @@ if('serviceWorker' in navigator){
               Each month gets a score from 0 to 100, which becomes a letter grade. It&rsquo;s made up of three things:
             </div>
             <div style="display:flex;flex-direction:column;gap:8px;">
-              <div style="background:rgba(0,214,143,0.06);border:1px solid rgba(0,214,143,0.15);border-radius:12px;padding:12px 14px;">
+              <div style="background:rgba(var(--green-rgb),0.06);border:1px solid rgba(var(--green-rgb),0.15);border-radius:12px;padding:12px 14px;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
                   <span style="font-size:13px;font-weight:700;">Did you save money?</span>
                   <span style="font-size:12px;color:var(--green);font-weight:800;">40 pts</span>
                 </div>
                 <div class="caption-xs">Saving 20% or more of your income earns full marks. Spending more than you earned scores zero.</div>
               </div>
-              <div style="background:rgba(41,121,255,0.06);border:1px solid rgba(41,121,255,0.15);border-radius:12px;padding:12px 14px;">
+              <div style="background:rgba(var(--blue-rgb),0.06);border:1px solid rgba(var(--blue-rgb),0.15);border-radius:12px;padding:12px 14px;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
                   <span style="font-size:13px;font-weight:700;">Did you stick to your budget?</span>
                   <span style="font-size:12px;color:#2979ff;font-weight:800;">40 pts</span>
                 </div>
                 <div class="caption-xs">Each budget category is scored on how close your actual spending was to your target. Being within 10% is perfect. If you haven&rsquo;t set a budget yet, this part is neutral.</div>
               </div>
-              <div style="background:rgba(124,77,255,0.06);border:1px solid rgba(124,77,255,0.15);border-radius:12px;padding:12px 14px;">
+              <div style="background:rgba(var(--purple-rgb),0.06);border:1px solid rgba(var(--purple-rgb),0.15);border-radius:12px;padding:12px 14px;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
                   <span style="font-size:13px;font-weight:700;">Are you tracking everything?</span>
                   <span style="font-size:12px;color:#7c4dff;font-weight:800;">20 pts</span>
@@ -607,7 +607,7 @@ if('serviceWorker' in navigator){
                 <span class="c-muted"><strong class="c-soft">Category column:</strong> Optional. Greenbar will sort uncategorized transactions using the Description instead.</span>
               </div>
             </div>
-            <div style="background:rgba(255,165,2,0.07);border:1px solid rgba(255,165,2,0.2);border-radius:12px;padding:10px 13px;font-size:11px;color:var(--muted);line-height:1.6;">
+            <div style="background:rgba(var(--amber-rgb),0.07);border:1px solid rgba(var(--amber-rgb),0.2);border-radius:12px;padding:10px 13px;font-size:11px;color:var(--muted);line-height:1.6;">
               Files from most US, UK, Australian and Canadian banks import without any setup. If something looks wrong, check Settings &rarr; Column Mapping (region, currency and date format).
             </div>
           </div>
@@ -644,8 +644,8 @@ if('serviceWorker' in navigator){
 <div style="padding:0;">
 
         <!-- Hero -->
-        <div style="text-align:center;padding:32px 20px 28px;background:linear-gradient(155deg,rgba(0,214,143,0.07),rgba(41,121,255,0.04));border:1px solid rgba(0,214,143,0.15);border-radius:24px;margin-bottom:16px;position:relative;overflow:hidden;">
-          <div style="position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:200px;height:140px;background:radial-gradient(ellipse,rgba(0,214,143,0.10) 0%,transparent 70%);pointer-events:none;"></div>
+        <div style="text-align:center;padding:32px 20px 28px;background:linear-gradient(155deg,rgba(var(--green-rgb),0.07),rgba(var(--blue-rgb),0.04));border:1px solid rgba(var(--green-rgb),0.15);border-radius:24px;margin-bottom:16px;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:200px;height:140px;background:radial-gradient(ellipse,rgba(var(--green-rgb),0.10) 0%,transparent 70%);pointer-events:none;"></div>
           <div style="font-family:var(--font-display);font-size:26px;font-weight:900;letter-spacing:-0.5px;margin-bottom:8px;">Your data stays yours.</div>
           <div style="font-size:13px;color:var(--soft);line-height:1.7;max-width:300px;margin:0 auto;">Greenbar is built on a single principle: your financial data belongs to you, and only you.</div>
         </div>
@@ -662,7 +662,7 @@ if('serviceWorker' in navigator){
               </div>
               <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;">
                 <div style="font-size:11px;color:var(--green);font-weight:700;">Bank transactions</div>
-                <div style="width:48px;height:2px;background:linear-gradient(90deg,rgba(0,214,143,0.3),#00d68f);border-radius:1px;"></div>
+                <div style="width:48px;height:2px;background:linear-gradient(90deg,rgba(var(--green-rgb),0.3),#00d68f);border-radius:1px;"></div>
                 <div style="font-size:9px;color:var(--muted);">you download</div>
               </div>
               <div style="text-align:center;flex:1;">
@@ -670,7 +670,7 @@ if('serviceWorker' in navigator){
               </div>
               <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;">
                 <div style="font-size:11px;color:var(--red);font-weight:700;">nothing</div>
-                <div style="width:48px;height:2px;background:linear-gradient(90deg,rgba(255,71,87,0.2),rgba(255,71,87,0.2));border-radius:1px;border-top:1px dashed rgba(255,71,87,0.4);"></div>
+                <div style="width:48px;height:2px;background:linear-gradient(90deg,rgba(var(--red-rgb),0.2),rgba(var(--red-rgb),0.2));border-radius:1px;border-top:1px dashed rgba(var(--red-rgb),0.4);"></div>
                 <div style="font-size:9px;color:var(--muted);">no connection</div>
               </div>
               <div style="text-align:center;flex:1;opacity:0.35;">
@@ -683,11 +683,11 @@ if('serviceWorker' in navigator){
           <div style="padding:16px;border-bottom:1px solid var(--o05);">
             <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px;font-family:var(--font-display);">Where your data lives</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-              <div style="background:rgba(0,214,143,0.07);border:1px solid rgba(0,214,143,0.15);border-radius:12px;padding:12px;text-align:center;">
+              <div style="background:rgba(var(--green-rgb),0.07);border:1px solid rgba(var(--green-rgb),0.15);border-radius:12px;padding:12px;text-align:center;">
                 <div style="font-size:12px;font-weight:600;margin-bottom:3px;">Your Device</div>
                 <div style="font-size:10px;color:var(--muted);line-height:1.5;">Saved safely on your device, readable only by this app</div>
               </div>
-              <div style="background:rgba(255,71,87,0.06);border:1px solid rgba(255,71,87,0.15);border-radius:12px;padding:12px;text-align:center;">
+              <div style="background:rgba(var(--red-rgb),0.06);border:1px solid rgba(var(--red-rgb),0.15);border-radius:12px;padding:12px;text-align:center;">
                 <div style="font-size:12px;font-weight:600;margin-bottom:3px;">No Cloud</div>
                 <div style="font-size:10px;color:var(--muted);line-height:1.5;">Nothing stored on servers, backups, or sync services</div>
               </div>
@@ -720,10 +720,10 @@ if('serviceWorker' in navigator){
         </div>
 
         <!-- Clear data -->
-        <div style="background:rgba(255,71,87,0.06);border:1px solid rgba(255,71,87,0.15);border-radius:16px;padding:16px;margin-bottom:8px;">
+        <div style="background:rgba(var(--red-rgb),0.06);border:1px solid rgba(var(--red-rgb),0.15);border-radius:16px;padding:16px;margin-bottom:8px;">
           <div style="font-size:13px;font-weight:600;margin-bottom:6px;">Clear all local data</div>
           <div style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:12px;">This permanently deletes all imported transactions, settings, and upload history stored on this device. This action cannot be undone.</div>
-          <button type="button" onclick="clearAllData()" style="width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,71,87,0.3);background:rgba(255,71,87,0.1);color:var(--red);font-family:var(--font-display);font-size:13px;font-weight:700;cursor:pointer;">Clear All Data</button>
+          <button type="button" onclick="clearAllData()" style="width:100%;padding:12px;border-radius:12px;border:1px solid rgba(var(--red-rgb),0.3);background:rgba(var(--red-rgb),0.1);color:var(--red);font-family:var(--font-display);font-size:13px;font-weight:700;cursor:pointer;">Clear All Data</button>
         </div>
 
       
@@ -785,7 +785,7 @@ if('serviceWorker' in navigator){
           <div class="settings-section">
             <button type="button" class="settings-row" onclick="gbConfidence.open()" aria-labelledby="icc-label" aria-describedby="icc-desc">
               <span class="s-body"><span class="s-label" id="icc-label">Import Confidence Center</span><span class="s-desc" id="icc-desc">Trust metadata, the review queue, and per-import history</span></span>
-              <span id="icc-badge" style="display:none;background:rgba(255,165,2,0.15);color:var(--amber);border:1px solid rgba(255,165,2,0.3);font-size:11px;font-weight:800;border-radius:9px;padding:2px 8px;font-family:var(--font-display);"></span>
+              <span id="icc-badge" style="display:none;background:rgba(var(--amber-rgb),0.15);color:var(--amber);border:1px solid rgba(var(--amber-rgb),0.3);font-size:11px;font-weight:800;border-radius:9px;padding:2px 8px;font-family:var(--font-display);"></span>
               <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
             </button>
             <button type="button" class="settings-row" onclick="openModal('modal-log')" aria-labelledby="log-label" aria-describedby="log-desc">
@@ -1184,7 +1184,10 @@ if('serviceWorker' in navigator){
 
 <dialog class="modal-overlay" id="modal-import-receipt" aria-modal="true" aria-labelledby="receipt-title" onclick="if(event.target===this)gbConfidence.dismissReceipt()">
   <div class="sheet">
-    <div class="sheet-handle"></div>
+    <div class="sheet-close-row">
+      <button type="button" aria-label="Close" onclick="gbConfidence.dismissReceipt()" class="sheet-close">&#x2715;</button>
+    </div>
+    <div class="sheet-handle" style="margin-top:0;"></div>
     <div id="receipt-check" class="receipt-check" aria-hidden="true">&#10003;</div>
     <h2 class="sheet-title" id="receipt-title" style="text-align:center;margin-bottom:2px;">Import complete</h2>
     <div id="receipt-body" style="margin-top:10px;"></div>
@@ -1212,7 +1215,7 @@ if('serviceWorker' in navigator){
     <div class="sheet-handle" style="margin-top:0;"></div>
     <div class="row-between">
       <h2 class="sheet-title" id="log-title" style="margin-bottom:0;">Upload Log</h2>
-      <button type="button" onclick="clearLog()" style="background:rgba(255,71,87,0.12);border:1px solid rgba(255,71,87,0.2);border-radius:10px;padding:6px 12px;color:var(--red);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-display);">Clear All</button>
+      <button type="button" onclick="clearLog()" style="background:rgba(var(--red-rgb),0.12);border:1px solid rgba(var(--red-rgb),0.2);border-radius:10px;padding:6px 12px;color:var(--red);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-display);">Clear All</button>
     </div>
     <div class="sheet-sub">All the bank transactions you import are recorded here.</div>
     <div id="log-list"></div>
@@ -1340,7 +1343,7 @@ if('serviceWorker' in navigator){
     <div class="sheet-handle"></div>
     <h2 class="sheet-title" id="enc-rec-title">Your recovery key</h2>
     <div class="sheet-sub" style="color:#ffa502;font-weight:600;">Save this. We cannot recover your data without it.</div>
-    <div id="enc-recovery-display" style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:18px;font-weight:700;letter-spacing:1.5px;text-align:center;background:rgba(0,214,143,0.07);border:1px solid rgba(0,214,143,0.25);border-radius:14px;padding:18px 12px;margin:16px 0;word-break:break-all;color:var(--text);"></div>
+    <div id="enc-recovery-display" style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:18px;font-weight:700;letter-spacing:1.5px;text-align:center;background:rgba(var(--green-rgb),0.07);border:1px solid rgba(var(--green-rgb),0.25);border-radius:14px;padding:18px 12px;margin:16px 0;word-break:break-all;color:var(--text);"></div>
     <button type="button" class="btn-secondary" onclick="_gbCopyRecovery()" style="margin-bottom:16px;">Copy recovery key</button>
     <label style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--soft);cursor:pointer;margin-bottom:16px;line-height:1.5;">
       <input type="checkbox" id="enc-recovery-saved" onchange="_gbRecoveryCheckbox()" style="margin-top:2px;width:18px;height:18px;flex-shrink:0;accent-color:var(--green);">

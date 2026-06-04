@@ -17,6 +17,16 @@
   --red: #ff4757;
   --amber: #ffa502;
   --purple: #7c4dff;
+  /* RGB triplets of the accents, so tints/borders/shadows can be written as
+     rgba(var(--green-rgb), A) with a single source of truth per colour. Dark
+     values equal the original literals exactly (dark mode unchanged); the light
+     theme re-points them to the deepened accents so tints adapt too. */
+  --green-rgb: 0,214,143;
+  --teal-rgb: 0,201,177;
+  --blue-rgb: 41,121,255;
+  --red-rgb: 255,71,87;
+  --amber-rgb: 255,165,2;
+  --purple-rgb: 124,77,255;
   /* Primary text is a softened off-white rather than near-pure white: at 52px/900
      the old #eef2ff bloomed/glared against the near-black --bg. #dfe4f1 still
      measures ~14:1 on --bg (far above the 4.5:1 AA floor) but reads calmer for
@@ -75,6 +85,9 @@
      mode only — dark-mode accents are unchanged. */
   --green: #0a7d50; --teal: #0a7d74;
   --red: #d62f3f; --amber: #8f6200; --blue: #1f64d6; --purple: #6b3ff0;
+  /* RGB triplets re-pointed so rgba(var(--*-rgb), A) tints adapt to light. */
+  --green-rgb: 10,125,80; --teal-rgb: 10,125,116;
+  --red-rgb: 214,47,63; --amber-rgb: 143,98,0; --blue-rgb: 31,100,214; --purple-rgb: 107,63,240;
   --o02: rgba(15,23,41,0.03); --o03: rgba(15,23,41,0.04);
   --o04: rgba(15,23,41,0.05); --o05: rgba(15,23,41,0.05);
   --o06: rgba(15,23,41,0.06); --o07: rgba(15,23,41,0.07);
@@ -111,9 +124,9 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
 .mesh {
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background:
-    radial-gradient(ellipse 80% 60% at 10% 20%, rgba(0,214,143,0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 90% 80%, rgba(41,121,255,0.10) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(124,77,255,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 60% at 10% 20%, rgba(var(--green-rgb),0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 80%, rgba(var(--blue-rgb),0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(var(--purple-rgb),0.05) 0%, transparent 60%),
     var(--mesh-base);
 }
 .mesh::after {
@@ -142,10 +155,10 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
   background: var(--grad-primary);
   color: #050a14; font-size: 20px; font-weight: 700;
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 4px 20px rgba(0,214,143,0.35), 0 0 0 1px rgba(0,214,143,0.2);
+  box-shadow: 0 4px 20px rgba(var(--green-rgb),0.35), 0 0 0 1px rgba(var(--green-rgb),0.2);
   transition: transform 0.15s, box-shadow 0.15s;
 }
-.fab:active { transform: scale(0.91); box-shadow: 0 2px 10px rgba(0,214,143,0.25); }
+.fab:active { transform: scale(0.91); box-shadow: 0 2px 10px rgba(var(--green-rgb),0.25); }
 #csv-input { display: none; }
 
 /* ── Content ── */
@@ -205,17 +218,17 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
 .import-wrap { padding: 16px 0 0; }
 .import-hero {
   position: relative; overflow: hidden;
-  background: linear-gradient(145deg, rgba(0,214,143,0.08), rgba(41,121,255,0.06), rgba(124,77,255,0.04));
-  border: 1px solid rgba(0,214,143,0.2);
+  background: linear-gradient(145deg, rgba(var(--green-rgb),0.08), rgba(var(--blue-rgb),0.06), rgba(var(--purple-rgb),0.04));
+  border: 1px solid rgba(var(--green-rgb),0.2);
   border-radius: 28px; padding: 40px 28px 36px; text-align: center;
   margin-bottom: 16px;
 }
 .import-hero::before {
   content: ''; position: absolute; top: -40px; left: 50%; transform: translateX(-50%);
   width: 200px; height: 200px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(0,214,143,0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(var(--green-rgb),0.15) 0%, transparent 70%);
 }
-.hero-orb { font-size: 56px; display: block; margin-bottom: 18px; filter: drop-shadow(0 4px 20px rgba(0,214,143,0.4)); }
+.hero-orb { font-size: 56px; display: block; margin-bottom: 18px; filter: drop-shadow(0 4px 20px rgba(var(--green-rgb),0.4)); }
 .hero-title { font-family: var(--font-display); font-size: 26px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 10px; }
 .hero-sub { font-size: 14px; color: var(--soft); line-height: 1.65; margin-bottom: 28px; }
 .btn-primary {
@@ -259,7 +272,7 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
 .rules-title { font-family: var(--font-display); font-size: 12px; font-weight: 800; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 14px; }
 .rule-item { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
 .rule-item:last-child { border-bottom: none; }
-.rule-pill { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 8px; background: rgba(0,214,143,0.12); color: var(--green); flex-shrink: 0; }
+.rule-pill { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 8px; background: rgba(var(--green-rgb),0.12); color: var(--green); flex-shrink: 0; }
 .rule-text { color: var(--soft); }
 
 /* ── Month pills ── */
@@ -276,7 +289,7 @@ button.pill { font: inherit; line-height: 1.2; -webkit-appearance: none; appeara
 .pill.active {
   background: var(--grad-primary);
   border-color: transparent; color: #050a14;
-  box-shadow: 0 3px 14px rgba(0,214,143,0.35);
+  box-shadow: 0 3px 14px rgba(var(--green-rgb),0.35);
 }
 
 /* ── Net hero card ── */
@@ -301,7 +314,7 @@ button.pill { font: inherit; line-height: 1.2; -webkit-appearance: none; appeara
 .perf-stat { display: flex; flex-direction: column; gap: 2px; text-align: left; background: var(--o03); border: 1px solid var(--border); border-radius: 12px; padding: 9px 10px; cursor: pointer; font-family: inherit; color: var(--text); }
 .perf-stat[aria-disabled="true"] { cursor: default; }
 .perf-stat:not([aria-disabled]):hover { background: var(--o05); }
-.perf-stat .st-lbl { font-size: 10px; }
+.perf-stat .st-lbl { font-size: 11px; }
 .perf-stat .st-val { font-size: 15px; }
 /* Standalone clickable pill (review badge in the hero). */
 button.tb-pill { -webkit-appearance: none; appearance: none; cursor: pointer; }
@@ -351,7 +364,7 @@ button.stat-tile:active { transform: scale(0.98); border-color: var(--border-bri
 button.stat-tile:disabled { cursor: default; opacity: 0.7; }
 button.stat-tile:disabled:active { transform: none; }
 .st-tap-hint { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; color: var(--muted); margin-top: 4px; font-weight: 600; letter-spacing: 0.03em; }
-.st-lbl { font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; }
+.st-lbl { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; }
 .st-val { font-family: var(--font-display); font-size: 20px; font-weight: 900; letter-spacing: -0.5px; }
 .c-green { color: var(--green); }
 .c-red   { color: var(--red); }
@@ -396,7 +409,7 @@ button.stat-tile:disabled:active { transform: none; }
 /* "Under the Hood" intro paragraph: slightly larger soft text with bottom margin. */
 .uth-intro { font-size: 13px; color: var(--soft); line-height: 1.7; margin-bottom: 12px; }
 /* Small 24x24 numbered badge used in the "What happens when you import" steps. */
-.step-badge-sm { width: 24px; height: 24px; border-radius: 8px; background: rgba(41,121,255,0.15); border: 1px solid rgba(41,121,255,0.3); color: var(--blue); font-size: 11px; font-weight: 900; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.step-badge-sm { width: 24px; height: 24px; border-radius: 8px; background: rgba(var(--blue-rgb),0.15); border: 1px solid rgba(var(--blue-rgb),0.3); color: var(--blue); font-size: 11px; font-weight: 900; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
 /* Storage-card amber row label. */
 .kv-label-amber { font-size: 12px; font-weight: 700; color: var(--amber); flex-shrink: 0; }
 /* Common flex-between row used in Storage card key-value layout. */
@@ -419,8 +432,8 @@ button.stat-tile:disabled:active { transform: none; }
 }
 /* Variance modifiers — "is-over" tints red, "is-under" tints green. Used by
    the vs-Budget tile in showCatInsights to signal direction at a glance. */
-.metric-tile.is-over  { background: rgba(255,71,87,0.10); border-color: rgba(255,71,87,0.20); }
-.metric-tile.is-under { background: rgba(0,214,143,0.10); border-color: rgba(0,214,143,0.20); }
+.metric-tile.is-over  { background: rgba(var(--red-rgb),0.10); border-color: rgba(var(--red-rgb),0.20); }
+.metric-tile.is-under { background: rgba(var(--green-rgb),0.10); border-color: rgba(var(--green-rgb),0.20); }
 .metric-tile-eyebrow {
   font-size: 10px;
   color: var(--muted);
@@ -470,7 +483,7 @@ button.stat-tile:disabled:active { transform: none; }
 .cat-bar-fg { height: 3px; border-radius: 3px; transition: width 0.6s cubic-bezier(0.34,1.2,0.64,1); }
 .cat-right { text-align: right; flex-shrink: 0; }
 .cat-amt { font-family: var(--font-display); font-size: 15px; font-weight: 800; }
-.cat-pct { font-size: 10px; color: var(--muted); font-weight: 600; margin-top: 2px; }
+.cat-pct { font-size: 11px; color: var(--muted); font-weight: 600; margin-top: 2px; }
 
 /* ── Budget table ── */
 .bva-card { border-radius: 20px; overflow: hidden; background: var(--glass); border: 1px solid var(--border); margin-bottom: 12px; }
@@ -494,7 +507,7 @@ button.stat-tile:disabled:active { transform: none; }
   font-family: var(--font-body); outline: none;
   transition: border-color 0.2s;
 }
-.search-wrap input:focus { border-color: rgba(0,214,143,0.4); }
+.search-wrap input:focus { border-color: rgba(var(--green-rgb),0.4); }
 .search-wrap input::placeholder { color: var(--muted); }
 .search-wrap .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 17px; }
 /* Clear-search ✕ button: 44x44 hit area, visible only when input has a value. */
@@ -584,8 +597,8 @@ button.settings-row:hover { background: var(--o02); }
 .tb-l2 { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tb-dot { color: var(--o30); }
 .tb-pill { flex-shrink: 0; font-size: 11px; font-weight: 800; font-family: var(--font-display); border-radius: 999px; padding: 4px 10px; white-space: nowrap; }
-.tb-pill.review { background: rgba(255,165,2,0.12); color: var(--amber); border: 1px solid rgba(255,165,2,0.3); }
-.tb-pill.ok { background: rgba(0,214,143,0.10); color: var(--green); border: 1px solid rgba(0,214,143,0.25); }
+.tb-pill.review { background: rgba(var(--amber-rgb),0.12); color: var(--amber); border: 1px solid rgba(var(--amber-rgb),0.3); }
+.tb-pill.ok { background: rgba(var(--green-rgb),0.10); color: var(--green); border: 1px solid rgba(var(--green-rgb),0.25); }
 .tb-chev { flex-shrink: 0; color: var(--muted); font-size: 18px; }
 
 .conf-back { background: none; border: none; color: var(--muted); font-size: 13px; font-weight: 700; cursor: pointer; padding: 4px 0; font-family: var(--font-display); }
@@ -601,10 +614,10 @@ button.settings-row:hover { background: var(--o02); }
 .conf-section-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 20px 0 8px; }
 .conf-section-head .conf-h2 { margin: 0; }
 .conf-count { display: inline-block; font-size: 11px; font-weight: 800; border-radius: 999px; padding: 1px 8px; margin-left: 4px; }
-.conf-count.amber { background: rgba(255,165,2,0.15); color: var(--amber); }
-.conf-allbtn { flex-shrink: 0; font-size: 12px; font-weight: 700; font-family: var(--font-display); color: var(--green); background: rgba(0,214,143,0.08); border: 1px solid rgba(0,214,143,0.25); border-radius: 10px; padding: 6px 10px; cursor: pointer; }
+.conf-count.amber { background: rgba(var(--amber-rgb),0.15); color: var(--amber); }
+.conf-allbtn { flex-shrink: 0; font-size: 12px; font-weight: 700; font-family: var(--font-display); color: var(--green); background: rgba(var(--green-rgb),0.08); border: 1px solid rgba(var(--green-rgb),0.25); border-radius: 10px; padding: 6px 10px; cursor: pointer; }
 .conf-note { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 10px; }
-.conf-allclear { background: rgba(0,214,143,0.06); border: 1px solid rgba(0,214,143,0.2); border-radius: 14px; padding: 14px 16px; font-size: 13px; color: var(--green); }
+.conf-allclear { background: rgba(var(--green-rgb),0.06); border: 1px solid rgba(var(--green-rgb),0.2); border-radius: 14px; padding: 14px 16px; font-size: 13px; color: var(--green); }
 .conf-empty { text-align: center; color: var(--muted); font-size: 14px; padding: 40px 16px; line-height: 1.8; }
 .conf-card { background: var(--glass); border: 1px solid var(--border); border-radius: 16px; padding: 12px 14px; margin-bottom: 10px; }
 .conf-card-file { font-size: 13px; font-weight: 700; word-break: break-all; }
@@ -612,9 +625,9 @@ button.settings-row:hover { background: var(--o02); }
 .conf-card-meta { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
 .conf-card-drops { font-size: 11px; color: var(--amber); margin-top: 4px; }
 .conf-badge { flex-shrink: 0; font-size: 10.5px; font-weight: 800; font-family: var(--font-display); border-radius: 999px; padding: 2px 9px; white-space: nowrap; }
-.conf-badge.high { background: rgba(0,214,143,0.10); color: var(--green); border: 1px solid rgba(0,214,143,0.25); }
-.conf-badge.mixed { background: rgba(255,165,2,0.12); color: var(--amber); border: 1px solid rgba(255,165,2,0.3); }
-.conf-badge.low { background: rgba(255,71,87,0.10); color: var(--red); border: 1px solid rgba(255,71,87,0.3); }
+.conf-badge.high { background: rgba(var(--green-rgb),0.10); color: var(--green); border: 1px solid rgba(var(--green-rgb),0.25); }
+.conf-badge.mixed { background: rgba(var(--amber-rgb),0.12); color: var(--amber); border: 1px solid rgba(var(--amber-rgb),0.3); }
+.conf-badge.low { background: rgba(var(--red-rgb),0.10); color: var(--red); border: 1px solid rgba(var(--red-rgb),0.3); }
 .conf-undo { margin-top: 10px; width: 100%; border: 1px solid var(--border); background: var(--o04); color: var(--text); border-radius: 10px; padding: 8px; font-size: 12px; font-weight: 700; font-family: var(--font-display); cursor: pointer; }
 .conf-undo:hover { background: var(--o06); }
 .conf-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--o05); }
@@ -624,15 +637,15 @@ button.settings-row:hover { background: var(--o02); }
 .conf-row .tx-amt { flex-shrink: 0; font-size: 13px; }
 .conf-row-acts { display: flex; gap: 6px; flex-shrink: 0; }
 .conf-ok, .conf-fix { border-radius: 9px; padding: 6px 10px; font-size: 12px; font-weight: 700; font-family: var(--font-display); cursor: pointer; }
-.conf-ok { border: 1px solid rgba(0,214,143,0.3); background: rgba(0,214,143,0.1); color: var(--green); }
+.conf-ok { border: 1px solid rgba(var(--green-rgb),0.3); background: rgba(var(--green-rgb),0.1); color: var(--green); }
 .conf-fix { border: 1px solid var(--border); background: var(--glass); color: var(--text); }
 
 /* Import-preview confidence header — calm green chip for a clean parse, a
    prominent colored panel (with reasons) for a low/mixed-confidence one. */
 .imp-conf { border-radius: 12px; padding: 11px 13px; margin-bottom: 12px; font-size: 12.5px; line-height: 1.5; }
-.imp-conf.high { background: rgba(0,214,143,0.08); border: 1px solid rgba(0,214,143,0.25); color: var(--green); font-weight: 600; }
-.imp-conf.mixed { background: rgba(255,165,2,0.10); border: 1px solid rgba(255,165,2,0.4); color: var(--amber); }
-.imp-conf.low { background: rgba(255,71,87,0.10); border: 1px solid rgba(255,71,87,0.45); color: var(--red); }
+.imp-conf.high { background: rgba(var(--green-rgb),0.08); border: 1px solid rgba(var(--green-rgb),0.25); color: var(--green); font-weight: 600; }
+.imp-conf.mixed { background: rgba(var(--amber-rgb),0.10); border: 1px solid rgba(var(--amber-rgb),0.4); color: var(--amber); }
+.imp-conf.low { background: rgba(var(--red-rgb),0.10); border: 1px solid rgba(var(--red-rgb),0.45); color: var(--red); }
 .imp-conf-title { font-family: var(--font-display); font-size: 14px; font-weight: 800; margin-bottom: 6px; }
 .imp-conf-reasons { margin: 0 0 8px; padding-left: 18px; }
 .imp-conf-reasons li { margin: 2px 0; }
@@ -642,8 +655,8 @@ button.settings-row:hover { background: var(--o02); }
 /* "We detected Date / Description / Amount" chips on the import preview. */
 .det-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .det-chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 11px; border-radius: 11px; font-size: 12.5px; font-weight: 600; border: 1px solid var(--border); background: var(--o03); }
-.det-chip.ok { background: rgba(0,214,143,0.08); border-color: rgba(0,214,143,0.25); }
-.det-chip.warn { background: rgba(255,165,2,0.10); border-color: rgba(255,165,2,0.35); }
+.det-chip.ok { background: rgba(var(--green-rgb),0.08); border-color: rgba(var(--green-rgb),0.25); }
+.det-chip.warn { background: rgba(var(--amber-rgb),0.10); border-color: rgba(var(--amber-rgb),0.35); }
 .det-chip .det-ic { font-weight: 900; }
 .det-chip.ok .det-ic { color: var(--green); }
 .det-chip.warn .det-ic { color: var(--amber); }
@@ -654,8 +667,8 @@ button.settings-row:hover { background: var(--o02); }
 /* sr-only stays below */
 
 /* Persistent post-import review nag on Summary (above the trust bar). */
-.review-banner { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: rgba(255,165,2,0.10); border: 1px solid rgba(255,165,2,0.4); border-radius: 14px; padding: 12px 14px; margin-bottom: 12px; cursor: pointer; color: var(--text); font-family: inherit; transition: background 0.15s; }
-.review-banner:hover { background: rgba(255,165,2,0.16); }
+.review-banner { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: rgba(var(--amber-rgb),0.10); border: 1px solid rgba(var(--amber-rgb),0.4); border-radius: 14px; padding: 12px 14px; margin-bottom: 12px; cursor: pointer; color: var(--text); font-family: inherit; transition: background 0.15s; }
+.review-banner:hover { background: rgba(var(--amber-rgb),0.16); }
 .review-banner:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 .rb-icon { flex-shrink: 0; font-size: 20px; color: var(--amber); }
 .rb-text { flex: 1; min-width: 0; font-size: 13px; line-height: 1.4; }
@@ -689,13 +702,13 @@ button.settings-row:hover { background: var(--o02); }
 .ex-tx-v { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ex-tx-s { font-size: 11px; color: var(--muted); }
 .ex-tx .tx-amt { flex-shrink: 0; font-size: 13px; }
-.ex-flag { font-size: 9.5px; font-weight: 800; font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.04em; color: var(--amber); background: rgba(255,165,2,0.12); border: 1px solid rgba(255,165,2,0.3); border-radius: 6px; padding: 1px 5px; vertical-align: middle; }
+.ex-flag { font-size: 9.5px; font-weight: 800; font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.04em; color: var(--amber); background: rgba(var(--amber-rgb),0.12); border: 1px solid rgba(var(--amber-rgb),0.3); border-radius: 6px; padding: 1px 5px; vertical-align: middle; }
 .ex-more { font-size: 11.5px; color: var(--muted); padding: 8px 0 2px; }
 .ex-foot { font-size: 11.5px; color: var(--muted); margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--o05); word-break: break-word; }
 
 /* Post-import receipt — a committed-import summary shown over the dashboard. */
-.receipt-check { width: 48px; height: 48px; border-radius: 50%; margin: 4px auto 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; background: rgba(0,214,143,0.12); color: var(--green); }
-.receipt-check.flag { background: rgba(255,165,2,0.12); color: var(--amber); }
+.receipt-check { width: 48px; height: 48px; border-radius: 50%; margin: 4px auto 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; background: rgba(var(--green-rgb),0.12); color: var(--green); }
+.receipt-check.flag { background: rgba(var(--amber-rgb),0.12); color: var(--amber); }
 .receipt-big { text-align: center; font-family: var(--font-display); font-size: 28px; font-weight: 900; letter-spacing: -1px; }
 .receipt-big-sub { text-align: center; font-size: 12px; color: var(--muted); margin-bottom: 14px; }
 .receipt-rows { background: var(--glass); border: 1px solid var(--border); border-radius: 14px; padding: 2px 14px; }
@@ -705,7 +718,7 @@ button.settings-row:hover { background: var(--o02); }
 .receipt-row .rr-v { font-weight: 600; text-align: right; word-break: break-word; }
 .receipt-row .rr-v.flag { color: var(--amber); }
 .receipt-row .rr-v.ok { color: var(--green); }
-.receipt-tip { margin-top: 12px; background: rgba(0,214,143,0.07); border: 1px solid rgba(0,214,143,0.2); border-radius: 12px; padding: 11px 13px; font-size: 12.5px; color: var(--soft); line-height: 1.5; }
+.receipt-tip { margin-top: 12px; background: rgba(var(--green-rgb),0.07); border: 1px solid rgba(var(--green-rgb),0.2); border-radius: 12px; padding: 11px 13px; font-size: 12.5px; color: var(--soft); line-height: 1.5; }
 .receipt-tip strong { color: var(--green); }
 
 /* Dashboard per-account summary card. */
@@ -725,10 +738,10 @@ button.settings-row:hover { background: var(--o02); }
 .acct-row { display: flex; align-items: center; gap: 8px; padding: 9px 0; border-bottom: 1px solid var(--o05); }
 .acct-row:last-child { border-bottom: none; }
 .acct-name { flex: 1; min-width: 0; background: var(--glass); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 13px; font-family: var(--font-body); padding: 8px 10px; }
-.acct-name:focus { outline: none; border-color: rgba(0,214,143,0.4); }
+.acct-name:focus { outline: none; border-color: rgba(var(--green-rgb),0.4); }
 .acct-count { flex-shrink: 0; font-size: 11px; color: var(--muted); white-space: nowrap; }
-.acct-save { flex-shrink: 0; border: 1px solid rgba(0,214,143,0.3); background: rgba(0,214,143,0.1); color: var(--green); border-radius: 9px; padding: 7px 11px; font-size: 12px; font-weight: 700; font-family: var(--font-display); cursor: pointer; }
-.acct-del { flex-shrink: 0; width: 32px; height: 32px; border-radius: 9px; border: 1px solid rgba(255,71,87,0.3); background: rgba(255,71,87,0.08); color: var(--red); font-size: 13px; cursor: pointer; }
+.acct-save { flex-shrink: 0; border: 1px solid rgba(var(--green-rgb),0.3); background: rgba(var(--green-rgb),0.1); color: var(--green); border-radius: 9px; padding: 7px 11px; font-size: 12px; font-weight: 700; font-family: var(--font-display); cursor: pointer; }
+.acct-del { flex-shrink: 0; width: 32px; height: 32px; border-radius: 9px; border: 1px solid rgba(var(--red-rgb),0.3); background: rgba(var(--red-rgb),0.08); color: var(--red); font-size: 13px; cursor: pointer; }
 
 /* Data-load wizard — "Which bank?" logo grid + illustrated export steps. */
 .bank-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 4px 0 2px; }
@@ -745,11 +758,11 @@ button.settings-row:hover { background: var(--o02); }
 .dlw-step:last-of-type { border-bottom: none; }
 .dlw-step-badge { flex-shrink: 0; width: 26px; height: 26px; border-radius: 8px; background: var(--grad-primary); color: #050a14; font-family: var(--font-display); font-size: 13px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
 .dlw-step-text { font-size: 13px; color: var(--soft); line-height: 1.55; padding-top: 2px; }
-.dlw-note { font-size: 11.5px; color: var(--amber); background: rgba(255,165,2,0.07); border: 1px solid rgba(255,165,2,0.2); border-radius: 10px; padding: 8px 11px; margin-top: 8px; line-height: 1.5; }
+.dlw-note { font-size: 11.5px; color: var(--amber); background: rgba(var(--amber-rgb),0.07); border: 1px solid rgba(var(--amber-rgb),0.2); border-radius: 10px; padding: 8px 11px; margin-top: 8px; line-height: 1.5; }
 .dlw-hint { font-size: 11px; color: var(--muted); line-height: 1.5; margin-top: 8px; }
 
 /* "Make a plan" CTA banner + the "Your plan" grouped tiles (closed loop). */
-.plan-cta { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: linear-gradient(155deg, rgba(0,214,143,0.12), rgba(41,121,255,0.07)); border: 1px solid rgba(0,214,143,0.3); border-radius: 16px; padding: 13px 14px; margin-bottom: 12px; cursor: pointer; color: var(--text); font-family: inherit; }
+.plan-cta { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: linear-gradient(155deg, rgba(var(--green-rgb),0.12), rgba(var(--blue-rgb),0.07)); border: 1px solid rgba(var(--green-rgb),0.3); border-radius: 16px; padding: 13px 14px; margin-bottom: 12px; cursor: pointer; color: var(--text); font-family: inherit; }
 .plan-cta:hover { border-color: var(--green); }
 .plan-cta-ic { flex-shrink: 0; font-size: 18px; color: var(--green); }
 .plan-cta-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
@@ -770,16 +783,16 @@ button.settings-row:hover { background: var(--o02); }
 .plan-dots { display: flex; gap: 6px; justify-content: center; margin: 2px 0 14px; }
 .plan-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--o10); }
 .plan-dot.on { background: var(--green); transform: scale(1.2); }
-.plan-dot.done { background: rgba(0,214,143,0.5); }
+.plan-dot.done { background: rgba(var(--green-rgb),0.5); }
 .plan-step-lbl { font-family: var(--font-display); font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; }
 .plan-h { font-family: var(--font-display); font-size: 18px; font-weight: 900; letter-spacing: -0.3px; line-height: 1.25; margin-bottom: 8px; }
 .plan-p { font-size: 13px; color: var(--soft); line-height: 1.55; margin-bottom: 14px; }
 .plan-input { width: 100%; box-sizing: border-box; background: var(--glass); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-size: 15px; font-family: var(--font-body); padding: 11px 12px; margin-bottom: 10px; }
-.plan-input:focus { outline: none; border-color: rgba(0,214,143,0.4); }
+.plan-input:focus { outline: none; border-color: rgba(var(--green-rgb),0.4); }
 .plan-input-money { position: relative; }
 .plan-input-money .plan-input-pre { position: absolute; left: 12px; top: 11px; color: var(--muted); font-size: 15px; }
 .plan-input-money .plan-input { padding-left: 24px; }
-.plan-eta { background: rgba(0,214,143,0.07); border: 1px solid rgba(0,214,143,0.2); border-radius: 12px; padding: 12px 14px; font-size: 13px; color: var(--soft); line-height: 1.5; margin-bottom: 12px; }
+.plan-eta { background: rgba(var(--green-rgb),0.07); border: 1px solid rgba(var(--green-rgb),0.2); border-radius: 12px; padding: 12px 14px; font-size: 13px; color: var(--soft); line-height: 1.5; margin-bottom: 12px; }
 .plan-fc { background: var(--glass); border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 14px; }
 .plan-fc-net { font-family: var(--font-display); font-size: 30px; font-weight: 900; letter-spacing: -0.5px; line-height: 1.1; }
 .plan-fc-mo { font-size: 12px; color: var(--muted); font-weight: 700; margin-left: 4px; }
@@ -799,7 +812,7 @@ button.settings-row:hover { background: var(--o02); }
   width: 64px; height: 64px; margin: 4px auto 12px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-size: 32px; color: var(--green);
-  background: rgba(0,214,143,0.12); border: 1px solid rgba(0,214,143,0.35);
+  background: rgba(var(--green-rgb),0.12); border: 1px solid rgba(var(--green-rgb),0.35);
 }
 .checkup-streak-num { font-family: var(--font-display); font-size: 46px; font-weight: 900; color: var(--green); line-height: 1; letter-spacing: -2px; margin: 6px 0 8px; }
 
@@ -817,7 +830,7 @@ button.settings-row:hover { background: var(--o02); }
   background: var(--green); color: #050a14;
   padding: 12px 18px; border-radius: 12px;
   font-family: var(--font-display); font-size: 14px; font-weight: 800;
-  text-decoration: none; box-shadow: 0 4px 16px rgba(0,214,143,0.4);
+  text-decoration: none; box-shadow: 0 4px 16px rgba(var(--green-rgb),0.4);
   transition: top 0.15s ease;
 }
 .skip-link:focus { top: calc(var(--safe-t) + 12px); outline: 2px solid #fff; outline-offset: 2px; }
@@ -839,9 +852,21 @@ button.settings-row:hover { background: var(--o02); }
 .budget-row:last-child { border-bottom: none; }
 .budget-label { flex: 1; font-size: 13px; color: var(--soft); }
 .budget-input { background: var(--o06); border: 1px solid var(--border); border-radius: 10px; padding: 7px 10px; color: var(--text); font-size: 13px; font-family: var(--font-body); width: 88px; text-align: right; outline: none; transition: border-color 0.2s; }
-.budget-input:focus { border-color: rgba(0,214,143,0.5); }
+.budget-input:focus { border-color: rgba(var(--green-rgb),0.5); }
 .btn-secondary { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 16px; background: var(--glass); color: var(--soft); font-family: var(--font-display); font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 10px; transition: border-color 0.2s; }
 .btn-secondary:active { border-color: var(--border-bright); }
+
+/* Compact chip buttons — destructive (red) / warning (amber) row actions, e.g.
+   "Delete month" and "Remove duplicate" in Fix data issues. Replaces repeated
+   inline styling so the tone tokens are the single source. */
+.btn-destructive, .btn-warn { flex-shrink: 0; border-radius: 10px; padding: 6px 12px; border: 1px solid transparent; font-family: var(--font-display); font-size: 12px; font-weight: 700; cursor: pointer; }
+.btn-destructive { border-color: rgba(var(--red-rgb),0.3); background: rgba(var(--red-rgb),0.08); color: var(--red); }
+.btn-warn { border-color: rgba(var(--amber-rgb),0.35); background: rgba(var(--amber-rgb),0.08); color: var(--amber); }
+/* Tertiary inline actions — equal-width row of small buttons (e.g. the
+   Transactions / Insights pair under each category in the all-months view). */
+.btn-tertiary, .btn-tertiary-accent { flex: 1; padding: 7px 0; border-radius: 10px; border: 1px solid transparent; font-family: var(--font-display); font-size: 11px; font-weight: 600; cursor: pointer; }
+.btn-tertiary { border-color: var(--o10); background: var(--o05); color: var(--soft); }
+.btn-tertiary-accent { border-color: rgba(var(--green-rgb),0.25); background: rgba(var(--green-rgb),0.08); color: var(--green); }
 
 /* ── Modals ── */
 /* Reset native <dialog> UA styles (1em padding, solid border, auto-centering,
@@ -871,17 +896,17 @@ dialog { padding: 0; border: none; margin: 0; width: auto; height: auto; max-wid
 .sheet-sub { font-size: 13px; color: var(--soft); margin-bottom: 20px; line-height: 1.5; }
 .sheet-label { font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; font-family: var(--font-display); }
 .sheet-input { width: 100%; background: var(--glass); border: 1px solid var(--border); border-radius: 14px; padding: 12px 16px; color: var(--text); font-size: 14px; font-family: var(--font-body); outline: none; margin-bottom: 12px; transition: border-color 0.2s; }
-.sheet-input:focus { border-color: rgba(0,214,143,0.4); }
+.sheet-input:focus { border-color: rgba(var(--green-rgb),0.4); }
 /* Bank-export <select> on the Guide page. Same look as .sheet-input but a hair tighter
    (12px radius, 11px/14px padding) and no bottom margin so the steps panel sits flush. */
 .bank-select { width: 100%; background: var(--glass); border: 1px solid var(--border); border-radius: 12px; padding: 11px 14px; color: var(--text); font-size: 14px; font-family: var(--font-body); outline: none; transition: border-color 0.2s; }
-.bank-select:focus { border-color: rgba(0,214,143,0.4); }
+.bank-select:focus { border-color: rgba(var(--green-rgb),0.4); }
 .remap-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .remap-row input { flex: 1; background: var(--glass); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; color: var(--text); font-size: 13px; font-family: var(--font-body); outline: none; }
-.remap-row input:focus { border-color: rgba(0,214,143,0.4); }
-.del-btn { width: 40px; height: 40px; border-radius: 10px; background: rgba(255,71,87,0.12); border: none; color: var(--red); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.add-btn { width: 100%; padding: 11px; background: rgba(0,214,143,0.08); border: 1px dashed rgba(0,214,143,0.3); border-radius: 14px; color: var(--green); font-size: 13px; font-weight: 700; cursor: pointer; font-family: var(--font-body); margin-bottom: 12px; transition: background 0.2s; }
-.add-btn:active { background: rgba(0,214,143,0.14); }
+.remap-row input:focus { border-color: rgba(var(--green-rgb),0.4); }
+.del-btn { width: 40px; height: 40px; border-radius: 10px; background: rgba(var(--red-rgb),0.12); border: none; color: var(--red); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.add-btn { width: 100%; padding: 11px; background: rgba(var(--green-rgb),0.08); border: 1px dashed rgba(var(--green-rgb),0.3); border-radius: 14px; color: var(--green); font-size: 13px; font-weight: 700; cursor: pointer; font-family: var(--font-body); margin-bottom: 12px; transition: background 0.2s; }
+.add-btn:active { background: rgba(var(--green-rgb),0.14); }
 
 /* ── Empty ── */
 .empty { text-align: center; padding: 70px 20px; }
@@ -910,13 +935,13 @@ dialog { padding: 0; border: none; margin: 0; width: auto; height: auto; max-wid
 #flash-intro { position:relative; }
 /* ── Welcome screen ── */
 .gb-welcome { padding: 16px 0 8px; }
-.gb-brand-wrap { text-align: center; padding: 28px 20px 24px; background: linear-gradient(155deg, rgba(0,214,143,0.06) 0%, rgba(41,121,255,0.04) 50%, rgba(124,77,255,0.03) 100%); border: 1px solid rgba(0,214,143,0.15); border-radius: 28px; margin-bottom: 14px; position: relative; overflow: hidden; }
-.gb-brand-glow { position: absolute; top: -40px; left: 50%; transform: translateX(-50%); width: 300px; height: 200px; background: radial-gradient(ellipse, rgba(0,214,143,0.10) 0%, transparent 70%); pointer-events: none; }
+.gb-brand-wrap { text-align: center; padding: 28px 20px 24px; background: linear-gradient(155deg, rgba(var(--green-rgb),0.06) 0%, rgba(var(--blue-rgb),0.04) 50%, rgba(var(--purple-rgb),0.03) 100%); border: 1px solid rgba(var(--green-rgb),0.15); border-radius: 28px; margin-bottom: 14px; position: relative; overflow: hidden; }
+.gb-brand-glow { position: absolute; top: -40px; left: 50%; transform: translateX(-50%); width: 300px; height: 200px; background: radial-gradient(ellipse, rgba(var(--green-rgb),0.10) 0%, transparent 70%); pointer-events: none; }
 .gb-logo-svg { width: 100%; max-width: 280px; height: 120px; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto; }
 .gb-brand-tagline { font-size: 14px; color: var(--soft); letter-spacing: 0.02em; }
 .gb-feature-list { background: var(--glass); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; margin-bottom: 14px; }
 .gb-feature-item { display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; border-bottom: 1px solid var(--o05); }
-.gb-feature-icon { font-size: 20px; width: 38px; height: 38px; border-radius: 12px; background: rgba(0,214,143,0.08); border: 1px solid rgba(0,214,143,0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.gb-feature-icon { font-size: 20px; width: 38px; height: 38px; border-radius: 12px; background: rgba(var(--green-rgb),0.08); border: 1px solid rgba(var(--green-rgb),0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .gb-feature-body { flex: 1; }
 .gb-feature-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
 .gb-feature-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
@@ -938,7 +963,7 @@ dialog { padding: 0; border: none; margin: 0; width: auto; height: auto; max-wid
   -webkit-tap-highlight-color:transparent;
 }
 .setup-opt:active, .setup-opt.selected {
-  border-color:var(--green); background:rgba(0,214,143,0.08);
+  border-color:var(--green); background:rgba(var(--green-rgb),0.08);
 }
 .setup-opt.selected .setup-opt-check { opacity:1; }
 .setup-opt-icon { font-size:24px; flex-shrink:0; }
@@ -955,7 +980,7 @@ dialog { padding: 0; border: none; margin: 0; width: auto; height: auto; max-wid
   font-family:var(--font-display); font-weight:700; outline:none;
   transition:border-color 0.2s;
 }
-.setup-input:focus { border-color:rgba(0,214,143,0.5); }
+.setup-input:focus { border-color:rgba(var(--green-rgb),0.5); }
 .setup-input::placeholder { color:var(--muted); font-weight:400; }
 .setup-nav { display:flex; gap:10px; margin-top:20px; }
 .setup-back { padding:14px 20px; border:1px solid var(--border); background:var(--glass); color:var(--soft); font-family:var(--font-display); font-size:14px; font-weight:700; border-radius:14px; cursor:pointer; }
@@ -982,7 +1007,7 @@ dialog { padding: 0; border: none; margin: 0; width: auto; height: auto; max-wid
 .budget-cat-row2 .bcr-icon { font-size:18px; width:32px; text-align:center; flex-shrink:0; }
 .budget-cat-row2 .bcr-label { flex:1; font-size:13px; color:var(--soft); }
 .budget-cat-row2 .bcr-input { background:var(--o06); border:1px solid var(--border); border-radius:10px; padding:6px 10px; color:var(--text); font-size:14px; font-family:var(--font-display); font-weight:700; width:84px; text-align:right; outline:none; }
-.budget-cat-row2 .bcr-input:focus { border-color:rgba(0,214,143,0.5); }
+.budget-cat-row2 .bcr-input:focus { border-color:rgba(var(--green-rgb),0.5); }
 
 
 
@@ -1017,7 +1042,7 @@ dialog { padding: 0; border: none; margin: 0; width: auto; height: auto; max-wid
 /* Shared "selected" state across all three setup-button types (housing /
    food / lifestyle). Was 3 byte-identical rules before consolidation. */
 .ht-btn.chosen, .food-btn.chosen, .lifestyle-btn.chosen {
-  border-color: var(--green); background: rgba(0,214,143,0.10); color: var(--green);
+  border-color: var(--green); background: rgba(var(--green-rgb),0.10); color: var(--green);
 }
 
 
@@ -1048,7 +1073,7 @@ dialog { padding: 0; border: none; margin: 0; width: auto; height: auto; max-wid
   color: transparent;
   animation: metallicShimmer 3.2s cubic-bezier(0.22,0.61,0.36,1) 0.1s 1 forwards;
   text-shadow: none;
-  filter: drop-shadow(0 0 8px rgba(0,214,143,0.4));
+  filter: drop-shadow(0 0 8px rgba(var(--green-rgb),0.4));
 }
 
 /* ── Streaks & Badges ── */
@@ -1074,15 +1099,15 @@ dialog { padding: 0; border: none; margin: 0; width: auto; height: auto; max-wid
   font-size: 14px; line-height: 1.55; word-break: break-word;
 }
 .ai-msg-bot {
-  background: rgba(0,214,143,0.08); border: 1px solid rgba(0,214,143,0.2);
+  background: rgba(var(--green-rgb),0.08); border: 1px solid rgba(var(--green-rgb),0.2);
   color: var(--text); align-self: flex-start; border-bottom-left-radius: 4px;
 }
 .ai-msg-user {
-  background: rgba(0,214,143,0.12); border: 1px solid rgba(0,214,143,0.2);
+  background: rgba(var(--green-rgb),0.12); border: 1px solid rgba(var(--green-rgb),0.2);
   color: var(--text); align-self: flex-end; border-bottom-right-radius: 4px;
 }
 .ai-msg-loading {
-  background: rgba(0,214,143,0.05); border: 1px solid rgba(0,214,143,0.1);
+  background: rgba(var(--green-rgb),0.05); border: 1px solid rgba(var(--green-rgb),0.1);
   color: var(--muted); align-self: flex-start; border-bottom-left-radius: 4px;
   font-style: italic;
 }
@@ -1105,8 +1130,8 @@ dialog { padding: 0; border: none; margin: 0; width: auto; height: auto; max-wid
 #screen-lock .lock-prompt { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 20px; }
 #screen-lock .lock-error  { font-size: 13px; color: var(--red); min-height: 18px; margin-bottom: 12px; text-align: center; }
 #lock-biometric-btn {
-  margin-bottom: 28px; padding: 12px 22px; border: 1px solid rgba(0,214,143,0.3);
-  background: rgba(0,214,143,0.08); color: var(--green); border-radius: 12px;
+  margin-bottom: 28px; padding: 12px 22px; border: 1px solid rgba(var(--green-rgb),0.3);
+  background: rgba(var(--green-rgb),0.08); color: var(--green); border-radius: 12px;
   font-family: var(--font-display); font-weight: 800; font-size: 14px; cursor: pointer;
 }
 #screen-lock .lock-forgot {
@@ -1166,7 +1191,7 @@ body.privacy-mode.revealed .sec-total {
 }
 #privacy-toggle-btn.visible { display: flex; }
 #privacy-toggle-btn:hover { color: var(--text); background: var(--glass-hover); }
-#privacy-toggle-btn.on { color: var(--green); border-color: rgba(0,214,143,0.3); background: rgba(0,214,143,0.06); }
+#privacy-toggle-btn.on { color: var(--green); border-color: rgba(var(--green-rgb),0.3); background: rgba(var(--green-rgb),0.06); }
 /* PIN-pad in Settings (set/change-PIN flow) -- smaller variant fits inside the modal. */
 .sheet-pin-pad { display: grid; grid-template-columns: repeat(3, 64px); gap: 10px; justify-content: center; margin: 14px auto 6px; }
 .sheet-pin-pad .pin-key { width: 64px; height: 64px; font-size: 22px; }
@@ -1238,8 +1263,8 @@ body.privacy-mode.revealed .sec-total {
   border-radius: 16px;
 }
 @keyframes tourPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(0,214,143,0.45); }
-  50%      { box-shadow: 0 0 0 8px rgba(0,214,143,0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(var(--green-rgb),0.45); }
+  50%      { box-shadow: 0 0 0 8px rgba(var(--green-rgb),0); }
 }
 
 /* ── Reduced-motion: respect prefers-reduced-motion (WCAG 2.3.3) ── */
@@ -1272,7 +1297,7 @@ body.privacy-mode.revealed .sec-total {
   width: 52px; height: 52px; border-radius: 50%; border: none;
   background: var(--green); color: #fff; font-size: 30px; line-height: 1; font-weight: 700;
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 6px 18px rgba(0,214,143,0.40); cursor: pointer; z-index: 90;
+  box-shadow: 0 6px 18px rgba(var(--green-rgb),0.40); cursor: pointer; z-index: 90;
   opacity: 0; transform: translateY(8px) scale(.9); pointer-events: none;
   transition: opacity .25s ease, transform .25s ease;
 }
@@ -1335,7 +1360,7 @@ body.privacy-mode.revealed .sec-total {
   background: transparent; color: var(--muted); font-size: 15px; cursor: pointer;
   display: flex; align-items: center; justify-content: center; transition: background .15s ease, color .15s ease;
 }
-.tx-del:hover, .tx-del:active { background: rgba(255,71,87,0.12); color: var(--red); }
+.tx-del:hover, .tx-del:active { background: rgba(var(--red-rgb),0.12); color: var(--red); }
 
 /* Empty state (Transactions screen) */
 .tx-empty { text-align: center; padding: 56px 24px; color: var(--muted); }
@@ -1359,7 +1384,7 @@ body.privacy-mode.revealed .sec-total {
 .anom-card-sub { font-size: 11.5px; color: var(--muted); margin-top: 4px; }
 .anom-review-btn {
   margin-top: 10px; padding: 6px 12px; border-radius: 9px;
-  border: 1px solid rgba(0,214,143,0.3); background: rgba(0,214,143,0.08);
+  border: 1px solid rgba(var(--green-rgb),0.3); background: rgba(var(--green-rgb),0.08);
   color: var(--green); font-size: 12px; font-weight: 700; cursor: pointer;
   font-family: var(--font-display);
 }
