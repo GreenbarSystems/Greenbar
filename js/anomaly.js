@@ -247,7 +247,6 @@ function runAnomalyDetection(newMonthKeys){
       const payload = { ts:new Date().toISOString(), months:keys, items, reviewed:false };
       try{ localStorage.setItem('gb_anomalies', JSON.stringify(payload)); }catch(_){ }
       showAnomalyReport(items);
-      renderAnomalyBadge();
     }catch(e){ /* detection must never break an import */ }
   }, 0);
 }
@@ -317,7 +316,6 @@ function dismissAllAnomalies(){
   const data = getStoredAnomalies();
   if(data){ data.reviewed = true; try{ localStorage.setItem('gb_anomalies', JSON.stringify(data)); }catch(_){ } }
   closeModal('modal-anomaly-report');
-  renderAnomalyBadge();
 }
 function viewAnomalyTransactions(){
   const mk = document.getElementById('modal-anomaly-report').dataset.month;
@@ -327,20 +325,10 @@ function viewAnomalyTransactions(){
 }
 
 // Re-open the stored anomaly report (used by the Summary "What to check" card).
+// The old floating summary badge was retired — unusual activity now surfaces in
+// the Summary "What to check" card (render.js), so there is no separate pill to
+// keep in sync.
 function openAnomalyReport(){
   const d = getStoredAnomalies();
   if(d && d.items && d.items.length) showAnomalyReport(d.items);
 }
-
-/* ── E. Summary-screen badge ── */
-// The floating badge was retired: unusual activity now surfaces in the Summary
-// "What to check" card (render.js), so a separate fixed pill would just duplicate
-// it. Kept as a no-op that hides any stale badge, since other modules still call
-// it (boot.js, the gb:screen listener below).
-function renderAnomalyBadge(){
-  const el = document.getElementById('anomaly-badge');
-  if(el) el.style.display = 'none';
-}
-
-// Keep the badge correct as the user navigates between screens.
-document.addEventListener('gb:screen', () => renderAnomalyBadge());

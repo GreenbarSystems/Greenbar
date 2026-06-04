@@ -10,10 +10,11 @@
 // ("You've done your checkup N months in a row"), using the same YYYY-MM
 // month-key model the other streaks/badges use.
 //
-// Globals used: CFG, _months, sortKeys, fmt, esc, saveCFG, renderBudgetInputs,
-// renderAll, openModal, closeModal, showToast, analyticsUnlocked,
-// computeHealthScore, GRADE_EXPLAIN, sumExpenses, gbConfidence, gbSuggest,
-// gbGoals, gbForecast, getStoredAnomalies, gbCleanup, gbLoadWizard.
+// Globals used: CFG, _months, MN, sortKeys, fmt, esc, saveCFG,
+// renderBudgetInputs, renderAll, openModal, closeModal, showToast,
+// computeHealthScore, GRADE_EXPLAIN, sumExpenses, summaryCheckCounts,
+// savingsSentence (render.js), gbConfidence, gbSuggest, gbGoals, gbForecast,
+// gbLoadWizard.
 const gbCheckup = (() => {
   const K = 'gb_checkups';   // JSON array of completed month keys (YYYY-MM)
   const STEPS = 5;
@@ -116,18 +117,14 @@ const gbCheckup = (() => {
 
   // ── content helpers ──
   function _hs(){ const t = targetMonth(); return (t && typeof computeHealthScore === 'function') ? computeHealthScore(t) : null; }
+  // Reuses summaryCheckCounts() (render.js) so the checkup and the Summary
+  // "What to check" card always agree on what needs attention.
   function _checks(){
+    const { reviewN, anomN, dupN } = (typeof summaryCheckCounts === 'function') ? summaryCheckCounts() : { reviewN:0, anomN:0, dupN:0 };
     const out = [];
-    const reviewN = (typeof gbConfidence !== 'undefined') ? gbConfidence.reviewQueue().length : 0;
     if(reviewN) out.push({ l:`${reviewN} transaction${reviewN===1?'':'s'} to review`, s:'Low-confidence or uncategorised' });
-    const analystOn = (typeof analyticsUnlocked === 'function') ? analyticsUnlocked() : true;
-    if(analystOn){
-      const d = (typeof getStoredAnomalies === 'function') ? getStoredAnomalies() : null;
-      const anomN = (d && !d.reviewed && d.items) ? d.items.filter(i => !i.reviewed).length : 0;
-      if(anomN) out.push({ l:`${anomN} unusual item${anomN===1?'':'s'}`, s:'From your last import' });
-      let dupN = 0; try{ dupN = (typeof gbCleanup !== 'undefined' && gbCleanup.scanDuplicates) ? gbCleanup.scanDuplicates().length : 0; }catch(_){}
-      if(dupN) out.push({ l:`${dupN} possible duplicate${dupN===1?'':'s'}`, s:'Same charge close together' });
-    }
+    if(anomN) out.push({ l:`${anomN} unusual item${anomN===1?'':'s'}`, s:'From your last import' });
+    if(dupN) out.push({ l:`${dupN} possible duplicate${dupN===1?'':'s'}`, s:'Same charge close together' });
     return out;
   }
 
@@ -162,13 +159,9 @@ const gbCheckup = (() => {
       const income = m ? m.income : 0;
       const exp = (typeof sumExpenses === 'function') ? sumExpenses(m) : 0;
       const net = income - exp;
-      let line;
-      if(income > 0){
-        const pct = Math.round(net / income * 100);
-        line = net > 0 ? `You saved <strong>${pct}%</strong> this month — great job.`
-             : net === 0 ? `You broke even this month.`
-             : `You spent <strong>${Math.abs(pct)}%</strong> more than you earned.`;
-      } else line = `Add income for ${esc(t || 'this month')} to see your savings rate.`;
+      const line = (typeof savingsSentence === 'function')
+        ? savingsSentence(income, net, t || 'this month')
+        : '';
       html = `<div class="plan-step-lbl">Step 3 of 5 &middot; Grade</div>
         <div class="plan-h">Your grade &amp; savings rate</div>
         <div class="checkup-grade">

@@ -601,6 +601,34 @@ function showVendorDrill(cat){
 
 
 
+// Shared "what to check" signal counts — the single source of truth for both
+// the Summary "What to check" card and the Monthly checkup (checkup.js). Review
+// queue is always counted; unusual activity and duplicates only once the analyst
+// surfaces are unlocked.
+function summaryCheckCounts(){
+  const reviewN = (typeof gbConfidence !== 'undefined') ? gbConfidence.reviewQueue().length : 0;
+  const analystOn = (typeof analyticsUnlocked === 'function') ? analyticsUnlocked() : true;
+  let anomN = 0, dupN = 0;
+  if(analystOn){
+    const anomData = (typeof getStoredAnomalies === 'function') ? getStoredAnomalies() : null;
+    anomN = (anomData && !anomData.reviewed && anomData.items) ? anomData.items.filter(i=>!i.reviewed).length : 0;
+    try{ dupN = (typeof gbCleanup !== 'undefined' && gbCleanup.scanDuplicates) ? gbCleanup.scanDuplicates().length : 0; }catch(_){}
+  }
+  return { reviewN, anomN, dupN };
+}
+
+// Shared savings-rate sentence — used by the Summary hero and the Monthly
+// checkup so the wording (and privacy-blur via .hh-rate) stays consistent.
+function savingsSentence(income, net, monthLabel){
+  if(income > 0){
+    const pct = Math.round(net / income * 100);
+    if(net > 0)   return `You saved <span class="hh-rate">${pct}%</span> this month — great job.`;
+    if(net === 0) return `You broke even this month.`;
+    return `You spent <span class="hh-rate">${Math.abs(pct)}%</span> more than you earned this month.`;
+  }
+  return `Add income for ${esc(monthLabel)} to see your savings rate.`;
+}
+
 function renderSummary(){
   const keys=sortKeys(_months);
   const hasData=keys.length>0;
@@ -688,37 +716,21 @@ function renderSummary(){
   const income = m ? m.income : 0;
   const net = income - expTotal;
   const netPos = net >= 0;
-  const reviewN = (typeof gbConfidence !== 'undefined') ? gbConfidence.reviewQueue().length : 0;
-  const analystOn = (typeof analyticsUnlocked === 'function') ? analyticsUnlocked() : true;
+  const { reviewN, anomN, dupN } = summaryCheckCounts();
 
   // Hero one-liner: lead with the savings rate in plain language.
-  let heroLine;
-  if(income > 0){
-    const pct = Math.round(net / income * 100);
-    heroLine = net > 0
-      ? `You saved <span class="hh-rate">${pct}%</span> this month — great job.`
-      : net === 0
-        ? `You broke even this month.`
-        : `You spent <span class="hh-rate">${Math.abs(pct)}%</span> more than you earned this month.`;
-  } else {
-    heroLine = `Add income for ${esc(sel)} to see your savings rate.`;
-  }
+  const heroLine = savingsSentence(income, net, sel);
 
   const reviewBadge = reviewN
     ? `<button type="button" class="tb-pill review" onclick="gbConfidence.open()" aria-label="${reviewN} transaction${reviewN===1?'':'s'} to review">${reviewN} to review</button>`
     : `<span class="tb-pill ok">&#10003; Verified</span>`;
 
   // "What to check": review queue (always), plus unusual activity and possible
-  // duplicates once the analyst surfaces are unlocked.
+  // duplicates once the analyst surfaces are unlocked (see summaryCheckCounts).
   const checks = [];
   if(reviewN) checks.push({ ic:'&#9998;', icbg:'rgba(41,121,255,0.12)', l:`${reviewN} transaction${reviewN===1?'':'s'} to review`, s:'Low-confidence or uncategorised', act:'gbConfidence.open()' });
-  if(analystOn){
-    const anomData = (typeof getStoredAnomalies === 'function') ? getStoredAnomalies() : null;
-    const anomN = (anomData && !anomData.reviewed && anomData.items) ? anomData.items.filter(i=>!i.reviewed).length : 0;
-    if(anomN) checks.push({ ic:'&#9888;', icbg:'rgba(255,165,2,0.16)', l:`${anomN} unusual item${anomN===1?'':'s'} to review`, s:'From your last import', act:'openAnomalyReport()' });
-    let dupN = 0; try{ dupN = (typeof gbCleanup !== 'undefined' && gbCleanup.scanDuplicates) ? gbCleanup.scanDuplicates().length : 0; }catch(_){}
-    if(dupN) checks.push({ ic:'&#10697;', icbg:'rgba(255,71,87,0.14)', l:`${dupN} possible duplicate${dupN===1?'':'s'}`, s:'Same charge close together', act:'gbCleanup.openCleanup()' });
-  }
+  if(anomN) checks.push({ ic:'&#9888;', icbg:'rgba(255,165,2,0.16)', l:`${anomN} unusual item${anomN===1?'':'s'} to review`, s:'From your last import', act:'openAnomalyReport()' });
+  if(dupN) checks.push({ ic:'&#10697;', icbg:'rgba(255,71,87,0.14)', l:`${dupN} possible duplicate${dupN===1?'':'s'}`, s:'Same charge close together', act:'gbCleanup.openCleanup()' });
   const checkBody = checks.length
     ? `<div class="check-card">${checks.map(c=>`
         <button type="button" class="check-row" onclick="${c.act}">

@@ -57,8 +57,6 @@ function _continueBoot(){
   }
   updateLogBadge();
   _maybeShowPrivacyToggle();
-  // Surface unreviewed anomalies from the previous import (if the Summary is active).
-  if(typeof renderAnomalyBadge === 'function') renderAnomalyBadge();
   gbAuth.resetTimers();
   // Note: the coachmark tour is now fired from startSetupFromFlash() as part
   // of the Get-Started -> tour -> setup wizard flow. We no longer auto-fire
