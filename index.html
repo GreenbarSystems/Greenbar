@@ -109,8 +109,11 @@ if('serviceWorker' in navigator){
     <!-- SUMMARY -->
     <div class="screen active" id="screen-summary">
       <div id="summary-content" role="region" aria-label="Summary">
-        <!-- Welcome intro (no opening "Hey there." beat — straight to the welcome) -->
+        <!-- Welcome intro: a short "Hey there." beat, then the welcome -->
         <div id="flash-intro" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;height:calc(100dvh - 120px);text-align:center;padding:80px 32px 40px;position:relative;">
+          <div id="flash-phase-1" style="opacity:0;transition:opacity 0.5s ease;position:absolute;top:140px;left:0;right:0;">
+            <div style="font-family:var(--font-display);font-size:38px;font-weight:900;letter-spacing:-1px;color:var(--text);">Hey there.</div>
+          </div>
           <div id="flash-phase-2" style="opacity:0;transition:opacity 0.6s ease;width:100%;max-width:340px;padding:0 24px;">
             <div style="font-family:var(--font-display);font-size:36px;font-weight:900;letter-spacing:-1px;margin-bottom:10px;">Welcome to <span class="gb-shimmer">Greenbar</span></div>
             <div style="font-size:16px;color:var(--soft);letter-spacing:0.02em;margin-bottom:8px;">Your money, clearly.</div>

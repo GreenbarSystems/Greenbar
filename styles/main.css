@@ -324,7 +324,12 @@ button.tb-pill { -webkit-appearance: none; appearance: none; cursor: pointer; }
 .hh-month { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; }
 .hh-tap { display: flex; align-items: center; gap: 18px; width: 100%; text-align: left; background: none; border: none; padding: 0; cursor: pointer; font-family: inherit; color: var(--text); }
 .hh-tap[aria-disabled="true"] { cursor: default; }
-.hh-grade { font-family: var(--font-display); font-size: 66px; font-weight: 900; line-height: 0.85; letter-spacing: -3px; flex-shrink: 0; }
+/* Circular score gauge: the grade sits in the centre of an arc filled to the
+   score (0–100), coloured by the grade. */
+.hh-ring { position: relative; flex-shrink: 0; width: 78px; height: 78px; }
+.hh-ring svg { display: block; width: 78px; height: 78px; }
+.hh-ring-in { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.hh-grade { font-family: var(--font-display); font-size: 28px; font-weight: 900; line-height: 1; letter-spacing: -1px; }
 .hh-meta { display: flex; flex-direction: column; gap: 6px; min-width: 0; flex: 1; }
 .hh-score { font-family: var(--font-display); font-size: 15px; font-weight: 800; color: var(--soft); letter-spacing: 0.02em; }
 .hh-line { font-size: 14px; color: var(--soft); line-height: 1.5; }

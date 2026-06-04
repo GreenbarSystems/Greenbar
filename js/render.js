@@ -760,7 +760,13 @@ function renderSummary(){
           ${reviewBadge}
         </div>
         <button type="button" class="hh-tap" ${hs?`onclick="openHealthBreakdown()" aria-label="Money clarity grade ${hs.grade}, ${hs.score} out of 100 — see what's driving it"`:'aria-disabled="true" aria-label="No grade yet — add income for this month"'}>
-          <span class="hh-grade" style="color:${gradeColor};">${grade}</span>
+          <span class="hh-ring" aria-hidden="true">${(()=>{
+            const _r = 34, _circ = 2 * Math.PI * _r, _pct = hs ? Math.max(0, Math.min(100, hs.score)) : 0, _filled = _circ * _pct / 100;
+            return `<svg width="78" height="78" viewBox="0 0 78 78">
+              <circle cx="39" cy="39" r="${_r}" fill="none" stroke="var(--o07)" stroke-width="6"></circle>
+              <circle cx="39" cy="39" r="${_r}" fill="none" stroke="${gradeColor}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${_filled.toFixed(1)} ${(_circ - _filled).toFixed(1)}" transform="rotate(-90 39 39)" style="transition:stroke-dasharray 0.9s ease;"></circle>
+            </svg>`;
+          })()}<span class="hh-ring-in"><span class="hh-grade" style="color:${gradeColor};">${grade}</span></span></span>
           <span class="hh-meta">
             <span class="hh-score">${hs?`${hs.score} / 100`:'No score yet'}</span>
             <span class="hh-line">${heroLine}</span>

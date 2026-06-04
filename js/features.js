@@ -124,20 +124,22 @@ function showHeaderButtons(){
   showAIButton();
 }
 
-// ──────── Flash intro: straight to "Welcome to Greenbar" + "Load your data" ────────
+// ──────── Flash intro: "Hey there." → "Welcome to Greenbar" → CTA ────────
 // _flashTimers/_flashDone are also read by core.js (showScreen) and clearAllData.
 let _flashTimers = [];
 let _flashDone = false;
 
-// All timing for the intro animation lives here. Phase delays are absolute
-// ms from runFlashIntro entry; durations are CSS transition lengths.
+// A short "Hey there." beat, then the welcome fades in and the CTA a beat after.
+// Tapping anywhere skips the beat. prefers-reduced-motion lands on the welcome
+// instantly. Restores the markup if renderSummary replaced it (e.g. data clear).
 function runFlashIntro(){
-  // The opening "Hey there." beat was removed — land straight on the welcome.
-  // Restore the markup if renderSummary replaced it (e.g. after a data clear).
   const sc = document.getElementById('summary-content');
   if(sc && !document.getElementById('flash-intro')){
     sc.innerHTML = `
       <div id="flash-intro" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;height:calc(100dvh - 120px);text-align:center;padding:80px 32px 40px;position:relative;">
+        <div id="flash-phase-1" style="opacity:0;transition:opacity 0.5s ease;position:absolute;top:140px;left:0;right:0;">
+          <div style="font-family:var(--font-display);font-size:38px;font-weight:900;letter-spacing:-1px;color:var(--text);">Hey there.</div>
+        </div>
         <div id="flash-phase-2" style="opacity:0;transition:opacity 0.6s ease;width:100%;max-width:340px;padding:0 24px;">
           <div style="font-family:var(--font-display);font-size:36px;font-weight:900;letter-spacing:-1px;margin-bottom:10px;">Welcome to <span class="gb-shimmer">Greenbar</span></div>
           <div style="font-size:16px;color:var(--soft);letter-spacing:0.02em;margin-bottom:8px;">Your money, clearly.</div>
@@ -151,31 +153,48 @@ function runFlashIntro(){
         </div>
       </div>`;
   }
+  const intro = document.getElementById('flash-intro');
+  const p1  = document.getElementById('flash-phase-1');
   const p2  = document.getElementById('flash-phase-2');
   const cta = document.getElementById('flash-cta');
   if(!p2) return;
-  // No phased sequence to skip anymore; clear any stale timers and mark done.
   _flashTimers.forEach(id => clearTimeout(id));
   _flashTimers = [];
-  _flashDone = true;
+  _flashDone = false;
 
   // Restart the wordmark shimmer so it plays on entry.
   const shimmer = p2.querySelector('.gb-shimmer');
   if(shimmer){ shimmer.style.animation = 'none'; shimmer.offsetWidth; shimmer.style.animation = ''; }
 
+  // Fade out "Hey there." and reveal the welcome + CTA. Idempotent.
+  function revealWelcome(){
+    if(intro) intro.removeEventListener('click', skip);
+    if(p1){ p1.style.transition = 'opacity 0.3s ease'; p1.style.opacity = '0'; }
+    p2.style.transition = 'opacity 0.5s ease'; p2.style.opacity = '1';
+    _flashTimers.push(setTimeout(() => { if(cta){ cta.style.transition = 'opacity 0.5s ease'; cta.style.opacity = '1'; } }, 300));
+    _flashDone = true;
+  }
+  function skip(){ _flashTimers.forEach(id => clearTimeout(id)); _flashTimers = []; revealWelcome(); }
+
   const reduceMotion = (typeof matchMedia==='function') && matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(reduceMotion){
+    if(p1) p1.style.opacity = '0';
     p2.style.transition = 'none'; p2.style.opacity = '1';
     if(cta){ cta.style.transition = 'none'; cta.style.opacity = '1'; }
+    _flashDone = true;
     return;
   }
 
-  // Gentle fade-in of the welcome, then the CTA a beat later.
+  // Reset both phases to invisible before transitions re-enable.
+  if(p1){ p1.style.transition = 'none'; p1.style.opacity = '0'; }
   p2.style.transition = 'none'; p2.style.opacity = '0';
   if(cta){ cta.style.transition = 'none'; cta.style.opacity = '0'; }
-  p2.offsetWidth; // reflow so the reset sticks before transitions re-enable
-  _flashTimers.push(setTimeout(()=>{ p2.style.transition = 'opacity 0.6s ease'; p2.style.opacity = '1'; }, 80));
-  _flashTimers.push(setTimeout(()=>{ if(cta){ cta.style.transition = 'opacity 0.5s ease'; cta.style.opacity = '1'; } }, 380));
+  p2.offsetWidth; // reflow so the reset sticks
+
+  if(intro) intro.addEventListener('click', skip);
+  // "Hey there." in (150ms), hold, then welcome takes over (~1700ms).
+  _flashTimers.push(setTimeout(() => { if(p1){ p1.style.transition = 'opacity 0.5s ease'; p1.style.opacity = '1'; } }, 150));
+  _flashTimers.push(setTimeout(revealWelcome, 1700));
 }
 
 function startSetupFromFlash(){
