@@ -783,6 +783,22 @@ button.settings-row:hover { background: var(--o02); }
 .plan-traj-row { display: flex; justify-content: space-between; font-size: 12.5px; padding: 4px 0; border-top: 1px solid var(--o05); font-family: var(--font-display); font-weight: 700; }
 .plan-traj-row span:first-child { color: var(--muted); font-weight: 600; }
 
+/* ── Monthly checkup ── */
+.plan-cta.checkup-done { background: var(--glass); border-color: var(--border); }
+.plan-cta.checkup-done .plan-cta-ic,
+.plan-cta.checkup-done .plan-cta-go { color: var(--green); }
+.checkup-grade { display: flex; align-items: center; gap: 18px; margin-bottom: 12px; }
+.checkup-grade-letter { font-family: var(--font-display); font-size: 60px; font-weight: 900; line-height: 0.85; letter-spacing: -3px; flex-shrink: 0; }
+.checkup-grade-meta { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.checkup-grade-score { font-family: var(--font-display); font-size: 15px; font-weight: 800; color: var(--soft); }
+.checkup-celebrate {
+  width: 64px; height: 64px; margin: 4px auto 12px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px; color: var(--green);
+  background: rgba(0,214,143,0.12); border: 1px solid rgba(0,214,143,0.35);
+}
+.checkup-streak-num { font-family: var(--font-display); font-size: 46px; font-weight: 900; color: var(--green); line-height: 1; letter-spacing: -2px; margin: 6px 0 8px; }
+
 /* sr-only: visually hidden, visible to assistive tech. Used for the global live-region announcer. */
 .sr-only {
   position: absolute !important; width: 1px !important; height: 1px !important;

@@ -735,6 +735,7 @@ function renderSummary(){
       ${typeof gbConfidence !== 'undefined' ? gbConfidence.renderReviewBanner() : ''}
       ${typeof gbConfidence !== 'undefined' ? gbConfidence.renderTrustBar() : ''}
       ${pills}
+      ${typeof gbCheckup !== 'undefined' ? gbCheckup.renderBanner() : ''}
 
       <div class="health-hero">
         <div class="hh-top">

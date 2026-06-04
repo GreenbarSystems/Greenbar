@@ -1101,6 +1101,7 @@ if('serviceWorker' in navigator){
 <script src="js/insights.js"></script>
 <script src="js/goals.js"></script>
 <script src="js/plan.js"></script>
+<script src="js/checkup.js"></script>
 <script src="js/demo.js"></script>
 <script src="js/cleanup.js"></script>
 <script src="js/accounts.js"></script>
@@ -1166,6 +1167,18 @@ if('serviceWorker' in navigator){
     <div class="sheet-handle" style="margin-top:0;"></div>
     <h2 class="sheet-title" id="plan-title" style="margin-bottom:8px;">Make a plan</h2>
     <div id="plan-body"></div>
+  </div>
+</dialog>
+
+<!-- MONTHLY CHECKUP — guided 5-step routine -->
+<dialog class="modal-overlay" id="modal-checkup" aria-modal="true" aria-labelledby="checkup-title" onclick="closeOut(event,'modal-checkup')">
+  <div class="sheet">
+    <div class="sheet-close-row">
+      <button type="button" aria-label="Close" onclick="closeModal('modal-checkup')" class="sheet-close">&#x2715;</button>
+    </div>
+    <div class="sheet-handle" style="margin-top:0;"></div>
+    <h2 class="sheet-title" id="checkup-title" style="margin-bottom:8px;">Monthly checkup</h2>
+    <div id="checkup-body"></div>
   </div>
 </dialog>
 
