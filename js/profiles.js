@@ -27,10 +27,14 @@ const gbProfiles = (() => {
   // saved profile yet).
   function inferType(name){
     const n = String(name || '').toLowerCase();
-    if(/\b(credit|card|amex|visa|mastercard|cc)\b/.test(n)) return 'credit';
-    if(/\b(paypal|venmo|cash ?app|zelle|wise|revolut|chime|wallet)\b/.test(n)) return 'paymentapp';
+    // Most-specific first. Payment-app brands win before generic "cash"/"card"
+    // (so "Cash App" isn't read as cash, and "Apple Pay" isn't read as a card).
+    if(/\b(paypal|venmo|cash ?app|zelle|wise|revolut|chime|monzo|starling|apple pay|google pay|samsung pay)\b/.test(n)) return 'paymentapp';
+    // Credit — but a *debit* card is really a checking account, so guard "card"/"visa".
+    if(/\b(credit|amex|mastercard|discover|cc)\b/.test(n) || (/\b(card|visa)\b/.test(n) && !/\bdebit\b/.test(n))) return 'credit';
     if(/saving/.test(n)) return 'savings';
-    if(/\bcash\b/.test(n)) return 'cash';
+    // "wallet" is where you keep cash — treat it (and petty cash) as cash.
+    if(/\b(cash|wallet|petty)\b/.test(n)) return 'cash';
     return 'checking';
   }
   function typeFor(name){ const p = get(name); return (p && p.type) || inferType(name); }
