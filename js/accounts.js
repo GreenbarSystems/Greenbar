@@ -87,16 +87,36 @@ const gbAccounts = (() => {
       return;
     }
     const money = (typeof gbMoneyAbs === 'function') ? (n => gbMoneyAbs(n, 0)) : (n => '$' + Math.round(Math.abs(n)));
+    const hasProfiles = (typeof gbProfiles !== 'undefined');
     host.innerHTML = items.map(a => {
       const bal = balance(a.name);
       const balText = bal ? ` &middot; bal ${bal.balance < 0 ? '−' : ''}${money(bal.balance)}` : '';
+      // Saved import profile: type selector, payment policy, last imported range.
+      let profileHtml = '';
+      if(hasProfiles){
+        const p = gbProfiles.get(a.name);
+        const type = gbProfiles.typeFor(a.name);
+        const cardLike = gbProfiles.isCardLike(type);
+        const typeOpts = gbProfiles.TYPES.map(v => `<option value="${v}"${v === type ? ' selected' : ''}>${esc(gbProfiles.typeLabel(v))}</option>`).join('');
+        const r = p && p.lastRange;
+        const range = r ? (r.firstLabel === r.lastLabel ? r.firstLabel : `${r.firstLabel} – ${r.lastLabel}`) : '';
+        profileHtml = `
+        <div class="acct-meta">
+          <select class="acct-type" aria-label="Account type for ${esc(a.name)}" onchange="gbProfiles.setType(this.closest('.acct-card').dataset.acct, this.value)">${typeOpts}</select>
+          ${cardLike ? `<label class="acct-pay"><input type="checkbox" ${p && p.paymentsAsSpending ? 'checked' : ''} onchange="gbProfiles.setPaymentsAsSpending(this.closest('.acct-card').dataset.acct, this.checked)"> payments as spending</label>` : ''}
+        </div>
+        ${range ? `<div class="acct-last">Last import: <strong>${esc(range)}</strong>${p.lastImport ? ` · ${esc(p.lastImport)}` : ''}</div>` : ''}`;
+      }
       return `
-      <div class="acct-row">
-        <input class="acct-name" value="${esc(a.name)}" data-orig="${esc(a.name)}" aria-label="Account name" autocomplete="off"
-          onkeydown="if(event.key==='Enter'){event.preventDefault();gbAccounts.rename(this.dataset.orig,this.value);}">
-        <span class="acct-count">${a.txCount} txn${a.txCount === 1 ? '' : 's'}${balText}</span>
-        <button type="button" class="acct-save" onclick="const i=this.parentElement.querySelector('.acct-name');gbAccounts.rename(i.dataset.orig,i.value)">Save</button>
-        <button type="button" class="acct-del" aria-label="Delete ${esc(a.name)}" onclick="const i=this.parentElement.querySelector('.acct-name');gbAccounts.remove(i.dataset.orig)">&#x2715;</button>
+      <div class="acct-card" data-acct="${esc(a.name)}">
+        <div class="acct-row">
+          <input class="acct-name" value="${esc(a.name)}" data-orig="${esc(a.name)}" aria-label="Account name" autocomplete="off"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();gbAccounts.rename(this.dataset.orig,this.value);}">
+          <span class="acct-count">${a.txCount} txn${a.txCount === 1 ? '' : 's'}${balText}</span>
+          <button type="button" class="acct-save" onclick="const i=this.closest('.acct-card').querySelector('.acct-name');gbAccounts.rename(i.dataset.orig,i.value)">Save</button>
+          <button type="button" class="acct-del" aria-label="Delete ${esc(a.name)}" onclick="const i=this.closest('.acct-card').querySelector('.acct-name');gbAccounts.remove(i.dataset.orig)">&#x2715;</button>
+        </div>
+        ${profileHtml}
       </div>`;
     }).join('');
   }

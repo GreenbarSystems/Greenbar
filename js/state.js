@@ -33,6 +33,13 @@ const DEFAULTS = {
   // import is tagged to one (tx.acct) so multiple accounts stay separate — the
   // foundation for multi-account accuracy. Stored in CFG (gb_cfg2).
   accounts:[],
+  // Saved import profiles, keyed by account name (gbProfiles). Each remembers
+  // how that account imports so repeat monthly use is smoother:
+  //   { type:'checking'|'savings'|'credit'|'cash'|'paymentapp',
+  //     paymentsAsSpending:boolean (card/app: do payments count as spending),
+  //     cols:{date,desc,amt,cat,fmt} (the mapping last used),
+  //     lastRange:{firstLabel,lastLabel,firstTs,lastTs}, txCount, lastImport }
+  profiles:{},
   // Curated default merchant rules -- distinctive keyword substrings, matched
   // case-insensitively against the description (first match wins).
   remaps:[
