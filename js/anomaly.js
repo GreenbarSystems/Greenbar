@@ -326,23 +326,20 @@ function viewAnomalyTransactions(){
   showScreen('txs');
 }
 
+// Re-open the stored anomaly report (used by the Summary "What to check" card).
+function openAnomalyReport(){
+  const d = getStoredAnomalies();
+  if(d && d.items && d.items.length) showAnomalyReport(d.items);
+}
+
 /* ── E. Summary-screen badge ── */
+// The floating badge was retired: unusual activity now surfaces in the Summary
+// "What to check" card (render.js), so a separate fixed pill would just duplicate
+// it. Kept as a no-op that hides any stale badge, since other modules still call
+// it (boot.js, the gb:screen listener below).
 function renderAnomalyBadge(){
-  const data = getStoredAnomalies();
-  const onSummary = document.getElementById('screen-summary')?.classList.contains('active');
-  let el = document.getElementById('anomaly-badge');
-  const unlocked = (typeof analyticsUnlocked !== 'function') || analyticsUnlocked();
-  const show = unlocked && onSummary && data && data.items && data.items.length && !data.reviewed;
-  if(!show){ if(el) el.style.display = 'none'; return; }
-  if(!el){
-    el = document.createElement('button');
-    el.id = 'anomaly-badge'; el.type = 'button';
-    el.onclick = () => { const d = getStoredAnomalies(); if(d && d.items) showAnomalyReport(d.items); };
-    document.body.appendChild(el);
-  }
-  const n = data.items.length;
-  el.style.display = '';
-  el.textContent = `⚠ ${n} item${n===1?'':'s'} from last import · Review`;
+  const el = document.getElementById('anomaly-badge');
+  if(el) el.style.display = 'none';
 }
 
 // Keep the badge correct as the user navigates between screens.

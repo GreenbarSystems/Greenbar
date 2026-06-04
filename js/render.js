@@ -683,62 +683,104 @@ function renderSummary(){
     return;
   }
 
+  // ── Headline data: financial health is the hero; income / expenses / net are
+  // the auditable supporting stats; the rest (Plan, Achievements) sits below. ──
+  const income = m ? m.income : 0;
+  const net = income - expTotal;
+  const netPos = net >= 0;
+  const reviewN = (typeof gbConfidence !== 'undefined') ? gbConfidence.reviewQueue().length : 0;
+  const analystOn = (typeof analyticsUnlocked === 'function') ? analyticsUnlocked() : true;
+
+  // Hero one-liner: lead with the savings rate in plain language.
+  let heroLine;
+  if(income > 0){
+    const pct = Math.round(net / income * 100);
+    heroLine = net > 0
+      ? `You saved <span class="hh-rate">${pct}%</span> this month — great job.`
+      : net === 0
+        ? `You broke even this month.`
+        : `You spent <span class="hh-rate">${Math.abs(pct)}%</span> more than you earned this month.`;
+  } else {
+    heroLine = `Add income for ${esc(sel)} to see your savings rate.`;
+  }
+
+  const reviewBadge = reviewN
+    ? `<button type="button" class="tb-pill review" onclick="gbConfidence.open()" aria-label="${reviewN} transaction${reviewN===1?'':'s'} to review">${reviewN} to review</button>`
+    : `<span class="tb-pill ok">&#10003; Verified</span>`;
+
+  // "What to check": review queue (always), plus unusual activity and possible
+  // duplicates once the analyst surfaces are unlocked.
+  const checks = [];
+  if(reviewN) checks.push({ ic:'&#9998;', icbg:'rgba(41,121,255,0.12)', l:`${reviewN} transaction${reviewN===1?'':'s'} to review`, s:'Low-confidence or uncategorised', act:'gbConfidence.open()' });
+  if(analystOn){
+    const anomData = (typeof getStoredAnomalies === 'function') ? getStoredAnomalies() : null;
+    const anomN = (anomData && !anomData.reviewed && anomData.items) ? anomData.items.filter(i=>!i.reviewed).length : 0;
+    if(anomN) checks.push({ ic:'&#9888;', icbg:'rgba(255,165,2,0.16)', l:`${anomN} unusual item${anomN===1?'':'s'} to review`, s:'From your last import', act:'openAnomalyReport()' });
+    let dupN = 0; try{ dupN = (typeof gbCleanup !== 'undefined' && gbCleanup.scanDuplicates) ? gbCleanup.scanDuplicates().length : 0; }catch(_){}
+    if(dupN) checks.push({ ic:'&#10697;', icbg:'rgba(255,71,87,0.14)', l:`${dupN} possible duplicate${dupN===1?'':'s'}`, s:'Same charge close together', act:'gbCleanup.openCleanup()' });
+  }
+  const checkBody = checks.length
+    ? `<div class="check-card">${checks.map(c=>`
+        <button type="button" class="check-row" onclick="${c.act}">
+          <span class="check-ic" style="background:${c.icbg};" aria-hidden="true">${c.ic}</span>
+          <span class="check-tx"><span class="check-tx-l">${c.l}</span><span class="check-tx-s">${c.s}</span></span>
+          <span class="check-arrow" aria-hidden="true">&rsaquo;</span>
+        </button>`).join('')}</div>`
+    : `<div class="check-card"><div class="check-clear">&#10003; All clear — nothing needs your attention.</div></div>`;
+
+  const goalN = (typeof gbGoals !== 'undefined') ? gbGoals.all().length : 0;
+
   document.getElementById('summary-content').innerHTML=`
     <div class="gb-welcome">
       ${typeof gbConfidence !== 'undefined' ? gbConfidence.renderReviewBanner() : ''}
       ${typeof gbConfidence !== 'undefined' ? gbConfidence.renderTrustBar() : ''}
       ${pills}
-      ${(()=>{
-        // Month-performance hero: net is the headline, with income / expenses /
-        // savings-rate as auditable mini-stats and the import review status.
-        const income = m ? m.income : 0;
-        const net = income - expTotal;
-        const netPos = net >= 0;
-        const reviewN = (typeof gbConfidence !== 'undefined') ? gbConfidence.reviewQueue().length : 0;
-        const reviewBadge = reviewN
-          ? `<button type="button" class="tb-pill review" onclick="gbConfidence.open()" aria-label="${reviewN} transaction${reviewN===1?'':'s'} to review">${reviewN} to review</button>`
-          : `<span class="tb-pill ok">&#10003; Verified</span>`;
-        const savings = income > 0
-          ? (()=>{ const pct = Math.round(net / income * 100);
-              return `<button type="button" class="perf-stat" onclick="openHealthBreakdown()" aria-label="Savings rate ${netPos?'+':'−'}${Math.abs(pct)} percent — see what's driving it"><span class="st-lbl">Savings rate</span><span class="st-val" style="color:${netPos?'var(--green)':'var(--red)'};">${netPos?'+':'−'}${Math.abs(pct)}%</span></button>`; })()
-          : `<div class="perf-stat" aria-disabled="true"><span class="st-lbl">Savings rate</span><span class="st-val c-muted">—</span></div>`;
-        return `<div class="net-card perf-hero" style="margin-bottom:12px;">
-          <div class="perf-top">
-            <span class="net-lbl" style="margin-bottom:0;">${esc(sel)} &middot; Net</span>
-            ${reviewBadge}
-          </div>
-          <div class="net-amt ${netPos?'surplus':'deficit'}">${netPos?'+':'−'}${fmt(Math.abs(net))}</div>
-          <div class="perf-stats">
-            <button type="button" class="perf-stat" onclick="gbConfidence.openExplain('income','${esc(sel)}')" aria-label="Income, tap to explain"><span class="st-lbl">Income</span><span class="st-val" style="color:var(--green);">+${fmt(income)}</span></button>
-            <button type="button" class="perf-stat" onclick="gbConfidence.openExplain('expenses','${esc(sel)}')" aria-label="Expenses, tap to explain"><span class="st-lbl">Expenses</span><span class="st-val">−${fmt(expTotal)}</span></button>
-            ${savings}
-          </div>
-        </div>`;
-      })()}
-      ${typeof gbPlan !== 'undefined' ? gbPlan.renderBanner() : ''}
-      <h2 class="sec-hdr">Your plan</h2>
-      <div class="plan-grid">
-        <button class="plan-tile" type="button" ${hs?`onclick="openHealthBreakdown()" aria-label="Plan score ${hs.grade}, ${hs.score} out of 100 — see what's driving it"`:'disabled aria-label="Plan score not available yet"'}>
-          <span class="pt-l">Plan score</span>
-          <span class="pt-v" style="color:${gradeColor};">${grade}</span>
-          <span class="pt-sub">${hs?`${hs.score}/100 &rsaquo;`:'Add income'}</span>
+
+      <div class="health-hero">
+        <div class="hh-top">
+          <span class="hh-month">${esc(sel)} &middot; Financial health</span>
+          ${reviewBadge}
+        </div>
+        <button type="button" class="hh-tap" ${hs?`onclick="openHealthBreakdown()" aria-label="Financial health grade ${hs.grade}, ${hs.score} out of 100 — see what's driving it"`:'aria-disabled="true" aria-label="No grade yet — add income for this month"'}>
+          <span class="hh-grade" style="color:${gradeColor};">${grade}</span>
+          <span class="hh-meta">
+            <span class="hh-score">${hs?`${hs.score} / 100`:'No score yet'}</span>
+            <span class="hh-line">${heroLine}</span>
+          </span>
+          ${hs?'<span class="hh-cta" aria-hidden="true">Details &rsaquo;</span>':''}
         </button>
+      </div>
+
+      <div class="perf-stats" style="margin-bottom:16px;">
+        <button type="button" class="perf-stat" onclick="gbConfidence.openExplain('income','${esc(sel)}')" aria-label="Income, tap to explain"><span class="st-lbl">Income</span><span class="st-val" style="color:var(--green);">+${fmt(income)}</span></button>
+        <button type="button" class="perf-stat" onclick="gbConfidence.openExplain('expenses','${esc(sel)}')" aria-label="Expenses, tap to explain"><span class="st-lbl">Expenses</span><span class="st-val">−${fmt(expTotal)}</span></button>
+        <div class="perf-stat" aria-disabled="true"><span class="st-lbl">Net</span><span class="st-val" style="color:${netPos?'var(--green)':'var(--red)'};">${netPos?'+':'−'}${fmt(Math.abs(net))}</span></div>
+      </div>
+
+      <h2 class="sec-hdr">Where your money went${(m&&spend.length)?` <button type="button" class="sec-total ex-num" onclick="gbConfidence.openExplain('expenses','${esc(sel)}')" aria-label="Explain total spending ${esc(fmt(expTotal))}">${fmt(expTotal)} <span class="ex-i" aria-hidden="true">&#9432;</span></button>`:''}</h2>
+      ${topSpendBody}
+
+      <h2 class="sec-hdr">What to check</h2>
+      ${checkBody}
+
+      ${typeof gbAccounts !== 'undefined' ? gbAccounts.cardHTML(sel) : ''}
+
+      <h2 class="sec-hdr">Plan</h2>
+      ${typeof gbPlan !== 'undefined' ? gbPlan.renderBanner() : ''}
+      <div class="plan-grid" style="grid-template-columns:repeat(2,1fr);">
         <button class="plan-tile" type="button" onclick="showScreen('budget', document.querySelectorAll('.nav-btn')[1])" aria-label="Budget ${esc(fmt(totalBudget))} — open the Budget tab">
           <span class="pt-l">Budget</span>
           <span class="pt-v">${fmt(totalBudget)}</span>
           <span class="pt-sub">${(typeof gbSuggest!=='undefined'&&gbSuggest.shouldShow())?'Build it &rsaquo;':'Plan vs actual &rsaquo;'}</span>
         </button>
-        ${(()=>{ const gn=(typeof gbGoals!=='undefined')?gbGoals.all().length:0; return `<button class="plan-tile" type="button" onclick="gbGoals.openGoals()" aria-label="Savings goals">
+        <button class="plan-tile" type="button" onclick="gbGoals.openGoals()" aria-label="Savings goals">
           <span class="pt-l">Goals</span>
-          <span class="pt-v">${gn||'—'}</span>
-          <span class="pt-sub">${gn?'Manage &rsaquo;':'Set one &rsaquo;'}</span>
-        </button>`; })()}
+          <span class="pt-v">${goalN||'—'}</span>
+          <span class="pt-sub">${goalN?'Manage &rsaquo;':'Set one &rsaquo;'}</span>
+        </button>
       </div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.5;margin:8px 2px 16px;">${esc(gradeExplain)}</div>
-      ${typeof gbAccounts !== 'undefined' ? gbAccounts.cardHTML(sel) : ''}
-      <h2 class="sec-hdr">Top Spending${(m&&spend.length)?` <button type="button" class="sec-total ex-num" onclick="gbConfidence.openExplain('expenses','${esc(sel)}')" aria-label="Explain total spending ${esc(fmt(expTotal))}">${fmt(expTotal)} <span class="ex-i" aria-hidden="true">&#9432;</span></button>`:''}</h2>
-      ${topSpendBody}
       ${typeof gbInsights !== 'undefined' ? gbInsights.cardHTML() : ''}
+
       <h2 class="sec-hdr">Achievements</h2>
       ${achievements}
     </div>`;

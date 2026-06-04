@@ -302,6 +302,35 @@ button.pill { font: inherit; line-height: 1.2; -webkit-appearance: none; appeara
 /* Standalone clickable pill (review badge in the hero). */
 button.tb-pill { -webkit-appearance: none; appearance: none; cursor: pointer; }
 
+/* ── Health-score hero (Summary headline) ── */
+.health-hero {
+  background: linear-gradient(145deg, rgba(13,31,60,0.9), rgba(5,26,48,0.9));
+  border: 1px solid var(--border); border-radius: 28px;
+  padding: 20px 20px 22px; margin-bottom: 12px;
+}
+.hh-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 16px; }
+.hh-month { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; }
+.hh-tap { display: flex; align-items: center; gap: 18px; width: 100%; text-align: left; background: none; border: none; padding: 0; cursor: pointer; font-family: inherit; color: var(--text); }
+.hh-tap[aria-disabled="true"] { cursor: default; }
+.hh-grade { font-family: var(--font-display); font-size: 66px; font-weight: 900; line-height: 0.85; letter-spacing: -3px; flex-shrink: 0; }
+.hh-meta { display: flex; flex-direction: column; gap: 6px; min-width: 0; flex: 1; }
+.hh-score { font-family: var(--font-display); font-size: 15px; font-weight: 800; color: var(--soft); letter-spacing: 0.02em; }
+.hh-line { font-size: 13.5px; color: var(--soft); line-height: 1.5; }
+.hh-rate { font-weight: 800; color: var(--text); }
+.hh-cta { font-size: 11px; color: var(--muted); font-weight: 700; flex-shrink: 0; align-self: flex-start; }
+
+/* ── "What to check" card (Summary) ── */
+.check-card { border-radius: 20px; overflow: hidden; background: var(--glass); border: 1px solid var(--border); margin-bottom: 12px; }
+.check-row { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 16px; border: none; border-bottom: 1px solid var(--border); background: none; cursor: pointer; font-family: inherit; color: var(--text); text-align: left; }
+.check-row:last-child { border-bottom: none; }
+.check-row:hover { background: var(--o03); }
+.check-ic { width: 30px; height: 30px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+.check-tx { flex: 1; min-width: 0; }
+.check-tx-l { display: block; font-size: 13.5px; font-weight: 700; }
+.check-tx-s { display: block; font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+.check-arrow { color: var(--muted); flex-shrink: 0; font-size: 20px; line-height: 1; }
+.check-clear { padding: 20px 18px; text-align: center; color: var(--soft); font-size: 13px; }
+
 /* ── Stat row ── */
 .stat-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
 .stat-tile {
@@ -1092,6 +1121,7 @@ body.privacy-mode .cat-amt,
 body.privacy-mode .cat-pct,
 body.privacy-mode .tx-amt,
 body.privacy-mode .bva-num,
+body.privacy-mode .hh-rate,
 body.privacy-mode .sec-total {
   filter: blur(9px); transition: filter 0.25s ease; cursor: pointer;
 }
@@ -1102,6 +1132,7 @@ body.privacy-mode.revealed .cat-amt,
 body.privacy-mode.revealed .cat-pct,
 body.privacy-mode.revealed .tx-amt,
 body.privacy-mode.revealed .bva-num,
+body.privacy-mode.revealed .hh-rate,
 body.privacy-mode.revealed .sec-total {
   filter: blur(0);
 }
