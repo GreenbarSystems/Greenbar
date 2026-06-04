@@ -292,7 +292,7 @@ const gbLoadWizard = (() => {
     if(s1) s1.style.display = step === 2 ? 'none' : '';
     if(s2) s2.style.display = step === 2 ? '' : 'none';
     const t = document.getElementById('dlw-title');
-    if(t) t.textContent = step === 2 ? 'Import bank transactions' : 'Which bank?';
+    if(t) t.textContent = 'Import bank transactions';
   }
   function pickFile(){
     // Mark this as a wizard-initiated import so the receipt can tell the user that

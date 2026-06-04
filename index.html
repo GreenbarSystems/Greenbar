@@ -1047,9 +1047,14 @@ if('serviceWorker' in navigator){
     <h2 class="sheet-title" id="dlw-title" style="margin-bottom:2px;">Load your data</h2>
     <div style="font-size:12px;color:var(--soft);margin-bottom:10px;">100% on this device. No account, no cloud, no sign-up.</div>
 
-    <!-- Step 1: which bank? (logo grid) -->
+    <!-- Step 1: choose a file you already have, or pick your bank for export help -->
     <div id="dlw-step-1">
-      <div class="sheet-sub">Which bank are these transactions from? We'll show you how to export them. Everything is read on your device — nothing is uploaded.</div>
+      <button type="button" class="dlw-have-file" onclick="gbLoadWizard.pickFile()" aria-label="I already have my file — choose a CSV or PDF">
+        <span class="dlw-have-ic" aria-hidden="true">&#128196;</span>
+        <span class="dlw-have-tx"><strong>I already have my file</strong><span>Choose a CSV or PDF — skip the guide</span></span>
+        <span class="dlw-have-go" aria-hidden="true">Choose &rsaquo;</span>
+      </button>
+      <div class="sheet-sub">Don't have your statement yet? Pick your bank and we'll show you how to export it — everything is read on your device, nothing is uploaded.</div>
       <div id="dlw-bank-grid" class="bank-grid"></div>
       <div style="text-align:center;margin-top:14px;"><button type="button" class="link-btn" onclick="gbLoadWizard.sample()">Just exploring? Load sample data &rarr;</button></div>
     </div>
