@@ -1099,6 +1099,21 @@ function applyImport(file, newTxs, newMonths, newKeys, mode, result, account, cl
 // ── Shared utility: clean bank transaction description to vendor name
 
 // ──────── Navigation + modals (open/close/swipe/keyboard) ────────
+// Analyst surfaces (anomaly / cleanup / forecast / trends) stay hidden until the
+// user has a REAL import (a gb_log entry — demo data doesn't count) AND has seen
+// a populated Summary at least once. Before that, the app stays simple instead of
+// feeling like an analyst workstation.
+function analyticsUnlocked(){
+  try{ return (typeof getLog === 'function' && getLog().length > 0) && localStorage.getItem('gb_seen_summary') === '1'; }
+  catch(e){ return false; }
+}
+// Toggle the visibility of gated Settings rows (currently: Review & clean up).
+function _updateGatedSurfaces(){
+  const unlocked = analyticsUnlocked();
+  const cr = document.getElementById('cleanup-row');
+  if(cr) cr.style.display = unlocked ? '' : 'none';
+}
+
 function showScreen(name,btn){
   // Clear any pending flash-intro timers when leaving the summary/intro area.
   // Otherwise they keep firing on a hidden DOM and can flip _flashDone state.
@@ -1117,7 +1132,7 @@ function showScreen(name,btn){
   srAnnounce(({summary:'Summary screen',budget:'Budget screen',txs:'Transactions screen',settings:'Settings screen',confidence:'Import Confidence Center'}[name])||'Screen changed');
   if(name==='budget') renderBudget();
   if(name==='txs') renderTxs();
-  if(name==='settings'){ syncUI(); renderBudgetInputs(); updateStorageDesc(); }
+  if(name==='settings'){ syncUI(); renderBudgetInputs(); updateStorageDesc(); _updateGatedSurfaces(); }
   if(name==='summary' && !Object.keys(_months||{}).length){
     if(localStorage.getItem('gb_setup_done')){
       renderSummary();
@@ -1125,6 +1140,10 @@ function showScreen(name,btn){
       const setupActive = document.getElementById('screen-setup')?.classList.contains('active');
       if(!setupActive) setTimeout(()=>{ runFlashIntro(); }, 50);
     }
+  }
+  // Mark that a populated Summary has been viewed (half of the analyst-surface gate).
+  if(name==='summary' && Object.keys(_months||{}).length){
+    try{ if(localStorage.getItem('gb_seen_summary') !== '1') localStorage.setItem('gb_seen_summary','1'); }catch(_){}
   }
   // Notify other modules that the screen changed. Cleaner than each module
   // monkey-patching window.showScreen -- avoids ordering / collision issues.

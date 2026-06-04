@@ -834,6 +834,9 @@ function renderBudget(){
     srAnnounce('Budget, no transactions yet');
     return;
   }
+  // Analyst surfaces (forecast / trends / recurring) only once the user has a
+  // real import and has seen a Summary — otherwise the Budget screen stays simple.
+  const _analystOn = (typeof analyticsUnlocked === 'function') && analyticsUnlocked();
   // Account filter — actuals only; budget targets stay household-wide.
   const accounts = [...new Set((_allTxs||[]).map(t => t.acct).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
   if(_budgetAcct && accounts.indexOf(_budgetAcct) === -1) _budgetAcct = '';
@@ -911,9 +914,9 @@ function renderBudget(){
         + `</div>`
       ).join('')
     }</div>` : ''}
-    ${(!acct && typeof gbForecast !== 'undefined') ? gbForecast.sectionHTML() : ''}
-    ${(!acct && typeof gbTrends !== 'undefined') ? gbTrends.varianceSectionHTML(mk) : ''}
-    ${(!acct && typeof gbTrends !== 'undefined') ? gbTrends.recurringCardHTML() : ''}`;
+    ${(!acct && _analystOn && typeof gbForecast !== 'undefined') ? gbForecast.sectionHTML() : ''}
+    ${(!acct && _analystOn && typeof gbTrends !== 'undefined') ? gbTrends.varianceSectionHTML(mk) : ''}
+    ${(!acct && _analystOn && typeof gbTrends !== 'undefined') ? gbTrends.recurringCardHTML() : ''}`;
   srAnnounce(`Budget for ${mk}, ${rows.length} ${rows.length===1?'category':'categories'}`);
 }
 

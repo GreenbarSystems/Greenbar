@@ -227,6 +227,9 @@ function detectAnomalies(newMonthKeys){
 
 /* ── B. Orchestrator ── */
 function runAnomalyDetection(newMonthKeys){
+  // Gate: no anomaly surfacing until the user has a real import and has seen a
+  // Summary (keeps the first run simple, not analyst-y).
+  if(typeof analyticsUnlocked === 'function' && !analyticsUnlocked()) return;
   // Yield to the render thread first — never block the import UI.
   setTimeout(() => {
     try{
@@ -328,7 +331,8 @@ function renderAnomalyBadge(){
   const data = getStoredAnomalies();
   const onSummary = document.getElementById('screen-summary')?.classList.contains('active');
   let el = document.getElementById('anomaly-badge');
-  const show = onSummary && data && data.items && data.items.length && !data.reviewed;
+  const unlocked = (typeof analyticsUnlocked !== 'function') || analyticsUnlocked();
+  const show = unlocked && onSummary && data && data.items && data.items.length && !data.reviewed;
   if(!show){ if(el) el.style.display = 'none'; return; }
   if(!el){
     el = document.createElement('button');
