@@ -9,7 +9,7 @@
 // load the new worker installs the fresh shell, activate() deletes old caches,
 // and clients.claim() takes control.
 
-const CACHE_VERSION = 'greenbar-shell-v73';
+const CACHE_VERSION = 'greenbar-shell-v74';
 
 // Scope-relative ('./') so this works for both root deploys and sub-path
 // deploys (e.g. GitHub project Pages at /Greenbar/).
@@ -45,7 +45,11 @@ const ASSETS = [
   './js/accounts.js',
   './js/profiles.js',
   './js/tour.js',
-  './js/boot.js'
+  './js/boot.js',
+  // PDF.js engine (vendored, ~1.4 MB). Precached so PDF import is part of the
+  // offline promise — lazy-loaded by pdf-import.js, but available with no network.
+  './js/vendor/pdf.min.js',
+  './js/vendor/pdf.worker.min.js'
 ];
 
 // Install: precache the shell, then activate immediately.

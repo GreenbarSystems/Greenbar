@@ -45,7 +45,8 @@ const gbPdf = (() => {
     ['balance', /^(balance|bal)$/i],
   ];
 
-  // ── lazy-load the vendored PDF.js (kept out of the precached shell) ──
+  // ── lazy-load the vendored PDF.js (precached by the service worker, so this
+  //    resolves from cache and works fully offline) ──
   let _libPromise = null;
   function _ensureLib(){
     if(typeof pdfjsLib !== 'undefined') return Promise.resolve();
@@ -54,7 +55,7 @@ const gbPdf = (() => {
       const s = document.createElement('script');
       s.src = LIB_SRC;
       s.onload = () => resolve();
-      s.onerror = () => { _libPromise = null; reject(new Error('Could not load the PDF engine. Check your connection and try again.')); };
+      s.onerror = () => { _libPromise = null; reject(new Error('Could not load the PDF engine. Please reload the app and try again.')); };
       document.head.appendChild(s);
     });
     return _libPromise;
