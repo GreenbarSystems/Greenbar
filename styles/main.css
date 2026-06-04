@@ -811,6 +811,39 @@ button.settings-row:hover { background: var(--o02); }
 }
 .checkup-streak-num { font-family: var(--font-display); font-size: 46px; font-weight: 900; color: var(--green); line-height: 1; letter-spacing: -2px; margin: 6px 0 8px; }
 
+/* ── "What changes if…?" scenario analyzer ── */
+/* Launcher embedded in the Cash-Flow Forecast card. */
+.scn-launch { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; margin: 12px 0; padding: 11px; border-radius: 12px; border: 1px solid rgba(var(--blue-rgb),0.3); background: rgba(var(--blue-rgb),0.08); color: var(--text); font-family: var(--font-display); font-size: 13px; font-weight: 800; cursor: pointer; }
+.scn-launch:hover { border-color: var(--blue); }
+.scn-launch-sub { font-weight: 600; color: var(--muted); font-size: 12px; }
+.scn-baseline { font-size: 13px; color: var(--soft); line-height: 1.5; margin-bottom: 14px; }
+/* Levers */
+.scn-lever { background: var(--glass); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; margin-bottom: 12px; }
+.scn-lever-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+.scn-lever-lbl { font-family: var(--font-display); font-size: 13px; font-weight: 800; }
+.scn-lever-val { font-family: var(--font-display); font-size: 15px; font-weight: 900; }
+.scn-stepper { display: flex; align-items: center; gap: 10px; }
+.scn-step { width: 40px; height: 40px; flex-shrink: 0; border-radius: 11px; border: 1px solid var(--border); background: var(--o05); color: var(--text); font-size: 22px; line-height: 1; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.scn-step:hover:not(:disabled) { border-color: var(--border-bright); }
+.scn-step:disabled { opacity: 0.4; cursor: default; }
+.scn-bar { flex: 1; height: 6px; border-radius: 3px; background: var(--o08); overflow: hidden; }
+.scn-bar-fill { height: 100%; border-radius: 3px; background: var(--grad-primary); transition: width 0.25s ease; }
+.scn-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.scn-chip { border: 1px solid var(--border); background: var(--o03); color: var(--soft); border-radius: 999px; padding: 5px 10px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--font-display); }
+.scn-chip:hover { border-color: var(--border-bright); }
+/* Consequence output */
+.scn-out { background: linear-gradient(155deg, rgba(var(--green-rgb),0.08), rgba(var(--blue-rgb),0.05)); border: 1px solid rgba(var(--green-rgb),0.22); border-radius: 16px; padding: 16px; margin: 4px 0 12px; }
+.scn-head { font-family: var(--font-display); font-size: 30px; font-weight: 900; letter-spacing: -0.5px; line-height: 1.1; }
+.scn-head-sub { font-size: 13px; color: var(--muted); font-weight: 700; margin-left: 4px; }
+.scn-delta { font-size: 13px; font-weight: 800; font-family: var(--font-display); margin-top: 4px; }
+.scn-rows { margin-top: 12px; }
+.scn-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 7px 0; border-top: 1px solid var(--o05); }
+.scn-row span:first-child { color: var(--muted); }
+.scn-row-cta { justify-content: center; }
+.scn-arrow { color: var(--muted); margin: 0 2px; }
+.scn-foot { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.scn-empty { background: var(--glass); border: 1px solid var(--border); border-radius: 14px; padding: 16px; font-size: 13px; color: var(--muted); line-height: 1.6; }
+
 /* sr-only: visually hidden, visible to assistive tech. Used for the global live-region announcer. */
 .sr-only {
   position: absolute !important; width: 1px !important; height: 1px !important;
