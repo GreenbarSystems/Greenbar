@@ -635,7 +635,7 @@ function saveLog(log){
 }
 // Object-destructured params: `monthCount` (number) and `months` (string) used
 // to be adjacent positional args -- easy to swap by accident. Now self-documenting.
-function addToLog({ id, filename, txCount, monthCount, months, skipped, undated, confidence, lowConfCount, dateRange, account, closingBalance, balanceAsOf }){
+function addToLog({ id, filename, txCount, monthCount, months, skipped, undated, confidence, lowConfCount, dateRange, account, closingBalance, balanceAsOf, openingBalance }){
   const log=getLog();
   // `id` links the log entry to the transactions tagged with tx.imp at import
   // time, so the clean-up center can undo exactly this batch. Falls back to a
@@ -651,6 +651,7 @@ function addToLog({ id, filename, txCount, monthCount, months, skipped, undated,
     dateRange: dateRange || null, account: account || '',
     closingBalance: (closingBalance == null ? null : closingBalance),
     balanceAsOf: (typeof balanceAsOf === 'number') ? balanceAsOf : null,
+    openingBalance: (openingBalance == null ? null : openingBalance),
     date: new Date().toLocaleDateString(gbRegion().locale,{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}) });
   // Hard-cap retention: a single pop() leaves the log oversize if it ever
   // started larger than the cap (e.g. after a backup restore from a future
@@ -912,9 +913,12 @@ function showImportPreview(filename, result){
       <input id="import-account-input" list="import-account-list" value="${esc(_acctDefault)}" placeholder="e.g. Chase Checking" autocomplete="off" style="width:100%;box-sizing:border-box;background:var(--glass);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:14px;font-family:var(--font-body);padding:10px 12px;">
       <datalist id="import-account-list">${_accts.map(a => `<option value="${esc(a)}"></option>`).join('')}</datalist>
       <div style="font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5;">These transactions are tagged to this account, so multiple accounts stay separate.</div>
-      <label for="import-balance-input" style="display:block;font-family:var(--font-display);font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin:12px 0 6px;">Closing balance (optional)</label>
-      <input id="import-balance-input" type="text" inputmode="decimal" placeholder="Statement ending balance" autocomplete="off" style="width:100%;box-sizing:border-box;background:var(--glass);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:14px;font-family:var(--font-body);padding:10px 12px;">
-      <div style="font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5;">Enter the statement's ending balance and Greenbar shows this account's running balance.</div>
+      <label for="import-open-input" style="display:block;font-family:var(--font-display);font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin:12px 0 6px;">Statement balances (optional)</label>
+      <div style="display:flex;gap:8px;">
+        <input id="import-open-input" type="text" inputmode="decimal" placeholder="Opening balance" autocomplete="off" style="flex:1;min-width:0;box-sizing:border-box;background:var(--glass);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:14px;font-family:var(--font-body);padding:10px 12px;">
+        <input id="import-balance-input" type="text" inputmode="decimal" placeholder="Closing balance" autocomplete="off" style="flex:1;min-width:0;box-sizing:border-box;background:var(--glass);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:14px;font-family:var(--font-body);padding:10px 12px;">
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5;">Enter both and Greenbar checks the import <strong>reconciles</strong> — that these transactions exactly account for the change from opening to closing balance. Closing alone still powers a running balance.</div>
     </div>`;
   document.getElementById('import-preview-body').innerHTML = confHtml + acctHtml + `
     <div style="background:var(--glass);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:12px;">
@@ -951,9 +955,13 @@ function confirmImportPreview(){
   // import still belongs to a source.
   const _acctEl = document.getElementById('import-account-input');
   const account = ((_acctEl && _acctEl.value) || '').trim() || 'Unassigned';
-  // Optional statement closing balance -> enables a running balance for this account.
+  // Optional statement balances. Closing alone -> running balance; opening +
+  // closing -> a reconciliation check (do these transactions account for the
+  // exact change between them?).
   const _balEl = document.getElementById('import-balance-input');
   const closingBalance = (_balEl && String(_balEl.value).trim() !== '') ? parseAmt(_balEl.value) : null;
+  const _openEl = document.getElementById('import-open-input');
+  const openingBalance = (_openEl && String(_openEl.value).trim() !== '') ? parseAmt(_openEl.value) : null;
   closeModal('modal-import-preview');
   _pendingAccountHint = null;
   const pend = _pendingPreview; _pendingPreview = null;
@@ -964,10 +972,10 @@ function confirmImportPreview(){
   const newKeys = sortKeys(newMonths);
   const conflictingMonths = newKeys.filter(mk => _months[mk] && _months[mk].txs.length > 0);
   if(conflictingMonths.length > 0){
-    _pendingConflict = { file, newTxs, newMonths, newKeys, conflictingMonths, result, account, closingBalance };
+    _pendingConflict = { file, newTxs, newMonths, newKeys, conflictingMonths, result, account, closingBalance, openingBalance };
     showConflictModal(file.name, conflictingMonths, newKeys);
   } else {
-    applyImport(file, newTxs, newMonths, newKeys, 'merge', result, account, closingBalance);
+    applyImport(file, newTxs, newMonths, newKeys, 'merge', result, account, closingBalance, openingBalance);
     processNextFile();
   }
 }
@@ -1019,7 +1027,7 @@ function resolveConflict(action){
     return;
   }
 
-  const { file, newTxs, newMonths, newKeys, result, account, closingBalance } = _pendingConflict;
+  const { file, newTxs, newMonths, newKeys, result, account, closingBalance, openingBalance } = _pendingConflict;
   _pendingConflict = null;
 
   if(action === 'replace'){
@@ -1029,11 +1037,11 @@ function resolveConflict(action){
   }
 
   // Apply import (merge or clean replace)
-  applyImport(file, newTxs, newMonths, newKeys, action, result, account, closingBalance);
+  applyImport(file, newTxs, newMonths, newKeys, action, result, account, closingBalance, openingBalance);
   processNextFile();
 }
 
-function applyImport(file, newTxs, newMonths, newKeys, mode, result, account, closingBalance){
+function applyImport(file, newTxs, newMonths, newKeys, mode, result, account, closingBalance, openingBalance){
   // Tag every row in this batch with a shared import id so the clean-up center
   // can undo exactly these transactions later. newMonths[mk].txs are the same
   // objects as newTxs, so tagging here covers both the replace and merge paths.
@@ -1107,6 +1115,9 @@ function applyImport(file, newTxs, newMonths, newKeys, mode, result, account, cl
     // (so a running balance = closingBalance + later transactions for this account).
     closingBalance: (closingBalance == null ? null : closingBalance),
     balanceAsOf:    (closingBalance != null && isFinite(_hi)) ? _hi : null,
+    // Opening balance enables reconciliation: opening + sum(this import's txns)
+    // should equal closing. The match is computed live by gbReconcile.
+    openingBalance: (openingBalance == null ? null : openingBalance),
   });
   // Accumulate the committed-import summary for the post-import receipt shown
   // once the whole batch drains (replaces the old per-commit "Imported N" toast,

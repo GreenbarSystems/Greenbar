@@ -128,18 +128,14 @@ const gbConfidence = (() => {
   //   Clean        — nothing flagged (the baseline; weakest — not "verified").
   // (Unreconciled is the implicit state behind Clean/Reviewed: data exists but
   //  isn't anchored to a statement balance — we just don't dress it up.)
-  function _fullyReconciled(){
-    const anchored = new Set(_log().filter(e => e && e.closingBalance != null && e.account).map(e => String(e.account)));
-    if(!anchored.size) return false;
-    const dataAccts = new Set(_txs().map(t => t.acct).filter(Boolean).map(String));
-    if(!dataAccts.size) return false;
-    for(const a of dataAccts){ if(!anchored.has(a)) return false; }
-    return true;
-  }
   function statusLabel(){
     if(!_txs().length) return null;
     if(reviewQueue().length > 0) return { label: 'Needs review', tone: 'review' };
-    if(_fullyReconciled())        return { label: 'Reconciled',   tone: 'ok' };
+    // Reconciliation: only claimed when the imported data actually matches the
+    // statement balances (gbReconcile verifies opening + net == closing).
+    const rec = (typeof gbReconcile !== 'undefined' && gbReconcile.status) ? gbReconcile.status() : null;
+    if(rec === 'unreconciled') return { label: 'Unreconciled', tone: 'review' };
+    if(rec === 'reconciled')   return { label: 'Reconciled',   tone: 'ok' };
     if(_txs().some(t => t.reviewed)) return { label: 'Reviewed',  tone: 'ok' };
     return { label: 'Clean', tone: 'ok' };
   }
@@ -397,6 +393,7 @@ const gbConfidence = (() => {
           </div>
           <div class="conf-card-meta">${e.account?`<strong style="color:var(--soft);">${esc(e.account)}</strong> &middot; `:''}${esc(String(e.txCount))} txn${e.txCount===1?'':'s'} &middot; ${esc(range)} &middot; ${esc(e.date)}</div>
           ${drops.length?`<div class="conf-card-drops">${esc(drops.join(' · '))}</div>`:''}
+          ${(typeof gbReconcile !== 'undefined') ? `<div class="conf-rec">${gbReconcile.badgeHTML(e)}</div>` : ''}
           ${undoable?`<button type="button" class="conf-undo" onclick="gbConfidence.undo('${esc(String(e.id))}')">Undo this import</button>`:''}
         </div>`;
       }).join('')}` : '';

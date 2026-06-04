@@ -879,6 +879,22 @@ button.settings-row:hover { background: var(--o02); }
 .xfer-more { font-size: 12px; color: var(--muted); text-align: center; padding: 8px 0; }
 .xfer-foot { font-size: 11px; color: var(--muted); line-height: 1.5; text-align: center; margin-top: 8px; }
 
+/* ── Statement reconciliation ── */
+/* Per-import badge in the Import Confidence Center history. */
+.conf-rec { margin-top: 8px; }
+.rec-badge { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 3px 10px; font-family: var(--font-display); font-size: 11px; font-weight: 800; cursor: pointer; border: 1px solid transparent; }
+.rec-badge.rec-ok   { background: rgba(var(--green-rgb),0.12); border-color: rgba(var(--green-rgb),0.3); color: var(--green); }
+.rec-badge.rec-off  { background: rgba(var(--amber-rgb),0.12); border-color: rgba(var(--amber-rgb),0.35); color: var(--amber); }
+.rec-badge.rec-none { background: var(--o05); border-color: var(--border); color: var(--soft); }
+.rec-badge:hover { border-color: var(--border-bright); }
+/* Reconcile modal */
+.rec-file { font-family: var(--font-display); font-size: 13px; font-weight: 800; }
+.rec-net { font-size: 13px; color: var(--soft); line-height: 1.5; margin: 4px 0 12px; }
+.rec-lbl { display: block; font-family: var(--font-display); font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin: 10px 0 6px; }
+.rec-status { font-size: 13px; line-height: 1.5; color: var(--muted); background: var(--glass); border: 1px solid var(--border); border-radius: 12px; padding: 11px 13px; margin: 12px 0; }
+.rec-status.ok  { background: rgba(var(--green-rgb),0.08); border-color: rgba(var(--green-rgb),0.25); color: var(--green); }
+.rec-status.off { background: rgba(var(--amber-rgb),0.08); border-color: rgba(var(--amber-rgb),0.3); color: var(--amber); }
+
 /* sr-only: visually hidden, visible to assistive tech. Used for the global live-region announcer. */
 .sr-only {
   position: absolute !important; width: 1px !important; height: 1px !important;
