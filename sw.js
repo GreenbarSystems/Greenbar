@@ -9,7 +9,7 @@
 // load the new worker installs the fresh shell, activate() deletes old caches,
 // and clients.claim() takes control.
 
-const CACHE_VERSION = 'greenbar-shell-v54';
+const CACHE_VERSION = 'greenbar-shell-v55';
 
 // Scope-relative ('./') so this works for both root deploys and sub-path
 // deploys (e.g. GitHub project Pages at /Greenbar/).
@@ -35,6 +35,7 @@ const ASSETS = [
   './js/suggest-budget.js',
   './js/insights.js',
   './js/goals.js',
+  './js/plan.js',
   './js/demo.js',
   './js/cleanup.js',
   './js/accounts.js',

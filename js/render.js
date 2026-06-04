@@ -715,13 +715,26 @@ function renderSummary(){
           </div>
         </div>`;
       })()}
-      ${typeof gbGoals !== 'undefined' ? gbGoals.cardHTML() : ''}
-      ${typeof gbSuggest !== 'undefined' ? gbSuggest.cardHTML() : ''}
-      <div class="stat-row" style="grid-template-columns:1fr 1fr;margin-bottom:8px;">
-        <button class="stat-tile" type="button" onclick="showScreen('budget', document.querySelectorAll('.nav-btn')[1])" aria-label="Monthly budget ${esc(fmt(totalBudget))} — open the Budget tab"><div class="st-lbl">Monthly Budget</div><div class="st-val">${fmt(totalBudget)}</div><div class="st-tap-hint">Plan vs actual &rsaquo;</div></button>
-        <button class="stat-tile" type="button" ${hs?`onclick="openHealthBreakdown()" aria-label="Health score ${hs.grade}, ${hs.score} out of 100 — see what's driving it"`:'disabled aria-label="Health score not available yet"'}><div class="st-lbl">Health Score</div><div class="st-val" style="color:${gradeColor};">${grade}</div>${hs?`<div class="st-tap-hint">Tap for details &rsaquo;</div>`:''}</button>
+      ${typeof gbPlan !== 'undefined' ? gbPlan.renderBanner() : ''}
+      <h2 class="sec-hdr">Your plan</h2>
+      <div class="plan-grid">
+        <button class="plan-tile" type="button" ${hs?`onclick="openHealthBreakdown()" aria-label="Plan score ${hs.grade}, ${hs.score} out of 100 — see what's driving it"`:'disabled aria-label="Plan score not available yet"'}>
+          <span class="pt-l">Plan score</span>
+          <span class="pt-v" style="color:${gradeColor};">${grade}</span>
+          <span class="pt-sub">${hs?`${hs.score}/100 &rsaquo;`:'Add income'}</span>
+        </button>
+        <button class="plan-tile" type="button" onclick="showScreen('budget', document.querySelectorAll('.nav-btn')[1])" aria-label="Budget ${esc(fmt(totalBudget))} — open the Budget tab">
+          <span class="pt-l">Budget</span>
+          <span class="pt-v">${fmt(totalBudget)}</span>
+          <span class="pt-sub">${(typeof gbSuggest!=='undefined'&&gbSuggest.shouldShow())?'Build it &rsaquo;':'Plan vs actual &rsaquo;'}</span>
+        </button>
+        ${(()=>{ const gn=(typeof gbGoals!=='undefined')?gbGoals.all().length:0; return `<button class="plan-tile" type="button" onclick="gbGoals.openGoals()" aria-label="Savings goals">
+          <span class="pt-l">Goals</span>
+          <span class="pt-v">${gn||'—'}</span>
+          <span class="pt-sub">${gn?'Manage &rsaquo;':'Set one &rsaquo;'}</span>
+        </button>`; })()}
       </div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.5;margin:0 2px 16px;">${esc(gradeExplain)}</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.5;margin:8px 2px 16px;">${esc(gradeExplain)}</div>
       ${typeof gbAccounts !== 'undefined' ? gbAccounts.cardHTML(sel) : ''}
       <h2 class="sec-hdr">Top Spending${(m&&spend.length)?` <button type="button" class="sec-total ex-num" onclick="gbConfidence.openExplain('expenses','${esc(sel)}')" aria-label="Explain total spending ${esc(fmt(expTotal))}">${fmt(expTotal)} <span class="ex-i" aria-hidden="true">&#9432;</span></button>`:''}</h2>
       ${topSpendBody}
