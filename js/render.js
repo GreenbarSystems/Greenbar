@@ -725,9 +725,10 @@ function renderSummary(){
   // Hero one-liner: lead with the savings rate in plain language.
   const heroLine = savingsSentence(income, net, sel);
 
+  const _status = (typeof gbConfidence !== 'undefined' && gbConfidence.statusLabel) ? gbConfidence.statusLabel() : null;
   const reviewBadge = reviewN
     ? `<button type="button" class="tb-pill review" onclick="gbConfidence.open()" aria-label="${reviewN} transaction${reviewN===1?'':'s'} to review">${reviewN} to review</button>`
-    : `<span class="tb-pill ok">&#10003; Verified</span>`;
+    : `<span class="tb-pill ok">&#10003; ${esc(_status ? _status.label : 'Clean')}</span>`;
 
   // "What to check": review queue (always), plus unusual activity and possible
   // duplicates once the analyst surfaces are unlocked (see summaryCheckCounts).

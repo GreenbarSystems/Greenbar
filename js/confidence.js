@@ -117,6 +117,33 @@ const gbConfidence = (() => {
   // The flat set of transactions needing review (drives every count + "mark all").
   function reviewQueue(){ return reviewItems().map(i => i.tx); }
 
+  // ──────── Status taxonomy ────────
+  // "Verified" overclaimed — it read as strong evidence when it only meant
+  // "nothing is currently flagged." This returns the strongest claim we can
+  // honestly back up:
+  //   Needs review — something is flagged in the queue.
+  //   Reconciled   — every account with data is anchored to a statement closing
+  //                  balance (the user tied the numbers to a real statement).
+  //   Reviewed     — nothing flagged AND a human has cleared flagged rows.
+  //   Clean        — nothing flagged (the baseline; weakest — not "verified").
+  // (Unreconciled is the implicit state behind Clean/Reviewed: data exists but
+  //  isn't anchored to a statement balance — we just don't dress it up.)
+  function _fullyReconciled(){
+    const anchored = new Set(_log().filter(e => e && e.closingBalance != null && e.account).map(e => String(e.account)));
+    if(!anchored.size) return false;
+    const dataAccts = new Set(_txs().map(t => t.acct).filter(Boolean).map(String));
+    if(!dataAccts.size) return false;
+    for(const a of dataAccts){ if(!anchored.has(a)) return false; }
+    return true;
+  }
+  function statusLabel(){
+    if(!_txs().length) return null;
+    if(reviewQueue().length > 0) return { label: 'Needs review', tone: 'review' };
+    if(_fullyReconciled())        return { label: 'Reconciled',   tone: 'ok' };
+    if(_txs().some(t => t.reviewed)) return { label: 'Reviewed',  tone: 'ok' };
+    return { label: 'Clean', tone: 'ok' };
+  }
+
   // Headline trust metadata for the trust bar + Confidence Center header.
   function trustSummary(){
     const log = _log();
@@ -173,9 +200,10 @@ const gbConfidence = (() => {
     const line2 = [];
     if(s.lastImport) line2.push('Imported ' + s.lastImport.date);
     if(s.skippedTotal) line2.push(s.skippedTotal + ' skipped');
+    const st = statusLabel();
     const pill = s.reviewCount
       ? `<span class="tb-pill review">${s.reviewCount} to review</span>`
-      : `<span class="tb-pill ok">&#10003; Verified</span>`;
+      : (st ? `<span class="tb-pill ok">&#10003; ${esc(st.label)}</span>` : '');
     return `<button type="button" class="trust-bar" onclick="gbConfidence.open()" aria-label="Open Import Confidence Center: ${s.txCount} transaction${s.txCount===1?'':'s'}${s.reviewCount?(', '+s.reviewCount+' to review'):''}">
       <span class="tb-grow">
         <span class="tb-l1">${esc(_rangeLabel(s.dateRange))} <span class="tb-dot">&middot;</span> ${s.txCount} transaction${s.txCount===1?'':'s'}</span>
@@ -507,7 +535,7 @@ const gbConfidence = (() => {
     });
   }
 
-  return { dateRange, reviewQueue, reviewItems, trustSummary, importConfidence, markReviewed, markAllReviewed,
+  return { dateRange, reviewQueue, reviewItems, trustSummary, statusLabel, importConfidence, markReviewed, markAllReviewed,
            renderTrustBar, renderReviewBanner, renderCenter, open, resolveRow, reviewAll, undo, removeDup, updateBadge,
            explain, renderExplain, openExplain, showReceipt, dismissReceipt };
 })();
