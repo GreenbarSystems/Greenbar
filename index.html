@@ -1107,10 +1107,12 @@ if('serviceWorker' in navigator){
     <h2 class="sheet-title" id="conflict-title">Month conflict detected</h2>
     <div class="sheet-sub" id="conflict-sub" style="margin-bottom:16px;">This file covers months you have already imported. Choose how to handle it.</div>
     <div id="conflict-months" style="margin-bottom:16px;"></div>
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <button type="button" onclick="resolveConflict('replace')" style="width:100%;padding:14px;border-radius:14px;border:none;background:linear-gradient(135deg,#ff4757,#c0392b);color:white;font-family:var(--font-display);font-size:15px;font-weight:800;cursor:pointer;">Replace Existing Data</button>
-      <button type="button" onclick="resolveConflict('merge')" style="width:100%;padding:14px;border-radius:14px;border:none;background:var(--grad-primary);color:#050a14;font-family:var(--font-display);font-size:15px;font-weight:800;cursor:pointer;">Merge with Existing Data</button>
-      <button type="button" onclick="resolveConflict('skip')" style="width:100%;padding:14px;border-radius:14px;border:1px solid var(--border);background:var(--glass);color:var(--soft);font-family:var(--font-display);font-size:14px;font-weight:600;cursor:pointer;">Skip This File</button>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <button type="button" onclick="resolveConflict('merge')" class="btn-primary" style="margin:0;">Merge with existing data</button>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5;margin-bottom:6px;">Recommended — keeps both, skips exact duplicates.</div>
+      <button type="button" onclick="resolveConflict('replace')" style="width:100%;padding:11px;border-radius:12px;border:1px solid rgba(var(--red-rgb),0.3);background:rgba(var(--red-rgb),0.06);color:var(--red);font-family:var(--font-display);font-size:13px;font-weight:700;cursor:pointer;">Replace existing data</button>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5;">Erases the existing transactions for these months first — can't be undone.</div>
+      <div style="text-align:center;margin-top:6px;"><button type="button" onclick="resolveConflict('skip')" class="link-btn" style="color:var(--muted);">Skip this file</button></div>
     </div>
   </div>
 </dialog>

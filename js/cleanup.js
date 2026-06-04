@@ -102,52 +102,59 @@ const gbCleanup = (() => {
   }
 
   // ── render ──
+  // Grouped so reversible, low-regret maintenance ("Quick fixes") is clearly
+  // separated from the irreversible "Danger zone" (deleting a whole month).
   function render(){
     const body = document.getElementById('cleanup-body');
     if(!body) return;
 
-    // 1) Undo last import
     const log = getLog();
     const last = log[0];
     const undoable = last && (_allTxs || []).some(t => t.imp === last.id);
+    const dups = scanDuplicates();
+    const months = monthSummary();
+
+    // ── Quick fixes: undo the last import, remove duplicate charges ──
     const undoHtml = undoable ? `
-      <h3 class="sec-hdr" style="margin-top:0;">Last import</h3>
-      <div class="section-card" style="margin-bottom:14px;">
+      <div class="section-card" style="margin-bottom:12px;">
+        <div class="cu-sub">Undo last import</div>
         <div style="font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(last.filename)}</div>
         <div style="font-size:12px;color:var(--muted);margin:3px 0 10px;">${esc(String(last.txCount))} transactions · ${esc(last.months || '')}</div>
         <button type="button" class="btn-secondary" onclick="gbCleanup.undoLastImport()" style="margin:0;">Undo this import</button>
       </div>` : '';
+    const dupHtml = `
+      <div class="section-card" style="margin-bottom:12px;">
+        <div class="cu-sub">Possible duplicates${dups.length?` (${dups.length})`:''}</div>
+        ${dups.length ? dups.map(d => `
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--o05);">
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(d.vendor)} ${_money(d.amount)}</div>
+              <div style="font-size:11px;color:var(--muted);">${esc(d.dateA)} &amp; ${esc(d.dateB)}</div>
+            </div>
+            <button type="button" class="btn-warn" aria-label="Remove duplicate" onclick="gbCleanup.removeDuplicate('${esc(d.id)}')">Remove</button>
+          </div>`).join('') : `<div style="color:var(--muted);font-size:13px;padding:4px 0;">No duplicate charges detected.</div>`}
+      </div>`;
+    const quickHtml = `<h3 class="sec-hdr" style="margin-top:0;">Quick fixes</h3>${undoHtml}${dupHtml}`;
 
-    // 2) Months
-    const months = monthSummary();
-    const monthsHtml = months.length ? `
-      <h3 class="sec-hdr" style="margin-top:0;">Months (${months.length})</h3>
-      <div class="section-card" style="margin-bottom:14px;">
-        ${months.map(s => `
+    // ── Danger zone: deleting a month is irreversible ──
+    const monthRows = months.length
+      ? months.map(s => `
           <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--o05);">
             <div style="flex:1;min-width:0;">
               <div style="font-size:13px;font-weight:700;">${esc(s.mk)}</div>
               <div style="font-size:11px;color:var(--muted);">${s.txCount} txs · net <span style="color:${s.net>=0?'var(--green)':'var(--red)'};">${s.net>=0?'+':'−'}${_money(s.net)}</span></div>
             </div>
             <button type="button" class="btn-destructive" aria-label="Delete ${esc(s.mk)}" onclick="gbCleanup.deleteMonth('${esc(s.mk)}')">Delete</button>
-          </div>`).join('')}
-      </div>` : `<div style="color:var(--muted);font-size:13px;padding:8px 2px;">No transactions yet.</div>`;
+          </div>`).join('')
+      : `<div style="color:var(--muted);font-size:13px;padding:4px 0;">No months to delete.</div>`;
+    const dangerHtml = `
+      <div class="danger-zone">
+        <div class="danger-zone-h">&#9888; Danger zone</div>
+        <div class="danger-zone-note">Deleting a month permanently removes its transactions and can't be undone. Export a backup first if you're unsure.</div>
+        ${monthRows}
+      </div>`;
 
-    // 3) Duplicates
-    const dups = scanDuplicates();
-    const dupHtml = `
-      <h3 class="sec-hdr" style="margin-top:0;">Possible duplicates${dups.length?` (${dups.length})`:''}</h3>
-      ${dups.length ? `<div class="section-card">${dups.map(d => `
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--o05);">
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(d.vendor)} ${_money(d.amount)}</div>
-            <div style="font-size:11px;color:var(--muted);">${esc(d.dateA)} &amp; ${esc(d.dateB)}</div>
-          </div>
-          <button type="button" class="btn-warn" aria-label="Remove duplicate" onclick="gbCleanup.removeDuplicate('${esc(d.id)}')">Remove</button>
-        </div>`).join('')}</div>`
-      : `<div style="color:var(--muted);font-size:13px;padding:8px 2px;">No duplicate charges detected.</div>`}`;
-
-    body.innerHTML = undoHtml + monthsHtml + dupHtml;
+    body.innerHTML = quickHtml + dangerHtml;
   }
 
   function openCleanup(){ render(); openModal('modal-cleanup'); }

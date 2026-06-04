@@ -895,6 +895,12 @@ button.settings-row:hover { background: var(--o02); }
 .rec-status.ok  { background: rgba(var(--green-rgb),0.08); border-color: rgba(var(--green-rgb),0.25); color: var(--green); }
 .rec-status.off { background: rgba(var(--amber-rgb),0.08); border-color: rgba(var(--amber-rgb),0.3); color: var(--amber); }
 
+/* ── Cleanup center: Quick fixes / Danger zone ── */
+.cu-sub { font-family: var(--font-display); font-size: 12px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+.danger-zone { margin-top: 18px; border: 1px solid rgba(var(--red-rgb),0.3); background: rgba(var(--red-rgb),0.05); border-radius: 16px; padding: 14px; }
+.danger-zone-h { font-family: var(--font-display); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--red); margin-bottom: 6px; }
+.danger-zone-note { font-size: 12px; color: var(--soft); line-height: 1.5; margin-bottom: 6px; }
+
 /* sr-only: visually hidden, visible to assistive tech. Used for the global live-region announcer. */
 .sr-only {
   position: absolute !important; width: 1px !important; height: 1px !important;
