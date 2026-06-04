@@ -24,6 +24,11 @@ const DEFAULTS = {
   // mis-tagging expenses as income. Users can edit this list in Settings.
   incomeKw:['PAYROLL','DIRECT DEPOSIT','SALARY','WAGES','PENSION','DIVIDEND','TAX REFUND','CASHOUT','MOBILE DEPOSIT','ZELLE FROM','VENMO CASHOUT'],
   skipKw:[],
+  // Transfer/credit-card-payment rules (substring, case-insensitive). A match
+  // marks a row tx.transfer=true so it's EXCLUDED from income/spend totals
+  // (money moving between your own accounts isn't spending). Empty by default —
+  // populated by the user via the transfer-resolution workflow (gbTransfers).
+  transferKw:[],
   // Known account/source names (e.g. "Chase Checking"), most-recent first. Every
   // import is tagged to one (tx.acct) so multiple accounts stay separate — the
   // foundation for multi-account accuracy. Stored in CFG (gb_cfg2).
@@ -106,6 +111,10 @@ const MN='Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec'.split(',');
 //                     isIncome?:boolean, source?:string, vendor?:string,
 //                     id?:string, imp?:string, acct?:string, catLocked?:boolean,
 //                     note?:string,
+//                     transfer?:boolean (excluded from income/spend totals),
+//                     transferLocked?:boolean (user pinned the transfer state, so
+//                       saved rules won't override it), transferPair?:string (id
+//                       of the matching opposite-side row),
 //                     conf?:'high'|'low', needsReview?:boolean, reviewed?:boolean }
 //             acct is the account/source this row was imported under (e.g.
 //             "Chase Checking"); absent on legacy/manual rows = unassigned.

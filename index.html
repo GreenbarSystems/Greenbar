@@ -764,6 +764,10 @@ if('serviceWorker' in navigator){
               <span class="s-body"><span class="s-label" id="skip-label">Skip Transactions</span><span class="s-desc" id="skip-desc">Exclude savings transfers etc.</span></span>
               <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
             </button>
+            <button type="button" class="settings-row" onclick="gbTransfers.open()" aria-labelledby="xfer-label" aria-describedby="xfer-desc">
+              <span class="s-body"><span class="s-label" id="xfer-label">Transfers &amp; card payments</span><span class="s-desc" id="xfer-desc">Classify, exclude, pair &amp; save rules for money moved between accounts</span></span>
+              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
+            </button>
           </div>
         </div>
       </details>
@@ -1104,6 +1108,7 @@ if('serviceWorker' in navigator){
 <script src="js/plan.js"></script>
 <script src="js/checkup.js"></script>
 <script src="js/scenario.js"></script>
+<script src="js/transfers.js"></script>
 <script src="js/demo.js"></script>
 <script src="js/cleanup.js"></script>
 <script src="js/accounts.js"></script>
@@ -1194,6 +1199,19 @@ if('serviceWorker' in navigator){
     <h2 class="sheet-title" id="scenario-title" style="margin-bottom:2px;">What changes if…?</h2>
     <div class="sheet-sub">Adjust a lever and see the consequences — all on your device.</div>
     <div id="scenario-body" style="margin-top:8px;"></div>
+  </div>
+</dialog>
+
+<!-- TRANSFER RESOLUTION — classify / exclude / pair / save rules -->
+<dialog class="modal-overlay" id="modal-transfers" aria-modal="true" aria-labelledby="transfers-title" onclick="closeOut(event,'modal-transfers')">
+  <div class="sheet">
+    <div class="sheet-close-row">
+      <button type="button" aria-label="Close" onclick="closeModal('modal-transfers')" class="sheet-close">&#x2715;</button>
+    </div>
+    <div class="sheet-handle" style="margin-top:0;"></div>
+    <h2 class="sheet-title" id="transfers-title" style="margin-bottom:2px;">Transfers &amp; card payments</h2>
+    <div class="sheet-sub">Money moving between your own accounts isn't spending — mark it here so it doesn't skew your totals.</div>
+    <div id="transfers-body" style="margin-top:10px;"></div>
   </div>
 </dialog>
 

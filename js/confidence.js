@@ -86,11 +86,12 @@ const gbConfidence = (() => {
     const catMed = {}; for(const c in catAmts) catMed[c] = _median(catAmts[c]);
     for(const t of txs){
       if(t.reviewed || seen.has(t.id)) continue;
+      if(t.transfer) continue;   // already resolved as a transfer — excluded, nothing to review
       if(t.needsReview){ add(t, 'lowconf'); continue; }
       if(dupIds.has(String(t.id))){ add(t, 'duplicate'); continue; }
       // Suspicious sign: income shown as negative, or a sizable positive in a spend category.
       if((t.isIncome && t.amount < 0) || (!t.isIncome && t.amount > 0 && Math.abs(t.amount) >= 100)){ add(t, 'sign'); continue; }
-      if(_TRANSFER_RE.test(t.desc || '')){ add(t, 'transfer'); continue; }
+      if(!t.transferLocked && _TRANSFER_RE.test(t.desc || '')){ add(t, 'transfer'); continue; }
       if(!t.isIncome && t.amount < 0){
         const arr = catAmts[t.cat];
         if(arr && arr.length >= 4){ const med = catMed[t.cat]; if(med > 0 && Math.abs(t.amount) >= Math.max(250, med * 4)){ add(t, 'outlier'); continue; } }
@@ -328,10 +329,14 @@ const gbConfidence = (() => {
       items.forEach(it => { (groups[it.kind] = groups[it.kind] || []).push(it); });
       const groupsHtml = _REVIEW_ORDER.filter(k => groups[k]).map(k => {
         const lab = _REVIEW_LABELS[k];
+        const footer = (k === 'transfer' && typeof gbTransfers !== 'undefined')
+          ? `<button type="button" class="conf-allbtn" style="margin-top:8px;" onclick="gbTransfers.open()">Resolve transfers &rarr;</button>`
+          : '';
         return `<div class="conf-card">
           <div class="conf-card-top"><div class="conf-card-file">${esc(lab.title)} <span class="conf-count amber">${groups[k].length}</span></div></div>
           <div class="conf-note" style="margin:5px 0 2px;">${esc(lab.note)}</div>
           ${groups[k].map(_reviewRowHTML).join('')}
+          ${footer}
         </div>`;
       }).join('');
       reviewHtml = `
@@ -415,7 +420,7 @@ const gbConfidence = (() => {
     const monthTxs = (m && m.txs) ? m.txs : [];
     const exp = (typeof sumExpenses === 'function') ? sumExpenses(m) : Object.values(m.expenses || {}).reduce((s, v) => s + v, 0);
     if(kind === 'income'){
-      const inc = monthTxs.filter(t => t.isIncome);
+      const inc = monthTxs.filter(t => t.isIncome && !t.transfer);
       const byV = {}; inc.forEach(t => { const v = _vendor(t); byV[v] = (byV[v] || 0) + t.amount; });
       return { kind, title: 'Income — ' + label, total: (m.income || 0), totalSign: '+',
         formula: 'Income is every deposit tagged by your income keywords this month.',
@@ -448,7 +453,7 @@ const gbConfidence = (() => {
     const cats = Object.entries(m.expenses || {}).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]);
     return { kind: 'expenses', title: 'Spending — ' + label, total: exp, totalSign: '−',
       formula: 'Total spending is the sum of every spending category this month. Tap a category to see the merchants behind it.',
-      lines: cats.map(([cat, v]) => ({ label: cat, amount: v, cat })), txs: monthTxs.filter(t => !t.isIncome && t.amount < 0) };
+      lines: cats.map(([cat, v]) => ({ label: cat, amount: v, cat })), txs: monthTxs.filter(t => !t.isIncome && t.amount < 0 && !t.transfer) };
   }
   // Distinct source files behind a set of rows (via tx.imp → gb_log).
   function _sourceImports(txs){

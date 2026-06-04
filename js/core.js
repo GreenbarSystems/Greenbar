@@ -83,6 +83,7 @@ function loadCFG(){
   if(!isObj(CFG.budget))     CFG.budget = JSON.parse(JSON.stringify(DEFAULTS.budget||{}));
   if(!Array.isArray(CFG.incomeKw)) CFG.incomeKw = (DEFAULTS.incomeKw||[]).slice();
   if(!Array.isArray(CFG.skipKw))   CFG.skipKw   = (DEFAULTS.skipKw||[]).slice();
+  if(!Array.isArray(CFG.transferKw)) CFG.transferKw = (DEFAULTS.transferKw||[]).slice();
   if(!Array.isArray(CFG.remaps))   CFG.remaps   = (DEFAULTS.remaps||[]).slice();
   if(!Array.isArray(CFG.accounts)) CFG.accounts = [];
   // String fields inside CFG.cols
@@ -357,6 +358,14 @@ function categorizeTx(rawDesc, origCat){
   return { cat, isIncome:false };
 }
 
+// Does a description match a saved transfer rule (CFG.transferKw)? Only saved
+// rules AUTO-exclude a row as a transfer; the broader heuristic regex
+// (gbTransfers/gbConfidence) merely surfaces candidates for the user to resolve.
+function isTransferDesc(rawDesc){
+  const d = String(rawDesc||'').toUpperCase();
+  return (CFG.transferKw||[]).some(kw => kw && d.includes(String(kw).toUpperCase()));
+}
+
 // Returns { txs, mapping, counts } so the import-preview can show the user how
 // the file was understood (which columns, date format) and how many rows were
 // imported vs dropped — instead of silently keeping survivors. Hard format
@@ -391,7 +400,9 @@ function processCSV(rows,headers){
     // income-keyword / remap / normalization precedence.
     const origCat=(row[colCat]||'').trim();
     const {cat,isIncome}=categorizeTx(raw, origCat);
-    txs.push({id:newTxId(),date:row[colDate]||'',ts:pd.key,month,desc:raw,origCat,amount,cat,isIncome});
+    const tx={id:newTxId(),date:row[colDate]||'',ts:pd.key,month,desc:raw,origCat,amount,cat,isIncome};
+    if(isTransferDesc(raw)) tx.transfer=true;   // saved-rule auto-exclusion
+    txs.push(tx);
   }
   return { txs, mapping:{ date:colDate, desc:colDesc, amt:colAmt, cat:colCat, fmt }, counts:{ total:rows.length, imported:txs.length, skipped, undated } };
 }
@@ -404,6 +415,13 @@ function processCSV(rows,headers){
 function recategorizeAll(){
   let changed = 0;
   for(const tx of _allTxs){
+    // Transfer rules apply across ALL rows except those the user manually
+    // pinned (transferLocked) — independent of category locking.
+    if(!tx.transferLocked){
+      const t = isTransferDesc(tx.desc);
+      if(t && !tx.transfer){ tx.transfer = true; changed++; }
+      else if(!t && tx.transfer){ delete tx.transfer; changed++; }
+    }
     if(tx.source === 'manual' || tx.catLocked) continue;
     // Legacy rows saved before origCat existed fall back to their current cat
     // as the bank-category base, so a no-rule-match row keeps its category.
@@ -425,13 +443,14 @@ function _recategorizeAfterRuleChange(){
 // Income comes only from keyword-tagged transactions. Everything else nets into
 // its category: a normal expense (negative amount) adds to spend, a refund
 // (positive amount) subtracts -- so refunds reduce a category, not inflate income.
-function aggregate(txs){ const mo={}; for(const tx of txs){ if(!mo[tx.month])mo[tx.month]={income:0,expenses:{},txs:[]}; mo[tx.month].txs.push(tx); if(tx.isIncome)mo[tx.month].income+=tx.amount; else mo[tx.month].expenses[tx.cat]=(mo[tx.month].expenses[tx.cat]||0)-tx.amount; } return mo; }
+function aggregate(txs){ const mo={}; for(const tx of txs){ if(!mo[tx.month])mo[tx.month]={income:0,expenses:{},txs:[]}; mo[tx.month].txs.push(tx); if(tx.transfer) continue; /* transfers move between accounts — not income or spend */ if(tx.isIncome)mo[tx.month].income+=tx.amount; else mo[tx.month].expenses[tx.cat]=(mo[tx.month].expenses[tx.cat]||0)-tx.amount; } return mo; }
 // Single-month variant used by applyImport's merge path: avoids allocating
 // the outer { [month]: {...} } map just to read one key. Caller already
 // knows the month -- we just need the totals.
 function aggregateOneMonth(txs){
   const m = { income: 0, expenses: {}, txs };
   for(const tx of txs){
+    if(tx.transfer) continue;   // excluded: money moved between accounts
     if(tx.isIncome) m.income += tx.amount;
     else m.expenses[tx.cat] = (m.expenses[tx.cat] || 0) - tx.amount;
   }
