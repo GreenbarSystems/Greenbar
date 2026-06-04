@@ -114,7 +114,8 @@ if('serviceWorker' in navigator){
           <div id="flash-phase-2" style="opacity:0;transition:opacity 0.6s ease;width:100%;max-width:340px;padding:0 24px;">
             <div style="font-family:var(--font-display);font-size:36px;font-weight:900;letter-spacing:-1px;margin-bottom:10px;">Welcome to <span class="gb-shimmer">Greenbar</span></div>
             <div style="font-size:16px;color:var(--soft);letter-spacing:0.02em;margin-bottom:8px;">Your money, clearly.</div>
-            <div style="font-size:13px;color:var(--muted);letter-spacing:0.02em;margin-bottom:40px;">A little more manual. A lot more private.</div>
+            <div style="font-size:13px;color:var(--muted);letter-spacing:0.02em;margin-bottom:8px;">A little more manual. A lot more private.</div>
+            <div style="font-size:12px;color:var(--soft);letter-spacing:0.02em;margin-bottom:40px;">100% on this device. No account, no cloud, no sign-up.</div>
 
             <!-- CTA -- fades in shortly after the welcome -->
             <div id="flash-cta" style="opacity:0;transition:opacity 0.5s ease;">
@@ -793,7 +794,7 @@ if('serviceWorker' in navigator){
               <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
             </button>
             <button type="button" id="cleanup-row" class="settings-row" onclick="gbCleanup.openCleanup()" aria-labelledby="cleanup-label" aria-describedby="cleanup-desc">
-              <span class="s-body"><span class="s-label" id="cleanup-label">Review &amp; clean up</span><span class="s-desc" id="cleanup-desc">Undo an import, delete a month, or remove duplicates</span></span>
+              <span class="s-body"><span class="s-label" id="cleanup-label">Fix data issues</span><span class="s-desc" id="cleanup-desc">Undo an import, delete a month, or remove duplicates</span></span>
               <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
             </button>
           </div>
@@ -815,6 +816,7 @@ if('serviceWorker' in navigator){
       <details class="settings-group">
         <summary><span>Security</span><span class="sg-chev" aria-hidden="true">&rsaquo;</span></summary>
         <div class="sg-body">
+          <div style="font-size:12px;color:var(--soft);padding:0 4px 10px;">100% on this device. No account, no cloud, no sign-up.</div>
           <div class="settings-section">
             <button type="button" class="settings-row" id="security-toggle-row" onclick="gbSecurityUI.toggleEnable()" aria-labelledby="sec-lock-label" aria-describedby="security-status-desc">
               <span class="s-body"><span class="s-label" id="sec-lock-label">Lock Greenbar</span><span class="s-desc" id="security-status-desc">Off &middot; anyone with this device can open the app</span></span>
@@ -1063,6 +1065,7 @@ if('serviceWorker' in navigator){
     </div>
     <div class="sheet-handle" style="margin-top:0;"></div>
     <h2 class="sheet-title" id="dlw-title" style="margin-bottom:2px;">Load your data</h2>
+    <div style="font-size:12px;color:var(--soft);margin-bottom:10px;">100% on this device. No account, no cloud, no sign-up.</div>
 
     <!-- Step 1: which bank? (logo grid) -->
     <div id="dlw-step-1">
@@ -1136,7 +1139,7 @@ if('serviceWorker' in navigator){
       <button type="button" aria-label="Close" onclick="closeModal('modal-cleanup')" class="sheet-close">✕</button>
     </div>
     <div class="sheet-handle" style="margin-top:0;"></div>
-    <h2 class="sheet-title" id="cleanup-title" style="margin-bottom:2px;">Review &amp; clean up</h2>
+    <h2 class="sheet-title" id="cleanup-title" style="margin-bottom:2px;">Fix data issues</h2>
     <div class="sheet-sub">Undo an import, delete a month, or remove duplicate charges. Changes apply on your device.</div>
     <div id="cleanup-body" style="margin-top:8px;"></div>
   </div>
@@ -1456,7 +1459,7 @@ if('serviceWorker' in navigator){
     <div class="anom-header">
       <span class="anom-head-icon" id="anom-head-icon" aria-hidden="true">⚠</span>
       <div>
-        <h2 class="sheet-title" id="anom-title" style="margin-bottom:2px;">We noticed something</h2>
+        <h2 class="sheet-title" id="anom-title" style="margin-bottom:2px;">Unusual activity to review</h2>
         <div class="sheet-sub" id="anom-subtitle" style="margin:0;"></div>
       </div>
     </div>

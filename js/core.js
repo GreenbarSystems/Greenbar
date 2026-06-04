@@ -1107,7 +1107,7 @@ function analyticsUnlocked(){
   try{ return (typeof getLog === 'function' && getLog().length > 0) && localStorage.getItem('gb_seen_summary') === '1'; }
   catch(e){ return false; }
 }
-// Toggle the visibility of gated Settings rows (currently: Review & clean up).
+// Toggle the visibility of gated Settings rows (currently: Fix data issues).
 function _updateGatedSurfaces(){
   const unlocked = analyticsUnlocked();
   const cr = document.getElementById('cleanup-row');
