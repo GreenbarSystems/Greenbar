@@ -276,16 +276,7 @@ if('serviceWorker' in navigator){
         <!-- SETTINGS -->
     <div class="screen" id="screen-settings">
 
-      <!-- Budget Setup CTA -->
-      <div style="background:linear-gradient(135deg,rgba(var(--green-rgb),0.07),rgba(var(--teal-rgb),0.05));border:1px solid rgba(var(--green-rgb),0.2);border-radius:18px;padding:16px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px;">
-        <div style="flex:1;">
-          <div style="font-size:14px;font-weight:700;margin-bottom:3px;">Set up your plan</div>
-          <div class="row-desc-t">Answer a few questions so Greenbar can guide your money decisions</div>
-        </div>
-        <button type="button" onclick="resetSetupState();showScreen('setup',document.querySelector('.nav-btn'));setupGo(1);document.getElementById('bottom-nav')?.classList.remove('visible');" style="padding:9px 16px;border:none;border-radius:12px;background:var(--grad-primary);color:#050a14;font-size:13px;font-weight:800;cursor:pointer;font-family:var(--font-display);flex-shrink:0;">Open &rarr;</button>
-      </div>
-
-      <!-- HELP (moved to top; absorbs the former Guide tab) -->
+      <!-- HELP (top; absorbs the former Guide tab) -->
       <details class="settings-group" id="help-group">
         <summary><span>Help</span><span class="sg-chev" aria-hidden="true">&rsaquo;</span></summary>
         <div class="sg-body sg-body--plain">
@@ -720,14 +711,6 @@ if('serviceWorker' in navigator){
           </div>
         </div>
 
-        <!-- Clear data -->
-        <div style="background:rgba(var(--red-rgb),0.06);border:1px solid rgba(var(--red-rgb),0.15);border-radius:16px;padding:16px;margin-bottom:8px;">
-          <div style="font-size:13px;font-weight:600;margin-bottom:6px;">Clear all local data</div>
-          <div style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:12px;">This permanently deletes all imported transactions, settings, and upload history stored on this device. This action cannot be undone.</div>
-          <button type="button" onclick="clearAllData()" style="width:100%;padding:12px;border-radius:12px;border:1px solid rgba(var(--red-rgb),0.3);background:rgba(var(--red-rgb),0.1);color:var(--red);font-family:var(--font-display);font-size:13px;font-weight:700;cursor:pointer;">Clear All Data</button>
-        </div>
-
-      
 
 </div>
 
@@ -749,47 +732,19 @@ if('serviceWorker' in navigator){
       </details>
 
       <details class="settings-group">
-        <summary><span>Bank Transactions Format</span><span class="sg-chev" aria-hidden="true">&rsaquo;</span></summary>
+        <summary><span>Import &amp; Accounts</span><span class="sg-chev" aria-hidden="true">&rsaquo;</span></summary>
         <div class="sg-body">
           <div class="settings-section">
             <button type="button" class="settings-row" onclick="openModal('modal-cols')" aria-labelledby="col-label" aria-describedby="col-desc">
-              <span class="s-body"><span class="s-label" id="col-label">Column Mapping</span><span class="s-desc" id="col-desc">Map Date, Description, Amount columns</span></span>
+              <span class="s-body"><span class="s-label" id="col-label">Format &amp; region</span><span class="s-desc" id="col-desc">Column mapping, date format, region &amp; currency</span></span>
               <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
             </button>
-            <button type="button" class="settings-row" onclick="openModal('modal-income')" aria-labelledby="inc-label" aria-describedby="inc-desc">
-              <span class="s-body"><span class="s-label" id="inc-label">Income Keywords</span><span class="s-desc" id="inc-desc">Words that identify deposits</span></span>
+            <button type="button" class="settings-row" onclick="gbAccounts.openManager()" aria-labelledby="acct-mgr-label" aria-describedby="acct-mgr-desc">
+              <span class="s-body"><span class="s-label" id="acct-mgr-label">Manage accounts</span><span class="s-desc" id="acct-mgr-desc">Rename, merge, or remove an account / source</span></span>
               <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
             </button>
-            <button type="button" class="settings-row" onclick="openModal('modal-skip')" aria-labelledby="skip-label" aria-describedby="skip-desc">
-              <span class="s-body"><span class="s-label" id="skip-label">Skip Transactions</span><span class="s-desc" id="skip-desc">Exclude savings transfers etc.</span></span>
-              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
-            </button>
-            <button type="button" class="settings-row" onclick="gbTransfers.open()" aria-labelledby="xfer-label" aria-describedby="xfer-desc">
-              <span class="s-body"><span class="s-label" id="xfer-label">Transfers &amp; card payments</span><span class="s-desc" id="xfer-desc">Classify, exclude, pair &amp; save rules for money moved between accounts</span></span>
-              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
-            </button>
-          </div>
-        </div>
-      </details>
-
-      <details class="settings-group">
-        <summary><span>Reclassification Rules</span><span class="sg-chev" aria-hidden="true">&rsaquo;</span></summary>
-        <div class="sg-body">
-          <div class="settings-section">
-            <button type="button" class="settings-row" onclick="openModal('modal-remaps')" aria-labelledby="remap-label" aria-describedby="remap-desc">
-              <span class="s-body"><span class="s-label" id="remap-label">Category Remaps</span><span class="s-desc" id="remap-desc">Merchant &rarr; category rules</span></span>
-              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
-            </button>
-          </div>
-        </div>
-      </details>
-
-      <details class="settings-group">
-        <summary><span>Import History</span><span class="sg-chev" aria-hidden="true">&rsaquo;</span></summary>
-        <div class="sg-body">
-          <div class="settings-section">
             <button type="button" class="settings-row" onclick="gbConfidence.open()" aria-labelledby="icc-label" aria-describedby="icc-desc">
-              <span class="s-body"><span class="s-label" id="icc-label">Import Confidence Center</span><span class="s-desc" id="icc-desc">Trust metadata, the review queue, and per-import history</span></span>
+              <span class="s-body"><span class="s-label" id="icc-label">Import Confidence Center</span><span class="s-desc" id="icc-desc">Trust status, the review queue, and per-import history</span></span>
               <span id="icc-badge" style="display:none;background:rgba(var(--amber-rgb),0.15);color:var(--amber);border:1px solid rgba(var(--amber-rgb),0.3);font-size:11px;font-weight:800;border-radius:9px;padding:2px 8px;font-family:var(--font-display);"></span>
               <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
             </button>
@@ -807,11 +762,23 @@ if('serviceWorker' in navigator){
       </details>
 
       <details class="settings-group">
-        <summary><span>Accounts</span><span class="sg-chev" aria-hidden="true">&rsaquo;</span></summary>
+        <summary><span>Categories &amp; Rules</span><span class="sg-chev" aria-hidden="true">&rsaquo;</span></summary>
         <div class="sg-body">
           <div class="settings-section">
-            <button type="button" class="settings-row" onclick="gbAccounts.openManager()" aria-labelledby="acct-mgr-label" aria-describedby="acct-mgr-desc">
-              <span class="s-body"><span class="s-label" id="acct-mgr-label">Manage accounts</span><span class="s-desc" id="acct-mgr-desc">Rename, merge, or remove an account / source</span></span>
+            <button type="button" class="settings-row" onclick="openModal('modal-remaps')" aria-labelledby="remap-label" aria-describedby="remap-desc">
+              <span class="s-body"><span class="s-label" id="remap-label">Category Remaps</span><span class="s-desc" id="remap-desc">Merchant &rarr; category rules</span></span>
+              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
+            </button>
+            <button type="button" class="settings-row" onclick="openModal('modal-income')" aria-labelledby="inc-label" aria-describedby="inc-desc">
+              <span class="s-body"><span class="s-label" id="inc-label">Income Keywords</span><span class="s-desc" id="inc-desc">Words that identify deposits</span></span>
+              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
+            </button>
+            <button type="button" class="settings-row" onclick="gbTransfers.open()" aria-labelledby="xfer-label" aria-describedby="xfer-desc">
+              <span class="s-body"><span class="s-label" id="xfer-label">Transfers &amp; card payments</span><span class="s-desc" id="xfer-desc">Classify, exclude, pair &amp; save rules for money moved between accounts</span></span>
+              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
+            </button>
+            <button type="button" class="settings-row" onclick="openModal('modal-skip')" aria-labelledby="skip-label" aria-describedby="skip-desc">
+              <span class="s-body"><span class="s-label" id="skip-label">Skip Transactions</span><span class="s-desc" id="skip-desc">Drop matching rows at import (e.g. internal transfers)</span></span>
               <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
             </button>
           </div>
@@ -819,7 +786,7 @@ if('serviceWorker' in navigator){
       </details>
 
       <details class="settings-group">
-        <summary><span>Security</span><span class="sg-chev" aria-hidden="true">&rsaquo;</span></summary>
+        <summary><span>Privacy &amp; Security</span><span class="sg-chev" aria-hidden="true">&rsaquo;</span></summary>
         <div class="sg-body">
           <div style="font-size:12px;color:var(--soft);padding:0 4px 10px;">100% on this device. No account, no cloud, no sign-up.</div>
           <div class="settings-section">
@@ -858,23 +825,16 @@ if('serviceWorker' in navigator){
               <span class="s-arrow" aria-hidden="true" id="privacy-default-state">Off</span>
             </button>
           </div>
-        </div>
-      </details>
-
-      <details class="settings-group">
-        <summary><span>Sample Data</span><span class="sg-chev" aria-hidden="true">&rsaquo;</span></summary>
-        <div class="sg-body">
-          <div class="settings-section">
-            <button type="button" class="settings-row" onclick="gbDemo.toggle()" aria-labelledby="demo-label" aria-describedby="demo-desc">
-              <span class="s-body"><span class="s-label" id="demo-label">Load or remove sample data</span><span class="s-desc" id="demo-desc" style="color:var(--muted);">Explore Greenbar with a built-in demo dataset &mdash; remove it anytime.</span></span>
-              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
-            </button>
+          <div style="background:rgba(var(--red-rgb),0.06);border:1px solid rgba(var(--red-rgb),0.15);border-radius:16px;padding:16px;margin:12px 0 4px;">
+            <div style="font-size:13px;font-weight:600;margin-bottom:6px;">Clear all local data</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:12px;">This permanently deletes all imported transactions, settings, and upload history stored on this device. This action cannot be undone.</div>
+            <button type="button" onclick="clearAllData()" style="width:100%;padding:12px;border-radius:12px;border:1px solid rgba(var(--red-rgb),0.3);background:rgba(var(--red-rgb),0.1);color:var(--red);font-family:var(--font-display);font-size:13px;font-weight:700;cursor:pointer;">Clear All Data</button>
           </div>
         </div>
       </details>
 
-      <details class="settings-group">
-        <summary><span>Data Backup</span><span class="sg-chev" aria-hidden="true">&rsaquo;</span></summary>
+<details class="settings-group">
+        <summary><span>Backup &amp; Restore</span><span class="sg-chev" aria-hidden="true">&rsaquo;</span></summary>
         <div class="sg-body">
           <div class="settings-section">
             <button type="button" class="settings-row" onclick="exportData()" aria-labelledby="export-label" aria-describedby="storage-desc">
@@ -893,14 +853,29 @@ if('serviceWorker' in navigator){
               <span class="s-body"><span class="s-label" id="enc-restore-label">Restore from Backup</span><span class="s-desc" id="enc-restore-desc" style="color:var(--muted);">Restores data from a .greenbar file using your passphrase.</span></span>
               <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
             </button>
+            <button type="button" class="settings-row" onclick="gbDemo.toggle()" aria-labelledby="demo-label" aria-describedby="demo-desc">
+              <span class="s-body"><span class="s-label" id="demo-label">Sample data</span><span class="s-desc" id="demo-desc" style="color:var(--muted);">Load or remove a built-in demo dataset to explore Greenbar.</span></span>
+              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
+            </button>
           </div>
           <div style="font-size:12px;color:var(--muted);line-height:1.5;margin:8px 2px 12px;">Greenbar stores everything in this browser only. Export a backup before clearing browser data or switching devices.</div>
         </div>
       </details>
 
       <details class="settings-group">
-        <summary><span>Monthly Budget Targets</span><span class="sg-chev" aria-hidden="true">&rsaquo;</span></summary>
+        <summary><span>Budget &amp; Goals</span><span class="sg-chev" aria-hidden="true">&rsaquo;</span></summary>
         <div class="sg-body">
+          <div class="settings-section">
+            <button type="button" class="settings-row" onclick="resetSetupState();showScreen('setup',document.querySelector('.nav-btn'));setupGo(1);document.getElementById('bottom-nav')?.classList.remove('visible');" aria-labelledby="setup-plan-label" aria-describedby="setup-plan-desc">
+              <span class="s-body"><span class="s-label" id="setup-plan-label">Set up your plan</span><span class="s-desc" id="setup-plan-desc">Answer a few questions so Greenbar can guide your decisions</span></span>
+              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
+            </button>
+            <button type="button" class="settings-row" onclick="gbGoals.openGoals()" aria-labelledby="goals-set-label" aria-describedby="goals-set-desc">
+              <span class="s-body"><span class="s-label" id="goals-set-label">Savings goals</span><span class="s-desc" id="goals-set-desc">Set a goal and see when you'll reach it</span></span>
+              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
+            </button>
+          </div>
+          <h3 class="sec-hdr" style="margin:16px 0 8px;">Monthly budget targets</h3>
           <div class="settings-section" id="budget-inputs"></div>
         </div>
       </details>
