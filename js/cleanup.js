@@ -114,7 +114,7 @@ const gbCleanup = (() => {
       <h3 class="sec-hdr" style="margin-top:0;">Last import</h3>
       <div class="section-card" style="margin-bottom:14px;">
         <div style="font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(last.filename)}</div>
-        <div style="font-size:11.5px;color:var(--muted);margin:3px 0 10px;">${esc(String(last.txCount))} transactions · ${esc(last.months || '')}</div>
+        <div style="font-size:12px;color:var(--muted);margin:3px 0 10px;">${esc(String(last.txCount))} transactions · ${esc(last.months || '')}</div>
         <button type="button" class="btn-secondary" onclick="gbCleanup.undoLastImport()" style="margin:0;">Undo this import</button>
       </div>` : '';
 

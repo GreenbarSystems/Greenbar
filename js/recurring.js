@@ -267,7 +267,7 @@ const gbTrends = (() => {
           <span style="background:var(--o05);border:1px solid var(--o08);border-radius:8px;padding:3px 9px;font-size:11px;color:var(--muted);">${s.monthsSeen}/${s.totalMonths} months</span>
           <span style="background:var(--o05);border:1px solid var(--o08);border-radius:8px;padding:3px 9px;font-size:11px;color:var(--muted);">${conf(s.confidence)} ${s.confidence}</span>
         </div>
-        ${s.nextExpected ? `<div style="font-size:11.5px;color:var(--soft);margin-top:8px;">Last ${esc(s.lastDate)} · next expected around <strong>${esc(s.nextExpected)}</strong></div>` : ''}
+        ${s.nextExpected ? `<div style="font-size:12px;color:var(--soft);margin-top:8px;">Last ${esc(s.lastDate)} · next expected around <strong>${esc(s.nextExpected)}</strong></div>` : ''}
       </div>`).join('');
 
     return `

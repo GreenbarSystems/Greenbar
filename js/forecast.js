@@ -92,7 +92,7 @@ const gbForecast = (() => {
 
     const nextLabel = _monthName(_futureMonthLabel(f.latest, 1));
     const upcomingHtml = f.upcoming.length
-      ? f.upcoming.slice(0, 6).map(u => `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--o05);font-size:12.5px;">
+      ? f.upcoming.slice(0, 6).map(u => `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--o05);font-size:13px;">
           <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(u.vendor)}</span>
           <span style="color:var(--muted);font-size:11px;margin:0 10px;flex-shrink:0;">${esc(u.date)}</span>
           <span style="font-weight:700;flex-shrink:0;">${_money(u.amount)}</span>

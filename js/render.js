@@ -244,7 +244,7 @@ function renderHealthBreakdown(hs, monthKey){
       <div style="height:6px;background:var(--o07);border-radius:4px;overflow:hidden;margin-bottom:10px;">
         <div style="height:100%;width:${barPct}%;background:${barColor};border-radius:4px;"></div>
       </div>
-      <div style="font-size:12.5px;color:var(--soft);line-height:1.5;">${explainHtml}</div>
+      <div style="font-size:13px;color:var(--soft);line-height:1.5;">${explainHtml}</div>
     </div>`;
 
   return `
@@ -696,9 +696,9 @@ function renderSummary(){
       <div class="gb-welcome">
         <div class="g-card empty-import-hero" style="padding:30px 22px 26px;text-align:center;margin-top:8px;background:linear-gradient(160deg,rgba(var(--green-rgb),0.12),rgba(var(--blue-rgb),0.05));border:1px solid rgba(var(--green-rgb),0.3);">
           <div style="font-family:var(--font-display);font-size:23px;font-weight:900;letter-spacing:-0.5px;margin-bottom:8px;">See where your money goes</div>
-          <div style="font-size:13.5px;color:var(--soft);line-height:1.6;margin:0 auto 22px;max-width:300px;">Import your bank transactions from a CSV or PDF. They're read right here on your device; nothing is ever uploaded.</div>
+          <div style="font-size:14px;color:var(--soft);line-height:1.6;margin:0 auto 22px;max-width:300px;">Import your bank transactions from a CSV or PDF. They're read right here on your device; nothing is ever uploaded.</div>
           <button type="button" onclick="startFirstImport()" aria-label="Import bank transactions" style="width:100%;max-width:340px;padding:17px 24px;border:none;border-radius:16px;background:var(--grad-primary);color:#050a14;font-family:var(--font-display);font-size:16px;font-weight:900;letter-spacing:0.3px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.18);">Import bank transactions</button>
-          <div style="margin-top:16px;font-size:12.5px;color:var(--soft);line-height:1.8;">
+          <div style="margin-top:16px;font-size:13px;color:var(--soft);line-height:1.8;">
             No file yet? <button type="button" onclick="goToBankExport()" class="link-btn">Export from your bank &rarr;</button><br>
             Just exploring? <button type="button" onclick="gbDemo.load()" class="link-btn">Load sample data &rarr;</button>
           </div>

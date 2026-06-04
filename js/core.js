@@ -850,7 +850,7 @@ function showImportPreview(filename, result){
     const cat = t.isIncome ? 'Income' : t.cat;
     return `<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--o05);">
       <div style="flex:1;min-width:0;">
-        <div style="font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(cleanVendor(t.desc)||t.desc)}</div>
+        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(cleanVendor(t.desc)||t.desc)}</div>
         <div style="font-size:11px;color:var(--muted);">${esc(lbl)} · ${esc(cat)}</div>
       </div>
       <div style="font-family:var(--font-display);font-size:13px;font-weight:800;flex-shrink:0;color:${t.amount<0?'var(--text)':'var(--green)'};">${t.amount<0?'−':'+'}${fmt(Math.abs(t.amount))}</div>
@@ -906,20 +906,20 @@ function showImportPreview(filename, result){
         ${detChip('Amount', m.amt?'ok':'warn', m.amt||'not found')}
       </div>
       ${(!m.date||!m.amt)
-        ? `<div style="font-size:11.5px;color:var(--amber);margin-top:9px;line-height:1.5;">We couldn't find a ${!m.date&&!m.amt?'Date and Amount column':(!m.date?'Date column':'Amount column')}. Set your bank's column names in Settings &rarr; Bank Transactions Format.</div>`
+        ? `<div style="font-size:12px;color:var(--amber);margin-top:9px;line-height:1.5;">We couldn't find a ${!m.date&&!m.amt?'Date and Amount column':(!m.date?'Date column':'Amount column')}. Set your bank's column names in Settings &rarr; Bank Transactions Format.</div>`
         : `<div style="font-size:11px;color:var(--muted);margin-top:9px;line-height:1.5;">Dates read as ${esc(m.fmt||'MM/DD/YY')} &middot; categories assigned automatically.</div>`}
     </div>
     <div style="display:flex;gap:8px;margin-bottom:${dropped?'8px':'12px'};">
       <div style="flex:1;background:rgba(var(--green-rgb),0.08);border:1px solid rgba(var(--green-rgb),0.2);border-radius:12px;padding:10px;text-align:center;">
         <div style="font-family:var(--font-display);font-size:20px;font-weight:900;color:var(--green);">${c.imported||0}</div>
-        <div style="font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">Ready to import</div>
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">Ready to import</div>
       </div>
       <div style="flex:1;background:${dropped?'rgba(var(--amber-rgb),0.08)':'var(--o04)'};border:1px solid ${dropped?'rgba(var(--amber-rgb),0.25)':'var(--border)'};border-radius:12px;padding:10px;text-align:center;">
         <div style="font-family:var(--font-display);font-size:20px;font-weight:900;color:${dropped?'var(--amber)':'var(--muted)'};">${dropped}</div>
-        <div style="font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">Skipped</div>
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">Skipped</div>
       </div>
     </div>
-    ${dropped ? `<div style="font-size:11.5px;color:var(--soft);margin:0 2px 12px;line-height:1.5;">${c.undated?c.undated+' row'+(c.undated===1?'':'s')+' with unreadable dates':''}${c.undated&&c.skipped?'; ':''}${c.skipped?c.skipped+' matched skip rules':''}. If the date count looks wrong, adjust the date format in Settings → Bank Transactions Format.</div>` : ''}
+    ${dropped ? `<div style="font-size:12px;color:var(--soft);margin:0 2px 12px;line-height:1.5;">${c.undated?c.undated+' row'+(c.undated===1?'':'s')+' with unreadable dates':''}${c.undated&&c.skipped?'; ':''}${c.skipped?c.skipped+' matched skip rules':''}. If the date count looks wrong, adjust the date format in Settings → Bank Transactions Format.</div>` : ''}
     <div style="display:flex;align-items:center;gap:10px;padding:0 0 5px;border-bottom:1px solid var(--o05);font-family:var(--font-display);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);">
       <div style="flex:1;">Description &middot; Date</div><div>Amount</div>
     </div>

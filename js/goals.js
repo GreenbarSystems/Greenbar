@@ -158,7 +158,7 @@ const gbGoals = (() => {
       const done = g.saved >= g.target && g.target > 0;
       return `
         <div style="margin-bottom:10px;">
-          <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px;">
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
             <span style="font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(g.name)}</span>
             <span style="color:var(--muted);">${_money(g.saved)} / ${_money(g.target)} (${pct}%)</span>
           </div>

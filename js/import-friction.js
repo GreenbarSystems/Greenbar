@@ -26,7 +26,7 @@
     d.innerHTML = '<div style="background:var(--bg);border:2px dashed var(--green);border-radius:20px;padding:28px 34px;text-align:center;font-family:var(--font-display);">'
       + '<div style="font-size:34px;margin-bottom:8px;" aria-hidden="true">&#x2193;</div>'
       + '<div style="font-size:16px;font-weight:900;color:var(--text);">Drop to import</div>'
-      + '<div style="font-size:12.5px;color:var(--soft);margin-top:4px;font-family:var(--font-body);">CSV or PDF &middot; stays on your device</div></div>';
+      + '<div style="font-size:13px;color:var(--soft);margin-top:4px;font-family:var(--font-body);">CSV or PDF &middot; stays on your device</div></div>';
     document.body.appendChild(d); _overlay = d; return d;
   }
   function show(v){ overlayEl().style.display = v ? 'flex' : 'none'; }

@@ -211,7 +211,7 @@ const gbInsights = (() => {
           <span style="margin-left:auto;color:var(--green);font-size:12px;font-weight:700;font-family:var(--font-display);">View all &rsaquo;</span>
         </div>
         <div style="font-size:13px;color:var(--soft);line-height:1.6;">${esc(_narrative(a))}</div>
-        <div style="font-size:10.5px;color:var(--muted);margin-top:8px;">Computed on your device · nothing sent</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px;">Computed on your device · nothing sent</div>
       </button>`;
   }
 
@@ -221,15 +221,15 @@ const gbInsights = (() => {
     const body = document.getElementById('insights-body');
     if(body){
       body.innerHTML =
-        (summary ? `<div style="font-size:13.5px;color:var(--soft);line-height:1.6;margin-bottom:14px;">${esc(summary)}</div>` : '')
+        (summary ? `<div style="font-size:14px;color:var(--soft);line-height:1.6;margin-bottom:14px;">${esc(summary)}</div>` : '')
         + (items.length
             ? items.map(it => `
               <div class="section-card" style="border-left:4px solid ${toneCol(it.tone)};margin-bottom:10px;">
                 <div style="display:flex;gap:10px;align-items:flex-start;">
                   <span style="font-size:18px;line-height:1.2;flex-shrink:0;" aria-hidden="true">${it.icon}</span>
                   <div style="flex:1;min-width:0;">
-                    <div style="font-size:13.5px;font-weight:700;margin-bottom:3px;">${esc(it.title)}</div>
-                    <div style="font-size:12.5px;color:var(--soft);line-height:1.5;">${esc(it.body)}</div>
+                    <div style="font-size:14px;font-weight:700;margin-bottom:3px;">${esc(it.title)}</div>
+                    <div style="font-size:13px;color:var(--soft);line-height:1.5;">${esc(it.body)}</div>
                   </div>
                 </div>
               </div>`).join('')
