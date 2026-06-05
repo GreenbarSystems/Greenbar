@@ -11,6 +11,20 @@
 //   security.js -> gbAuth (unlock gate on data-affecting actions)
 // Emits the 'gb:screen' CustomEvent from showScreen() for other modules to hook.
 
+// ──────── Best-effort localStorage write (shared utility) ────────
+// Lives here (loaded 3rd) so every later-loaded module can call it without
+// having to inline its own try/catch. Swallowed errors (quota exceeded,
+// private browsing mode, storage disabled) are intentional — one-shot
+// "done"/"dismissed" flags should never crash the UI if the platform
+// rejects them.
+//
+// For multi-write semantics or write-and-react-on-failure flows, callers
+// still need a custom try/catch (see saveCFG / addToLog below, which clear
+// the quota warning on success).
+function safeSetLocal(key, val){
+  try{ localStorage.setItem(key, val); }catch(e){}
+}
+
 // ──────── Named constants ────────
 // Hoisted out of inline magic numbers throughout the file -- single source of
 // truth for each tunable, easier to spot at a glance, easier to grep when

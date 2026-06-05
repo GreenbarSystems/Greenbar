@@ -69,13 +69,13 @@ const gbPlan = (() => {
   }
 
   function finish(){
-    try{ localStorage.setItem(K_DONE, '1'); }catch(_){}
+    safeSetLocal(K_DONE, '1');
     if(typeof closeModal === 'function') closeModal('modal-plan');
     if(typeof renderAll === 'function') renderAll();
     if(typeof showToast === 'function') showToast('Your plan is set — track it on the Summary.', 'success');
   }
   function dismiss(){
-    try{ localStorage.setItem(K_DISMISS, '1'); }catch(_){}
+    safeSetLocal(K_DISMISS, '1');
     if(typeof closeModal === 'function') closeModal('modal-plan');
     if(typeof renderAll === 'function') renderAll();
   }

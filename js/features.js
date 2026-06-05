@@ -2,12 +2,8 @@
 // Self-contained interactive flows. Each has its own module-local state
 // (_aiOpen, _flashTimers, _setupState).
 
-// Best-effort localStorage write. Swallowed errors (quota, private mode,
-// disabled storage) are intentional — the wizard's "done" flag and similar
-// one-shot writes should never crash the UI if the platform rejects them.
-function safeSetLocal(key, val){
-  try{ localStorage.setItem(key, val); }catch(e){}
-}
+// safeSetLocal lives in core.js (loaded earlier) so every module — not just
+// this one — can use it without re-defining the same try/catch wrapper.
 
 // ──────── AI help panel + topic-keyword routing ────────
 let _aiOpen = false;
@@ -798,9 +794,15 @@ function computeBudgetFromState(){
   const D = BUDGET_DEFAULTS;
   const budget = {};
 
-  // Housing
+  // Housing. Use the single canonical 'Rent/Mortgage' key — same vocabulary
+  // as DEFAULTS.budget (state.js) and the suggestion-engine output paths, so
+  // a user who toggles between skip-the-wizard / run-the-wizard / accept-
+  // suggested-budget always sees the same housing category. The wizard's
+  // _setupState.housingType is still captured for any future use (e.g.,
+  // showing a "Rent" vs "Mortgage" label in the review UI) but doesn't
+  // fork the category key any more.
   if(housing > 0){
-    budget[housingType === 'rent' ? 'Rent' : 'Mortgage/Housing'] = housing;
+    budget['Rent/Mortgage'] = housing;
   }
 
   // Food — Fast Food is derived from dining: a fixed % with a $-floor.

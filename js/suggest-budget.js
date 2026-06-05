@@ -101,7 +101,7 @@ const gbSuggest = (() => {
   }
 
   function dismiss(){
-    try{ localStorage.setItem(K_DISMISS, '1'); }catch(_){ }
+    safeSetLocal(K_DISMISS, '1');
     renderAll();
     showToast('No problem — set targets anytime in Settings.', 'success');
   }
