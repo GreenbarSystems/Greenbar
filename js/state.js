@@ -27,9 +27,8 @@ const DEFAULTS = {
   // Transfer/credit-card-payment rules (substring, case-insensitive). A match
   // marks a row tx.transfer=true so it's EXCLUDED from income/spend totals
   // (money moving between your own accounts isn't spending). Empty by default.
-  // gbTransfers — the resolver UI that wrote to this list — was removed in
-  // the Phase 4 audit cut; any rules a user persisted before that survive
-  // here and still drive auto-exclusion via core.js isTransferDesc().
+  // gbTransfers (transfers.js) is the resolver UI that writes to this list;
+  // saved rules drive auto-exclusion across history via core.js isTransferDesc().
   transferKw:[],
   // Known account/source names (e.g. "Chase Checking"), most-recent first.
   // Every import is tagged to one (tx.acct) so the per-account filter pills
@@ -140,11 +139,11 @@ const MN='Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec'.split(',');
 let _months={},_allTxs=[],_sel=null;
 
 // Monotonic counter bumped whenever the transaction model (_months/_allTxs)
-// changes. Read-heavy analyzers used to memoize their results against it
-// (gbTrends and gbForecast — both removed in the Phase 3 cleanup), so the cards that
-// each call them during a single render recompute once per data change instead of
-// once per call. Bumped in rebuildMonths(), saveData(), and clearAllData() — the
-// points where the model is rebuilt, persisted, or reset.
+// changes. Read-heavy analyzers memoize their results against it (gbTrends'
+// recurring-charge + variance scans), so the cards that each call them during a
+// single render recompute once per data change instead of once per call. Bumped
+// in rebuildMonths(), saveData(), and clearAllData() — the points where the
+// model is rebuilt, persisted, or reset.
 let _dataVersion = 0;
 
 // App-data localStorage keys. NOT a complete localStorage manifest — the

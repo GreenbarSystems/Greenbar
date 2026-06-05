@@ -374,9 +374,8 @@ function categorizeTx(rawDesc, origCat){
 }
 
 // Does a description match a saved transfer rule (CFG.transferKw)? Only saved
-// rules AUTO-exclude a row as a transfer. (gbTransfers, the resolver UI that
-// used to write to CFG.transferKw, was removed in the Phase 4 audit cut;
-// any rules a user persisted before that still apply via this path.)
+// rules AUTO-exclude a row as a transfer. (gbTransfers, the resolver UI in
+// transfers.js, writes these rules; they apply across history via this path.)
 function isTransferDesc(rawDesc){
   const d = String(rawDesc||'').toUpperCase();
   return (CFG.transferKw||[]).some(kw => kw && d.includes(String(kw).toUpperCase()));

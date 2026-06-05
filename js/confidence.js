@@ -353,13 +353,16 @@ const gbConfidence = (() => {
       items.forEach(it => { (groups[it.kind] = groups[it.kind] || []).push(it); });
       const groupsHtml = _REVIEW_ORDER.filter(k => groups[k]).map(k => {
         const lab = _REVIEW_LABELS[k];
-        // The 'transfer' group used to have a "Resolve transfers ->" footer
-        // wired to gbTransfers.open() — gbTransfers was removed in the
-        // Phase 4 audit cut. Row-level handling stays; the resolver UI is gone.
+        // The 'transfer' group gets a "Resolve transfers ->" footer that opens
+        // the gbTransfers resolver (classify / exclude / pair / save rules).
+        const footer = (k === 'transfer' && typeof gbTransfers !== 'undefined')
+          ? `<button type="button" class="conf-allbtn" style="margin-top:8px;" onclick="gbTransfers.open()">Resolve transfers &rarr;</button>`
+          : '';
         return `<div class="conf-card">
           <div class="conf-card-top"><div class="conf-card-file">${esc(lab.title)} <span class="conf-count amber">${groups[k].length}</span></div></div>
           <div class="conf-note" style="margin:5px 0 2px;">${esc(lab.note)}</div>
           ${groups[k].map(_reviewRowHTML).join('')}
+          ${footer}
         </div>`;
       }).join('');
       reviewHtml = `

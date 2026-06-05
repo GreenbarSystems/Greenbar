@@ -772,6 +772,10 @@ if('serviceWorker' in navigator){
               <span class="s-body"><span class="s-label" id="inc-label">Income Keywords</span><span class="s-desc" id="inc-desc">Words that identify deposits</span></span>
               <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
             </button>
+            <button type="button" class="settings-row" onclick="gbTransfers.open()" aria-labelledby="xfer-label" aria-describedby="xfer-desc">
+              <span class="s-body"><span class="s-label" id="xfer-label">Transfers &amp; card payments</span><span class="s-desc" id="xfer-desc">Classify, exclude, pair &amp; save rules for money moved between accounts</span></span>
+              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
+            </button>
             <button type="button" class="settings-row" onclick="openModal('modal-skip')" aria-labelledby="skip-label" aria-describedby="skip-desc">
               <span class="s-body"><span class="s-label" id="skip-label">Skip Transactions</span><span class="s-desc" id="skip-desc">Drop matching rows at import (e.g. internal transfers)</span></span>
               <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
@@ -1074,11 +1078,13 @@ if('serviceWorker' in navigator){
 <script src="js/confidence.js"></script>
 <script src="js/manual-tx.js"></script>
 <script src="js/anomaly.js"></script>
+<script src="js/recurring.js"></script>
 <script src="js/pdf-import.js"></script>
 <script src="js/suggest-budget.js"></script>
 <script src="js/insights.js"></script>
 <script src="js/goals.js"></script>
 <script src="js/checkup.js"></script>
+<script src="js/transfers.js"></script>
 <script src="js/reconcile.js"></script>
 <script src="js/demo.js"></script>
 <script src="js/cleanup.js"></script>
@@ -1152,6 +1158,19 @@ if('serviceWorker' in navigator){
     <div class="sheet-handle" style="margin-top:0;"></div>
     <h2 class="sheet-title" id="checkup-title" style="margin-bottom:8px;">Monthly checkup</h2>
     <div id="checkup-body"></div>
+  </div>
+</dialog>
+
+<!-- TRANSFER RESOLUTION — classify / exclude / pair / save rules -->
+<dialog class="modal-overlay" id="modal-transfers" aria-modal="true" aria-labelledby="transfers-title" onclick="closeOut(event,'modal-transfers')">
+  <div class="sheet">
+    <div class="sheet-close-row">
+      <button type="button" aria-label="Close" onclick="closeModal('modal-transfers')" class="sheet-close">&#x2715;</button>
+    </div>
+    <div class="sheet-handle" style="margin-top:0;"></div>
+    <h2 class="sheet-title" id="transfers-title" style="margin-bottom:2px;">Transfers &amp; card payments</h2>
+    <div class="sheet-sub">Money moving between your own accounts isn't spending — mark it here so it doesn't skew your totals.</div>
+    <div id="transfers-body" style="margin-top:10px;"></div>
   </div>
 </dialog>
 
@@ -1470,6 +1489,19 @@ if('serviceWorker' in navigator){
       <button type="button" class="btn-secondary" onclick="dismissAllAnomalies()">Dismiss all</button>
       <button type="button" class="btn-primary" onclick="viewAnomalyTransactions()">View Transactions</button>
     </div>
+  </div>
+</dialog>
+
+<!-- RECURRING CHARGES MODAL -->
+<dialog class="modal-overlay" id="modal-recurring" aria-modal="true" aria-labelledby="recurring-title" onclick="closeOut(event,'modal-recurring')">
+  <div class="sheet">
+    <div class="sheet-close-row">
+      <button type="button" aria-label="Close" onclick="closeModal('modal-recurring')" class="sheet-close">&#x2715;</button>
+    </div>
+    <div class="sheet-handle" style="margin-top:0;"></div>
+    <h2 class="sheet-title" id="recurring-title" style="margin-bottom:2px;">Recurring charges</h2>
+    <div class="sheet-sub" id="recurring-sub" style="margin-top:0;"></div>
+    <div id="recurring-body" style="margin-top:6px;"></div>
   </div>
 </dialog>
 

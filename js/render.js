@@ -1165,7 +1165,9 @@ function renderBudget(){
         + `<div class="bva-num v-flat">--</div>`
         + `</div>`
       ).join('')
-    }</div>` : ''}`;
+    }</div>` : ''}
+    ${(!acct && _analystOn && typeof gbTrends !== 'undefined') ? gbTrends.varianceSectionHTML(mk) : ''}
+    ${(!acct && _analystOn && typeof gbTrends !== 'undefined') ? gbTrends.recurringCardHTML() : ''}`;
   srAnnounce(`Budget for ${mk}, ${rows.length} ${rows.length===1?'category':'categories'}`);
 }
 
