@@ -6,7 +6,9 @@
 // goals are backed up, restored and cleared with everything else).
 //
 // Globals used: showToast, renderAll, openModal, closeModal, closeOut, esc,
-// _isQuotaErr, and gbForecast.compute (forecast.js) for the ETA.
+// _isQuotaErr. gbForecast (forecast.js) used to feed the ETA — module is
+// removed; the typeof guard below now always yields net=null and the goal
+// card hides its ETA line gracefully.
 
 const gbGoals = (() => {
   const K = 'gb_goals';

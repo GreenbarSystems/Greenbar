@@ -1165,10 +1165,7 @@ function renderBudget(){
         + `<div class="bva-num v-flat">--</div>`
         + `</div>`
       ).join('')
-    }</div>` : ''}
-    ${(!acct && _analystOn && typeof gbForecast !== 'undefined') ? gbForecast.sectionHTML() : ''}
-    ${(!acct && _analystOn && typeof gbTrends !== 'undefined') ? gbTrends.varianceSectionHTML(mk) : ''}
-    ${(!acct && _analystOn && typeof gbTrends !== 'undefined') ? gbTrends.recurringCardHTML() : ''}`;
+    }</div>` : ''}`;
   srAnnounce(`Budget for ${mk}, ${rows.length} ${rows.length===1?'category':'categories'}`);
 }
 

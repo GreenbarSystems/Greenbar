@@ -67,9 +67,9 @@ const gbReconcile = (() => {
       <div class="rec-file">${esc(e.filename || 'Import')} &middot; ${esc(String(e.txCount || 0))} txn${e.txCount === 1 ? '' : 's'}${e.account ? ` &middot; ${esc(e.account)}` : ''}</div>
       <div class="rec-net">These transactions net <strong>${net >= 0 ? '+' : '−'}${_money(net)}</strong>. Enter the statement's balances and Greenbar checks they reconcile.</div>
       <label class="rec-lbl" for="rec-open">Opening balance</label>
-      <input id="rec-open" type="text" inputmode="decimal" class="plan-input" value="${e.openingBalance != null ? e.openingBalance : ''}" placeholder="Statement starting balance" autocomplete="off" oninput="gbReconcile.preview()">
+      <input id="rec-open" type="text" inputmode="decimal" class="cu-input" value="${e.openingBalance != null ? e.openingBalance : ''}" placeholder="Statement starting balance" autocomplete="off" oninput="gbReconcile.preview()">
       <label class="rec-lbl" for="rec-close">Closing balance</label>
-      <input id="rec-close" type="text" inputmode="decimal" class="plan-input" value="${e.closingBalance != null ? e.closingBalance : ''}" placeholder="Statement ending balance" autocomplete="off" oninput="gbReconcile.preview()">
+      <input id="rec-close" type="text" inputmode="decimal" class="cu-input" value="${e.closingBalance != null ? e.closingBalance : ''}" placeholder="Statement ending balance" autocomplete="off" oninput="gbReconcile.preview()">
       <div id="reconcile-status" class="rec-status"></div>
       <button type="button" class="btn-primary" style="width:100%;margin-top:6px;" onclick="gbReconcile.save()">Save</button>`;
     preview();
