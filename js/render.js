@@ -794,7 +794,6 @@ function renderSummary(){
   // nothing to show, so the conditional rendering still works.
   document.getElementById('summary-content').innerHTML=`
     <div class="gb-welcome">
-      ${gbConfidence.renderTrustBar()}
       ${pills}
       ${gbCheckup.renderBanner()}
 
@@ -1217,12 +1216,12 @@ function renderTxs(filter=''){
            <div class="tx-empty-title">No transactions yet</div>
            <div class="tx-empty-sub">Import bank transactions, or tap <span class="fab-ref">+</span> (bottom right) to add a cash transaction.</div>
          </div>`;
-    document.getElementById('txs-content').innerHTML = acctChips + html;
+    document.getElementById('txs-content').innerHTML = gbConfidence.renderTrustBar() + acctChips + html;
     srAnnounce(filter?`No transactions match "${filter}"`:'No transactions');
     return;
   }
   const byDate={};for(const r of rows){(byDate[r.label]=byDate[r.label]||[]).push(r);}
-  document.getElementById('txs-content').innerHTML=acctChips + `
+  document.getElementById('txs-content').innerHTML= gbConfidence.renderTrustBar() + acctChips + `
     <div class="search-wrap${filter?' has-value':''}">
       <input type="text" aria-label="Search transactions" placeholder="Search…" value="${esc(filter)}"
         oninput="this.parentElement.classList.toggle('has-value', !!this.value); clearTimeout(this._t); this._t=setTimeout(()=>renderTxs(this.value),120)"
