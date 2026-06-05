@@ -219,12 +219,12 @@ const gbTrends = (() => {
     <h2 class="sec-hdr">Change vs Last Month</h2>
     <div style="background:var(--glass);border:1px solid var(--border);border-radius:20px;padding:16px 16px 8px;margin-bottom:14px;">
       <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px;">
-        <div style="font-family:var(--font-display);font-size:11px;font-weight:800;color:${col};text-transform:uppercase;letter-spacing:0.08em;">Total spend vs ${esc(v.priorKey)}</div>
+        <div class="eyebrow" style="color:${col};">Total spend vs ${esc(v.priorKey)}</div>
         <div style="font-size:11px;color:var(--muted);">avg ${fmt(v.avgTotal)}/mo over ${v.priorCount} mo</div>
       </div>
       <div style="font-family:var(--font-display);font-size:28px;font-weight:900;letter-spacing:-0.5px;color:${col};line-height:1.1;">${sign}${fmt(Math.abs(v.totalDelta))}${pctTxt}</div>
       <div style="font-size:12px;color:var(--soft);margin:6px 0 12px;">${fmt(v.priorTotal)} last month → ${fmt(v.currentTotal)} this month${up?' — spending rose':' — spending fell'}.</div>
-      <div style="font-family:var(--font-display);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:2px;">Biggest movers</div>
+      <div class="eyebrow" style="font-weight:700;margin-bottom:2px;">Biggest movers</div>
       ${moversHtml}
     </div>`;
   }
@@ -272,7 +272,7 @@ const gbTrends = (() => {
 
     return `
       <div style="background:linear-gradient(145deg,rgba(var(--green-rgb),0.06),rgba(var(--teal-rgb),0.04));border:1px solid rgba(var(--green-rgb),0.15);border-radius:16px;padding:14px 16px;margin-bottom:14px;">
-        <div style="font-family:var(--font-display);font-size:11px;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">Estimated monthly recurring</div>
+        <div class="eyebrow" style="color:var(--green);margin-bottom:4px;">Estimated monthly recurring</div>
         <div style="font-family:var(--font-display);font-size:26px;font-weight:900;color:var(--green);line-height:1;">${fmt(totalMonthly)}<span style="font-size:13px;color:var(--muted);font-weight:700;">/mo</span></div>
         <div style="font-size:12px;color:var(--soft);margin-top:4px;">Across ${series.length} charge${series.length===1?'':'s'}, normalized to a monthly rate.</div>
       </div>

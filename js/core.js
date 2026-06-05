@@ -924,12 +924,12 @@ function showImportPreview(filename, result){
   const _acctDefault = _pendingAccountHint || _accts[0] || '';
   const acctHtml = `
     <div style="margin-bottom:12px;">
-      <label for="import-account-input" style="display:block;font-family:var(--font-display);font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px;">Account / source</label>
+      <label for="import-account-input" class="eyebrow" style="display:block;margin-bottom:6px;">Account / source</label>
       <input id="import-account-input" list="import-account-list" value="${esc(_acctDefault)}" placeholder="e.g. Chase Checking" autocomplete="off" onchange="if(typeof gbProfiles!=='undefined')gbProfiles.onAccountChange(this.value)" style="width:100%;box-sizing:border-box;background:var(--glass);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:14px;font-family:var(--font-body);padding:10px 12px;">
       <datalist id="import-account-list">${_accts.map(a => `<option value="${esc(a)}"></option>`).join('')}</datalist>
       <div style="font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5;">These transactions are tagged to this account, so multiple accounts stay separate.</div>
       <div id="import-lastrange" style="display:none;font-size:11px;color:var(--soft);margin-top:8px;line-height:1.5;background:var(--o03);border:1px solid var(--border);border-radius:10px;padding:8px 10px;"></div>
-      <label for="import-type-select" style="display:block;font-family:var(--font-display);font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin:12px 0 6px;">Account type</label>
+      <label for="import-type-select" class="eyebrow" style="display:block;margin:12px 0 6px;">Account type</label>
       <select id="import-type-select" aria-label="Account type" onchange="if(typeof gbProfiles!=='undefined')gbProfiles.onTypeChange(this.value)" style="width:100%;box-sizing:border-box;background:var(--glass);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:14px;font-family:var(--font-body);padding:10px 12px;appearance:none;">
         <option value="checking">Checking</option>
         <option value="savings">Savings</option>
@@ -941,7 +941,7 @@ function showImportPreview(filename, result){
         <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--soft);cursor:pointer;"><input type="checkbox" id="import-payments-spending" style="width:16px;height:16px;flex-shrink:0;accent-color:var(--green);"> Count payments to this account as spending</label>
         <div style="font-size:11px;color:var(--muted);margin-top:4px;line-height:1.5;">Off (recommended): a card payment from another account is a transfer, not new spending.</div>
       </div>
-      <label for="import-open-input" style="display:block;font-family:var(--font-display);font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin:12px 0 6px;">Statement balances (optional)</label>
+      <label for="import-open-input" class="eyebrow" style="display:block;margin:12px 0 6px;">Statement balances (optional)</label>
       <div style="display:flex;gap:8px;">
         <input id="import-open-input" type="text" inputmode="decimal" placeholder="Opening balance" autocomplete="off" style="flex:1;min-width:0;box-sizing:border-box;background:var(--glass);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:14px;font-family:var(--font-body);padding:10px 12px;">
         <input id="import-balance-input" type="text" inputmode="decimal" placeholder="Closing balance" autocomplete="off" style="flex:1;min-width:0;box-sizing:border-box;background:var(--glass);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:14px;font-family:var(--font-body);padding:10px 12px;">
@@ -1033,7 +1033,7 @@ function showConflictModal(filename, conflictingMonths, allNewMonths){
 
   const monthsHtml = `
     <div style="background:var(--o04);border:1px solid var(--border);border-radius:14px;padding:12px 14px;">
-      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px;font-family: var(--font-display);">Overlapping months</div>
+      <div class="eyebrow" style="font-weight:700;margin-bottom:10px;">Overlapping months</div>
       ${conflictingMonths.map(mk => {
         const existing = _months[mk];
         const existingTxs = existing ? existing.txs.length : 0;

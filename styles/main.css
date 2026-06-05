@@ -458,6 +458,22 @@ button.stat-tile:disabled:active { transform: none; }
   padding: 14px 16px;
   margin-bottom: 12px;
 }
+/* Free-floating eyebrow caption — same visual treatment as
+   .section-card-header but with NO baked-in margin so it can be reused in
+   any context (forecast/recurring/checkup modules, variance hero, modal
+   labels). Sites that need spacing apply it inline; sites with a dynamic
+   colour (status indicators, per-account headers) override `color` inline.
+   Sites that want the lighter 700 weight (secondary captions) override
+   `font-weight` inline. */
+.eyebrow {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
 .section-card-header {
   font-family: var(--font-display);
   font-size: 11px;

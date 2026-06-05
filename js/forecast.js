@@ -105,11 +105,11 @@ const gbForecast = (() => {
       return `
       <h2 class="sec-hdr">Cash-Flow Forecast</h2>
       <div style="background:linear-gradient(155deg,rgba(var(--blue-rgb),0.08),rgba(var(--green-rgb),0.05));border:1px solid rgba(var(--blue-rgb),0.22);border-radius:20px;padding:16px 16px 12px;margin-bottom:14px;">
-        <div style="font-family:var(--font-display);font-size:11px;font-weight:800;color:var(--soft);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">Expected spending · ${esc(nextLabel)}</div>
+        <div class="eyebrow" style="color:var(--soft);margin-bottom:4px;">Expected spending · ${esc(nextLabel)}</div>
         <div style="font-family:var(--font-display);font-size:30px;font-weight:900;letter-spacing:-0.5px;line-height:1.1;">${_money(f.expectedSpend)}<span style="font-size:13px;color:var(--muted);font-weight:700;">/mo</span></div>
         <div style="font-size:12px;color:var(--soft);margin:6px 0 12px;">${_money(f.recurringMonthly)} recurring + ${_money(f.variableSpend)} variable. Add income keywords in Settings to project your net.</div>
         ${typeof gbScenario !== 'undefined' ? gbScenario.entryHTML() : ''}
-        <div style="font-family:var(--font-display);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:2px;margin-top:10px;">Upcoming recurring${f.upcomingTotal?` · ${_money(f.upcomingTotal)}`:''}</div>
+        <div class="eyebrow" style="font-weight:700;margin-top:10px;margin-bottom:2px;">Upcoming recurring${f.upcomingTotal?` · ${_money(f.upcomingTotal)}`:''}</div>
         ${upcomingHtml}
       </div>`;
     }
@@ -123,16 +123,16 @@ const gbForecast = (() => {
     return `
       <h2 class="sec-hdr">Cash-Flow Forecast</h2>
       <div style="background:linear-gradient(155deg,rgba(var(--blue-rgb),0.08),rgba(var(--green-rgb),0.05));border:1px solid rgba(var(--blue-rgb),0.22);border-radius:20px;padding:16px 16px 12px;margin-bottom:14px;">
-        <div style="font-family:var(--font-display);font-size:11px;font-weight:800;color:${col};text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">Projected net · ${esc(nextLabel)}</div>
+        <div class="eyebrow" style="color:${col};margin-bottom:4px;">Projected net · ${esc(nextLabel)}</div>
         <div style="font-family:var(--font-display);font-size:30px;font-weight:900;letter-spacing:-0.5px;color:${col};line-height:1.1;">${_signed(f.projectedNet)}<span style="font-size:13px;color:var(--muted);font-weight:700;">/mo</span></div>
         <div style="font-size:12px;color:var(--soft);margin:6px 0 12px;">Expected income ${_money(f.expectedIncome)} − spending ${_money(f.expectedSpend)} (${_money(f.recurringMonthly)} recurring + ${_money(f.variableSpend)} variable).</div>
 
-        <div style="font-family:var(--font-display);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:2px;">If this pace holds</div>
+        <div class="eyebrow" style="font-weight:700;margin-bottom:2px;">If this pace holds</div>
         ${trajHtml}
 
         ${typeof gbScenario !== 'undefined' ? gbScenario.entryHTML() : ''}
 
-        <div style="font-family:var(--font-display);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin:10px 0 2px;">Upcoming recurring${f.upcomingTotal?` · ${_money(f.upcomingTotal)}`:''}</div>
+        <div class="eyebrow" style="font-weight:700;margin:10px 0 2px;">Upcoming recurring${f.upcomingTotal?` · ${_money(f.upcomingTotal)}`:''}</div>
         ${upcomingHtml}
 
         ${f.confidence==='low' ? `<div style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5;">Based on ${f.n} months — the forecast sharpens as you import more.</div>` : ''}
