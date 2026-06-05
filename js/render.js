@@ -925,9 +925,6 @@ function renderSummary(){
       </div>
 
       ${(()=>{
-        // Achievements are only shown once the checklist is clear — they are a
-        // reward for monthly closure, not ambient decoration.
-        if(checks.length) return '';
         // Build subtitle from streak data when available
         const _s = computeStreaks();
         const streakSub = _s && _s.totalMonths
