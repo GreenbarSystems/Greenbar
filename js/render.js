@@ -768,7 +768,7 @@ function renderSummary(){
   // "What to check": review queue (always), plus unusual activity and possible
   // duplicates once the analyst surfaces are unlocked (see summaryCheckCounts).
   const checks = [];
-  if(reviewN) checks.push({ ic:'&#9998;', icbg:'rgba(var(--blue-rgb),0.12)', l:`${reviewN} transaction${reviewN===1?'':'s'} to review`, s:'Low-confidence or uncategorised', act:'gbConfidence.open()' });
+  if(reviewN) checks.push({ ic:'&#9998;', icbg:'rgba(var(--blue-rgb),0.12)', l:`${reviewN} item${reviewN===1?'':'s'} to review`, s:`Resolve ${reviewN===1?'this':'these'} before this month can be marked Reviewed`, act:'gbConfidence.open()' });
   if(anomN) checks.push({ ic:'&#9888;', icbg:'rgba(var(--amber-rgb),0.16)', l:`${anomN} unusual item${anomN===1?'':'s'} to review`, s:'From your last import', act:'openAnomalyReport()' });
   if(dupN) checks.push({ ic:'&#10697;', icbg:'rgba(var(--red-rgb),0.14)', l:`${dupN} possible duplicate${dupN===1?'':'s'}`, s:'Same charge close together', act:'gbCleanup.openCleanup()' });
   const checkBody = checks.length

@@ -701,7 +701,9 @@ button.settings-row:hover { background: var(--o02); }
 .conf-count.amber { background: rgba(var(--amber-rgb),0.15); color: var(--amber); }
 .conf-allbtn { flex-shrink: 0; font-size: 12px; font-weight: 700; font-family: var(--font-display); color: var(--green); background: rgba(var(--green-rgb),0.08); border: 1px solid rgba(var(--green-rgb),0.25); border-radius: 10px; padding: 6px 10px; cursor: pointer; }
 .conf-note { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 10px; }
+.conf-note-warn { color: var(--text); font-size: 13px; font-weight: 600; margin-bottom: 14px; }
 .conf-allclear { background: rgba(var(--green-rgb),0.06); border: 1px solid rgba(var(--green-rgb),0.2); border-radius: 14px; padding: 14px 16px; font-size: 13px; color: var(--green); }
+.conf-allclear-neutral { background: var(--glass); border-color: var(--border); color: var(--muted); }
 .conf-empty { text-align: center; color: var(--muted); font-size: 14px; padding: 40px 16px; line-height: 1.8; }
 .conf-card { background: var(--glass); border: 1px solid var(--border); border-radius: 16px; padding: 12px 14px; margin-bottom: 10px; }
 .conf-card-file { font-size: 13px; font-weight: 700; word-break: break-all; }

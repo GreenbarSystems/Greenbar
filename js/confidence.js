@@ -118,16 +118,16 @@ const gbConfidence = (() => {
   function reviewQueue(){ return reviewItems().map(i => i.tx); }
 
   // ──────── Status taxonomy ────────
-  // "Verified" overclaimed — it read as strong evidence when it only meant
-  // "nothing is currently flagged." This returns the strongest claim we can
-  // honestly back up:
-  //   Needs review — something is flagged in the queue.
-  //   Reconciled   — every account with data is anchored to a statement closing
-  //                  balance (the user tied the numbers to a real statement).
-  //   Reviewed     — nothing flagged AND a human has cleared flagged rows.
-  //   Clean        — nothing flagged (the baseline; weakest — not "verified").
-  // (Unreconciled is the implicit state behind Clean/Reviewed: data exists but
-  //  isn't anchored to a statement balance — we just don't dress it up.)
+  // States are strictly ordered by the strength of evidence behind them.
+  // No positive state is claimed unless a human or a statement has actually
+  // validated the data — data existing is not evidence of accuracy.
+  //   Needs review  — items are flagged in the queue (queue is non-empty).
+  //   Unreconciled  — a statement balance exists but the numbers don't match.
+  //   Reconciled    — imported data matches a real statement balance.
+  //   Reviewed      — queue was non-empty and a human cleared every item.
+  //   null          — data exists but no validation has occurred; no positive
+  //                   label is shown (avoids congratulating the user for simply
+  //                   having imported something).
   function statusLabel(){
     if(!_txs().length) return null;
     if(reviewQueue().length > 0) return { label: 'Needs review', tone: 'review' };
@@ -136,8 +136,10 @@ const gbConfidence = (() => {
     const rec = (typeof gbReconcile !== 'undefined' && gbReconcile.status) ? gbReconcile.status() : null;
     if(rec === 'unreconciled') return { label: 'Unreconciled', tone: 'review' };
     if(rec === 'reconciled')   return { label: 'Reconciled',   tone: 'ok' };
-    if(_txs().some(t => t.reviewed)) return { label: 'Reviewed',  tone: 'ok' };
-    return { label: 'Clean', tone: 'ok' };
+    // "Reviewed" only fires if a human has cleared at least one flagged row —
+    // it must not appear on a pristine import where nothing was ever questioned.
+    if(_txs().some(t => t.reviewed)) return { label: 'Reviewed', tone: 'ok' };
+    return null;
   }
 
   // Headline trust metadata for the trust bar + Confidence Center header.
@@ -198,7 +200,8 @@ const gbConfidence = (() => {
     if(s.skippedTotal) line2.push(s.skippedTotal + ' skipped');
     const st = statusLabel();
     // Review count lives in the "What to check" section — the trust bar shows
-    // the ambient status label only (Clean / Needs review / Reviewed / etc.).
+    // the ambient status label only (Needs review / Reviewed / Reconciled).
+    // No pill is rendered when no validation has occurred (statusLabel -> null).
     const pill = st ? `<span class="tb-pill ${s.reviewCount ? 'review' : 'ok'}">&#10003; ${esc(st.label)}</span>` : '';
     return `<button type="button" class="trust-bar" onclick="gbConfidence.open()" aria-label="Open Import Confidence Center: ${s.txCount} transaction${s.txCount===1?'':'s'}${s.reviewCount?(', '+s.reviewCount+' to review'):''}">
       <span class="tb-grow">
@@ -297,7 +300,7 @@ const gbConfidence = (() => {
   function _confBadge(level){
     if(level === 'low')   return `<span class="conf-badge low">Low confidence</span>`;
     if(level === 'mixed') return `<span class="conf-badge mixed">Needs review</span>`;
-    return `<span class="conf-badge high">Clean</span>`;
+    return `<span class="conf-badge high">No issues</span>`;
   }
   function _statTile(label, value){
     return `<div class="conf-stat"><div class="conf-stat-v">${value}</div><div class="conf-stat-l">${esc(label)}</div></div>`;
@@ -367,15 +370,18 @@ const gbConfidence = (() => {
       }).join('');
       reviewHtml = `
         <div class="conf-section-head">
-          <h2 class="conf-h2">Needs review <span class="conf-count amber">${items.length}</span></h2>
+          <h2 class="conf-h2">Verification incomplete</h2>
           <button type="button" class="conf-allbtn" onclick="gbConfidence.reviewAll()">Mark all reviewed</button>
         </div>
-        <div class="conf-note">Rows worth a second look. Confirm each, fix a category, or remove a duplicate.</div>
+        <div class="conf-note conf-note-warn">You have ${items.length} item${items.length===1?'':'s'} to review before this month can be considered Reviewed.</div>
         ${groupsHtml}`;
     } else {
-      reviewHtml = `
-        <h2 class="conf-h2">Needs review</h2>
-        <div class="conf-allclear">&#10003; Everything looks good — nothing needs your attention.</div>`;
+      const anyReviewed = _txs().some(t => t.reviewed);
+      reviewHtml = anyReviewed
+        ? `<h2 class="conf-h2">Verification complete</h2>
+           <div class="conf-allclear">&#10003; All items reviewed — this month is marked Reviewed.</div>`
+        : `<h2 class="conf-h2">Verification</h2>
+           <div class="conf-allclear conf-allclear-neutral">No items were flagged during import. Review is not required, but this month has not been manually verified.</div>`;
     }
 
     // 3) Import history (enhanced)
