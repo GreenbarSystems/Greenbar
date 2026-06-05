@@ -623,14 +623,19 @@ function summaryCheckCounts(){
 
 // Shared savings-rate sentence — used by the Summary hero and the Monthly
 // checkup so the wording (and privacy-blur via .hh-rate) stays consistent.
-function savingsSentence(income, net, monthLabel){
+// periodSel ('current'|'l3m'|'ytd') drives the time-suffix so the Summary
+// hero can render the same sentence shape across all three period modes.
+function savingsSentence(income, net, monthLabel, periodSel){
+  const suffix = periodSel === 'l3m' ? 'on average over 3 months.'
+               : periodSel === 'ytd' ? 'so far this year.'
+               : 'this month.';
   if(income > 0){
     const pct = Math.round(net / income * 100);
-    if(net > 0)   return `You saved <span class="hh-rate">${pct}%</span> this month — great job.`;
-    if(net === 0) return `You broke even this month.`;
-    return `You spent <span class="hh-rate">${Math.abs(pct)}%</span> more than you earned this month.`;
+    if(net > 0)   return `You saved <span class="hh-rate">${pct}%</span> ${suffix}`;
+    if(net === 0) return `You broke even — nothing saved, nothing overspent.`;
+    return `You spent <span class="hh-rate">${Math.abs(pct)}%</span> more than you earned ${suffix}`;
   }
-  return `Add income for ${esc(monthLabel)} to see your savings rate.`;
+  return `Add income data to see your savings rate.`;
 }
 
 function renderSummary(){
@@ -638,8 +643,50 @@ function renderSummary(){
   const hasData=keys.length>0;
   if(!hasData && !localStorage.getItem('gb_setup_done')) return; // first launch -- flash intro handles it
 
-  const sel=hasData ? ((_sel && _sel!=='__all' && _months[_sel]) ? _sel : keys[keys.length-1]) : null;
-  const m=sel ? _months[sel] : null;
+  // ── Period selector state ──
+  // _sel now holds a period token ('current'|'l3m'|'ytd') rather than a
+  // month key. Reset to 'current' if it's missing or holds a legacy value
+  // (e.g. '__all' or an actual YYYY-MM key from a prior session).
+  if (!_sel || !['current','l3m','ytd'].includes(_sel)) _sel = 'current';
+
+  const lastKey   = keys[keys.length-1];
+  const l3Keys    = keys.slice(-3);
+  const ytdYear   = new Date().getFullYear().toString();
+  const ytdKeys   = keys.filter(k => k.startsWith(ytdYear));
+  const activeKeys = _sel === 'l3m' ? l3Keys
+                   : _sel === 'ytd' ? (ytdKeys.length ? ytdKeys : keys)
+                   : [lastKey];
+
+  // Headline data: sel still names the most-recent month (so the health
+  // score and other single-month derivations keep working unchanged). Multi-
+  // month periods aggregate via `agg` below; single-month period keeps m
+  // pointing at the underlying month object so renderStreaks / etc. keep
+  // their existing contract.
+  const sel     = hasData ? lastKey : null;
+  const selKeys = hasData ? activeKeys : [];
+  const agg     = selKeys.reduce((acc, mk) => {
+    const mo = _months[mk];
+    acc.income += mo.income;
+    for (const [c,v] of Object.entries(mo.expenses||{})) {
+      acc.expenses[c] = (acc.expenses[c]||0) + v;
+    }
+    return acc;
+  }, { income: 0, expenses: {} });
+
+  const m        = selKeys.length === 1 ? _months[selKeys[0]] : null;
+  const income   = agg.income;
+  const expTotal = Object.values(agg.expenses).reduce((s,v)=>s+v, 0);
+  const net      = income - expTotal;
+  const netPos   = net >= 0;
+  const spend    = Object.entries(agg.expenses)
+                     .filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  const maxAmt   = spend[0]?.[1]||1;
+
+  const periodLabel = _sel === 'l3m'
+    ? `Last 3 months · Money clarity`
+    : _sel === 'ytd'
+    ? `${ytdYear} year to date · Money clarity`
+    : `${lastKey} · Money clarity`;
 
   // KPI -- Monthly Budget
   const totalBudget=Object.values(CFG.budget||{}).reduce((s,v)=>s+(v>0?v:0),0);
@@ -651,28 +698,21 @@ function renderSummary(){
   const gradeExplain=hs ? (GRADE_EXPLAIN[hs.grade]||hs.label)
     : (hasData ? 'Add a month with income to get a grade.' : 'Import bank transactions to get your grade.');
 
-  // Top 3 spend categories
-  const spend=m ? Object.entries(m.expenses).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,3) : [];
-  const expTotal=sumExpenses(m);
-  const maxAmt=spend[0]?.[1]||1;
-
-  const pills=hasData
-    ? `<div class="pills-row" role="group" aria-label="Select month" style="margin-bottom:12px;">${keys.map(k=>`<button type="button" class="pill ${k===sel?'active':''}" onclick="selMonth(this.dataset.mk)" data-mk="${esc(k)}"${k===sel?' aria-current="true"':''}>${esc(k)}</button>`).join('')}<button type="button" class="pill" onclick="selMonth('__all')">All</button></div>`
-    : '';
-
-  const topSpendBody=spend.length
-    ? `<div class="cat-list">${spend.map(([cat,amt],i)=>`
-        <div class="cat-item">
-          <div class="cat-body">
-            <div class="cat-name">${esc(cat)}</div>
-            <div class="cat-bar-bg"><div class="cat-bar-fg" style="width:${Math.round(amt/maxAmt*100)}%;background:${PAL[i%PAL.length]}"></div></div>
-          </div>
-          <div class="cat-right">
-            <div class="cat-amt">${fmt(amt)}</div>
-            <div class="cat-pct">${expTotal>0?(amt/expTotal*100).toFixed(1):'0.0'}%</div>
-          </div>
-        </div>`).join('')}</div>`
-    : `<div class="g-card" style="padding:22px 18px;text-align:center;color:var(--muted);font-size:13px;">No spending yet — import your bank transactions to see your top categories.</div>`;
+  const pills = hasData ? `
+    <div class="period-row" role="group" aria-label="Select time period">
+      <button type="button" class="period-btn ${_sel==='current'?'active':''}"
+        onclick="selMonth('current')" ${_sel==='current'?'aria-current="true"':''}>
+        Current Month
+      </button>
+      <button type="button" class="period-btn ${_sel==='l3m'?'active':''}"
+        onclick="selMonth('l3m')" ${_sel==='l3m'?'aria-current="true"':''}>
+        Last 3 Months
+      </button>
+      <button type="button" class="period-btn ${_sel==='ytd'?'active':''}"
+        onclick="selMonth('ytd')" ${_sel==='ytd'?'aria-current="true"':''}>
+        Year to Date
+      </button>
+    </div>` : '';
 
   let achievements=hasData ? renderStreaks() : '';
   if(!achievements){
@@ -716,19 +756,15 @@ function renderSummary(){
   }
 
   // ── Headline data: financial health is the hero; income / expenses / net are
-  // the auditable supporting stats; the rest (Plan, Achievements) sits below. ──
-  const income = m ? m.income : 0;
-  const net = income - expTotal;
-  const netPos = net >= 0;
+  // the auditable supporting stats; the rest (Plan, Achievements) sits below.
+  // income / net / netPos / expTotal already derived from `agg` above so the
+  // values are correct for whichever period the user selected. ──
   const { reviewN, anomN, dupN } = summaryCheckCounts();
 
-  // Hero one-liner: lead with the savings rate in plain language.
-  const heroLine = savingsSentence(income, net, sel);
-
-  const _status = (typeof gbConfidence !== 'undefined' && gbConfidence.statusLabel) ? gbConfidence.statusLabel() : null;
-  const reviewBadge = reviewN
-    ? `<button type="button" class="tb-pill review" onclick="gbConfidence.open()" aria-label="${reviewN} transaction${reviewN===1?'':'s'} to review">${reviewN} to review</button>`
-    : `<span class="tb-pill ok">&#10003; ${esc(_status ? _status.label : 'Clean')}</span>`;
+  // Hero one-liner: lead with the savings rate in plain language; the period
+  // token shapes the trailing time-suffix ("this month" / "on average over 3
+  // months" / "so far this year").
+  const heroLine = savingsSentence(income, net, sel, _sel);
 
   // "What to check": review queue (always), plus unusual activity and possible
   // duplicates once the analyst surfaces are unlocked (see summaryCheckCounts).
@@ -756,76 +792,211 @@ function renderSummary(){
 
       <div class="health-hero">
         <div class="hh-top">
-          <span class="hh-month">${esc(sel)} &middot; Money clarity</span>
-          ${reviewBadge}
+          <span class="hh-month">${esc(periodLabel.toUpperCase())}</span>
+          ${hs ? `<span class="hh-badge">${grade} &middot; ${hs.score}/100</span>` : ''}
         </div>
-        <button type="button" class="hh-tap" ${hs?`onclick="openHealthBreakdown()" aria-label="Money clarity grade ${hs.grade}, ${hs.score} out of 100 — see what's driving it"`:'aria-disabled="true" aria-label="No grade yet — add income for this month"'}>
-          <span class="hh-ring" aria-hidden="true">${(()=>{
-            const _r = 34, _circ = 2 * Math.PI * _r, _pct = hs ? Math.max(0, Math.min(100, hs.score)) : 0, _filled = _circ * _pct / 100;
-            return `<svg width="78" height="78" viewBox="0 0 78 78">
-              <circle cx="39" cy="39" r="${_r}" fill="none" stroke="var(--o07)" stroke-width="6"></circle>
-              <circle cx="39" cy="39" r="${_r}" fill="none" stroke="${gradeColor}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${_filled.toFixed(1)} ${(_circ - _filled).toFixed(1)}" transform="rotate(-90 39 39)" style="transition:stroke-dasharray 0.9s ease;"></circle>
-            </svg>`;
-          })()}<span class="hh-ring-in"><span class="hh-grade" style="color:${gradeColor};">${grade}</span></span></span>
-          <span class="hh-meta">
-            <span class="hh-score">${hs?`${hs.score} / 100`:'No score yet'}</span>
-            <span class="hh-line">${heroLine}</span>
-          </span>
-          ${hs?'<span class="hh-cta" aria-hidden="true">Details &rsaquo;</span>':''}
-        </button>
+        <div class="hh-sentence">${heroLine}</div>
+        <div class="hh-stats">
+          <div class="hh-stat">
+            <div class="hh-stat-l">Income</div>
+            <div class="hh-stat-v" style="color:var(--green);">+${fmt(income)}</div>
+          </div>
+          <div class="hh-stat">
+            <div class="hh-stat-l">Spent</div>
+            <div class="hh-stat-v">${fmt(expTotal)}</div>
+          </div>
+          <div class="hh-stat">
+            <div class="hh-stat-l">Saved</div>
+            <div class="hh-stat-v" style="color:${netPos?'var(--green)':'var(--red)'};">
+              ${netPos?'+':'&minus;'}${fmt(Math.abs(net))}
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="perf-stats" style="margin-bottom:16px;">
-        <button type="button" class="perf-stat" onclick="gbConfidence.openExplain('income','${esc(sel)}')" aria-label="Income, tap to explain"><span class="st-lbl">Income</span><span class="st-val" style="color:var(--green);">+${fmt(income)}</span></button>
-        <button type="button" class="perf-stat" onclick="gbConfidence.openExplain('expenses','${esc(sel)}')" aria-label="Expenses, tap to explain"><span class="st-lbl">Expenses</span><span class="st-val">−${fmt(expTotal)}</span></button>
-        <div class="perf-stat" aria-disabled="true"><span class="st-lbl">Net</span><span class="st-val" style="color:${netPos?'var(--green)':'var(--red)'};">${netPos?'+':'−'}${fmt(Math.abs(net))}</span></div>
+      <div class="spending-panel">
+        <button type="button" class="spending-toggle"
+          onclick="gbToggleSpend(this)"
+          aria-expanded="false">
+          <span class="st-label">Where it went</span>
+          <span class="st-right">
+            ${spend.length ? `<span class="st-total">${fmt(expTotal)}</span>` : ''}
+            <span class="st-chevron">&#9660;</span>
+          </span>
+        </button>
+        <div class="spending-body">
+          ${spend.length ? `
+            <div class="cat-rows">
+              ${spend.map(([cat,amt],i)=>`
+                <div class="cat-item">
+                  <div class="cat-dot" style="background:${PAL[i%PAL.length]}"></div>
+                  <div class="cat-body">
+                    <div class="cat-name">${esc(cat)}</div>
+                    <div class="cat-bar-bg">
+                      <div class="cat-bar-fg"
+                        style="width:${Math.round(amt/maxAmt*100)}%;
+                               background:${PAL[i%PAL.length]}">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="cat-right">
+                    <div class="cat-amt">${fmt(amt)}</div>
+                    <div class="cat-pct">
+                      ${expTotal>0?(amt/expTotal*100).toFixed(1):'0.0'}%
+                    </div>
+                  </div>
+                </div>`).join('')}
+            </div>
+            <div class="spending-footer">
+              <span class="sf-count">
+                ${spend.length} of
+                ${Object.values(agg.expenses).filter(v=>v>0).length} categories
+              </span>
+              <button type="button" class="sf-link"
+                onclick="showScreen('txs',_navBtn(2))">
+                See all &#8594;
+              </button>
+            </div>`
+            : `<div style="padding:14px 18px 16px;font-size:13px;
+                            color:var(--muted);text-align:center;">
+                 No spending yet for this period.
+               </div>`
+          }
+        </div>
       </div>
 
       ${typeof gbInsights !== 'undefined' ? gbInsights.cardHTML() : ''}
 
       ${(typeof gbScenario !== 'undefined' && typeof analyticsUnlocked === 'function' && analyticsUnlocked()) ? gbScenario.bestMoveHTML() : ''}
 
-      <h2 class="sec-hdr">Where your money went${(m&&spend.length)?` <button type="button" class="sec-total ex-num" onclick="gbConfidence.openExplain('expenses','${esc(sel)}')" aria-label="Explain total spending ${esc(fmt(expTotal))}">${fmt(expTotal)} <span class="ex-i" aria-hidden="true">&#9432;</span></button>`:''}</h2>
-      ${topSpendBody}
-
       <h2 class="sec-hdr">What to check</h2>
       ${checkBody}
 
       ${typeof gbAccounts !== 'undefined' ? gbAccounts.cardHTML(sel) : ''}
 
-      <h2 class="sec-hdr">Plan</h2>
-      ${(()=>{
-        // Avoid two competing green CTAs: while the Monthly checkup is still
-        // pending (its prominent "Start" banner is up), suppress the "Make a
-        // plan" banner. Once the checkup is done for the month (its banner
-        // becomes a calm glass state), the plan banner may show.
-        const checkupPending = (typeof gbCheckup !== 'undefined') && gbCheckup.shouldShow() && !gbCheckup.doneThisMonth();
-        return (typeof gbPlan !== 'undefined' && !checkupPending) ? gbPlan.renderBanner() : '';
-      })()}
-      <div class="plan-grid" style="grid-template-columns:repeat(2,1fr);">
-        <button class="plan-tile" type="button" onclick="showScreen('budget', document.querySelectorAll('.nav-btn')[1])" aria-label="Budget ${esc(fmt(totalBudget))} — open the Budget tab">
-          <span class="pt-l">Budget</span>
-          <span class="pt-v">${fmt(totalBudget)}</span>
-          <span class="pt-sub">${(typeof gbSuggest!=='undefined'&&gbSuggest.shouldShow())?'Build it &rsaquo;':'Plan vs actual &rsaquo;'}</span>
+      <div class="section-panel" id="gb-panel-plan">
+        <button type="button" class="check-row section-toggle"
+          onclick="gbToggleSection('plan')"
+          aria-expanded="false"
+          aria-controls="gb-body-plan"
+          style="border-bottom:none;">
+          <span class="check-ic" style="background:rgba(var(--green-rgb),0.12);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="#00d68f" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round"
+              aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="3"/>
+              <path d="M8 12h8M12 8v8"/>
+            </svg>
+          </span>
+          <span class="check-tx">
+            <span class="check-tx-l">Plan</span>
+            <span class="check-tx-s">
+              Budget ${fmt(totalBudget)} &middot; ${goalN||0} goal${goalN===1?'':'s'} active
+            </span>
+          </span>
+          <span class="check-arr">&#8250;</span>
         </button>
-        <button class="plan-tile" type="button" onclick="gbGoals.openGoals()" aria-label="Savings goals">
-          <span class="pt-l">Goals</span>
-          <span class="pt-v">${goalN||'—'}</span>
-          <span class="pt-sub">${goalN?'Manage &rsaquo;':'Set one &rsaquo;'}</span>
-        </button>
+        <div class="section-body" id="gb-body-plan">
+          <div class="section-body-inner">
+            ${(()=>{
+              const checkupPending = (typeof gbCheckup !== 'undefined')
+                && gbCheckup.shouldShow() && !gbCheckup.doneThisMonth();
+              return (typeof gbPlan !== 'undefined' && !checkupPending)
+                ? gbPlan.renderBanner() : '';
+            })()}
+            <div class="plan-grid" style="grid-template-columns:repeat(2,1fr);">
+              <button class="plan-tile" type="button"
+                onclick="showScreen('budget', document.querySelectorAll('.nav-btn')[1])"
+                aria-label="Budget ${esc(fmt(totalBudget))} &mdash; open the Budget tab">
+                <span class="pt-l">Budget</span>
+                <span class="pt-v">${fmt(totalBudget)}</span>
+                <span class="pt-sub">
+                  ${(typeof gbSuggest!=='undefined'&&gbSuggest.shouldShow())
+                    ? 'Build it &rsaquo;' : 'Plan vs actual &rsaquo;'}
+                </span>
+              </button>
+              <button class="plan-tile" type="button"
+                onclick="gbGoals.openGoals()"
+                aria-label="Savings goals">
+                <span class="pt-l">Goals</span>
+                <span class="pt-v">${goalN||'&mdash;'}</span>
+                <span class="pt-sub">
+                  ${goalN ? 'Manage &rsaquo;' : 'Set one &rsaquo;'}
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <h2 class="sec-hdr">Achievements</h2>
-      ${achievements}
+      ${(()=>{
+        // Build subtitle from streak data when available
+        const _s = (typeof computeStreaks === 'function') ? computeStreaks() : null;
+        const streakSub = _s && _s.totalMonths
+          ? `${_s.curPosStreak}-month streak &middot; ${_s.badges.filter(b=>b.earned).length} badge${_s.badges.filter(b=>b.earned).length===1?'':'s'} earned`
+          : 'Start tracking to earn badges';
+        return `
+        <div class="section-panel" id="gb-panel-ach">
+          <button type="button" class="check-row section-toggle"
+            onclick="gbToggleSection('ach')"
+            aria-expanded="false"
+            aria-controls="gb-body-ach"
+            style="border-bottom:none;">
+            <span class="check-ic" style="background:rgba(var(--amber-rgb),0.12);">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke="#ffa502" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round"
+                aria-hidden="true">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87
+                         1.18 6.88L12 17.77l-6.18 3.25L7 14.14
+                         2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+            </span>
+            <span class="check-tx">
+              <span class="check-tx-l">Achievements</span>
+              <span class="check-tx-s">${streakSub}</span>
+            </span>
+            <span class="check-arr">&#8250;</span>
+          </button>
+          <div class="section-body" id="gb-body-ach">
+            <div class="section-body-inner" style="padding-top:0;">
+              ${achievements}
+            </div>
+          </div>
+        </div>`; })()}
     </div>`;
   srAnnounce(hasData ? `Summary for ${sel}` : 'Summary, no transactions yet');
 }
+// _sel now stores a period token ('current'|'l3m'|'ytd') instead of a month
+// key — the Summary screen aggregates monthly data behind that token. Only
+// Summary is re-rendered: Budget and Transactions read CFG/_allTxs directly
+// and don't depend on the period selector.
 function selMonth(mk){
-  _sel=mk;
-  // renderAll() re-renders Summary now and Budget/Transactions only if active;
-  // showScreen() refreshes those lazily when the user navigates to them.
-  if(mk==='__all')renderSummaryAll();
-  else renderAll();
+  _sel = mk;
+  renderSummary();
+}
+
+// Toggle the "Where it went" spending body. Called from the period header's
+// inline onclick; chevron rotation is class-driven via .open.
+function gbToggleSpend(btn){
+  const panel = btn.closest('.spending-panel');
+  const body  = panel.querySelector('.spending-body');
+  const chev  = panel.querySelector('.st-chevron');
+  const open  = body.classList.toggle('open');
+  chev.classList.toggle('open', open);
+  btn.setAttribute('aria-expanded', open);
+}
+
+// Toggle a collapsible Summary section (Plan, Achievements). The panel id is
+// 'gb-panel-<id>' and the body id is 'gb-body-<id>'; only the body's .open
+// class is needed for the max-height animation defined in main.css.
+function gbToggleSection(id){
+  const panel  = document.getElementById('gb-panel-' + id);
+  const body   = document.getElementById('gb-body-' + id);
+  const toggle = panel.querySelector('.section-toggle');
+  const open   = body.classList.toggle('open');
+  toggle.setAttribute('aria-expanded', open);
 }
 
 function renderSummaryAll(){
