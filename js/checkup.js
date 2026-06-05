@@ -21,7 +21,7 @@ const gbCheckup = (() => {
   let _step = 1;
 
   function _read(){ try{ const s = localStorage.getItem(K); const a = s ? JSON.parse(s) : []; return Array.isArray(a) ? a : []; }catch(_){ return []; } }
-  function _write(a){ try{ localStorage.setItem(K, JSON.stringify(a)); }catch(_){} }
+  function _write(a){ safeSetLocal(K, JSON.stringify(a)); }
 
   function _keys(){ return (typeof sortKeys === 'function' && typeof _months !== 'undefined') ? sortKeys(_months) : []; }
   // The checkup's subject is the most recent month of data.

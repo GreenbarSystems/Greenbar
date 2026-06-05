@@ -236,7 +236,7 @@ function runAnomalyDetection(newMonthKeys){
       const keys = (newMonthKeys || []).filter(k => _months[k]);
       if(!keys.length) return;
       const cold = _historyDepth(keys) < 3;
-      if(!cold){ try{ localStorage.setItem('gb_anomaly_ready','1'); }catch(_){ } } // self-enable flag
+      if(!cold){ safeSetLocal('gb_anomaly_ready','1'); } // self-enable flag
 
       const items = detectAnomalies(keys);
       const hasDup = items.some(a => a.type === 'duplicate');
@@ -245,7 +245,7 @@ function runAnomalyDetection(newMonthKeys){
       if(!items.length) return;
 
       const payload = { ts:new Date().toISOString(), months:keys, items, reviewed:false };
-      try{ localStorage.setItem('gb_anomalies', JSON.stringify(payload)); }catch(_){ }
+      safeSetLocal('gb_anomalies', JSON.stringify(payload));
       showAnomalyReport(items);
     }catch(e){ /* detection must never break an import */ }
   }, 0);
@@ -309,12 +309,12 @@ function _markAnomalyReviewed(idx, btn){
   const card = btn.closest('.anom-card');
   if(card){ card.classList.add('anom-reviewed'); btn.textContent = '✓ Reviewed'; btn.disabled = true; }
   const data = getStoredAnomalies();
-  if(data && data.items && data.items[idx]){ data.items[idx].reviewed = true; try{ localStorage.setItem('gb_anomalies', JSON.stringify(data)); }catch(_){ } }
+  if(data && data.items && data.items[idx]){ data.items[idx].reviewed = true; safeSetLocal('gb_anomalies', JSON.stringify(data)); }
 }
 
 function dismissAllAnomalies(){
   const data = getStoredAnomalies();
-  if(data){ data.reviewed = true; try{ localStorage.setItem('gb_anomalies', JSON.stringify(data)); }catch(_){ } }
+  if(data){ data.reviewed = true; safeSetLocal('gb_anomalies', JSON.stringify(data)); }
   closeModal('modal-anomaly-report');
 }
 function viewAnomalyTransactions(){

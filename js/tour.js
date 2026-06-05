@@ -67,7 +67,7 @@ const gbTour = (() => {
   ];
 
   function isDone(){ return localStorage.getItem(K_DONE) === '1'; }
-  function markDone(){ try{ localStorage.setItem(K_DONE, '1'); }catch(e){} }
+  function markDone(){ safeSetLocal(K_DONE, '1'); }
   function reset(){ try{ localStorage.removeItem(K_DONE); }catch(e){} }
 
   function buildOverlay(){

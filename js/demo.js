@@ -61,7 +61,8 @@ const gbDemo = (() => {
       _allTxs = (_allTxs || []).concat(demoTxs);
       rebuildMonths();
       _sel = sortKeys(_months).slice(-1)[0] || null;
-      try{ localStorage.setItem(FLAG, '1'); localStorage.setItem('gb_setup_done', '1'); }catch(_){}
+      safeSetLocal(FLAG, '1');
+      safeSetLocal('gb_setup_done', '1');
       saveData();
       if(typeof showHeaderButtons === 'function') showHeaderButtons();
       renderAll();
