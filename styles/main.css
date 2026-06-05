@@ -1262,66 +1262,6 @@ body.privacy-mode.revealed .sec-total {
 }
 .choice-pill.selected { background: var(--grad-primary); border-color: transparent; color: #050a14; }
 
-/* ── Coachmark tour (gbTour) ── */
-/* Full-viewport dim overlay; tap the dim area to skip the whole tour. */
-#tour-overlay {
-  position: fixed; inset: 0; z-index: 450;
-  background: rgba(0,0,0,0.55);
-  animation: tourFade 0.2s ease both;
-}
-@keyframes tourFade { from { opacity: 0; } to { opacity: 1; } }
-/* Coachmark card. Positioned by JS each step. */
-#tour-card {
-  position: absolute; width: 280px; max-width: calc(100vw - 24px);
-  background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
-  padding: 14px 16px 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-  font-family: var(--font-body); color: var(--text);
-  animation: tourPop 0.25s cubic-bezier(0.34,1.4,0.64,1) both;
-}
-@keyframes tourPop {
-  from { opacity: 0; transform: scale(0.92); }
-  to   { opacity: 1; transform: scale(1); }
-}
-#tour-step-indicator {
-  font-family: var(--font-display); font-size: 11px; font-weight: 800;
-  color: var(--green); letter-spacing: 0.08em; text-transform: uppercase;
-  margin-bottom: 4px;
-}
-#tour-title {
-  font-family: var(--font-display); font-size: 16px; font-weight: 800;
-  color: var(--text); margin-bottom: 6px;
-}
-#tour-copy {
-  font-size: 13px; color: var(--soft); line-height: 1.55; margin-bottom: 12px;
-}
-#tour-actions { display: flex; justify-content: flex-end; }
-#tour-skip {
-  position: absolute; top: 8px; right: 8px;
-  width: 28px; height: 28px; border-radius: 8px; border: none;
-  background: transparent; color: var(--muted); font-size: 14px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center; line-height: 1;
-}
-#tour-skip:hover { color: var(--text); background: var(--o06); }
-/* Arrow nub on the card. The class controls which edge it sits on; left is
-   set by JS to align with the centre of the target element. */
-#tour-arrow {
-  position: absolute; width: 12px; height: 12px;
-  background: var(--surface); border: 1px solid var(--border);
-  border-right: none; border-bottom: none;
-}
-.tour-arrow-top    { top: -7px;     transform: rotate(45deg); }
-.tour-arrow-bottom { bottom: -7px;  transform: rotate(225deg); }
-/* Subtle green halo on whichever element the current step is pointing at. */
-.tour-target-pulse {
-  animation: tourPulse 1.8s ease-in-out infinite;
-  position: relative; z-index: 460; /* lift above the dim overlay */
-  border-radius: 16px;
-}
-@keyframes tourPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(var(--green-rgb),0.45); }
-  50%      { box-shadow: 0 0 0 8px rgba(var(--green-rgb),0); }
-}
-
 /* ── Reduced-motion: respect prefers-reduced-motion (WCAG 2.3.3) ── */
 @media (prefers-reduced-motion: reduce) {
   /* Cancel all keyframe animations and motion transitions */

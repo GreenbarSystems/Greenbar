@@ -1125,6 +1125,24 @@ if('serviceWorker' in navigator){
   </div>
 </dialog>
 
+<!-- "HOW GREENBAR WORKS" TOUR — static text modal opened from Settings -->
+<dialog class="modal-overlay" id="modal-tour" aria-modal="true" aria-labelledby="tour-modal-title" onclick="closeOut(event,'modal-tour')">
+  <div class="sheet">
+    <div class="sheet-close-row">
+      <button type="button" aria-label="Close tour" onclick="gbTour.finish()" class="sheet-close">&#x2715;</button>
+    </div>
+    <div class="sheet-handle" style="margin-top:0;"></div>
+    <h2 class="sheet-title" id="tour-modal-title" style="margin-bottom:14px;">How Greenbar works</h2>
+    <div style="font-size:14px;color:var(--soft);line-height:1.65;">
+      <p style="margin-bottom:14px;"><strong style="color:var(--text);">Import</strong> &mdash; tap the green button at the top to bring in a CSV or PDF statement. Nothing is uploaded; everything stays on your device.</p>
+      <p style="margin-bottom:14px;"><strong style="color:var(--text);">Switch periods</strong> &mdash; use the buttons on Summary to view the Current Month, Last 3 Months, or Year to Date.</p>
+      <p style="margin-bottom:14px;"><strong style="color:var(--text);">See the details</strong> &mdash; tap any tile, row, or section to expand the breakdown behind a number.</p>
+      <p style="margin-bottom:18px;"><strong style="color:var(--text);">Everything else</strong> &mdash; Budget, Transactions, Guide and Settings live in the bottom nav.</p>
+    </div>
+    <button type="button" class="btn-primary" style="width:100%;" onclick="gbTour.finish()">Got it</button>
+  </div>
+</dialog>
+
 <!-- MONTHLY CHECKUP — guided 3-step routine -->
 <dialog class="modal-overlay" id="modal-checkup" aria-modal="true" aria-labelledby="checkup-title" onclick="closeOut(event,'modal-checkup')">
   <div class="sheet">
