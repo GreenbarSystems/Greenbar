@@ -7,17 +7,35 @@
 // Globals used (all defined by load time): CFG, DEFAULTS, _months, sortKeys,
 // fmt, saveCFG, renderBudgetInputs, renderAll, showScreen, showToast.
 
+// Algorithm design notes:
+//   - Average across ALL tracked months (sum / n), not median. Simpler;
+//     the user reviews the result and can edit any line in Settings.
+//     Tradeoff: under-budgets infrequent categories (Travel, annual
+//     insurance) where the per-event spend is larger than the per-month
+//     average. Worth revisiting if users complain that suggested
+//     Travel/Insurance lines feel too tight.
+//   - Tiered rounding ($5 / $10 / $25 step) makes the result feel like a
+//     human-picked number, not an arithmetic mean.
+//   - MIN_BUDGET = 10 floor drops categories whose average is below $10
+//     so the user isn't asked to track every $3/mo subscription.
+
 const gbSuggest = (() => {
   const K_DISMISS = 'gb_budget_suggest_dismissed';
   const MIN_CATS = 3;     // need at least this many real categories to be useful
-  const MIN_BUDGET = 10;  // drop trivially small categories from the suggestion
+  const MIN_BUDGET = 10;  // drop trivially small categories (enforced by the
+                          // filter in compute() — _roundBudget intentionally
+                          // does NOT floor at MIN_BUDGET so the filter can
+                          // see and discard the rounded-low values).
 
-  // Round a raw monthly average to a friendly budget number.
+  // Round a raw monthly average to a friendly budget number. Returns 0 for
+  // non-positive inputs; otherwise rounds to nearest $5 / $10 / $25 depending
+  // on magnitude. Callers must enforce their own minimum-acceptable-budget
+  // floor (compute() uses MIN_BUDGET) — _roundBudget does not.
   function _roundBudget(v){
     if(v <= 0) return 0;
-    if(v < 50)  return Math.max(MIN_BUDGET, Math.round(v / 5) * 5);  // small -> nearest $5
-    if(v < 500) return Math.round(v / 10) * 10;                       // mid   -> nearest $10
-    return Math.round(v / 25) * 25;                                   // large -> nearest $25
+    if(v < 50)  return Math.round(v / 5) * 5;    // small -> nearest $5
+    if(v < 500) return Math.round(v / 10) * 10;  // mid   -> nearest $10
+    return Math.round(v / 25) * 25;              // large -> nearest $25
   }
 
   // True only while the user is still on the seeded DEFAULTS budget — i.e. they
@@ -69,9 +87,17 @@ const gbSuggest = (() => {
   // screen (and shown on Summary): full-width, distinct green accent border, and
   // a single large primary CTA so it's impossible to miss. Inlined styles only —
   // no new CSS.
+  //
+  // Short-circuits the cheap localStorage / object-equality checks BEFORE
+  // calling compute() — dismissed users, personalized users, and pre-data
+  // users used to pay for a full per-category aggregation on every Summary
+  // render, even though the card never rendered.
   function cardHTML(){
+    if(localStorage.getItem(K_DISMISS) === '1') return '';
+    if(!_budgetIsDefault()) return '';
+    if(!sortKeys(_months).length) return '';
     const c = compute();
-    if(!_shouldShow(c)) return '';
+    if(Object.keys(c.budget).length < MIN_CATS) return '';
     const { total, months } = c;
     const n = Object.keys(c.budget).length;
     return `
@@ -93,9 +119,12 @@ const gbSuggest = (() => {
       renderAll();
       showToast('Budget set from your spending. Adjust any target in Settings.', 'success');
       // Jump to the Budget screen so they see targets vs actual immediately.
-      if(typeof showScreen === 'function'){
-        const budgetNav = document.querySelectorAll('.nav-btn')[1];
-        showScreen('budget', budgetNav);
+      // _navBtn(1) is the canonical pattern used elsewhere (core.js, boot.js,
+      // features.js) for "the nth bottom-nav button" — same DOM query, single
+      // source of truth so a future scoping change (e.g., restricting the
+      // selector to inside #bottom-nav) reaches every consumer.
+      if(typeof showScreen === 'function' && typeof _navBtn === 'function'){
+        showScreen('budget', _navBtn(1));
       }
     }catch(e){ showToast(e.message, 'error'); }
   }
