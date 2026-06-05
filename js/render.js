@@ -778,7 +778,12 @@ function renderSummary(){
           <span class="check-tx"><span class="check-tx-l">${c.l}</span><span class="check-tx-s">${c.s}</span></span>
           <span class="check-arrow" aria-hidden="true">&rsaquo;</span>
         </button>`).join('')}</div>`
-    : `<div class="check-card"><div class="check-clear">&#10003; All clear — nothing needs your attention.</div></div>`;
+    : `<div class="done-card" role="status" aria-label="This month is done">
+        <div class="done-check" aria-hidden="true">&#10003;</div>
+        <div class="done-title">This month is done.</div>
+        <div class="done-sub">${heroLine}</div>
+        <button type="button" class="done-analysis" onclick="gbInsights.openInsights()">See full analysis &rsaquo;</button>
+      </div>`;
 
   const goalN = gbGoals.all().length;
 
@@ -868,9 +873,7 @@ function renderSummary(){
         </div>
       </div>
 
-      ${gbInsights.cardHTML()}
-
-      <h2 class="sec-hdr">What to check</h2>
+      ${checks.length ? `<h2 class="sec-hdr">What to check</h2>` : ''}
       ${checkBody}
 
       <div class="section-panel" id="gb-panel-plan">
@@ -923,6 +926,9 @@ function renderSummary(){
       </div>
 
       ${(()=>{
+        // Achievements are only shown once the checklist is clear — they are a
+        // reward for monthly closure, not ambient decoration.
+        if(checks.length) return '';
         // Build subtitle from streak data when available
         const _s = computeStreaks();
         const streakSub = _s && _s.totalMonths
