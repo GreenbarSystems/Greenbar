@@ -197,9 +197,9 @@ const gbConfidence = (() => {
     if(s.lastImport) line2.push('Imported ' + s.lastImport.date);
     if(s.skippedTotal) line2.push(s.skippedTotal + ' skipped');
     const st = statusLabel();
-    const pill = s.reviewCount
-      ? `<span class="tb-pill review">${s.reviewCount} to review</span>`
-      : (st ? `<span class="tb-pill ok">&#10003; ${esc(st.label)}</span>` : '');
+    // Review count lives in the "What to check" section — the trust bar shows
+    // the ambient status label only (Clean / Needs review / Reviewed / etc.).
+    const pill = st ? `<span class="tb-pill ${s.reviewCount ? 'review' : 'ok'}">&#10003; ${esc(st.label)}</span>` : '';
     return `<button type="button" class="trust-bar" onclick="gbConfidence.open()" aria-label="Open Import Confidence Center: ${s.txCount} transaction${s.txCount===1?'':'s'}${s.reviewCount?(', '+s.reviewCount+' to review'):''}">
       <span class="tb-grow">
         <span class="tb-l1">${esc(_rangeLabel(s.dateRange))} <span class="tb-dot">&middot;</span> ${s.txCount} transaction${s.txCount===1?'':'s'}</span>

@@ -789,7 +789,6 @@ function renderSummary(){
   // nothing to show, so the conditional rendering still works.
   document.getElementById('summary-content').innerHTML=`
     <div class="gb-welcome">
-      ${gbConfidence.renderReviewBanner()}
       ${gbConfidence.renderTrustBar()}
       ${pills}
       ${gbCheckup.renderBanner()}
