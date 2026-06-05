@@ -301,7 +301,7 @@ const gbPrivacy = (() => {
   document.addEventListener('click', (e) => {
     if(!isOn() || document.body.classList.contains('revealed')) return;
     const t = e.target;
-    if(t.closest('.net-amt, .st-val, .st-tap-hint, .cat-amt, .cat-pct, .tx-amt, .bva-num, .hh-rate, .sec-total')){
+    if(t.closest('.net-amt, .st-val, .cat-amt, .cat-pct, .tx-amt, .bva-num, .hh-rate, .sec-total')){
       e.preventDefault(); e.stopPropagation();
       reveal();
     }

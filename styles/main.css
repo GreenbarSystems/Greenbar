@@ -215,7 +215,6 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
 .g-card:active { border-color: var(--border-bright); }
 
 /* ── Import hero ── */
-.import-wrap { padding: 16px 0 0; }
 .import-hero {
   position: relative; overflow: hidden;
   background: linear-gradient(145deg, rgba(var(--green-rgb),0.08), rgba(var(--blue-rgb),0.06), rgba(var(--purple-rgb),0.04));
@@ -228,9 +227,6 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
   width: 200px; height: 200px; border-radius: 50%;
   background: radial-gradient(circle, rgba(var(--green-rgb),0.15) 0%, transparent 70%);
 }
-.hero-orb { font-size: 56px; display: block; margin-bottom: 18px; filter: drop-shadow(0 4px 20px rgba(var(--green-rgb),0.4)); }
-.hero-title { font-family: var(--font-display); font-size: 26px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 10px; }
-.hero-sub { font-size: 14px; color: var(--soft); line-height: 1.65; margin-bottom: 28px; }
 /* Primary CTA, shared by the in-app primary buttons and the larger flash /
    walkthrough hero CTA (.btn-flash-cta, which only overrides the prominence
    deltas below). Single source for the shared shape/colour. */
@@ -263,12 +259,6 @@ html, body { height: 100%; overflow: hidden; font-family: var(--font-body); back
 /* Prominence deltas for the flash/walkthrough hero CTA (shape inherited from
    the grouped rule above): a touch more padding and heavier weight. */
 .btn-flash-cta { padding: 16px; font-weight: 900; letter-spacing: 0.2px; }
-.rules-card { padding: 18px; margin-bottom: 12px; }
-.rules-title { font-family: var(--font-display); font-size: 12px; font-weight: 800; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 14px; }
-.rule-item { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
-.rule-item:last-child { border-bottom: none; }
-.rule-pill { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 8px; background: rgba(var(--green-rgb),0.12); color: var(--green); flex-shrink: 0; }
-.rule-text { color: var(--soft); }
 
 /* ── Month pills ── */
 .pills-row { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 14px; -webkit-overflow-scrolling: touch; }
@@ -416,12 +406,6 @@ button.pill { font: inherit; line-height: 1.2; -webkit-appearance: none; appeara
 .deficit { color: var(--red); }
 
 /* Auditable mini-stats row (Income / Expenses / Net) under the health hero. */
-.perf-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.perf-stat { display: flex; flex-direction: column; gap: 2px; text-align: left; background: var(--o03); border: 1px solid var(--border); border-radius: 12px; padding: 9px 10px; cursor: pointer; font-family: inherit; color: var(--text); }
-.perf-stat[aria-disabled="true"] { cursor: default; }
-.perf-stat:not([aria-disabled]):hover { background: var(--o05); }
-.perf-stat .st-lbl { font-size: 11px; }
-.perf-stat .st-val { font-size: 15px; }
 /* Standalone clickable pill (review badge in the hero). */
 button.tb-pill { -webkit-appearance: none; appearance: none; cursor: pointer; }
 
@@ -433,19 +417,9 @@ button.tb-pill { -webkit-appearance: none; appearance: none; cursor: pointer; }
 }
 .hh-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 16px; }
 .hh-month { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; }
-.hh-tap { display: flex; align-items: center; gap: 18px; width: 100%; text-align: left; background: none; border: none; padding: 0; cursor: pointer; font-family: inherit; color: var(--text); }
-.hh-tap[aria-disabled="true"] { cursor: default; }
 /* Circular score gauge: the grade sits in the centre of an arc filled to the
    score (0–100), coloured by the grade. */
-.hh-ring { position: relative; flex-shrink: 0; width: 78px; height: 78px; }
-.hh-ring svg { display: block; width: 78px; height: 78px; }
-.hh-ring-in { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
-.hh-grade { font-family: var(--font-display); font-size: 28px; font-weight: 900; line-height: 1; letter-spacing: -1px; }
-.hh-meta { display: flex; flex-direction: column; gap: 6px; min-width: 0; flex: 1; }
-.hh-score { font-family: var(--font-display); font-size: 15px; font-weight: 800; color: var(--soft); letter-spacing: 0.02em; }
-.hh-line { font-size: 14px; color: var(--soft); line-height: 1.5; }
 .hh-rate { font-weight: 800; color: var(--text); }
-.hh-cta { font-size: 11px; color: var(--muted); font-weight: 700; flex-shrink: 0; align-self: flex-start; }
 
 /* ── "What to check" card (Summary) ── */
 .check-card { border-radius: 20px; overflow: hidden; background: var(--glass); border: 1px solid var(--border); margin-bottom: 12px; }
@@ -474,7 +448,6 @@ button.stat-tile:hover { border-color: var(--border-bright); }
 button.stat-tile:active { transform: scale(0.98); border-color: var(--border-bright); }
 button.stat-tile:disabled { cursor: default; opacity: 0.7; }
 button.stat-tile:disabled:active { transform: none; }
-.st-tap-hint { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; color: var(--muted); margin-top: 4px; font-weight: 600; letter-spacing: 0.03em; }
 .st-lbl { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; }
 .st-val { font-family: var(--font-display); font-size: 20px; font-weight: 900; letter-spacing: -0.5px; }
 .c-green { color: var(--green); }
@@ -483,8 +456,6 @@ button.stat-tile:disabled:active { transform: none; }
 .c-soft  { color: var(--soft); }
 .c-text  { color: var(--text); }
 .c-muted { color: var(--muted); }
-.c-amber { color: var(--amber); }
-.c-blue  { color: var(--blue); }
 /* ── Centralized component classes (extracted from repeated inline styles).
    Editing any of these propagates to every site that uses the class --
    the whole point of this rule set is design-changes-in-one-place. ── */
@@ -603,7 +574,6 @@ button.stat-tile:disabled:active { transform: none; }
 .cat-list { border-radius: 20px; overflow: hidden; background: var(--glass); border: 1px solid var(--border); margin-bottom: 12px; }
 .cat-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); }
 .cat-item:last-child { border-bottom: none; }
-.cat-icon { width: 36px; height: 36px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
 .cat-body { flex: 1; min-width: 0; }
 .cat-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 5px; }
 .cat-bar-bg { height: 3px; background: var(--o07); border-radius: 3px; }
@@ -654,29 +624,16 @@ button.stat-tile:disabled:active { transform: none; }
 .tx-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--o04); transition: background 0.15s; }
 .tx-item:last-child { border-bottom: none; }
 .tx-item:active { background: var(--o03); }
-.tx-ic { width: 40px; height: 40px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
 .tx-bd { flex: 1; min-width: 0; }
 .tx-desc { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tx-cat { font-size: 11px; color: var(--muted); margin-top: 2px; font-weight: 500; }
 .tx-amt { font-family: var(--font-display); font-size: 16px; font-weight: 800; flex-shrink: 0; }
 .tx-amt.neg { color: var(--red); }
 .tx-amt.pos { color: var(--green); }
 
 /* ── Insights ── */
-.ins-card { padding: 20px; border-radius: 20px; background: var(--glass); border: 1px solid var(--border); margin-bottom: 12px; position: relative; overflow: hidden; }
-.ins-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--border-bright), transparent); }
-.ins-tag { font-size: 10px; font-weight: 800; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; font-family: var(--font-display); }
-.ins-num { font-family: var(--font-display); font-size: 34px; font-weight: 900; letter-spacing: -1px; margin-bottom: 6px; line-height: 1; }
-.ins-desc { font-size: 13px; color: var(--soft); line-height: 1.6; }
-.mo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-.mo-tile { padding: 16px; border-radius: 18px; background: var(--glass); border: 1px solid var(--border); }
-.mo-label { font-size: 11px; font-weight: 700; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.06em; font-family: var(--font-display); }
-.mo-net { font-family: var(--font-display); font-size: 22px; font-weight: 900; letter-spacing: -0.5px; }
-.mo-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
 
 /* ── Settings ── */
 .settings-section { border-radius: 20px; overflow: hidden; background: var(--glass); border: 1px solid var(--border); margin-bottom: 14px; }
-.settings-hdr { padding: 12px 16px; background: var(--o03); border-bottom: 1px solid var(--border); font-family: var(--font-display); font-size: 11px; font-weight: 800; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; }
 .settings-row { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--o04); cursor: pointer; transition: background 0.15s; }
 .settings-row:last-child { border-bottom: none; }
 .settings-row:active { background: var(--o03); }
@@ -804,11 +761,7 @@ button.settings-row:hover { background: var(--o02); }
 .rb-cta { flex-shrink: 0; font-family: var(--font-display); font-size: 13px; font-weight: 800; color: var(--amber); white-space: nowrap; }
 
 /* "Explain this number" — affordances + drilldown modal. */
-.ex-num { background: none; border: none; padding: 0; cursor: pointer; font: inherit; }
-.ex-num:hover { text-decoration: underline; }
 .ex-i { font-size: 0.85em; color: var(--muted); }
-.ex-link { display: inline-block; margin-top: 8px; background: none; border: none; padding: 0; cursor: pointer; font-family: var(--font-display); font-size: 12px; font-weight: 700; color: var(--muted); }
-.ex-link:hover { color: var(--soft); }
 .ex-formula { font-size: 13px; color: var(--soft); line-height: 1.55; margin-bottom: 12px; }
 .ex-lines { background: var(--glass); border: 1px solid var(--border); border-radius: 14px; padding: 4px 14px; margin-bottom: 10px; }
 .ex-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--o05); }
@@ -1027,7 +980,6 @@ button.settings-row:hover { background: var(--o02); }
    click-focus on the scrolling content region doesn't paint a big border. */
 .content[tabindex="-1"]:focus { outline: none; }
 .content[tabindex="-1"]:focus-visible { outline: 2px solid var(--green); outline-offset: -2px; }
-.s-icon { font-size: 20px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: var(--o05); border-radius: 10px; flex-shrink: 0; }
 /* .s-body/.s-label/.s-desc are spans (not divs) so they can live inside
    <button class="settings-row"> -- button content model is phrasing only. */
 .s-body { flex: 1; }
@@ -1125,12 +1077,6 @@ dialog { padding: 0; border: none; margin: 0; width: auto; height: auto; max-wid
 .gb-brand-glow { position: absolute; top: -40px; left: 50%; transform: translateX(-50%); width: 300px; height: 200px; background: radial-gradient(ellipse, rgba(var(--green-rgb),0.10) 0%, transparent 70%); pointer-events: none; }
 .gb-logo-svg { width: 100%; max-width: 280px; height: 120px; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto; }
 .gb-brand-tagline { font-size: 14px; color: var(--soft); letter-spacing: 0.02em; }
-.gb-feature-list { background: var(--glass); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; margin-bottom: 14px; }
-.gb-feature-item { display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; border-bottom: 1px solid var(--o05); }
-.gb-feature-icon { font-size: 20px; width: 38px; height: 38px; border-radius: 12px; background: rgba(var(--green-rgb),0.08); border: 1px solid rgba(var(--green-rgb),0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.gb-feature-body { flex: 1; }
-.gb-feature-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
-.gb-feature-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
 
 /* ── Setup walkthrough ── */
 .setup-step { display:none; flex-direction:column; height:100%; padding:24px 20px 20px; }
@@ -1141,22 +1087,6 @@ dialog { padding: 0; border: none; margin: 0; width: auto; height: auto; max-wid
 .setup-pip.active { background:var(--teal); }
 .setup-q { font-family:var(--font-display); font-size:24px; font-weight:900; letter-spacing:-0.5px; line-height:1.25; margin-bottom:8px; }
 .setup-sub { font-size:14px; color:var(--soft); line-height:1.6; margin-bottom:24px; }
-.setup-options { display:flex; flex-direction:column; gap:10px; flex:1; }
-.setup-opt {
-  display:flex; align-items:center; gap:14px; padding:16px 18px;
-  background:var(--glass); border:1px solid var(--border);
-  border-radius:18px; cursor:pointer; transition:all 0.15s;
-  -webkit-tap-highlight-color:transparent;
-}
-.setup-opt:active, .setup-opt.selected {
-  border-color:var(--green); background:rgba(var(--green-rgb),0.08);
-}
-.setup-opt.selected .setup-opt-check { opacity:1; }
-.setup-opt-icon { font-size:24px; flex-shrink:0; }
-.setup-opt-body { flex:1; }
-.setup-opt-label { font-size:15px; font-weight:600; margin-bottom:2px; }
-.setup-opt-desc { font-size:12px; color:var(--muted); }
-.setup-opt-check { width:20px; height:20px; border-radius:50%; background:var(--green); display:flex; align-items:center; justify-content:center; font-size:11px; color:#050a14; opacity:0; transition:opacity 0.2s; flex-shrink:0; font-weight:900; }
 .setup-input-wrap { position:relative; margin-bottom:10px; }
 .setup-input-wrap .prefix { position:absolute; left:16px; top:50%; transform:translateY(-50%); font-size:16px; color:var(--muted); font-family:var(--font-display); font-weight:700; }
 .setup-input {
@@ -1173,27 +1103,8 @@ dialog { padding: 0; border: none; margin: 0; width: auto; height: auto; max-wid
 .setup-next { flex:1; padding:14px; border:none; background:var(--grad-primary); color:#050a14; font-family:var(--font-display); font-size:15px; font-weight:900; border-radius:14px; cursor:pointer; transition:opacity 0.15s; }
 .setup-next:disabled { opacity:0.4; }
 .setup-skip { display:block; width:100%; background:none; border:none; font-family:inherit; text-align:center; font-size:12px; color:var(--muted); margin-top:12px; cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
-.budget-cat-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-.budget-cat-tile {
-  background:var(--glass); border:1px solid var(--border);
-  border-radius:14px; padding:12px 14px;
-  display:flex; flex-direction:column; gap:6px;
-}
-.budget-cat-tile .bct-label { font-size:12px; color:var(--soft); font-weight:500; display:flex; align-items:center; gap:6px; }
-.budget-cat-tile .bct-input {
-  width:100%; background:none; border:none; border-bottom:1px solid var(--border);
-  color:var(--text); font-family:var(--font-display); font-size:18px;
-  font-weight:800; outline:none; padding:4px 0;
-}
-.budget-cat-tile .bct-input:focus { border-bottom-color:var(--green); }
 
 /* ── Friendly budget settings ── */
-.budget-section-hdr { font-size:11px; font-weight:800; color:var(--green); text-transform:uppercase; letter-spacing:0.1em; padding:14px 16px 8px; font-family:var(--font-display); }
-.budget-cat-row2 { display:flex; align-items:center; padding:10px 16px; border-bottom:1px solid var(--o04); gap:12px; }
-.budget-cat-row2 .bcr-icon { font-size:18px; width:32px; text-align:center; flex-shrink:0; }
-.budget-cat-row2 .bcr-label { flex:1; font-size:13px; color:var(--soft); }
-.budget-cat-row2 .bcr-input { background:var(--o06); border:1px solid var(--border); border-radius:10px; padding:6px 10px; color:var(--text); font-size:14px; font-family:var(--font-display); font-weight:700; width:84px; text-align:right; outline:none; }
-.budget-cat-row2 .bcr-input:focus { border-color:rgba(var(--green-rgb),0.5); }
 
 
 
@@ -1298,7 +1209,6 @@ dialog { padding: 0; border: none; margin: 0; width: auto; height: auto; max-wid
   font-style: italic;
 }
 #ai-help-btn:active { transform: scale(0.92); }
-.ff { font-family: var(--font-display) !important; }
 
 /* ── Security: lock screen + PIN pad + privacy mode ── */
 /* Full-viewport overlay that masks the entire app until biometric/PIN unlocks.
