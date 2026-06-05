@@ -1088,9 +1088,7 @@ if('serviceWorker' in navigator){
 <script src="js/suggest-budget.js"></script>
 <script src="js/insights.js"></script>
 <script src="js/goals.js"></script>
-<script src="js/plan.js"></script>
 <script src="js/checkup.js"></script>
-<script src="js/scenario.js"></script>
 <script src="js/transfers.js"></script>
 <script src="js/reconcile.js"></script>
 <script src="js/demo.js"></script>
@@ -1153,17 +1151,6 @@ if('serviceWorker' in navigator){
 </dialog>
 
 <!-- MAKE A PLAN — linear budget → goal → forecast flow -->
-<dialog class="modal-overlay" id="modal-plan" aria-modal="true" aria-labelledby="plan-title" onclick="closeOut(event,'modal-plan')">
-  <div class="sheet">
-    <div class="sheet-close-row">
-      <button type="button" aria-label="Close" onclick="closeModal('modal-plan')" class="sheet-close">&#x2715;</button>
-    </div>
-    <div class="sheet-handle" style="margin-top:0;"></div>
-    <h2 class="sheet-title" id="plan-title" style="margin-bottom:8px;">Make a plan</h2>
-    <div id="plan-body"></div>
-  </div>
-</dialog>
-
 <!-- MONTHLY CHECKUP — guided 5-step routine -->
 <dialog class="modal-overlay" id="modal-checkup" aria-modal="true" aria-labelledby="checkup-title" onclick="closeOut(event,'modal-checkup')">
   <div class="sheet">
@@ -1173,19 +1160,6 @@ if('serviceWorker' in navigator){
     <div class="sheet-handle" style="margin-top:0;"></div>
     <h2 class="sheet-title" id="checkup-title" style="margin-bottom:8px;">Monthly checkup</h2>
     <div id="checkup-body"></div>
-  </div>
-</dialog>
-
-<!-- WHAT CHANGES IF…? — decision/tradeoff analyzer -->
-<dialog class="modal-overlay" id="modal-scenario" aria-modal="true" aria-labelledby="scenario-title" onclick="closeOut(event,'modal-scenario')">
-  <div class="sheet">
-    <div class="sheet-close-row">
-      <button type="button" aria-label="Close" onclick="closeModal('modal-scenario')" class="sheet-close">&#x2715;</button>
-    </div>
-    <div class="sheet-handle" style="margin-top:0;"></div>
-    <h2 class="sheet-title" id="scenario-title" style="margin-bottom:2px;">What changes if…?</h2>
-    <div class="sheet-sub">Adjust a lever and see the consequences — all on your device.</div>
-    <div id="scenario-body" style="margin-top:8px;"></div>
   </div>
 </dialog>
 

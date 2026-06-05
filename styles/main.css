@@ -894,15 +894,7 @@ button.settings-row:hover { background: var(--o02); }
 .dlw-note { font-size: 12px; color: var(--amber); background: rgba(var(--amber-rgb),0.07); border: 1px solid rgba(var(--amber-rgb),0.2); border-radius: 10px; padding: 8px 11px; margin-top: 8px; line-height: 1.5; }
 .dlw-hint { font-size: 11px; color: var(--muted); line-height: 1.5; margin-top: 8px; }
 
-/* "Make a plan" CTA banner + the "Your plan" grouped tiles (closed loop). */
-.plan-cta { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: linear-gradient(155deg, rgba(var(--green-rgb),0.12), rgba(var(--blue-rgb),0.07)); border: 1px solid rgba(var(--green-rgb),0.3); border-radius: 16px; padding: 13px 14px; margin-bottom: 12px; cursor: pointer; color: var(--text); font-family: inherit; }
-.plan-cta:hover { border-color: var(--green); }
-.plan-cta-ic { flex-shrink: 0; font-size: 18px; color: var(--green); }
-.plan-cta-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.plan-cta-txt strong { font-family: var(--font-display); font-size: 14px; }
-.plan-cta-txt span { font-size: 12px; color: var(--soft); margin-top: 1px; line-height: 1.4; }
-.plan-cta-go { flex-shrink: 0; font-family: var(--font-display); font-size: 13px; font-weight: 800; color: var(--green); white-space: nowrap; }
-
+/* Plan section tiles on Summary — the Budget + Goals collapsible body. */
 .plan-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 6px; }
 .plan-tile { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 12px 12px 11px; background: var(--glass); border: 1px solid var(--border); border-radius: 14px; cursor: pointer; color: var(--text); font-family: inherit; text-align: left; }
 .plan-tile:hover { background: var(--o06); }
@@ -912,31 +904,7 @@ button.settings-row:hover { background: var(--o02); }
 .pt-v { font-family: var(--font-display); font-size: 22px; font-weight: 900; line-height: 1.1; }
 .pt-sub { font-size: 11px; color: var(--soft); }
 
-/* Make-a-plan flow steps. */
-.plan-dots { display: flex; gap: 6px; justify-content: center; margin: 2px 0 14px; }
-.plan-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--o10); }
-.plan-dot.on { background: var(--green); transform: scale(1.2); }
-.plan-dot.done { background: rgba(var(--green-rgb),0.5); }
-.plan-step-lbl { font-family: var(--font-display); font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; }
-.plan-h { font-family: var(--font-display); font-size: 18px; font-weight: 900; letter-spacing: -0.3px; line-height: 1.25; margin-bottom: 8px; }
-.plan-p { font-size: 13px; color: var(--soft); line-height: 1.55; margin-bottom: 14px; }
-.plan-input { width: 100%; box-sizing: border-box; background: var(--glass); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-size: 15px; font-family: var(--font-body); padding: 11px 12px; margin-bottom: 10px; }
-.plan-input:focus { outline: none; border-color: rgba(var(--green-rgb),0.4); }
-.plan-input-money { position: relative; }
-.plan-input-money .plan-input-pre { position: absolute; left: 12px; top: 11px; color: var(--muted); font-size: 15px; }
-.plan-input-money .plan-input { padding-left: 24px; }
-.plan-eta { background: rgba(var(--green-rgb),0.07); border: 1px solid rgba(var(--green-rgb),0.2); border-radius: 12px; padding: 12px 14px; font-size: 13px; color: var(--soft); line-height: 1.5; margin-bottom: 12px; }
-.plan-fc { background: var(--glass); border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 14px; }
-.plan-fc-net { font-family: var(--font-display); font-size: 30px; font-weight: 900; letter-spacing: -0.5px; line-height: 1.1; }
-.plan-fc-mo { font-size: 12px; color: var(--muted); font-weight: 700; margin-left: 4px; }
-.plan-traj { margin-top: 10px; }
-.plan-traj-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; border-top: 1px solid var(--o05); font-family: var(--font-display); font-weight: 700; }
-.plan-traj-row span:first-child { color: var(--muted); font-weight: 600; }
-
 /* ── Monthly checkup ── */
-.plan-cta.checkup-done { background: var(--glass); border-color: var(--border); }
-.plan-cta.checkup-done .plan-cta-ic,
-.plan-cta.checkup-done .plan-cta-go { color: var(--green); }
 .checkup-grade { display: flex; align-items: center; gap: 18px; margin-bottom: 12px; }
 .checkup-grade-letter { font-family: var(--font-display); font-size: 60px; font-weight: 900; line-height: 0.85; letter-spacing: -3px; flex-shrink: 0; }
 .checkup-grade-meta { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
@@ -948,48 +916,6 @@ button.settings-row:hover { background: var(--o02); }
   background: rgba(var(--green-rgb),0.12); border: 1px solid rgba(var(--green-rgb),0.35);
 }
 .checkup-streak-num { font-family: var(--font-display); font-size: 46px; font-weight: 900; color: var(--green); line-height: 1; letter-spacing: -2px; margin: 6px 0 8px; }
-
-/* ── "Best next move" recommendation card (Summary) ── */
-.bestmove { width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; background: linear-gradient(155deg, rgba(var(--green-rgb),0.1), rgba(var(--blue-rgb),0.06)); border: 1px solid rgba(var(--green-rgb),0.3); border-radius: 16px; padding: 14px; margin-bottom: 14px; cursor: pointer; color: var(--text); font-family: inherit; }
-.bestmove:hover { border-color: var(--green); }
-.bestmove-ic { flex-shrink: 0; font-size: 20px; }
-.bestmove-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.bestmove-title { font-family: var(--font-display); font-size: 14px; font-weight: 800; line-height: 1.25; }
-.bestmove-detail { font-size: 12px; color: var(--soft); line-height: 1.4; }
-.bestmove-go { flex-shrink: 0; font-family: var(--font-display); font-size: 13px; font-weight: 800; color: var(--green); white-space: nowrap; }
-
-/* ── "What changes if…?" scenario analyzer ── */
-/* Launcher embedded in the Cash-Flow Forecast card. */
-.scn-launch { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; margin: 12px 0; padding: 11px; border-radius: 12px; border: 1px solid rgba(var(--blue-rgb),0.3); background: rgba(var(--blue-rgb),0.08); color: var(--text); font-family: var(--font-display); font-size: 13px; font-weight: 800; cursor: pointer; }
-.scn-launch:hover { border-color: var(--blue); }
-.scn-launch-sub { font-weight: 600; color: var(--muted); font-size: 12px; }
-.scn-baseline { font-size: 13px; color: var(--soft); line-height: 1.5; margin-bottom: 14px; }
-/* Levers */
-.scn-lever { background: var(--glass); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; margin-bottom: 12px; }
-.scn-lever-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
-.scn-lever-lbl { font-family: var(--font-display); font-size: 13px; font-weight: 800; }
-.scn-lever-val { font-family: var(--font-display); font-size: 15px; font-weight: 900; }
-.scn-stepper { display: flex; align-items: center; gap: 10px; }
-.scn-step { width: 40px; height: 40px; flex-shrink: 0; border-radius: 11px; border: 1px solid var(--border); background: var(--o05); color: var(--text); font-size: 22px; line-height: 1; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-.scn-step:hover:not(:disabled) { border-color: var(--border-bright); }
-.scn-step:disabled { opacity: 0.4; cursor: default; }
-.scn-bar { flex: 1; height: 6px; border-radius: 3px; background: var(--o08); overflow: hidden; }
-.scn-bar-fill { height: 100%; border-radius: 3px; background: var(--grad-primary); transition: width 0.25s ease; }
-.scn-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-.scn-chip { border: 1px solid var(--border); background: var(--o03); color: var(--soft); border-radius: 999px; padding: 5px 10px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--font-display); }
-.scn-chip:hover { border-color: var(--border-bright); }
-/* Consequence output */
-.scn-out { background: linear-gradient(155deg, rgba(var(--green-rgb),0.08), rgba(var(--blue-rgb),0.05)); border: 1px solid rgba(var(--green-rgb),0.22); border-radius: 16px; padding: 16px; margin: 4px 0 12px; }
-.scn-head { font-family: var(--font-display); font-size: 30px; font-weight: 900; letter-spacing: -0.5px; line-height: 1.1; }
-.scn-head-sub { font-size: 13px; color: var(--muted); font-weight: 700; margin-left: 4px; }
-.scn-delta { font-size: 13px; font-weight: 800; font-family: var(--font-display); margin-top: 4px; }
-.scn-rows { margin-top: 12px; }
-.scn-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 7px 0; border-top: 1px solid var(--o05); }
-.scn-row span:first-child { color: var(--muted); }
-.scn-row-cta { justify-content: center; }
-.scn-arrow { color: var(--muted); margin: 0 2px; }
-.scn-foot { font-size: 12px; color: var(--muted); line-height: 1.5; }
-.scn-empty { background: var(--glass); border: 1px solid var(--border); border-radius: 14px; padding: 16px; font-size: 13px; color: var(--muted); line-height: 1.6; }
 
 /* ── Transfer & card-payment resolver ── */
 .xfer-head { margin-bottom: 12px; }
