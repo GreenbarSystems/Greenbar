@@ -138,8 +138,8 @@ const MN='Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec'.split(',');
 let _months={},_allTxs=[],_sel=null;
 
 // Monotonic counter bumped whenever the transaction model (_months/_allTxs)
-// changes. Read-heavy analyzers (gbTrends.detectRecurring / computeMonthVariance,
-// gbForecast.compute) memoize their results against it, so the several cards that
+// changes. Read-heavy analyzers used to memoize their results against it
+// (gbTrends and gbForecast — both removed in the Phase 3 cleanup), so the cards that
 // each call them during a single render recompute once per data change instead of
 // once per call. Bumped in rebuildMonths(), saveData(), and clearAllData() — the
 // points where the model is rebuilt, persisted, or reset.

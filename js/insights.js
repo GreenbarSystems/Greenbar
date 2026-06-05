@@ -7,7 +7,9 @@
 //
 // Reuses existing analyzers instead of duplicating logic:
 //   render.js   -> computeHealthScore, computeStreaks, GRADE_EXPLAIN
-//   recurring.js-> gbTrends.detectRecurring, gbTrends.computeMonthVariance
+//   (recurring.js / gbTrends were removed; the typeof guards below now
+//    always set `recurring` and `variance` to null. Insights still work
+//    on the categories + health + streaks paths.)
 //   core/state  -> _months, _allTxs, CFG, sortKeys, sumExpenses, fmt, esc, MN,
 //                  openModal, closeModal, closeOut
 

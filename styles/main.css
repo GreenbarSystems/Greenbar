@@ -571,9 +571,9 @@ button.stat-tile:disabled:active { transform: none; }
 }
 /* Free-floating eyebrow caption — same visual treatment as
    .section-card-header but with NO baked-in margin so it can be reused in
-   any context (forecast/recurring/checkup modules, variance hero, modal
-   labels). Sites that need spacing apply it inline; sites with a dynamic
-   colour (status indicators, per-account headers) override `color` inline.
+   any context (variance hero, modal labels, per-account headers, etc).
+   Sites that need spacing apply it inline; sites with a dynamic colour
+   (status indicators, per-account headers) override `color` inline.
    Sites that want the lighter 700 weight (secondary captions) override
    `font-weight` inline. */
 .eyebrow {
@@ -905,6 +905,34 @@ button.settings-row:hover { background: var(--o02); }
 .pt-sub { font-size: 11px; color: var(--soft); }
 
 /* ── Monthly checkup ── */
+/* Banner CTA on Summary (start state and done-state). */
+.cu-cta { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: linear-gradient(155deg, rgba(var(--green-rgb),0.12), rgba(var(--blue-rgb),0.07)); border: 1px solid rgba(var(--green-rgb),0.3); border-radius: 16px; padding: 13px 14px; margin-bottom: 12px; cursor: pointer; color: var(--text); font-family: inherit; }
+.cu-cta:hover { border-color: var(--green); }
+.cu-cta.done { background: var(--glass); border-color: var(--border); }
+.cu-cta-ic { flex-shrink: 0; font-size: 18px; color: var(--green); }
+.cu-cta-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.cu-cta-txt strong { font-family: var(--font-display); font-size: 14px; }
+.cu-cta-txt span { font-size: 12px; color: var(--soft); margin-top: 1px; line-height: 1.4; }
+.cu-cta-go { flex-shrink: 0; font-family: var(--font-display); font-size: 13px; font-weight: 800; color: var(--green); white-space: nowrap; }
+
+/* Modal step-progress dots. */
+.cu-dots { display: flex; gap: 6px; justify-content: center; margin: 2px 0 14px; }
+.cu-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--o10); }
+.cu-dot.on { background: var(--green); transform: scale(1.2); }
+.cu-dot.done { background: rgba(var(--green-rgb),0.5); }
+
+/* Modal step text. */
+.cu-step-lbl { font-family: var(--font-display); font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; }
+.cu-h { font-family: var(--font-display); font-size: 18px; font-weight: 900; letter-spacing: -0.3px; line-height: 1.25; margin-bottom: 8px; }
+.cu-p { font-size: 13px; color: var(--soft); line-height: 1.55; margin-bottom: 14px; }
+
+/* Goal-entry inputs (Step 3). */
+.cu-input { width: 100%; box-sizing: border-box; background: var(--glass); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-size: 15px; font-family: var(--font-body); padding: 11px 12px; margin-bottom: 10px; }
+.cu-input:focus { outline: none; border-color: rgba(var(--green-rgb),0.4); }
+.cu-input-money { position: relative; }
+.cu-input-money .cu-input-pre { position: absolute; left: 12px; top: 11px; color: var(--muted); font-size: 15px; }
+.cu-input-money .cu-input { padding-left: 24px; }
+
 .checkup-grade { display: flex; align-items: center; gap: 18px; margin-bottom: 12px; }
 .checkup-grade-letter { font-family: var(--font-display); font-size: 60px; font-weight: 900; line-height: 0.85; letter-spacing: -3px; flex-shrink: 0; }
 .checkup-grade-meta { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
