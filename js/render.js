@@ -691,12 +691,11 @@ function renderSummary(){
   // KPI -- Monthly Budget
   const totalBudget=Object.values(CFG.budget||{}).reduce((s,v)=>s+(v>0?v:0),0);
 
-  // KPI -- health score grade + brief explanation
+  // KPI -- health score grade for the hero badge (just letter + score;
+  // gradeColor + gradeExplain were used by the previous ring-gauge layout
+  // and are no longer referenced by the simplified hero template).
   const hs=sel ? computeHealthScore(sel) : null;
   const grade=hs ? hs.grade : '—';
-  const gradeColor=hs ? hs.gradeColor : 'var(--muted)';
-  const gradeExplain=hs ? (GRADE_EXPLAIN[hs.grade]||hs.label)
-    : (hasData ? 'Add a month with income to get a grade.' : 'Import bank transactions to get your grade.');
 
   const pills = hasData ? `
     <div class="period-row" role="group" aria-label="Select time period">
@@ -781,14 +780,19 @@ function renderSummary(){
         </button>`).join('')}</div>`
     : `<div class="check-card"><div class="check-clear">&#10003; All clear — nothing needs your attention.</div></div>`;
 
-  const goalN = (typeof gbGoals !== 'undefined') ? gbGoals.all().length : 0;
+  const goalN = gbGoals.all().length;
 
+  // Every gb* module referenced below is always-loaded (declared in
+  // index.html, no progressive enhancement). Calling directly — without a
+  // typeof guard — makes a future deletion break loudly instead of silently
+  // returning ''. Modules' own .render*() methods return '' when there's
+  // nothing to show, so the conditional rendering still works.
   document.getElementById('summary-content').innerHTML=`
     <div class="gb-welcome">
-      ${typeof gbConfidence !== 'undefined' ? gbConfidence.renderReviewBanner() : ''}
-      ${typeof gbConfidence !== 'undefined' ? gbConfidence.renderTrustBar() : ''}
+      ${gbConfidence.renderReviewBanner()}
+      ${gbConfidence.renderTrustBar()}
       ${pills}
-      ${typeof gbCheckup !== 'undefined' ? gbCheckup.renderBanner() : ''}
+      ${gbCheckup.renderBanner()}
 
       <div class="health-hero">
         <div class="hh-top">
@@ -865,12 +869,12 @@ function renderSummary(){
         </div>
       </div>
 
-      ${typeof gbInsights !== 'undefined' ? gbInsights.cardHTML() : ''}
+      ${gbInsights.cardHTML()}
 
       <h2 class="sec-hdr">What to check</h2>
       ${checkBody}
 
-      ${typeof gbAccounts !== 'undefined' ? gbAccounts.cardHTML(sel) : ''}
+      ${gbAccounts.cardHTML(sel)}
 
       <div class="section-panel" id="gb-panel-plan">
         <button type="button" class="check-row section-toggle"
@@ -904,8 +908,7 @@ function renderSummary(){
                 <span class="pt-l">Budget</span>
                 <span class="pt-v">${fmt(totalBudget)}</span>
                 <span class="pt-sub">
-                  ${(typeof gbSuggest!=='undefined'&&gbSuggest.shouldShow())
-                    ? 'Build it &rsaquo;' : 'Plan vs actual &rsaquo;'}
+                  ${gbSuggest.shouldShow() ? 'Build it &rsaquo;' : 'Plan vs actual &rsaquo;'}
                 </span>
               </button>
               <button class="plan-tile" type="button"
@@ -924,7 +927,7 @@ function renderSummary(){
 
       ${(()=>{
         // Build subtitle from streak data when available
-        const _s = (typeof computeStreaks === 'function') ? computeStreaks() : null;
+        const _s = computeStreaks();
         const streakSub = _s && _s.totalMonths
           ? `${_s.curPosStreak}-month streak &middot; ${_s.badges.filter(b=>b.earned).length} badge${_s.badges.filter(b=>b.earned).length===1?'':'s'} earned`
           : 'Start tracking to earn badges';
