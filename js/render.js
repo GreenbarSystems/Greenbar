@@ -867,8 +867,6 @@ function renderSummary(){
 
       ${typeof gbInsights !== 'undefined' ? gbInsights.cardHTML() : ''}
 
-      ${(typeof gbScenario !== 'undefined' && typeof analyticsUnlocked === 'function' && analyticsUnlocked()) ? gbScenario.bestMoveHTML() : ''}
-
       <h2 class="sec-hdr">What to check</h2>
       ${checkBody}
 
@@ -899,12 +897,6 @@ function renderSummary(){
         </button>
         <div class="section-body" id="gb-body-plan">
           <div class="section-body-inner">
-            ${(()=>{
-              const checkupPending = (typeof gbCheckup !== 'undefined')
-                && gbCheckup.shouldShow() && !gbCheckup.doneThisMonth();
-              return (typeof gbPlan !== 'undefined' && !checkupPending)
-                ? gbPlan.renderBanner() : '';
-            })()}
             <div class="plan-grid" style="grid-template-columns:repeat(2,1fr);">
               <button class="plan-tile" type="button"
                 onclick="showScreen('budget', document.querySelectorAll('.nav-btn')[1])"
