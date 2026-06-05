@@ -742,10 +742,6 @@ if('serviceWorker' in navigator){
               <span class="s-body"><span class="s-label" id="col-label">Format &amp; region</span><span class="s-desc" id="col-desc">Column mapping, date format, region &amp; currency</span></span>
               <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
             </button>
-            <button type="button" class="settings-row" onclick="gbAccounts.openManager()" aria-labelledby="acct-mgr-label" aria-describedby="acct-mgr-desc">
-              <span class="s-body"><span class="s-label" id="acct-mgr-label">Manage accounts</span><span class="s-desc" id="acct-mgr-desc">Rename, merge, or remove an account / source</span></span>
-              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
-            </button>
             <button type="button" class="settings-row" onclick="gbConfidence.open()" aria-labelledby="icc-label" aria-describedby="icc-desc">
               <span class="s-body"><span class="s-label" id="icc-label">Import Confidence Center</span><span class="s-desc" id="icc-desc">Trust status, the review queue, and per-import history</span></span>
               <span id="icc-badge" style="display:none;background:rgba(var(--amber-rgb),0.15);color:var(--amber);border:1px solid rgba(var(--amber-rgb),0.3);font-size:11px;font-weight:800;border-radius:9px;padding:2px 8px;font-family:var(--font-display);"></span>
@@ -774,10 +770,6 @@ if('serviceWorker' in navigator){
             </button>
             <button type="button" class="settings-row" onclick="openModal('modal-income')" aria-labelledby="inc-label" aria-describedby="inc-desc">
               <span class="s-body"><span class="s-label" id="inc-label">Income Keywords</span><span class="s-desc" id="inc-desc">Words that identify deposits</span></span>
-              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
-            </button>
-            <button type="button" class="settings-row" onclick="gbTransfers.open()" aria-labelledby="xfer-label" aria-describedby="xfer-desc">
-              <span class="s-body"><span class="s-label" id="xfer-label">Transfers &amp; card payments</span><span class="s-desc" id="xfer-desc">Classify, exclude, pair &amp; save rules for money moved between accounts</span></span>
               <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
             </button>
             <button type="button" class="settings-row" onclick="openModal('modal-skip')" aria-labelledby="skip-label" aria-describedby="skip-desc">
@@ -1087,12 +1079,9 @@ if('serviceWorker' in navigator){
 <script src="js/insights.js"></script>
 <script src="js/goals.js"></script>
 <script src="js/checkup.js"></script>
-<script src="js/transfers.js"></script>
 <script src="js/reconcile.js"></script>
 <script src="js/demo.js"></script>
 <script src="js/cleanup.js"></script>
-<script src="js/accounts.js"></script>
-<script src="js/profiles.js"></script>
 <script src="js/features.js"></script>
 <script src="js/security.js"></script>
 <script src="js/backup.js"></script>
@@ -1136,20 +1125,7 @@ if('serviceWorker' in navigator){
   </div>
 </dialog>
 
-<dialog class="modal-overlay" id="modal-accounts" aria-modal="true" aria-labelledby="accounts-title" onclick="closeOut(event,'modal-accounts')">
-  <div class="sheet">
-    <div class="sheet-close-row">
-      <button type="button" aria-label="Close" onclick="closeModal('modal-accounts')" class="sheet-close">&#x2715;</button>
-    </div>
-    <div class="sheet-handle" style="margin-top:0;"></div>
-    <h2 class="sheet-title" id="accounts-title" style="margin-bottom:2px;">Accounts</h2>
-    <div class="sheet-sub">Rename to fix a typo, merge two by giving them the same name, or remove an account and its transactions.</div>
-    <div id="accounts-body" style="margin-top:8px;"></div>
-  </div>
-</dialog>
-
-<!-- MAKE A PLAN — linear budget → goal → forecast flow -->
-<!-- MONTHLY CHECKUP — guided 5-step routine -->
+<!-- MONTHLY CHECKUP — guided 3-step routine -->
 <dialog class="modal-overlay" id="modal-checkup" aria-modal="true" aria-labelledby="checkup-title" onclick="closeOut(event,'modal-checkup')">
   <div class="sheet">
     <div class="sheet-close-row">
@@ -1158,19 +1134,6 @@ if('serviceWorker' in navigator){
     <div class="sheet-handle" style="margin-top:0;"></div>
     <h2 class="sheet-title" id="checkup-title" style="margin-bottom:8px;">Monthly checkup</h2>
     <div id="checkup-body"></div>
-  </div>
-</dialog>
-
-<!-- TRANSFER RESOLUTION — classify / exclude / pair / save rules -->
-<dialog class="modal-overlay" id="modal-transfers" aria-modal="true" aria-labelledby="transfers-title" onclick="closeOut(event,'modal-transfers')">
-  <div class="sheet">
-    <div class="sheet-close-row">
-      <button type="button" aria-label="Close" onclick="closeModal('modal-transfers')" class="sheet-close">&#x2715;</button>
-    </div>
-    <div class="sheet-handle" style="margin-top:0;"></div>
-    <h2 class="sheet-title" id="transfers-title" style="margin-bottom:2px;">Transfers &amp; card payments</h2>
-    <div class="sheet-sub">Money moving between your own accounts isn't spending — mark it here so it doesn't skew your totals.</div>
-    <div id="transfers-body" style="margin-top:10px;"></div>
   </div>
 </dialog>
 

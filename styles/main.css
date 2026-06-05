@@ -802,10 +802,6 @@ button.settings-row:hover { background: var(--o02); }
 .receipt-tip strong { color: var(--green); }
 
 /* Dashboard per-account summary card. */
-.acct-sum-card { background: var(--glass); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 14px; }
-.acct-sum-row { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; background: none; border: none; border-bottom: 1px solid var(--o05); padding: 12px 14px; cursor: pointer; color: var(--text); font-family: inherit; }
-.acct-sum-row:last-child { border-bottom: none; }
-.acct-sum-row:hover { background: var(--o03); }
 .asr-main { flex: 1; min-width: 0; display: block; }
 .asr-name { display: block; font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .asr-sub { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
@@ -815,19 +811,6 @@ button.settings-row:hover { background: var(--o02); }
 .asr-chev { flex-shrink: 0; color: var(--muted); font-size: 18px; }
 
 /* Settings → Accounts manager rows. */
-.acct-card { padding: 10px 0; border-bottom: 1px solid var(--o05); }
-.acct-card:last-child { border-bottom: none; }
-.acct-row { display: flex; align-items: center; gap: 8px; }
-.acct-meta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
-.acct-type { background: var(--glass); border: 1px solid var(--border); border-radius: 9px; color: var(--text); font-size: 12px; font-family: var(--font-body); padding: 6px 8px; appearance: none; }
-.acct-pay { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--soft); cursor: pointer; }
-.acct-pay input { width: 15px; height: 15px; flex-shrink: 0; accent-color: var(--green); }
-.acct-last { font-size: 11px; color: var(--muted); margin-top: 6px; }
-.acct-name { flex: 1; min-width: 0; background: var(--glass); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 13px; font-family: var(--font-body); padding: 8px 10px; }
-.acct-name:focus { outline: none; border-color: rgba(var(--green-rgb),0.4); }
-.acct-count { flex-shrink: 0; font-size: 11px; color: var(--muted); white-space: nowrap; }
-.acct-save { flex-shrink: 0; border: 1px solid rgba(var(--green-rgb),0.3); background: rgba(var(--green-rgb),0.1); color: var(--green); border-radius: 9px; padding: 7px 11px; font-size: 12px; font-weight: 700; font-family: var(--font-display); cursor: pointer; }
-.acct-del { flex-shrink: 0; width: 32px; height: 32px; border-radius: 9px; border: 1px solid rgba(var(--red-rgb),0.3); background: rgba(var(--red-rgb),0.08); color: var(--red); font-size: 13px; cursor: pointer; }
 
 /* Data-load wizard — "Which bank?" logo grid + illustrated export steps. */
 .bank-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 4px 0 2px; }
@@ -898,31 +881,7 @@ button.settings-row:hover { background: var(--o02); }
 }
 .checkup-streak-num { font-family: var(--font-display); font-size: 46px; font-weight: 900; color: var(--green); line-height: 1; letter-spacing: -2px; margin: 6px 0 8px; }
 
-/* ── Transfer & card-payment resolver ── */
-.xfer-head { margin-bottom: 12px; }
-.xfer-head-n { font-family: var(--font-display); font-size: 15px; font-weight: 900; }
-.xfer-head-sub { font-size: 12px; color: var(--soft); line-height: 1.5; margin-top: 2px; }
-.xfer-row { background: var(--glass); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; margin-bottom: 10px; }
-.xfer-row.is-excluded { border-color: rgba(var(--blue-rgb),0.3); background: rgba(var(--blue-rgb),0.05); }
-.xfer-top { display: flex; align-items: center; gap: 10px; }
-.xfer-main { flex: 1; min-width: 0; }
-.xfer-v { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.xfer-s { font-size: 12px; color: var(--muted); margin-top: 1px; }
-.xfer-row .tx-amt { flex-shrink: 0; font-family: var(--font-display); font-weight: 800; }
 /* Two-segment classify control */
-.xfer-seg { display: flex; gap: 0; margin-top: 10px; border: 1px solid var(--border); border-radius: 11px; overflow: hidden; }
-.xfer-seg button { flex: 1; padding: 9px 0; border: none; background: var(--o03); color: var(--soft); font-family: var(--font-display); font-size: 12px; font-weight: 700; cursor: pointer; }
-.xfer-seg button + button { border-left: 1px solid var(--border); }
-.xfer-seg button.on { background: var(--grad-primary); color: #050a14; }
-.xfer-extra { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--o05); }
-.xfer-rule { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--soft); cursor: pointer; }
-.xfer-rule input { width: 16px; height: 16px; flex-shrink: 0; accent-color: var(--green); cursor: pointer; }
-.xfer-pair { font-size: 12px; color: var(--soft); margin-top: 8px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.xfer-pairbtn { margin-top: 8px; width: 100%; text-align: left; padding: 8px 10px; border: 1px solid rgba(var(--blue-rgb),0.3); background: rgba(var(--blue-rgb),0.07); color: var(--text); border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--font-display); }
-.xfer-pairbtn:hover { border-color: var(--blue); }
-.xfer-empty { background: var(--glass); border: 1px solid var(--border); border-radius: 14px; padding: 18px; font-size: 13px; color: var(--muted); line-height: 1.6; text-align: center; }
-.xfer-more { font-size: 12px; color: var(--muted); text-align: center; padding: 8px 0; }
-.xfer-foot { font-size: 11px; color: var(--muted); line-height: 1.5; text-align: center; margin-top: 8px; }
 
 /* ── Statement reconciliation ── */
 /* Per-import badge in the Import Confidence Center history. */

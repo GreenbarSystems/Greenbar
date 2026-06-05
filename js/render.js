@@ -874,8 +874,6 @@ function renderSummary(){
       <h2 class="sec-hdr">What to check</h2>
       ${checkBody}
 
-      ${gbAccounts.cardHTML(sel)}
-
       <div class="section-panel" id="gb-panel-plan">
         <button type="button" class="check-row section-toggle"
           onclick="gbToggleSection('plan')"
@@ -1052,7 +1050,6 @@ function renderSummaryAll(){
         <div class="stat-tile"><div class="st-lbl">Total Exp</div><div class="st-val c-red">${fmt(totalExp)}</div></div>
         <div class="stat-tile"><div class="st-lbl">Months</div><div class="st-val c-teal">${n}</div></div>
       </div>
-      ${typeof gbAccounts !== 'undefined' ? gbAccounts.cardHTML(null) : ''}
       <h2 class="sec-hdr">Avg Monthly Spend <span class="sec-total">${fmt(totalExp/n)}/mo</span></h2>
       <div class="cat-list">
         ${cats.slice(0,8).map(([cat,avg],i)=>`
