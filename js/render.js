@@ -525,7 +525,7 @@ function showCatInsights(cat){
 
       <!-- Smart observations -->
       <div style="background:linear-gradient(145deg,rgba(var(--green-rgb),0.06),rgba(var(--teal-rgb),0.04));border:1px solid rgba(var(--green-rgb),0.15);border-radius:16px;padding:16px;margin-bottom:4px;">
-        <div style="font-size:11px;font-weight:800;color:#00d68f;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;font-family: var(--font-display);">Observations</div>
+        <div class="eyebrow" style="color:var(--green);margin-bottom:10px;">Observations</div>
         ${[
           topVendor && parseInt(topVendorPct) > 30
             ? `<b>${esc(topVendor[0])}</b> accounts for <b>${topVendorPct}%</b> of all ${esc(cat)} spending -- your dominant vendor in this category.`
@@ -963,13 +963,13 @@ function renderBudget(){
   // that account's spend against the household budget (no misleading "under").
   const heroHtml = acct
     ? `<div style="background:var(--glass);border:1px solid var(--border);border-radius:20px;padding:18px 18px 16px;margin-bottom:14px;">
-         <div style="font-family:var(--font-display);font-size:11px;font-weight:800;color:var(--soft);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">${esc(acct)} &middot; ${esc(mk)}</div>
+         <div class="eyebrow" style="color:var(--soft);margin-bottom:6px;">${esc(acct)} &middot; ${esc(mk)}</div>
          <div style="font-family:var(--font-display);font-size:32px;font-weight:900;letter-spacing:-1px;line-height:1;">${fmt(expTotal)}</div>
          <div style="font-size:13px;color:var(--soft);margin-top:6px;">spent &middot; of ${fmt(budTotal)} household budget</div>
        </div>
        <div style="font-size:12px;color:var(--muted);margin:-4px 2px 14px;line-height:1.5;">Targets are your full-household plan; actuals shown are <strong class="c-soft">${esc(acct)}</strong> only.</div>`
     : `<button type="button" onclick="gbConfidence.openExplain('variance','${esc(mk)}')" aria-label="Explain budget variance" style="display:block;width:100%;text-align:left;background:${varTint};border:1px solid ${varBdr};border-radius:20px;padding:18px 18px 16px;margin-bottom:14px;cursor:pointer;font-family:inherit;color:inherit;">
-        <div style="font-family:var(--font-display);font-size:11px;font-weight:800;color:${varColor};text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">${budTotal>0?'This month':'No budget set'}</div>
+        <div class="eyebrow" style="color:${varColor};margin-bottom:6px;">${budTotal>0?'This month':'No budget set'}</div>
         <div style="font-family:var(--font-display);font-size:32px;font-weight:900;letter-spacing:-1px;color:${varColor};line-height:1;">${varPrefix}${fmt(Math.abs(totalVar))}</div>
         <div style="font-size:13px;color:var(--soft);margin-top:6px;">${esc(varLabel)} &middot; ${fmt(expTotal)} spent of ${fmt(budTotal)} budgeted <span class="ex-i" aria-hidden="true" style="color:var(--muted);">&#9432;</span></div>
       </button>
