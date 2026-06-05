@@ -374,8 +374,9 @@ function categorizeTx(rawDesc, origCat){
 }
 
 // Does a description match a saved transfer rule (CFG.transferKw)? Only saved
-// rules AUTO-exclude a row as a transfer; the broader heuristic regex
-// (gbTransfers/gbConfidence) merely surfaces candidates for the user to resolve.
+// rules AUTO-exclude a row as a transfer. (gbTransfers, the resolver UI that
+// used to write to CFG.transferKw, was removed in the Phase 4 audit cut;
+// any rules a user persisted before that still apply via this path.)
 function isTransferDesc(rawDesc){
   const d = String(rawDesc||'').toUpperCase();
   return (CFG.transferKw||[]).some(kw => kw && d.includes(String(kw).toUpperCase()));
@@ -925,22 +926,9 @@ function showImportPreview(filename, result){
   const acctHtml = `
     <div style="margin-bottom:12px;">
       <label for="import-account-input" class="eyebrow" style="display:block;margin-bottom:6px;">Account / source</label>
-      <input id="import-account-input" list="import-account-list" value="${esc(_acctDefault)}" placeholder="e.g. Chase Checking" autocomplete="off" onchange="if(typeof gbProfiles!=='undefined')gbProfiles.onAccountChange(this.value)" style="width:100%;box-sizing:border-box;background:var(--glass);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:14px;font-family:var(--font-body);padding:10px 12px;">
+      <input id="import-account-input" list="import-account-list" value="${esc(_acctDefault)}" placeholder="e.g. Chase Checking" autocomplete="off" style="width:100%;box-sizing:border-box;background:var(--glass);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:14px;font-family:var(--font-body);padding:10px 12px;">
       <datalist id="import-account-list">${_accts.map(a => `<option value="${esc(a)}"></option>`).join('')}</datalist>
       <div style="font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5;">These transactions are tagged to this account, so multiple accounts stay separate.</div>
-      <div id="import-lastrange" style="display:none;font-size:11px;color:var(--soft);margin-top:8px;line-height:1.5;background:var(--o03);border:1px solid var(--border);border-radius:10px;padding:8px 10px;"></div>
-      <label for="import-type-select" class="eyebrow" style="display:block;margin:12px 0 6px;">Account type</label>
-      <select id="import-type-select" aria-label="Account type" onchange="if(typeof gbProfiles!=='undefined')gbProfiles.onTypeChange(this.value)" style="width:100%;box-sizing:border-box;background:var(--glass);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:14px;font-family:var(--font-body);padding:10px 12px;appearance:none;">
-        <option value="checking">Checking</option>
-        <option value="savings">Savings</option>
-        <option value="credit">Credit card</option>
-        <option value="cash">Cash</option>
-        <option value="paymentapp">Payment app</option>
-      </select>
-      <div id="import-payments-row" style="display:none;margin-top:8px;">
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--soft);cursor:pointer;"><input type="checkbox" id="import-payments-spending" style="width:16px;height:16px;flex-shrink:0;accent-color:var(--green);"> Count payments to this account as spending</label>
-        <div style="font-size:11px;color:var(--muted);margin-top:4px;line-height:1.5;">Off (recommended): a card payment from another account is a transfer, not new spending.</div>
-      </div>
       <label for="import-open-input" class="eyebrow" style="display:block;margin:12px 0 6px;">Statement balances (optional)</label>
       <div style="display:flex;gap:8px;">
         <input id="import-open-input" type="text" inputmode="decimal" placeholder="Opening balance" autocomplete="off" style="flex:1;min-width:0;box-sizing:border-box;background:var(--glass);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:14px;font-family:var(--font-body);padding:10px 12px;">
@@ -976,8 +964,6 @@ function showImportPreview(filename, result){
     </div>
     ${sampleRows || '<div style="font-size:12px;color:var(--muted);padding:6px 0;">No rows to preview.</div>'}`;
   openModal('modal-import-preview');
-  // Prefill account type / payment policy / "last import" from the saved profile.
-  if(typeof gbProfiles !== 'undefined') gbProfiles.onAccountChange(_acctDefault);
 }
 
 function confirmImportPreview(){
@@ -992,21 +978,17 @@ function confirmImportPreview(){
   const closingBalance = (_balEl && String(_balEl.value).trim() !== '') ? parseAmt(_balEl.value) : null;
   const _openEl = document.getElementById('import-open-input');
   const openingBalance = (_openEl && String(_openEl.value).trim() !== '') ? parseAmt(_openEl.value) : null;
-  // Saved-profile fields: account type + (for cards/apps) whether payments count
-  // as spending. Defaults come from the profile / name inference.
-  const _typeEl = document.getElementById('import-type-select');
-  const acctType = (_typeEl && _typeEl.value) || ((typeof gbProfiles !== 'undefined') ? gbProfiles.typeFor(account) : 'checking');
-  const _payEl = document.getElementById('import-payments-spending');
-  const paymentsAsSpending = !!(_payEl && _payEl.checked);
+  // Account type + payment policy were profile-driven (gbProfiles, removed in
+  // the Phase 4 audit cut). Defaults kept for backward-compat on the
+  // applyImport / _pendingConflict signatures; they no longer drive behaviour.
+  const acctType = 'checking';
+  const paymentsAsSpending = false;
   closeModal('modal-import-preview');
   _pendingAccountHint = null;
   const pend = _pendingPreview; _pendingPreview = null;
   if(!pend){ processNextFile(); return; }
   const { file, result } = pend;
   const newTxs = result.txs;
-  // Apply the account's payment policy before aggregating, so card/app payments
-  // that don't count as spending are excluded from this batch's totals.
-  if(typeof gbProfiles !== 'undefined') gbProfiles.applyPaymentPolicy(newTxs, acctType, paymentsAsSpending);
   const newMonths = aggregate(newTxs);
   const newKeys = sortKeys(newMonths);
   const conflictingMonths = newKeys.filter(mk => _months[mk] && _months[mk].txs.length > 0);
@@ -1158,18 +1140,6 @@ function applyImport(file, newTxs, newMonths, newKeys, mode, result, account, cl
     // should equal closing. The match is computed live by gbReconcile.
     openingBalance: (openingBalance == null ? null : openingBalance),
   });
-  // Save/refresh this account's import profile so repeat monthly use is smoother:
-  // remembers the type, payment policy, column mapping, and last imported range.
-  if(typeof gbProfiles !== 'undefined'){
-    gbProfiles.recordImport(acct, {
-      type: acctType,
-      paymentsAsSpending: (typeof paymentsAsSpending === 'boolean') ? paymentsAsSpending : undefined,
-      cols: (result && result.mapping) ? result.mapping : undefined,
-      range: _dateRange ? { firstLabel: _dateRange.firstMonth, lastLabel: _dateRange.lastMonth, firstTs: _dateRange.firstTs, lastTs: _dateRange.lastTs } : undefined,
-      txCountDelta: newTxs.length,
-      when: new Date().toLocaleDateString(gbRegion().locale, { month:'short', day:'numeric', year:'numeric' }),
-    });
-  }
   // Accumulate the committed-import summary for the post-import receipt shown
   // once the whole batch drains (replaces the old per-commit "Imported N" toast,
   // which the receipt now supersedes).

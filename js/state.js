@@ -26,19 +26,21 @@ const DEFAULTS = {
   skipKw:[],
   // Transfer/credit-card-payment rules (substring, case-insensitive). A match
   // marks a row tx.transfer=true so it's EXCLUDED from income/spend totals
-  // (money moving between your own accounts isn't spending). Empty by default —
-  // populated by the user via the transfer-resolution workflow (gbTransfers).
+  // (money moving between your own accounts isn't spending). Empty by default.
+  // gbTransfers — the resolver UI that wrote to this list — was removed in
+  // the Phase 4 audit cut; any rules a user persisted before that survive
+  // here and still drive auto-exclusion via core.js isTransferDesc().
   transferKw:[],
-  // Known account/source names (e.g. "Chase Checking"), most-recent first. Every
-  // import is tagged to one (tx.acct) so multiple accounts stay separate — the
-  // foundation for multi-account accuracy. Stored in CFG (gb_cfg2).
+  // Known account/source names (e.g. "Chase Checking"), most-recent first.
+  // Every import is tagged to one (tx.acct) so the per-account filter pills
+  // on the Budget and Transactions screens can scope by account. The
+  // dedicated accounts-manager UI (gbAccounts) was removed in Phase 4;
+  // new names are added on import as the user types them in the import modal.
   accounts:[],
-  // Saved import profiles, keyed by account name (gbProfiles). Each remembers
-  // how that account imports so repeat monthly use is smoother:
-  //   { type:'checking'|'savings'|'credit'|'cash'|'paymentapp',
-  //     paymentsAsSpending:boolean (card/app: do payments count as spending),
-  //     cols:{date,desc,amt,cat,fmt} (the mapping last used),
-  //     lastRange:{firstLabel,lastLabel,firstTs,lastTs}, txCount, lastImport }
+  // Legacy: gbProfiles persisted per-account import settings here (type,
+  // payment policy, column mapping, last-imported range). The module was
+  // removed in the Phase 4 audit cut; this field stays for backward-compat
+  // on persisted backups but is no longer written or read.
   profiles:{},
   // Curated default merchant rules -- distinctive keyword substrings, matched
   // case-insensitively against the description (first match wins).
