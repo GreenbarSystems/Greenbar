@@ -884,6 +884,26 @@ if('serviceWorker' in navigator){
         <button type="button" class="btn-secondary" onclick="resetSettings()">Reset to Defaults</button>
       </div>
 
+      <details class="settings-group">
+        <summary><span>About &amp; Support</span><span class="sg-chev" aria-hidden="true">&rsaquo;</span></summary>
+        <div class="sg-body">
+          <div class="settings-section">
+            <a class="settings-row" href="https://www.greenbarsystems.com/privacy" target="_blank" rel="noopener" aria-labelledby="priv-label" aria-describedby="priv-desc">
+              <span class="s-body"><span class="s-label" id="priv-label">Privacy Policy</span><span class="s-desc" id="priv-desc">How Greenbar handles data — on-device, never uploaded</span></span>
+              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
+            </a>
+            <a class="settings-row" href="mailto:support@greenbarsystems.com?subject=Greenbar%20support" aria-labelledby="sup-label" aria-describedby="sup-desc">
+              <span class="s-body"><span class="s-label" id="sup-label">Contact support</span><span class="s-desc" id="sup-desc">support@greenbarsystems.com</span></span>
+              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
+            </a>
+            <a class="settings-row" href="https://www.greenbarsystems.com" target="_blank" rel="noopener" aria-labelledby="site-label" aria-describedby="site-desc">
+              <span class="s-body"><span class="s-label" id="site-label">greenbarsystems.com</span><span class="s-desc" id="site-desc">Project site, release notes, and downloads</span></span>
+              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
+            </a>
+          </div>
+        </div>
+      </details>
+
       <!-- App version footer — single source of truth is js/version.js -->
       <div class="app-version" id="app-version" aria-label="App version"></div>
     </div>

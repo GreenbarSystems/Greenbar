@@ -65,11 +65,12 @@ ever sending your data anywhere.
 ## Privacy & data handling
 - Greenbar does not collect, transmit, or share personal information.
 - See the in-app Privacy Policy and the published policy at
-  `[Privacy Policy URL]` for the full disclosures.
+  https://www.greenbarsystems.com/privacy for the full disclosures.
 
 ---
 
 ## Support
-- Email: `[Support Email]`
+- Email: support@greenbarsystems.com
+- Web: https://www.greenbarsystems.com
 - Bug reports: please include the version string visible at the bottom of
   the Settings screen (e.g. "Greenbar 1.0.0 · build 2026-06-06").
