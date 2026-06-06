@@ -187,8 +187,8 @@ Before promoting **any** beta build to production, confirm all of:
 - [ ] `js/version.js`, `sw.js` `CACHE_VERSION`, `manifest.json` all bumped.
 - [ ] iOS `CFBundleShortVersionString` + `CFBundleVersion` bumped.
 - [ ] Android `versionName` + `versionCode` bumped.
-- [ ] Privacy Policy live at `[Privacy Policy URL]`.
-- [ ] Terms of Service live at `[Terms URL]` (if applicable).
+- [ ] Privacy Policy live at https://www.greenbarsystems.com/privacy.
+- [ ] Terms of Service live at https://www.greenbarsystems.com/terms (if applicable).
 - [ ] Support email reachable.
 - [ ] Store listing screenshots refreshed if any UI shifted.
 - [ ] Tag pushed: `git tag v{X.Y.Z} && git push --tags`.

@@ -652,6 +652,10 @@ button.settings-row {
   -webkit-appearance: none; appearance: none;
 }
 button.settings-row:hover { background: var(--o02); }
+/* Native <a class="settings-row"> reset so a link looks identical to a button row.
+   Used by the About & Support group for the Privacy Policy / Contact / Site links. */
+a.settings-row { text-decoration: none; color: inherit; }
+a.settings-row:hover { background: var(--o02); }
 
 /* ──────── Collapsible Settings groups ────────
    Each former <h2 class="sec-hdr"> heading becomes a tappable <summary> that

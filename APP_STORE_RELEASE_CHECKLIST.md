@@ -28,8 +28,10 @@ Store** and **Google Play Store**. Use in tandem with `TEST_PLAN.md`,
 
 ## 3. Legal + compliance
 
-- [ ] Privacy Policy reviewed by counsel and published at `[Privacy Policy URL]`.
-- [ ] Terms of Service (if any) published at `[Terms URL]`.
+- [ ] Privacy Policy reviewed by counsel and published at https://www.greenbarsystems.com/privacy
+      (source files: `PRIVACY_POLICY.md` + `privacy.html` in this repo).
+- [ ] Terms of Service (if any) published at https://www.greenbarsystems.com/terms (skip if no
+      separate ToS — the Privacy Policy + App Store EULA cover the baseline).
 - [ ] Encryption export compliance answered:
   - [ ] iOS — `ITSAppUsesNonExemptEncryption` set in `Info.plist`.
   - [ ] Android — `default-encryption` declaration consistent with build.
