@@ -14,6 +14,17 @@ const FLASH_INTRO_DELAY_MS = 200;
 
 loadCFG();
 
+// Stamp the app version into the Settings footer + the tour modal footer.
+// One-shot, sync, no network. Safe to run before any data load: it only
+// touches static DOM nodes that exist from page parse.
+(function stampVersion(){
+  if (typeof gbVersion === 'undefined') return;
+  const settingsFoot = document.getElementById('app-version');
+  if (settingsFoot) settingsFoot.textContent = gbVersion.DISPLAY;
+  const tourFoot = document.getElementById('tour-version');
+  if (tourFoot) tourFoot.textContent = gbVersion.SHORT;
+})();
+
 // Show the privacy toggle when there's data to be private about.
 //
 // The toggle BUTTON appears once setup is done OR data exists (so users

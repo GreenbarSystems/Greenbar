@@ -553,7 +553,8 @@ async function exportData(){
   // Phase B: biometric/PIN gate on destructive/data-exfil actions.
   if(!await gbAuth.unlock('Export backup')) return;
   try{
-    const payload={ _greenbar_backup:1, version:1, exported:new Date().toISOString(), data:{} };
+    const _appVer = (typeof gbVersion !== 'undefined') ? gbVersion.SEMVER : null;
+    const payload={ _greenbar_backup:1, version:1, appVersion:_appVer, exported:new Date().toISOString(), data:{} };
     GB_KEYS.forEach(k=>{ const v=localStorage.getItem(k); if(v!==null) payload.data[k]=v; });
     const blob=new Blob([JSON.stringify(payload)],{type:'application/json'});
     const url=URL.createObjectURL(blob);

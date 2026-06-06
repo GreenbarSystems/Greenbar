@@ -883,6 +883,9 @@ if('serviceWorker' in navigator){
         <button type="button" class="btn-primary" onclick="saveSettings();showScreen('summary',_navBtn(0))">Save & Apply</button>
         <button type="button" class="btn-secondary" onclick="resetSettings()">Reset to Defaults</button>
       </div>
+
+      <!-- App version footer — single source of truth is js/version.js -->
+      <div class="app-version" id="app-version" aria-label="App version"></div>
     </div>
 
     <!-- IMPORT CONFIDENCE CENTER -->
@@ -1071,6 +1074,7 @@ if('serviceWorker' in navigator){
 
 
 <!-- Greenbar JS modules — classic scripts in dependency order -->
+<script src="js/version.js"></script>
 <script src="js/state.js"></script>
 <script src="js/theme.js"></script>
 <script src="js/core.js"></script>
@@ -1146,6 +1150,7 @@ if('serviceWorker' in navigator){
       <p style="margin-bottom:18px;"><strong style="color:var(--text);">Everything else</strong> &mdash; Budget, Transactions, Guide and Settings live in the bottom nav.</p>
     </div>
     <button type="button" class="btn-primary" style="width:100%;" onclick="gbTour.finish()">Got it</button>
+    <div class="tour-version" id="tour-version" aria-label="App version"></div>
   </div>
 </dialog>
 

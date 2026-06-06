@@ -110,7 +110,11 @@ async function exportEncrypted(){
     // 1) Collect the five keys into a versioned, UTC-timestamped payload.
     const data = {};
     GB_BACKUP_KEYS.forEach(k => { const v = localStorage.getItem(k); if(v !== null) data[k] = v; });
-    const payload = { v: 1, ts: new Date().toISOString(), data };
+    // appVersion is informational — restore uses pkg.v (=1) as the format
+    // version, but stamping the app SEMVER lets us surface a "made by a newer
+    // Greenbar" hint if a user restores into an older release.
+    const _appVer = (typeof gbVersion !== 'undefined') ? gbVersion.SEMVER : null;
+    const payload = { v: 1, ts: new Date().toISOString(), appVersion: _appVer, data };
     const payloadBytes = new TextEncoder().encode(JSON.stringify(payload));
 
     // 2) Random 16-byte salt -> derive the extractable AES-GCM payload key (PBKDF2 600k).
