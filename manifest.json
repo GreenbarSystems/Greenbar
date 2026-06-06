@@ -1,6 +1,8 @@
 {
   "name": "Greenbar",
   "short_name": "Greenbar",
+  "version": "1.0.0",
+  "version_name": "1.0.0",
   "description": "Greenbar turns your bank statements into clear, confident money decisions — private and on-device. Your data stays on your phone.",
   "start_url": "./",
   "scope": "./",

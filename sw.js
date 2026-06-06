@@ -9,7 +9,10 @@
 // load the new worker installs the fresh shell, activate() deletes old caches,
 // and clients.claim() takes control.
 
-const CACHE_VERSION = 'greenbar-shell-v84';
+// Bumped to v85 alongside the js/version.js addition (app version 1.0.0).
+// When bumping the app SEMVER in js/version.js, bump this cache version too so
+// installed PWAs invalidate the old shell and pick up the new bundle.
+const CACHE_VERSION = 'greenbar-shell-v85';
 
 // Scope-relative ('./') so this works for both root deploys and sub-path
 // deploys (e.g. GitHub project Pages at /Greenbar/).
@@ -18,6 +21,7 @@ const ASSETS = [
   './index.html',
   './manifest.json',
   './styles/main.css',
+  './js/version.js',
   './js/state.js',
   './js/import-friction.js',
   './js/theme.js',

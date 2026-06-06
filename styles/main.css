@@ -1420,3 +1420,27 @@ body.privacy-mode.revealed .sec-total {
 .anom-card.anom-reviewed { opacity: .45; transform: scale(.99); }
 .anom-footer { display: flex; gap: 10px; margin-top: 14px; }
 .anom-footer .btn-secondary, .anom-footer .btn-primary { flex: 1; }
+
+/* ════ App version footer (Settings + Tour modal) ════
+   Rendered by js/boot.js stampVersion() from gbVersion.DISPLAY/SHORT. Tiny,
+   muted, unselectable label so users can confirm what release they're on
+   without it competing for attention. */
+.app-version {
+  margin: 18px 0 6px;
+  padding: 8px 0;
+  text-align: center;
+  font-size: 11px;
+  font-family: var(--font-display);
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  opacity: 0.7;
+  user-select: text; /* tappable to copy for bug reports */
+}
+.tour-version {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  opacity: 0.55;
+}
