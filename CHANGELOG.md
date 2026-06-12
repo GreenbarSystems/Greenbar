@@ -13,7 +13,17 @@ constant in `sw.js`, and the `version` / `version_name` fields in `manifest.json
 
 ## [Unreleased]
 
-_No unreleased changes._
+### Changed
+- **App icon** redesigned to the Greenbar three-bar company mark (top green,
+  middle slate, bottom green) on the navy plate — replaces the previous
+  six-bar chart silhouette. PWA manifest, iOS launcher, Android adaptive
+  icon, and Play Store listing all regenerated from the new master.
+- **Service worker** `CACHE_VERSION` bumped to `v86` so installed PWAs pick
+  up the new manifest + icon on next launch.
+
+### Added
+- **Play Store feature graphic** master + generated 1024 × 500 PNG at
+  `assets/icons/play/play-feature-1024x500.png`.
 
 ---
 
