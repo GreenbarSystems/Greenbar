@@ -597,11 +597,18 @@ button.stat-tile:disabled:active { transform: none; }
 .bva-head span:not(:first-child) { text-align: right; }
 .bva-row { display: grid; grid-template-columns: 1fr 72px 72px 60px; gap: 4px; padding: 10px 16px; border-bottom: 1px solid var(--o04); align-items: center; }
 .bva-row:last-child { border-bottom: none; }
-.bva-cat { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bva-cat { font-size: 13px; font-weight: 500; min-width: 0; display: flex; align-items: center; gap: 5px; }
+.bva-cat-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bva-num { font-size: 12px; font-weight: 700; text-align: right; }
 .v-over  { color: var(--red); }
 .v-under { color: var(--green); }
 .v-flat  { color: var(--muted); }
+/* Rows backed by real spend drill into their per-vendor breakdown. The chevron
+   is the persistent affordance (touch has no hover); hover/focus reinforce it. */
+.bva-row.bva-drill { cursor: pointer; transition: background 0.15s; -webkit-tap-highlight-color: transparent; }
+.bva-row.bva-drill:hover { background: var(--o05); }
+.bva-row.bva-drill:focus-visible { outline: 2px solid var(--green); outline-offset: -2px; }
+.bva-chev { flex-shrink: 0; color: var(--muted); font-weight: 700; font-size: 15px; line-height: 1; }
 
 /* ── Search ── */
 .search-wrap { position: relative; margin-bottom: 14px; }

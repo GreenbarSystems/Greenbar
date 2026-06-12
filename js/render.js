@@ -581,11 +581,19 @@ function showCatInsights(cat){
     `;
 }
 
-function showVendorDrill(cat){
+function showVendorDrill(cat, mkArg){
   if(!cat) return;
-  // Aggregate all transactions for this category by vendor/description
-  // Filter for current month if not 'all', otherwise all months  
-  const monthFilter = (_sel && _sel !== '__all') ? _sel : null;
+  // Aggregate all transactions for this category by vendor/description.
+  // Month scope: an explicit key from the caller wins — the Tracker passes the
+  // row's resolved month so the breakdown matches exactly the budget figures
+  // that were tapped. Otherwise keep the legacy behavior: a real _sel month key
+  // scopes to that month; '__all' (and the Summary period tokens 'current' /
+  // 'l3m' / 'ytd', which never match a real tx.month) fall through to all
+  // months. Guarding _sel against _months is what stops a period token from
+  // silently filtering the list down to nothing.
+  const monthFilter = (mkArg && _months[mkArg]) ? mkArg
+                     : (_sel && _sel !== '__all' && _months[_sel]) ? _sel
+                     : null;
   const txsForCat = _allTxs.filter(tx => tx.cat === cat && tx.amount < 0 && (!monthFilter || tx.month === monthFilter));
   const byVendor = {};
   const vendorCounts = {};
@@ -1181,8 +1189,16 @@ function renderBudget(){
         const v = r.bud - r.actual;
         // ±$20 dead-zone keeps tiny deltas from flashing red/green — feels noisy otherwise.
         const cls = v < -20 ? 'v-over' : v > 20 ? 'v-under' : 'v-flat';
-        return `<div class="bva-row">`
-          + `<div class="bva-cat">${esc(r.cat)}</div>`
+        // Only rows with real spend drill into a per-vendor breakdown for this
+        // month; a budgeted-but-unspent row has no vendors to show, so it stays inert.
+        const drill = r.actual > 0;
+        return `<div class="bva-row${drill ? ' bva-drill' : ''}"`
+          + (drill ? ` role="button" tabindex="0" data-cat="${esc(r.cat)}" data-mk="${esc(mk)}"`
+              + ` aria-label="${esc(r.cat)}: view vendors for ${esc(mk)}"`
+              + ` onclick="showVendorDrill(this.dataset.cat,this.dataset.mk)"`
+              + ` onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showVendorDrill(this.dataset.cat,this.dataset.mk)}"` : '')
+          + `>`
+          + `<div class="bva-cat"><span class="bva-cat-name">${esc(r.cat)}</span>${drill ? '<span class="bva-chev" aria-hidden="true">›</span>' : ''}</div>`
           + `<div class="bva-num" style="color:var(--muted)">${fmt(r.bud)}</div>`
           + `<div class="bva-num">${fmt(r.actual)}</div>`
           + `<div class="bva-num ${cls}">${v >= 0 ? '+' : ''}${fmt(v)}</div>`
@@ -1191,8 +1207,11 @@ function renderBudget(){
     </div>
     ${unb.length ? `<h2 class="sec-hdr">Unbudgeted</h2><div class="bva-card">${
       unb.map(([cat, amt]) =>
-        `<div class="bva-row">`
-        + `<div class="bva-cat">${esc(cat)}</div>`
+        `<div class="bva-row bva-drill" role="button" tabindex="0" data-cat="${esc(cat)}" data-mk="${esc(mk)}"`
+        + ` aria-label="${esc(cat)}: view vendors for ${esc(mk)}"`
+        + ` onclick="showVendorDrill(this.dataset.cat,this.dataset.mk)"`
+        + ` onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showVendorDrill(this.dataset.cat,this.dataset.mk)}">`
+        + `<div class="bva-cat"><span class="bva-cat-name">${esc(cat)}</span><span class="bva-chev" aria-hidden="true">›</span></div>`
         + `<div class="bva-num" style="color:var(--muted)">-</div>`
         + `<div class="bva-num">${fmt(amt)}</div>`
         + `<div class="bva-num v-flat">--</div>`
