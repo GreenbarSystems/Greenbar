@@ -1,7 +1,7 @@
 # Privacy Policy for Greenbar
 
 **Effective Date:** 2026-06-06
-**Last Updated:** 2026-06-06
+**Last Updated:** 2026-06-12
 **Publisher:** Greenbar Systems
 **Address:** 5353 N 16th St, Suite 410, Phoenix, AZ 85016, USA
 **Contact:** support@greenbarsystems.com
@@ -23,6 +23,27 @@ cannot see your transactions, your balances, your budgets, or your goals.
 By installing or using the App, you acknowledge that you have read and
 understood this Policy. If you do not agree with it, please do not install
 or continue using the App.
+
+### 1.1 Nature of the App
+
+Greenbar is a **local personal finance organization tool**. It helps you
+organize, categorize, and review your own financial information on your
+device. For the avoidance of doubt, Greenbar:
+
+- **does not offer, originate, or broker loans** or any other form of credit;
+- **does not provide banking services** and is not a bank, money transmitter,
+  or money services business;
+- **does not trade or invest** on your behalf and does not buy, sell, hold, or
+  recommend securities, cryptocurrency, or other assets;
+- **does not connect to financial institutions** — it has no account linking,
+  no data aggregation, and no access to your bank, card, or brokerage
+  accounts; the only data it uses is what you manually import; and
+- **does not provide personalized financial, investment, tax, or legal
+  advice.** Any totals, categories, or insights are informational only and are
+  generated locally from the data you import.
+
+You are solely responsible for your own financial decisions. If you need
+advice, please consult a qualified, licensed professional.
 
 ---
 
