@@ -289,6 +289,10 @@ if('serviceWorker' in navigator){
               <span class="s-body"><span class="s-label" id="tour-help-label">Tour the app</span><span class="s-desc" id="tour-help-desc">Replay the on-screen guide on the Summary page</span></span>
               <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
             </button>
+            <button type="button" class="settings-row" onclick="gbDemo.toggle()" aria-labelledby="demo-label" aria-describedby="demo-desc">
+              <span class="s-body"><span class="s-label" id="demo-label">Sample data</span><span class="s-desc" id="demo-desc" style="color:var(--muted);">Load or remove a built-in demo dataset to explore Greenbar.</span></span>
+              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
+            </button>
           </div>
 
 <!-- Order of operations -->
@@ -850,10 +854,6 @@ if('serviceWorker' in navigator){
             </button>
             <button type="button" class="settings-row" onclick="restoreEncrypted()" aria-labelledby="enc-restore-label" aria-describedby="enc-restore-desc">
               <span class="s-body"><span class="s-label" id="enc-restore-label">Restore from Backup</span><span class="s-desc" id="enc-restore-desc" style="color:var(--muted);">Restores data from a .greenbar file using your passphrase.</span></span>
-              <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
-            </button>
-            <button type="button" class="settings-row" onclick="gbDemo.toggle()" aria-labelledby="demo-label" aria-describedby="demo-desc">
-              <span class="s-body"><span class="s-label" id="demo-label">Sample data</span><span class="s-desc" id="demo-desc" style="color:var(--muted);">Load or remove a built-in demo dataset to explore Greenbar.</span></span>
               <span class="s-arrow" aria-hidden="true">&rsaquo;</span>
             </button>
           </div>
