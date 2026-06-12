@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Greenbar — Google Play feature graphic (1024x500). Edit here, then
+     run `npm run icons` from ../GreenbarApp to regenerate the PNG. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 500" width="1024" height="500">
+
+  <!-- Background plate. Play forbids transparency on the feature graphic. -->
+  <rect width="1024" height="500" fill="#050a14"/>
+
+  <!-- Subtle radial accent so the navy isn't dead-flat at hero scale. -->
+  <defs>
+    <radialGradient id="bgGlow" cx="78%" cy="50%" r="60%">
+      <stop offset="0%"  stop-color="#0a1628" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#050a14" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1024" height="500" fill="url(#bgGlow)"/>
+
+  <!-- LEFT BLOCK — wordmark + tagline + tertiary line. -->
+  <g font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif">
+    <text x="64" y="205" font-size="116" font-weight="800"
+          fill="#00d68f" letter-spacing="-3">greenbar</text>
+    <text x="66" y="278" font-size="36" font-weight="600"
+          fill="#ffffff" letter-spacing="-0.5">See where your money goes.</text>
+    <text x="66" y="332" font-size="22" font-weight="500"
+          fill="#a0a8b8" letter-spacing="0.5">Private. On-device. Yours.</text>
+    <text x="66" y="430" font-size="14" font-weight="600"
+          fill="#5a6378" letter-spacing="2">PERSONAL FINANCE · IMPORT CSV OR PDF · NO ACCOUNT</text>
+  </g>
+
+  <!-- RIGHT BLOCK — the three-bar Greenbar mark at hero scale.
+       Same proportions as the icon: green / slate / green, equal heights. -->
+  <g transform="translate(580 50)">
+    <rect x="0" y="0"   width="400" height="105" rx="18" fill="#00d68f"/>
+    <rect x="0" y="148" width="400" height="105" rx="18" fill="#e8ecf2"/>
+    <rect x="0" y="295" width="400" height="105" rx="18" fill="#00d68f"/>
+  </g>
+
+</svg>

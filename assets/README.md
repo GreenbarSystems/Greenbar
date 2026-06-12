@@ -14,12 +14,14 @@ The visual source of truth for the app icon. Used by:
 
 | File | Purpose |
 |---|---|
-| `icon-source.svg` | The editable master. Edit here, run the generator. |
+| `icon-source.svg` | The editable icon master. Edit here, run the generator. |
+| `play-feature-source.svg` | The editable Play Store feature graphic master (1024 × 500). |
 | `icons/ios/icon-*.png` | iOS launcher + App Store icons (13 sizes, 1024 has no rounded corners). |
 | `icons/android/mipmap-*/ic_launcher{,_round}.png` | Legacy Android launcher per density. |
 | `icons/android/ic_launcher_foreground.png` | Adaptive icon foreground at 432×432 (bars in safe zone). |
 | `icons/android/ic_launcher_background.png` | Adaptive icon background at 432×432 (solid Greenbar navy). |
 | `icons/play/play-listing-512.png` | Google Play store-listing icon. |
+| `icons/play/play-feature-1024x500.png` | Google Play store-listing feature graphic (hero image). |
 | `icons/pwa/icon-{192,512}.png` | PWA manifest fallback PNGs. |
 
 ---
@@ -29,8 +31,8 @@ The visual source of truth for the app icon. Used by:
 | Token | Hex | Where it appears in the icon |
 |---|---|---|
 | Greenbar navy | `#050a14` | Background plate |
-| Greenbar green | `#00d68f` | Primary bars (#1, #2, #3, #6) |
-| Greenbar mint | `#00c9b1` | Secondary bars (#4, #5) |
+| Greenbar green | `#00d68f` | Top + bottom bars |
+| Greenbar slate | `#e8ecf2` | Middle bar |
 
 These match the brand variables in `../styles/main.css`.
 
@@ -38,20 +40,19 @@ These match the brand variables in `../styles/main.css`.
 
 ## Geometry
 
-512 × 512 viewBox.
+Three-bar company mark, 512 × 512 viewBox.
 
-| Bar | x | y | height | fill | opacity |
-|---|---|---|---|---|---|
-| Outer plate | 0 | 0 | 512 | `#050a14` | 1.0 (rx = 80) |
-| Bar 1 | 48 | 300 | 140 | `#00d68f` | 0.9 |
-| Bar 2 | 122 | 228 | 212 | `#00d68f` | 1.0 |
-| Bar 3 | 196 | 155 | 285 | `#00d68f` | 1.0 |
-| Bar 4 | 270 | 195 | 245 | `#00c9b1` | 0.85 |
-| Bar 5 | 344 | 245 | 195 | `#00c9b1` | 0.8 |
-| Bar 6 | 418 | 120 | 320 | `#00d68f` | 1.0 |
+| Element | x | y | width | height | rx | fill |
+|---|---|---|---|---|---|---|
+| Outer plate | 0 | 0 | 512 | 512 | 80 | `#050a14` |
+| Top bar | 60 | 108 | 392 | 84 | 14 | `#00d68f` |
+| Middle bar | 60 | 214 | 392 | 84 | 14 | `#e8ecf2` |
+| Bottom bar | 60 | 320 | 392 | 84 | 14 | `#00d68f` |
 
-Each bar is 58 wide on a 74-stride; corner radius `rx = 12` so they read
-crisply at thumbnail sizes.
+Bars are equal-height with a 22 px gap between them. The block sits centered
+in the plate with 60 px side padding and 108 px top / bottom — the slight
+top-heavy crop keeps the mark optically centered when an OS rounds the
+plate to a circle (e.g. Pixel adaptive icon mask).
 
 ---
 
@@ -110,6 +111,27 @@ The `manifest.json` at the project root already embeds the SVG inline,
 which works on every modern browser. The PNGs under `pwa/` are a fallback
 for older Android Chrome installs; reference them by extending the
 manifest's `icons` array if you ever need that compatibility.
+
+---
+
+## Play Store feature graphic
+
+`play-feature-source.svg` is the hero image that appears at the top of the
+Google Play store listing. Spec: **1024 × 500**, opaque PNG (Play rejects
+transparency on the feature graphic).
+
+The composition: wordmark + tagline + tertiary line on the left, the
+three-bar mark on the right, on a navy plate with a subtle radial accent.
+
+When you edit the SVG, the same `npm run icons` command regenerates the
+PNG at `icons/play/play-feature-1024x500.png`.
+
+**Typography note.** The wordmark and tagline are rendered as live SVG
+text using a system-font stack. The final PNG inherits whatever bold sans
+is available on the box that runs the generator. For a typography-perfect
+brand match, open the SVG in Figma / Affinity Designer, swap in your
+brand font (Inter, Geist Variable, etc.), and export to PNG manually —
+the source SVG is structured to make that a 5-minute pass.
 
 ---
 
