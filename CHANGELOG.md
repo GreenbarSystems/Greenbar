@@ -24,6 +24,17 @@ constant in `sw.js`, and the `version` / `version_name` fields in `manifest.json
 ### Added
 - **Play Store feature graphic** master + generated 1024 × 500 PNG at
   `assets/icons/play/play-feature-1024x500.png`.
+- **Sample data** now also loads a partial current month (only days that
+  have already elapsed), so Summary / Tracker / Transactions all populate
+  whichever month the user lands on.
+
+### Fixed
+- **Tracker stays empty after loading Sample data.** Demo data used its
+  own category names (`Housing`, `Shopping`) instead of the canonical ones
+  (`Rent/Mortgage`, `Online Shopping`) that the budget defaults and import
+  rules already use. Result: every demo $ landed in the "Unbudgeted"
+  section and the Budget-vs-Actual table read $0 actual against every
+  budget row. Fixed by aligning demo categories to the canonical names.
 
 ---
 
