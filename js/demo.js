@@ -1,9 +1,13 @@
 // ════ Greenbar — demo / sample dataset ════
 // One-tap realistic sample so users can explore without their own CSV.
-// Deterministic (no RNG): 3 recent complete months with income, recurring
-// charges, variable spend and a planted duplicate (so anomaly + cleanup
-// features have something to surface). Demo rows are tagged source:'demo' so
-// they can be removed without touching any real imported data.
+// Deterministic (no RNG): 3 recent complete months PLUS the in-progress
+// current month (filtered to days that have already elapsed). Income,
+// recurring charges, variable spend, and a planted duplicate (so anomaly
+// + cleanup features have something to surface). Categories match
+// DEFAULTS.budget exactly ('Rent/Mortgage', 'Online Shopping', etc.) so
+// the Tracker's Budget-vs-Actual table populates with real variance
+// numbers. Demo rows are tagged source:'demo' so they can be removed
+// without touching any real imported data.
 //
 // Globals used: _months, _allTxs, _sel, MN, sortKeys, rebuildMonths, newTxId,
 // saveData, renderAll, showScreen, _navBtn, showHeaderButtons, gbDialog,
@@ -26,7 +30,7 @@ const gbDemo = (() => {
     const txs = [
       T(1,  'PAYROLL DIRECT DEPOSIT', 2600, '_income', true),
       T(15, 'PAYROLL DIRECT DEPOSIT', 2600, '_income', true),
-      T(1,  'RENT',            -1850,            'Housing'),
+      T(1,  'RENT',            -1850,            'Rent/Mortgage'),
       T(3,  'NETFLIX',         -15.99,           'Subscriptions'),
       T(5,  'SPOTIFY',         -11.99,           'Subscriptions'),
       T(6,  'PLANET FITNESS',  -24.99,           'Personal Care'),
@@ -37,7 +41,7 @@ const gbDemo = (() => {
       T(19, 'OLIVE GARDEN',    -(64 + idx * 5),   'Dining Out'),
       T(4,  'STARBUCKS',       -6.45,            'Coffee'),
       T(11, 'STARBUCKS',       -5.95,            'Coffee'),
-      T(2,  'AMAZON',          -(40 + idx * 20),  'Shopping')
+      T(2,  'AMAZON',          -(40 + idx * 20),  'Online Shopping')
     ];
     // Planted duplicate: NETFLIX charged again within 3 days in the latest month.
     if(isLatest) txs.push(T(4, 'NETFLIX', -15.99, 'Subscriptions'));
@@ -57,6 +61,19 @@ const gbDemo = (() => {
         const d = new Date(now.getFullYear(), now.getMonth() - i, 1); // 3 complete prior months
         demoTxs = demoTxs.concat(_monthTxs(d.getFullYear(), d.getMonth() + 1, 3 - i, i === 1));
       }
+      // Partial current month — keeps the Summary "Current Month" period view
+      // populated. Only includes txs whose day-of-month has already happened,
+      // so the running month feels naturally in-progress rather than artificially
+      // pre-loaded with future spend.
+      const todayDay = now.getDate();
+      const cy = now.getFullYear();
+      const cm = now.getMonth() + 1;
+      const currentMonthTxs = _monthTxs(cy, cm, 3, false).filter(t => {
+        // ISO date 'YYYY-MM-DD' -> day-of-month integer.
+        const day = parseInt(t.date.slice(8, 10), 10);
+        return day <= todayDay;
+      });
+      demoTxs = demoTxs.concat(currentMonthTxs);
 
       _allTxs = (_allTxs || []).concat(demoTxs);
       rebuildMonths();
