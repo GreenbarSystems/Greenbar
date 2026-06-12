@@ -29,12 +29,25 @@ constant in `sw.js`, and the `version` / `version_name` fields in `manifest.json
   whichever month the user lands on.
 
 ### Fixed
-- **Tracker stays empty after loading Sample data.** Demo data used its
-  own category names (`Housing`, `Shopping`) instead of the canonical ones
-  (`Rent/Mortgage`, `Online Shopping`) that the budget defaults and import
-  rules already use. Result: every demo $ landed in the "Unbudgeted"
-  section and the Budget-vs-Actual table read $0 actual against every
-  budget row. Fixed by aligning demo categories to the canonical names.
+- **Tracker + Transactions stayed empty after loading Sample data** (real
+  root cause, deeper than the category-name issue logged just below).
+  The Summary redesign overloaded `_sel` to hold a period token
+  (`'current'` / `'l3m'` / `'ytd'`), but `renderBudget()` and `renderTxs()`
+  were still treating `_sel` as a literal month-key like `'Jun 2026'`
+  and indexing `_months[_sel]` directly. Result: after every Summary
+  render, `_sel` got normalized to `'current'`; opening Tracker then did
+  `_months['current']` → `undefined` → empty state; opening Transactions
+  matched no `tx.month === 'current'` → empty list. Fixed by adding a
+  `_resolveSelMonth()` helper that maps period tokens (and stale month
+  keys) back to the latest month present, then wiring both screens to
+  use it.
+- **Sample data category names** also fixed: demo data used `Housing` and
+  `Shopping` instead of the canonical `Rent/Mortgage` and `Online
+  Shopping` that the budget defaults and import rules already use. Result
+  (once the period-token bug above was fixed): every demo $ landed in the
+  "Unbudgeted" section and the Budget-vs-Actual table read $0 actual
+  against every budget row. Fixed by aligning demo categories to the
+  canonical names so demo behaves identically to a real CSV import.
 
 ---
 

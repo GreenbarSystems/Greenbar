@@ -14,6 +14,35 @@ function setTxAccount(a){ _txAcct = a || ''; const inp = document.querySelector(
 let _budgetAcct = '';
 function setBudgetAccount(a){ _budgetAcct = a || ''; renderBudget(); }
 
+// _sel carries two value spaces depending on which screen is reading it.
+//   • renderSummary() treats it as a period token: 'current' | 'l3m' | 'ytd'
+//     (introduced by the Summary redesign). On entry it normalizes any non-
+//     token value back to 'current'.
+//   • renderBudget() and renderTxs() historically expected it to be a literal
+//     month-key like 'May 2026' and indexed _months[_sel] directly.
+//
+// Without normalization, the renderSummary reset stamps _sel='current' before
+// the user navigates to Tracker / Transactions, so those screens then look up
+// _months['current'], find undefined, and render empty even though the data
+// is loaded. This helper resolves either value space to the canonical single-
+// month key Tracker / Transactions actually need (the latest month present).
+//
+// Returns null when no months exist. Special-cases the legacy '__all' token
+// for callers that need to surface 'show every month' (Transactions does).
+function _resolveSelMonth(){
+  const keys = sortKeys(_months);
+  if(!keys.length) return null;
+  const last = keys[keys.length - 1];
+  // Period tokens from Summary -> resolve to latest month.
+  if(['current','l3m','ytd'].includes(_sel)) return last;
+  // Legacy '__all' (older sessions) -> let the caller decide; expose via the
+  // direct check at the call site, not here.
+  if(_sel === '__all') return last;
+  // Explicit month key that still exists in _months -> use as-is. Otherwise
+  // (stale key after a reset, null, anything else) -> latest.
+  return (_sel && _months[_sel]) ? _sel : last;
+}
+
 // ════ RENDER ════
 function renderAll(){
   renderSummary();
@@ -1076,7 +1105,10 @@ function renderSummaryAll(){
 }
 
 function renderBudget(){
-  const mk = _sel === '__all' ? sortKeys(_months).slice(-1)[0] : _sel;
+  // _resolveSelMonth() handles the period-token / month-key / '__all' / stale
+  // cases — see its docstring near the top of this file. Tracker is a single-
+  // month surface, so we always resolve to one month key.
+  const mk = _resolveSelMonth();
   const m = _months[mk];
   if(!m){
     document.getElementById('budget-content').innerHTML =
@@ -1172,7 +1204,12 @@ function renderBudget(){
 }
 
 function renderTxs(filter=''){
-  const mk = _sel === '__all' ? null : _sel;
+  // Preserve the legacy '__all' contract: when explicitly set, list every
+  // month's transactions. Otherwise resolve _sel (period token, stale key,
+  // or null) to the latest month present. Without this, the period tokens
+  // Summary writes into _sel ('current'/'l3m'/'ytd') would never match any
+  // tx.month here and the screen would always render empty.
+  const mk = _sel === '__all' ? null : _resolveSelMonth();
   const dateFmt = CFG.cols.fmt || 'MM/DD/YY';
   // Lowercase the search term once instead of per-tx in the filter callback.
   const needle = filter ? filter.toLowerCase() : '';
