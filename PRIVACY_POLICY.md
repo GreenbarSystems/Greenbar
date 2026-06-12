@@ -3,7 +3,7 @@
 **Effective Date:** 2026-06-06
 **Last Updated:** 2026-06-06
 **Publisher:** Greenbar Systems
-**Address:** 5353 N 16th St, Unit 410, Phoenix, AZ 85016, USA
+**Address:** 5353 N 16th St, Suite 410, Phoenix, AZ 85016, USA
 **Contact:** support@greenbarsystems.com
 
 ---
@@ -326,7 +326,7 @@ Commission's Standard Contractual Clauses, as applicable.
 Questions, requests, and privacy rights inquiries can be sent to:
 
 **Greenbar Systems**
-5353 N 16th St, Unit 410, Phoenix, AZ 85016, USA
+5353 N 16th St, Suite 410, Phoenix, AZ 85016, USA
 Email: support@greenbarsystems.com
 Website: https://www.greenbarsystems.com
 
